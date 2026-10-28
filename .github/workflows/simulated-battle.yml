@@ -1,0 +1,26 @@
+name: Simulated battle regression
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/simulated-battle.cjs'
+      - 'battle.js'
+      - 'game.js'
+      - 'index.html'
+      - '.github/workflows/simulated-battle.yml'
+jobs:
+  simulated-battle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Run simulated battle test
+        run: node tests/simulated-battle.cjs
