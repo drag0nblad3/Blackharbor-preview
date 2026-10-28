@@ -8,7 +8,7 @@ const assert = require('node:assert/strict');
  const result=await page.evaluate(async()=>{
    const checks=[];
    const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error('FAIL: '+name)};
-   newCampaign();const key=S.villains.find(v=>v.status==='active')?.key || S.pool[0]; S.inv={v:key,clues:2}; startShowdown();S.sd.intro=false;S.sd.busy=false;
+   newCampaign();recruitQuick(Object.keys(HERO_BASE)[0]);const key=S.villains.find(v=>v.status==='active')?.key || S.pool[0]; S.inv={v:key,clues:2}; startShowdown();S.sd.intro=false;S.sd.busy=false;
    const sd=S.sd, u=sd.units[0],h=heroOf(u);sd.sel=0;u.acted=false;u.ko=false;
    h.ranks.tech=2;h.ranks.innate=1;h.ranks.magic=2;
    check('Total discipline range is 5',lvlOf(h)===5);
