@@ -1,0 +1,22 @@
+name: Gear balance benchmarks
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'data.js'
+      - 'tests/balance.cjs'
+      - '.github/workflows/balance.yml'
+permissions:
+  contents: read
+jobs:
+  gear-balance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test gear damage and evasion benchmarks
+        run: node tests/balance.cjs
