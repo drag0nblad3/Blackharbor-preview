@@ -85,7 +85,12 @@ const assert=require('node:assert/strict');
     });
     console.log(JSON.stringify(checks,null,2));
     // Real pointer interactions catch overlays/scroll problems that DOM .click() misses.
+    // Start the pointer regression from a known closed state. Earlier DOM
+    // checks may leave a dropdown open; clicking an open toggle closes it.
+    await page.evaluate(()=>{ S.sd.combatMenuOpen=null; render(); });
+    assert.equal(await page.locator('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded'),'false','Ability menu starts closed');
     await page.locator('.abilities-dropdown .combat-menu-toggle').click();
+    assert.equal(await page.locator('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded'),'true','Pointer opens Abilities');
     await page.evaluate(()=>render());
     assert.ok(await page.locator('.abilities-dropdown .combat-menu-toggle').evaluate(el=>el.getAttribute('aria-expanded')==='true'),'Ability menu should remain open after an animation render');
     await page.locator('.abilities-menu [data-a="combatPick:ability:power"]').click();
