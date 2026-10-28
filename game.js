@@ -103,6 +103,7 @@ const reqTxt=g=>Object.entries(g.reqs).map(([t,n])=>`${TRACKS[t].name} ${n}`).jo
 const reqChips=g=>Object.entries(g.reqs).map(([t,n])=>`<span class="disc t-${t}">${TRACKS[t].name} ${n}</span>`).join('');
 const isHybrid=g=>Object.keys(g.reqs).length>1;
 const modsTxt=m=>Object.entries(m).map(([k,v])=>`${v>0?'+':''}${v} ${MODN[k]}`).join(', ');
+const signedBonus=n=>n<0?'−'+(-n):'+'+n;
 const RES_NAME = {any:'any salvage',tech:'Tech',intel:'Intel',gallows:'Coils',quarry:'Shards',cantor:'Ledgers',architect:'Rebar',helios:'Sunstone',serpent:'Scales',lode:'Lodestones',noct:'Umbra',swarm:'Chitin',bomber:'Fuses',grid:'Lenses',mole:'Grit'};
 /* Each villain: 6 base pages plus an ordered list of advanced pages. A level-L villain owns the base pages
    plus 2L+1 advanced ones (plus deckBonus, a per-villain difficulty knob); each level-up adds the next 2.
@@ -435,7 +436,7 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.anchor)push('You cannot be shoved or dragged until the round ends.');
   if(f.breach)push('Smash every wall and rubble pile next to you.');
   if(f.shove)push(`Shove each adjacent villain 1 hex away if its size is no more than ${P==null?'your Innate rank':P}.`);
-  const nx=[];if(f.dice)nx.push(`+${pl(f.dice,'die','dice')}`);if(f.acc)nx.push(`${v(f.acc)<0?'−'+(-v(f.acc)):'+'+v(f.acc)} accuracy`);if(f.str)nx.push(`+${v(f.str)} Strength`);
+  const nx=[];if(f.dice)nx.push(`+${pl(f.dice,'die','dice')}`);if(f.acc)nx.push(`${signedBonus(v(f.acc))} accuracy`);if(f.str)nx.push(`${signedBonus(v(f.str))} Strength`);
   if(!nx.length&&f.back)push(`Your next attack this round gets +${pl(f.back,'die','dice')} if it is a melee attack from a side arc or the blind spot.`);
   if(nx.length)push(`Your next attack this round: ${nx.length>1?nx.slice(0,-1).join(', ')+' and '+nx[nx.length-1]:nx[0]}${f.back?`, plus ${pl(f.back,'die','dice')} more on a melee attack from a side arc or the blind spot`:''}.`);
   if(f.reap)push(`It heals you ${v(f.reap)} for every page it tears.`);
@@ -1561,7 +1562,7 @@ const TUT=[
     t:'Empty gear slots are buttons. <b>Tap Volt\'s Main Hand slot</b> to see what fits it.'},
   {id:'h-equip',only:()=>{const V=tutH('volt');return [`equip:${V.id}:baton:arms`,`slotpick:${V.id}:arms`]},lit:()=>{const V=tutH('volt');return slotPick?`#slotpick [data-a="equip:${V.id}:baton:arms"]`:`#app [data-a="slotpick:${V.id}:arms"]`},
     done:()=>tutH('volt').gear.arms==='baton',t:'<b>Tap the Shock Baton</b> to equip it.'},
-  {id:'h-stats',next:1,only:[],lit:()=>`[data-cid="h-${tutH('volt').id}"] .stats`,t:'Volt\'s accuracy and Strength went up. The baton also gives Volt a new fight button, <b>Stun Charge</b>: it spends Power for +4 Strength on the next attack.'},
+  {id:'h-stats',next:1,only:[],lit:()=>`[data-cid="h-${tutH('volt').id}"] .stats`,t:'Volt\'s accuracy and Strength went up. The baton also gives Volt a new fight button, <b>Stun Charge</b>: it spends Power for +3 Strength on the next attack.'},
   {id:'h-vil',only:['view:villains'],lit:()=>'#app [data-a="view:villains"]',done:()=>S.view==='villains',t:'A case file just landed on your desk. <b>Open the Villains tab.</b>'},
   {id:'h-go',only:['tut:fight'],lit:()=>'#app [data-a="tut:fight"]',done:()=>S.phase==='sd',
     t:'Normally you investigate a villain first to learn their tricks. Tonight there\'s no time: Mole Boy is tunnelling under the bank right now. <b>Confront him.</b>'},
@@ -1571,11 +1572,11 @@ const TUT=[
   {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Wounds always tear out the <b>top</b> page, and his top page is a Signature Move, Big Dig. Wound him this round and it never happens.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
-  {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=4&&!S.sd.busy},
-    t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +4 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
+  {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=3&&!S.sd.busy},
+    t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +3 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
-  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 8 = 14 against 12. Without it, 6 + 4 = 10 would have bounced. And there goes Big Dig!'},
+  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 7 = 13 against 12. Without it, 6 + 4 = 10 would have bounced. And there goes Big Dig!'},
   {id:'b-lynx',only:()=>[tutCell(tutU('lynx'))],ring:()=>{const u=tutU('lynx');return [u.x,u.y,'Tap Lynx']},done:()=>S.sd.sel===tutIdx('lynx'),t:'Now Lynx. <b>Tap Lynx.</b>'},
   {id:'b-lmove',enter:()=>{const v=tutMole();tutAimDest('lynx',ps=>{const near=ps.filter(p=>dV(p,v)===1),u=tutU('lynx');return (near.filter(p=>sideOf(p,v)==='rear')[0]&&near.filter(p=>sideOf(p,v)==='rear').sort((a,b)=>cheb(a,u)-cheb(b,u))[0])||near.sort((a,b)=>cheb(a,u)-cheb(b,u))[0]})},
     only:()=>S.tut.dest?[`cell:${S.tut.dest.join(',')}`]:[],ring:()=>S.tut.dest?[...S.tut.dest,'Blind spot']:null,done:()=>tutU('lynx').moved,

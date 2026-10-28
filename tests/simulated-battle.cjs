@@ -19,6 +19,18 @@ const assert=require('node:assert/strict');
    sd.units[0].x=4;sd.units[0].y=4;
    render();
   });
+  const balance=await page.evaluate(()=>({
+    runic:GEAR.runeblade.ab.fx.str,stun:GEAR.baton.ab.fx.str,trinity:GEAR.crown.ab.fx.str,
+    kinetic:GEAR.bracer.ab.fx,slug:GEAR.shotgun.ab.fx.str,
+    overclock:POWERS.overclock.txt,berserk:POWERS.berserk.txt,
+    kineticDescription:abTxt(GEAR.bracer.ab)
+  }));
+  assert.deepEqual({runic:balance.runic,stun:balance.stun,trinity:balance.trinity,kinetic:balance.kinetic,slug:balance.slug},
+    {runic:3,stun:3,trinity:5,kinetic:{dice:1,str:-1},slug:5},'Seven-ability balance numbers');
+  assert.match(balance.overclock,/\+1 accuracy and −1 Strength/);
+  assert.match(balance.berserk,/\+3 Strength and −1 accuracy/);
+  assert.match(balance.kineticDescription,/−1 Strength/);
+  assert.doesNotMatch(balance.kineticDescription,/\+−|\+-/);
   const abilities=page.locator('.abilities-dropdown .combat-menu-toggle');
   assert.equal(await abilities.getAttribute('aria-expanded'),'false');
   await abilities.click();
@@ -33,7 +45,7 @@ const assert=require('node:assert/strict');
   await page.waitForFunction(()=>!S.sd.busy,{timeout:10000});
   const after=await page.evaluate(()=>({tech:S.sd.units[0].res.tech,buff:S.sd.units[0].buffStr,acted:S.sd.units[0].acted}));
   assert.equal(after.tech,before.tech-2,'Stun Charge costs 2 tech');
-  assert.equal(after.buff,before.buff+4,'Stun Charge buffs strength');
+  assert.equal(after.buff,before.buff+3,'Stun Charge buffs strength');
   assert.equal(after.acted,false,'Stun Charge is free');
   await page.locator('.other-actions .combat-menu-toggle').click();
   await page.locator('.other-actions-menu [data-a="combatPick:other:avoidDamage"]').click();
@@ -52,6 +64,29 @@ const assert=require('node:assert/strict');
   assert.equal(await page.evaluate(()=>S.sd.mode),null,'Rally selection does not target');
   await page.locator('[data-a="combatUse"]').click();
   assert.equal(await page.evaluate(()=>S.sd.mode),'rallySpirit');
+  const activation=await page.evaluate(async()=>{
+    const sd=S.sd,u=sd.units[0],h=heroOf(u);
+    h.ranks.innate=1;h.gear.arms2='bracer';sd.sel=0;sd.mode=null;sd.combatPick=null;
+    u.acted=false;u.abUsed=[];u.buffStr=0;u.buffAcc=0;u.buffDice=0;u.res.tech=pwrMax(h);
+    const initial=u.res.tech;
+    await useAb('bracer');
+    const kinetic={powerUsed:initial-u.res.tech,dice:u.buffDice,str:u.buffStr,
+      showsPenalty:document.querySelector('.brest')?.textContent.includes('−1 Strength next attack')};
+    h.base={...BASE(h),power:'overclock'};
+    u.buffStr=0;u.buffAcc=0;u.buffDice=0;u.abUsed=[];u.res.tech=pwrMax(h);
+    await usePower();
+    const overclock={dice:u.buffDice,acc:u.buffAcc,str:u.buffStr};
+    h.base.power='berserk';u.buffStr=0;u.buffAcc=0;u.buffDice=0;u.innUsed=0;u.capUsed=false;
+    await usePower();
+    const berserk={dice:u.buffDice,acc:u.buffAcc,str:u.buffStr,
+      showsAccuracyPenalty:document.querySelector('.brest')?.textContent.includes('−1 accuracy next attack')};
+    return {kinetic,overclock,berserk};
+  });
+  assert.deepEqual(activation,{
+    kinetic:{powerUsed:3,dice:1,str:-1,showsPenalty:true},
+    overclock:{dice:1,acc:1,str:-1},
+    berserk:{dice:1,acc:-1,str:3,showsAccuracyPenalty:true}
+  },'Abilities apply reduced bonuses, penalties and correct in-combat labels');
   assert.deepEqual(errors,[],'No browser errors');
   console.log('Simulated battle passed: mobile and desktop menus, persistent open state, Stun Charge, Avoid Damage and Rally targeting.');
  }finally{await browser.close()}

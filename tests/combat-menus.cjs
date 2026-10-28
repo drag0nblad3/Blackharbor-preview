@@ -45,7 +45,7 @@ const assert=require('node:assert/strict');
       document.querySelector('[data-a="combatPick:ability:baton"]').click();
       document.querySelector('[data-a="combatUse"]').click();
       await new Promise(resolve=>setTimeout(resolve,900));
-      check('Confirm activates Stun Charge',u.buffStr===beforeStr+4&&u.res.tech===beforePower-2&&!u.acted);
+      check('Confirm activates Stun Charge',u.buffStr===beforeStr+3&&u.res.tech===beforePower-2&&!u.acted);
       u.res.tech=pwrMax(volt);
       document.querySelector('[data-a="combatPick:ability:power"]').click();
       const saved=u.res.tech;
