@@ -1039,17 +1039,15 @@ function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko)return false;
   if(f.gain&&(u.res.magic||0)>=arcMax(h))return false;if(f.gainP&&(u.res.tech||0)>=pwrMax(h))return false;
   return true}
 
-/* Remember open dropdowns across short-lived combat animation renders.
-   The click event sees the old native details state before it toggles. */
-document.addEventListener('click',e=>{
-  const summary=e.target.closest('.combat-dropdown > summary'),sd=S&&S.sd;
-  if(!summary||!sd||S.phase!=='sd')return;
-  const details=summary.parentElement;
-  sd.combatMenuOpen=details.open?null:(details.classList.contains('abilities-dropdown')?'abilities':'other');
-},true);
 
 /* Combat menus: selecting a choice is informational; only explicit confirmation
    may activate a power, consume resources or start board targeting. */
+function combatMenu(kind){
+  const sd=S.sd,u=sd&&sd.units[sd.sel];
+  if(!u||sd.busy||sd.result||!['abilities','other'].includes(kind))return;
+  sd.combatMenuOpen=sd.combatMenuOpen===kind?null:kind;
+  render();
+}
 function combatPick(kind,key){
   const sd=S.sd,u=sd&&sd.units[sd.sel];
   if(!u||sd.busy||sd.result)return;
@@ -1149,20 +1147,20 @@ function combatUse(){
 function combatMenus(u,h){
   const sd=S.sd,pw=BASE(h).power,p=POWERS[pw],gear=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))].filter(k=>GEAR[k]&&GEAR[k].ab);
   const choice=(kind,key,label,detail,costKind)=>`<button type="button" class="btn sm combat-option ${sd.combatPick&&sd.combatPick.hid===u.hid&&sd.combatPick.kind===kind&&sd.combatPick.key===key?'on':''}" data-a="combatPick:${kind}:${key}"><span class="combat-cost-icon" aria-label="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}" title="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}">${combatCostIcon(costKind)}</span><span class="combat-option-text">${esc(label)}${detail?`<small>${esc(detail)}</small>`:''}</span></button>`;
-  const abilities=`<details class="combat-dropdown abilities-dropdown" ${sd.combatMenuOpen==='abilities'?'open':''}><summary class="btn sm">Abilities ▾</summary>
-    <div class="combat-dropdown-menu abilities-menu">
+  const abilities=`<div class="combat-dropdown abilities-dropdown"><button type="button" class="btn sm combat-menu-toggle" data-a="combatMenu:abilities" aria-expanded="${sd.combatMenuOpen==='abilities'}" aria-controls="combat-abilities-menu">Abilities ▾</button>
+    <div id="combat-abilities-menu" class="combat-dropdown-menu abilities-menu" ${sd.combatMenuOpen==='abilities'?'':'hidden'}>
       ${choice('ability','power',p.name,'Primary · '+powCost(pw,true),p.free?'free':'action')}
       ${gear.map(k=>{const g=GEAR[k],a=g.ab;return choice('ability',k,a.n,g.name+' · '+abCost(g,true),a.act?'action':a.moveAct?'move':'free')}).join('')}
-    </div></details>`;
+    </div></div>`;
   const nFol=followers(u).length;
-  const others=`<details class="combat-dropdown other-actions" ${sd.combatMenuOpen==='other'?'open':''}><summary class="btn sm">Other Actions ▾</summary>
-    <div class="combat-dropdown-menu other-actions-menu">
+  const others=`<div class="combat-dropdown other-actions"><button type="button" class="btn sm combat-menu-toggle" data-a="combatMenu:other" aria-expanded="${sd.combatMenuOpen==='other'}" aria-controls="combat-other-menu">Other Actions ▾</button>
+    <div id="combat-other-menu" class="combat-dropdown-menu other-actions-menu" ${sd.combatMenuOpen==='other'?'':'hidden'}>
       ${choice('other','escort','Escort','Gather civilians',u.freeEvac?'free':'action')}
       ${sd.term?choice('other','hack','Hack','Evidence terminal','action'):''}
       ${choice('other','avoidDamage','Avoid Damage','+3 Evasion · +5 by cover','action')}
       ${choice('other','rallySpirit','Rally Spirit','Range '+lvlOf(h)+' · +3 Composure','action')}
       ${nFol?choice('other','letgo','Let Go','Following '+nFol,'free'):''}
-    </div></details>`;
+    </div></div>`;
   return abilities+others;
 }
 function combatTargetHelp(u,h){
