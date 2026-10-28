@@ -87,6 +87,76 @@ const assert=require('node:assert/strict');
     overclock:{dice:1,acc:1,str:-1},
     berserk:{dice:1,acc:-1,str:3,showsAccuracyPenalty:true}
   },'Abilities apply reduced bonuses, penalties and correct in-combat labels');
+
+  // Source-level balance values plus live combat calculations (one workflow, no extra suite).
+  const gearBalance=await page.evaluate(async()=>{
+    newCampaign();recruitQuick('volt');recruitQuick('wisp');
+    S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
+    const w=S.heroes.find(h=>h.cls==='wisp'),h=S.heroes.find(h=>h.cls==='volt');
+    w.gear={body:'shroud',head:'hood',legs:'moonslip',acc:'sunamulet',acc2:'sunamulet'};
+    const stackedEvasion=stat(w,'eva');
+    const passives=Object.fromEntries(['suit','cloak','shroud','hood','moonslip','sunamulet','owlpend','charm','nmask','shed','faraday','wings','robes','moonshade']
+      .map(k=>[k,GEAR[k].mods.eva||0]));
+    const values={groundOut:GEAR.suit.ab.fx.dr,
+      aegisText:POWERS.aegis.txt,moonstep:GEAR.moonslip.ab.fx.eva,moonshade:GEAR.moonshade.ab.fx.eva,
+      sunstone:GEAR.sunamulet.mods,owl:GEAR.owlpend.mods,circuit:GEAR.charm.mods,
+      compeyes:GEAR.compeyes.mods,mutagen:GEAR.mutagen.mods,
+      reqs:[GEAR.compeyes.reqs.innate,GEAR.mutagen.reqs.innate],
+      tierTwoHas:ARC_UNLOCK[2].some(k=>k==='gear:mutagen'||k==='gear:compeyes'),
+      midHas:MID_UNLOCK.includes('gear:mutagen')&&MID_UNLOCK.includes('gear:compeyes')};
+    S.inv={v:S.villains[0].key,clues:2};startShowdown();
+    S.sd.intro=false;S.sd.busy=false;S.sd.civs=[];S.sd.hench=[];S.sd.bombs=[];S.sd.beams=[];
+    const u=S.sd.units.find(q=>q.hid===h.id);
+    const take=(level,damage=5,shield=0)=>{
+      h.ranks={tech:level,innate:0,magic:0};h.gear={};h.hp=100;u.dr=5;u.absorb=shield;
+      damageHero(u,damage);return 100-h.hp;
+    };
+    const reductions=[1,2,3,4,5].map(lv=>take(lv));
+    const absorption=take(1,5,2),minimumDamage=take(5,1);
+    h.ranks={tech:3,innate:2,magic:0};
+    h.gear={head:'surveyor',body:'buttress',legs:'stilts',belt:'rebarbelt'};
+    h.hp=100;u.dr=5;u.absorb=0;
+    const architect=setOn(h,'architect'),brace=auraOn(u,'brace');
+    damageHero(u,7);const combined=100-h.hp;
+    h.ranks={tech:1,innate:1,magic:3};h.gear={};
+    h.base={...BASE(h),power:'aegis'};
+    h.hp=stat(h,'maxHp');u.res.magic=arcMax(h);u.absorb=0;u.acted=false;u.ko=false;u.x=4;u.y=4;
+    const ally=S.sd.units.find(q=>q.hid!==h.id);
+    ally.x=4;ally.y=5;ally.absorb=0;ally.ko=false;
+    S.sd.sel=S.sd.units.indexOf(u);S.sd.mode=null;
+    await usePower();
+    const aegis={self:u.absorb,ally:ally.absorb};
+    h.ranks={tech:0,innate:2,magic:0};h.gear={head:'compeyes',legs:'mutagen'};
+    S.issue=7;S.unlocked.push('gear:compeyes','gear:mutagen');S.v133=false;S.armory=[];
+    migrateV133();
+    const migration={moved:S.armory.slice().sort(),gear:Object.keys(h.gear),
+      unlocked:S.unlocked.includes('gear:mutagen')||S.unlocked.includes('gear:compeyes')};
+    return {stackedEvasion,passives,values,reductions,absorption,minimumDamage,architect,brace,combined,aegis,migration};
+  });
+  assert.equal(gearBalance.stackedEvasion,16,'Tier-1 Evasion stacking reduced');
+  assert.deepEqual(gearBalance.passives,{
+    suit:1,cloak:1,shroud:2,hood:1,moonslip:1,sunamulet:0,owlpend:0,charm:0,
+    nmask:1,shed:2,faraday:2,wings:2,robes:3,moonshade:2
+  },'All fourteen passive Evasion changes');
+  assert.equal(gearBalance.values.groundOut,1);
+  assert.match(gearBalance.values.aegisText,/next 2 damage/);
+  assert.deepEqual([gearBalance.values.moonstep,gearBalance.values.moonshade],[1,3]);
+  assert.deepEqual(gearBalance.values.sunstone,{maxComp:2});
+  assert.deepEqual(gearBalance.values.owl,{maxHp:2,maxComp:1});
+  assert.deepEqual(gearBalance.values.circuit,{maxComp:2});
+  assert.deepEqual(gearBalance.values.compeyes,{acc:3,eva:1,maxComp:2});
+  assert.deepEqual(gearBalance.values.mutagen,{move:1,eva:1,maxHp:3});
+  assert.deepEqual(gearBalance.values.reqs,[3,3]);
+  assert.equal(gearBalance.values.tierTwoHas,false);
+  assert.equal(gearBalance.values.midHas,true);
+  assert.deepEqual(gearBalance.reductions,[4,4,3,3,2],'Guard cap by total level');
+  assert.equal(gearBalance.absorption,2,'Absorption is separate from Guard cap');
+  assert.equal(gearBalance.minimumDamage,1,'Guard never drops a hit below 1');
+  assert.equal(gearBalance.architect,true);
+  assert.equal(gearBalance.brace,true);
+  assert.equal(gearBalance.combined,4,'Set, aura, and Guard share one cap');
+  assert.deepEqual(gearBalance.aegis,{self:2,ally:2},'Arcane Aegis absorbs 2 for each recipient');
+  assert.deepEqual(gearBalance.migration,{moved:['compeyes','mutagen'],gear:[],unlocked:false},'Moved gear returned to armory');
   assert.deepEqual(errors,[],'No browser errors');
   console.log('Simulated battle passed: mobile and desktop menus, persistent open state, Stun Charge, Avoid Damage and Rally targeting.');
  }finally{await browser.close()}
