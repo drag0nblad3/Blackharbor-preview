@@ -19,7 +19,7 @@ const assert = require('node:assert/strict');
    check('Rally inside dropdown',!!document.querySelector('.other-actions-menu [data-a="combatPick:other:rallySpirit"]'));
    check('Hack inside dropdown when terminal exists',!sd.term||!!document.querySelector('.other-actions-menu [data-a="combatPick:other:hack"]'));
    document.querySelector('.other-actions [data-a="combatMenu:other"]').click();
-   check('Dropdown opens on click',document.querySelector('.other-actions').open);
+   check('Dropdown opens on click',document.querySelector('.other-actions .combat-menu-toggle').getAttribute('aria-expanded')==='true');
    const compBefore=h.comp;
    document.querySelector('[data-a="combatPick:other:rallySpirit"]').click();
    check('Rally selection does not activate or spend action',sd.mode===null&&!u.acted&&h.comp===compBefore);
