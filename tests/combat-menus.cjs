@@ -80,6 +80,8 @@ const assert=require('node:assert/strict');
     console.log(JSON.stringify(checks,null,2));
     // Real pointer interactions catch overlays/scroll problems that DOM .click() misses.
     await page.locator('.abilities-dropdown summary').click();
+    await page.evaluate(()=>render());
+    assert.ok(await page.locator('.abilities-dropdown').evaluate(el=>el.open),'Ability menu should remain open after an animation render');
     await page.locator('.abilities-menu [data-a="combatPick:ability:power"]').click();
     assert.ok(await page.locator('.combat-choice').textContent().then(t=>t.includes('Blur')),'Mobile: ability menu must be usable by pointer');
     await page.setViewportSize({width:1280,height:800});
