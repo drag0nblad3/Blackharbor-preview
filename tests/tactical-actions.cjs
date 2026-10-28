@@ -1,0 +1,38 @@
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+(async () => {
+ const browser = await chromium.launch({headless:true});
+ const page = await browser.newPage({viewport:{width:390,height:844}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('file://' + process.cwd() + '/index.html');
+ const result=await page.evaluate(async()=>{
+   const checks=[];
+   const check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error('FAIL: '+name)};
+   newCampaign();startShowdown();S.sd.intro=false;S.sd.busy=false;
+   const sd=S.sd, u=sd.units[0],h=heroOf(u);sd.sel=0;u.acted=false;u.ko=false;
+   h.ranks.tech=2;h.ranks.innate=1;h.ranks.magic=2;
+   check('Total discipline range is 5',lvlOf(h)===5);
+   h.comp=Math.max(0,stat(h,'maxComp')-4);
+   render();
+   check('Other Actions dropdown exists',!!document.querySelector('details.other-actions'));
+   check('Escort inside dropdown',!!document.querySelector('.other-actions-menu [data-a="escort"]'));
+   check('Rally inside dropdown',!!document.querySelector('.other-actions-menu [data-a="rallySpirit"]'));
+   check('Hack inside dropdown when terminal exists',!sd.term||!!document.querySelector('.other-actions-menu [data-a="hack"]'));
+   document.querySelector('details.other-actions summary').click();
+   check('Dropdown opens on click',document.querySelector('details.other-actions').open);
+   document.querySelector('[data-a="rallySpirit"]').click();
+   check('Rally enters targeting mode',sd.mode==='rallySpirit');
+   onCell(u.x,u.y);
+   await new Promise(resolve=>setTimeout(resolve,1400));
+   check('Self rally consumes action',u.acted);
+   check('Self rally restores up to 3',h.comp===Math.min(stat(h,'maxComp'),Math.max(0,stat(h,'maxComp')-4)+3));
+   u.acted=false;h.comp=stat(h,'maxComp')-1;sd.mode='rallySpirit';
+   onCell(u.x,u.y);
+   await new Promise(resolve=>setTimeout(resolve,1400));
+   check('Rally capped at max composure',h.comp===stat(h,'maxComp'));
+   check('Rally action consumed after capped heal',u.acted);
+   return checks;
+ });
+ console.log(JSON.stringify(result,null,2));assert.equal(errors.length,0,'Browser errors: '+errors.join('; '));
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});
