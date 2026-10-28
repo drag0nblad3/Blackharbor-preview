@@ -39,7 +39,7 @@ const assert=require('node:assert/strict');
       check('Equipment selection records choice',sd.combatPick&&sd.combatPick.key==='baton');
       check('Equipment selection spends nothing',u.res.tech===beforePower&&u.buffStr===beforeStr&&u.acted===beforeAct&&sd.mode===null);
       check('Equipment details appear underneath controls',document.querySelector('.combat-choice').textContent.includes('Stun Charge')&&document.querySelector('.combat-choice').textContent.includes('From Shock Baton'));
-      check('Menu closes after selection without activating',!document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')==='true');
+      check('Menu closes after selection without activating',document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')==='false');
       document.querySelector('[data-a="combatClear"]').click();
       check('Cancel selection does not activate',!sd.combatPick&&u.res.tech===beforePower&&u.buffStr===beforeStr);
       document.querySelector('[data-a="combatPick:ability:baton"]').click();
