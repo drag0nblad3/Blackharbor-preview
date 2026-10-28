@@ -78,6 +78,15 @@ const assert=require('node:assert/strict');
       return checks;
     });
     console.log(JSON.stringify(checks,null,2));
+    // Real pointer interactions catch overlays/scroll problems that DOM .click() misses.
+    await page.locator('.abilities-dropdown summary').click();
+    await page.locator('.abilities-menu [data-a="combatPick:ability:power"]').click();
+    assert.ok(await page.locator('.combat-choice').textContent().then(t=>t.includes('Blur')),'Mobile: ability menu must be usable by pointer');
+    await page.setViewportSize({width:1280,height:800});
+    await page.locator('.other-actions summary').click();
+    await page.locator('.other-actions-menu [data-a="combatPick:other:rallySpirit"]').click();
+    assert.ok(await page.locator('.combat-choice').textContent().then(t=>t.includes('Rally Spirit')),'Desktop: other actions menu must be usable by pointer');
+    console.log('Mobile and desktop pointer dropdown smoke tests passed.');
     assert.equal(errors.length,0,'Browser errors: '+errors.join('; '));
   }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
