@@ -998,17 +998,17 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
       <div class="row">
         <button class="btn sm sub ${sd.mode==='move'?'on':''}" data-a="mode:move" data-tip="act:move" ${u.moved?'disabled':''}>${UI('move')}Move<small>${stat(h,'move')+(u.boost||0)} hex${stat(h,'move')+(u.boost||0)===1?'':'es'}</small></button>
         <button class="btn sm sub ${sd.mode==='attack'?'on':''}" data-a="mode:attack" data-tip="act:attack" ${canAct?'':'disabled'}>${UI('atk')}Attack<small>Range ${stat(h,'range')}</small></button>
-        <button class="btn sm abtn t-${POW_ENG[BASE(h).power].d} ${sd.mode===BASE(h).power?'on':''}" data-a="power" data-tip="pow:${BASE(h).power}" ${powOk(u,h)?'':'disabled'}>${p.name}<small>${powCost(BASE(h).power,true)}</small></button>
-        <details class="other-actions"><summary class="btn sm">Other Actions ▾</summary><div class="other-actions-menu"><button class="btn sm" data-a="escort" data-tip="act:escort" ${(canAct||u.freeEvac)&&adjCiv?'':'disabled'}>Escort</button>${sd.term?`<button class="btn sm" data-a="hack" data-tip="act:hack" ${canHack(u)?'':'disabled'}>${UI('intel')}Hack</button>`:''}<button class="btn sm" data-a="avoidDamage" ${canAct&&!u.avoidDamage?'':'disabled'}>Avoid Damage<small>+3 evasion · +5 by cover</small></button><button class="btn sm ${sd.mode==='rallySpirit'?'on':''}" data-a="rallySpirit" ${canAct?'':'disabled'}>Rally Spirit<small>Range ${lvlOf(h)} · +3 composure</small></button>${nFol?`<button class="btn sm" data-a="letgo" data-tip="act:letgo">Let go (${nFol})</button>`:''}</div></details>
-      </div>`;
-    ctrlRest=`<div class="small muted">${p.txt}</div>
+        ${combatMenus(u,h)}
+      </div>
+      ${combatInfo(u,h)}
+      ${combatTargetHelp(u,h)?`<div class="cap combat-target-help">${esc(combatTargetHelp(u,h))}</div>`:''}`;
+    ctrlRest=`
       <div class="resrow"><span class="r" style="--tc:var(--cyan)" data-tip="kw:comp">${UI('comp')} ${[...Array(stat(h,'maxComp'))].map((_,i)=>`<i class="${i<h.comp?'f':''}"></i>`).join('')} <b class="mono">${h.comp}/${stat(h,'maxComp')}</b></span></div>
       ${pwrMax(h)||arcMax(h)||potOf(h)?`<div class="resrow">${pwrMax(h)?`<span class="r t-tech" data-tip="res:tech">PWR ${[...Array(pwrMax(h))].map((_,i)=>`<i class="${i<u.res.tech?'f':''}"></i>`).join('')} <b class="mono">${u.res.tech}/${pwrMax(h)} · +${pwrRegen(h)}/rd</b></span>`:''}${arcMax(h)?`<span class="r t-magic" data-tip="res:magic">ARC ${[...Array(arcMax(h))].map((_,i)=>`<i class="${i<u.res.magic?'f':''}"></i>`).join('')} <b class="mono">${u.res.magic}/${arcMax(h)}</b></span>`:''}${potOf(h)?`<span class="r t-innate" data-tip="res:innate">POT <b class="mono">${potOf(h)}</b> · ${Math.max(0,innUses(h)-(u.innUsed||0))?'Innate ready':'Innate used'}</span>`:''}</div>`:''}
       ${(u.boost||u.buffDice||u.buffStr||u.ward||u.absorb||u.evaNext||u.buffAcc||u.buffBack||u.buffReap||u.dr||u.buffEva||u.avoidDamage||u.anchor)?`<div class="row">${u.boost?`<span class="tag g" data-tip="kw:boost">+${u.boost} next move${u.boostJump?' (jump)':''}</span>`:''}${u.buffDice?`<span class="tag g" data-tip="kw:buff">+${u.buffDice} dice next attack</span>`:''}${u.buffStr?`<span class="tag g" data-tip="kw:buff">+${u.buffStr} Strength next attack</span>`:''}${u.ward?'<span class="tag g" data-tip="kw:warded">Warded</span>':''}${u.absorb?`<span class="tag g" data-tip="kw:absorb">Shield: absorbs ${u.absorb}</span>`:''}${u.buffAcc?`<span class="tag g" data-tip="kw:buff">+${u.buffAcc} accuracy next attack</span>`:''}${u.buffBack?`<span class="tag g" data-tip="kw:buff">+${u.buffBack} dice on a melee attack from a side or the rear</span>`:''}${u.buffReap?`<span class="tag g" data-tip="kw:buff">Reap ${u.buffReap} per page</span>`:''}${u.dr?`<span class="tag g" data-tip="kw:guard">Guard −${u.dr} per hit</span>`:''}${u.buffEva?`<span class="tag g" data-tip="kw:guard">+${u.buffEva} evasion</span>`:''}${u.avoidDamage?`<span class="tag g" data-tip="kw:guard">Avoid Damage +${avoidEva(u)} evasion</span>`:''}${u.evaNext?`<span class="tag g" data-tip="kw:windward">Wind Ward +${u.evaNext} evasion</span>`:''}${u.anchor?'<span class="tag g" data-tip="kw:anchor">Anchored</span>':''}</div>`:''}
       ${auraTags(u)}${u.ripo||(gearHas(h,'relent')&&u.relN&&u.relKey===sd.vkey)?`<div class="row">${u.ripo?'<span class="tag g" data-tip="kw:riposte">Riposte ready</span>':''}${gearHas(h,'relent')&&u.relN&&u.relKey===sd.vkey?`<span class="tag g" data-tip="kw:relent">Relentless +${Math.min(1,u.relN)} vs ${VILLAINS[sd.vkey].short}</span>`:''}</div>`:''}
       ${sd.mode==='rallySpirit'&&canAct?`<div class="cap">Rally Spirit: tap yourself or an ally within ${lvlOf(h)} hexes to restore 3 composure. Uses your action.</div>`:''}
       ${(sd.mode==='attack'||sd.mode==='arc')&&canAct&&!tg.size?`<div class="cap">Nothing in range. ${esc(h.name)} reaches ${stat(h,'range')} hex${stat(h,'range')===1?'':'es'}${stat(h,'range')===1?', so they must stand next to the target':''}, and walls, rubble and other units block shots. Move first, then attack.</div>`:''}
-      ${abButtons(u,h)}
       <div class="eyebrow">Character sheet</div>${heroCard(h,'fight')}`}
   else ctrl=`<div class="small muted">Tap a hero to select them. Each hero can move once and take one action per round. Long-press any hex to see what is on it, or any button, stat or keyword for details.</div>`;
   const last=(v.last?`<div class="cap"><b>${esc(v.last.n)}.</b> ${esc(v.last.txt)}</div>`:'')+
@@ -1038,6 +1038,135 @@ function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko)return false;
   if((f.tear||f.skip||f.hex||f.curse||f.face||f.foresee||f.mark||f.callout||f.blind||f.scry||f.bury||f.excise||f.scramble||f.vsplash)&&sd.v.down)return false;
   if(f.gain&&(u.res.magic||0)>=arcMax(h))return false;if(f.gainP&&(u.res.tech||0)>=pwrMax(h))return false;
   return true}
+
+/* Combat menus: selecting a choice is informational; only explicit confirmation
+   may activate a power, consume resources or start board targeting. */
+function combatPick(kind,key){
+  const sd=S.sd,u=sd&&sd.units[sd.sel];
+  if(!u||sd.busy||sd.result)return;
+  const h=heroOf(u),keys=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))];
+  if(kind==='ability'&&key!=='power'&&(!keys.includes(key)||!GEAR[key]||!GEAR[key].ab))return;
+  if(kind==='other'&&!['escort','hack','avoidDamage','rallySpirit','letgo'].includes(key))return;
+  if(kind!=='ability'&&kind!=='other')return;
+  sd.combatPick={hid:u.hid,kind,key};
+  sd.mode=null;
+  render();
+}
+function combatClear(){
+  const sd=S.sd;if(!sd||sd.busy)return;sd.combatPick=null;render();
+}
+/* Icons show what using the action consumes, not what its resource cost is.
+   A future move-cost ability can mark itself with moveAct. */
+const combatCostIcon=kind=>kind==='action'?UI('atk'):kind==='move'?UI('move'):'⚡';
+function combatInfo(u,h){
+  const sd=S.sd,c=sd.combatPick;
+  if(!c||c.hid!==u.hid)return '';
+  let name='',description='',cost='',ok=false,tip='';
+  if(c.kind==='ability'){
+    if(c.key==='power'){
+      const pw=BASE(h).power,p=POWERS[pw];if(!p)return '';
+      name=p.name;description=p.txt;cost=powCost(pw);ok=powOk(u,h);
+      tip=['arc','patch','barricade'].includes(pw)?'Confirm, then choose a target on the board.':'Confirm to activate.';
+    }else{
+      const keys=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))];
+      if(!keys.includes(c.key)||!GEAR[c.key]||!GEAR[c.key].ab)return '';
+      const g=GEAR[c.key],a=g.ab;
+      name=a.n;cost=abCost(g);description='From '+g.name+'. '+abTxt(a,g.type==='innate'?potOf(h):null);
+      ok=abOk(u,h,c.key);
+      tip=a.mode?'Confirm, then select a target on the board.':'Confirm to activate.';
+    }
+  }else{
+    switch(c.key){
+      case 'escort':
+        name='Escort';description='Gather adjacent civilians to follow this hero to an exit. Uses an action unless you have a free Escort.';
+        ok=(!u.acted||u.freeEvac)&&sd.civs.some(v=>v.f!==u.hid&&!civHeld(v)&&cheb(v,u)<=1);
+        tip='Requires an adjacent civilian.';break;
+      case 'hack':
+        name='Hack';description='Download evidence from an adjacent terminal, gaining '+TERM_INTEL+' intel. Uses your action.';
+        ok=canHack(u);tip='Requires an intact terminal within 1 hex.';break;
+      case 'avoidDamage':
+        name='Avoid Damage';description='Spend an action for +3 Evasion until your next turn (+5 if adjacent to safe walls, rubble, heroes, civilians or terminals). On a miss, a suitable cover tile in the attack path can be hit instead.';
+        ok=!u.acted&&!u.ko&&!u.avoidDamage;
+        tip='Current cover provides +'+(avoidCover(u).length?5:3)+' Evasion.';break;
+      case 'rallySpirit':
+        name='Rally Spirit';description='Spend an action to restore up to 3 Composure to yourself or a conscious ally within '+lvlOf(h)+' hexes.';
+        ok=!u.acted&&!u.ko;tip='Confirm, then tap yourself or an ally.';break;
+      case 'letgo':
+        name='Let Go';description='Release the civilians currently following this hero. Does not use an action.';
+        ok=followers(u).length>0;tip=followers(u).length+' civilians currently following.';break;
+      default:return '';
+    }
+  }
+  return `<section class="combat-choice" aria-label="Selected combat action">
+    <div class="eyebrow">${c.kind==='ability'?'Ability details':'Action details'}</div>
+    <div class="row between"><strong>${esc(name)}</strong>${cost?`<span class="small mono">${esc(cost)}</span>`:''}</div>
+    <p class="small" style="margin:0">${esc(description)}</p>
+    <p class="small muted" style="margin:0">${esc(tip)}</p>
+    <div class="row">
+      <button class="btn pri combat-confirm" type="button" data-a="combatUse" ${ok?'':'disabled'}>${c.kind==='ability'?'Activate ability':'Use action'}</button>
+      <button class="btn sm" type="button" data-a="combatClear">Cancel</button>
+    </div>
+    ${ok?'':'<span class="small muted">Unavailable right now.</span>'}
+  </section>`;
+}
+function combatUse(){
+  const sd=S.sd,u=sd&&sd.units[sd.sel],c=sd&&sd.combatPick;
+  if(!u||!c||c.hid!==u.hid||sd.busy||sd.result)return;
+  const h=heroOf(u),key=c.key;
+  if(c.kind==='ability'){
+    if(key==='power'){
+      if(!powOk(u,h))return;
+      sd.combatPick=null;return usePower();
+    }
+    const keys=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))];
+    if(!keys.includes(key)||!GEAR[key]||!GEAR[key].ab||!abOk(u,h,key))return;
+    sd.combatPick=null;return useAb(key);
+  }
+  if(c.kind!=='other')return;
+  switch(key){
+    case 'escort':
+      if((!u.acted||u.freeEvac)&&sd.civs.some(v=>v.f!==u.hid&&!civHeld(v)&&cheb(v,u)<=1)){sd.combatPick=null;return escort()}break;
+    case 'hack':
+      if(canHack(u)){sd.combatPick=null;return hack()}break;
+    case 'avoidDamage':
+      if(!u.acted&&!u.ko&&!u.avoidDamage){sd.combatPick=null;return avoidDamage()}break;
+    case 'rallySpirit':
+      if(!u.acted&&!u.ko){sd.combatPick=null;return rallySpirit()}break;
+    case 'letgo':
+      if(followers(u).length){letGo(u,'lets the civilians go.');sd.combatPick=null;render()}break;
+  }
+}
+function combatMenus(u,h){
+  const sd=S.sd,pw=BASE(h).power,p=POWERS[pw],gear=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))].filter(k=>GEAR[k]&&GEAR[k].ab);
+  const choice=(kind,key,label,detail,costKind)=>`<button type="button" class="btn sm combat-option ${sd.combatPick&&sd.combatPick.hid===u.hid&&sd.combatPick.kind===kind&&sd.combatPick.key===key?'on':''}" data-a="combatPick:${kind}:${key}"><span class="combat-cost-icon" aria-label="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}" title="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}">${combatCostIcon(costKind)}</span><span class="combat-option-text">${esc(label)}${detail?`<small>${esc(detail)}</small>`:''}</span></button>`;
+  const abilities=`<details class="combat-dropdown abilities-dropdown"><summary class="btn sm">Abilities ▾</summary>
+    <div class="combat-dropdown-menu abilities-menu">
+      ${choice('ability','power',p.name,'Primary · '+powCost(pw,true),p.free?'free':'action')}
+      ${gear.map(k=>{const g=GEAR[k],a=g.ab;return choice('ability',k,a.n,g.name+' · '+abCost(g,true),a.act?'action':a.moveAct?'move':'free')}).join('')}
+    </div></details>`;
+  const nFol=followers(u).length;
+  const others=`<details class="combat-dropdown other-actions"><summary class="btn sm">Other Actions ▾</summary>
+    <div class="combat-dropdown-menu other-actions-menu">
+      ${choice('other','escort','Escort','Gather civilians',u.freeEvac?'free':'action')}
+      ${sd.term?choice('other','hack','Hack','Evidence terminal','action'):''}
+      ${choice('other','avoidDamage','Avoid Damage','+3 Evasion · +5 by cover','action')}
+      ${choice('other','rallySpirit','Rally Spirit','Range '+lvlOf(h)+' · +3 Composure','action')}
+      ${nFol?choice('other','letgo','Let Go','Following '+nFol,'free'):''}
+    </div></details>`;
+  return abilities+others;
+}
+function combatTargetHelp(u,h){
+  const sd=S.sd,m=sd.mode;
+  if(m==='rallySpirit')return 'Rally Spirit: tap yourself or an ally within '+lvlOf(h)+' hexes.';
+  if(m==='patch')return 'Patch Up: tap yourself or an ally within 3 hexes.';
+  if(m==='barricade')return 'Barricade: tap an empty tile within 2 hexes.';
+  if(m==='arc')return 'Arc Burst: tap an enemy within attack range.';
+  if(m&&m.startsWith('ab')&&sd.abKey&&GEAR[sd.abKey]&&GEAR[sd.abKey].ab){
+    const a=GEAR[sd.abKey].ab;
+    return a.n+': '+(a.mode==='ally'?'tap yourself or a nearby ally.':a.mode==='strike'?'tap a villain in range.':'tap an empty tile in range.');
+  }
+  return '';
+}
 function abButtons(u,h){const ks=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))].filter(g=>GEAR[g].ab);if(!ks.length)return '';const P=potOf(h);
   return `<div class="row">${ks.map(k=>{const g=GEAR[k],a=g.ab,ok=abOk(u,h,k),low=g.type==='innate'&&P<a.min,on=S.sd.abKey===k&&S.sd.mode&&S.sd.mode.startsWith('ab');
     return `<button class="btn sm abtn t-${g.type} ${on?'on':''}" data-a="ab:${k}" data-tip="gear:${k}" ${ok?'':'disabled'} title="${esc(low?`Requires Innate rank ${a.min}. ${abTxt(a)}`:abTxt(a,g.type==='innate'?P:null))}">${a.n}<small>${abCost(g,true)}</small></button>`}).join('')}</div>`}
@@ -1176,6 +1305,6 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
       if((!a.rng||dV(u,sd.vl[vAt].v)<=a.rng)&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);sd.aim={x,y};
         return act(async()=>{payAb(u,key);u.acted=true;log('hero',`${h.name} unleashes ${a.n} (${abCost(g)})!`);if(a.str)u.buffStr+=a.str;await heroAttack(u,'v',a.plus||0,a.dice||0,'beam');if(a.splash&&!sd.result)await splashV(a.splash)})}}}
   if(vAt>=0&&sd.vl.length>1&&unitIdx<0){focusV(vAt);render();return}
-  if(unitIdx>=0){sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=o.moved?null:'move'}
-  else{sd.sel=null;sd.mode=null}
+  if(unitIdx>=0){if(sd.sel!==unitIdx)sd.combatPick=null;sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=o.moved?null:'move'}
+  else{sd.sel=null;sd.mode=null;sd.combatPick=null}
   render()}
