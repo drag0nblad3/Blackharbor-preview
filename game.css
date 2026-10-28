@@ -637,6 +637,10 @@ button.slot.pick:hover{border-color:var(--cyan)}
 .combat-choice .row{align-items:center}
 .combat-choice .combat-confirm{min-height:42px}
 .combat-target-help{margin-top:8px}
+/* The combat bar sticks to the bottom on phones/tablets: open its menus upward. */
+@media (max-width:1023px) and (min-height:521px){
+  .wrap.v-sd .combat-dropdown-menu{top:auto;bottom:calc(100% + 3px)}
+}
 @media (max-width:420px){
   .combat-dropdown{min-width:0;flex:1}
   .combat-dropdown>summary{width:100%}
