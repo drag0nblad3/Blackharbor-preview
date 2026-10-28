@@ -14,6 +14,8 @@ const assert=require('node:assert/strict');
    S.inv={v:S.villains[0].key,clues:2};startShowdown();
    const sd=S.sd;sd.intro=false;sd.busy=false;sd.sel=0;sd.mode=null;
    sd.civs=[];sd.hench=[];sd.bombs=[];sd.beams=[];
+   // Isolate Avoid Damage from randomly generated battlefield cover.
+   sd.obs=[];sd.walls=[];sd.pits=[];sd.haz=[];sd.term=null;
    sd.units[0].x=4;sd.units[0].y=4;
    render();
   });
