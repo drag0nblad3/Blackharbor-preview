@@ -1046,7 +1046,13 @@ function combatMenu(kind){
   const sd=S.sd,u=sd&&sd.units[sd.sel];
   if(!u||sd.busy||sd.result||!['abilities','other'].includes(kind))return;
   sd.combatMenuOpen=sd.combatMenuOpen===kind?null:kind;
-  render();
+  /* Updating only the menu avoids replacing the clicked button while the
+     browser is still processing the pointer event. Later renders use state. */
+  document.querySelectorAll('#app .combat-dropdown').forEach(d=>{
+    const which=d.classList.contains('abilities-dropdown')?'abilities':'other',open=sd.combatMenuOpen===which;
+    d.querySelector('.combat-menu-toggle').setAttribute('aria-expanded',String(open));
+    d.querySelector('.combat-dropdown-menu').hidden=!open;
+  });
 }
 function combatPick(kind,key){
   const sd=S.sd,u=sd&&sd.units[sd.sel];
