@@ -16,3 +16,4 @@ jobs:
       - run: npm install --no-save playwright
       - run: npx playwright install --with-deps chromium
       - run: node tests/tactical-actions.cjs
+      - run: node tests/avoid-damage.cjs
