@@ -617,8 +617,8 @@ button.slot.pick:hover{border-color:var(--cyan)}
 
 /* Two compact, keyboard-accessible combat menus. Menu choices preview below
    the controls; separate buttons confirm or cancel the selected choice. */
-.combat-dropdown{position:relative;display:inline-block;min-width:124px}
-.combat-dropdown>.combat-menu-toggle{display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:40px}
+.combat-dropdown{position:relative;display:block;flex:0 0 144px;min-width:124px;max-width:100%}
+.combat-dropdown>.combat-menu-toggle{display:flex;align-items:center;justify-content:center;cursor:pointer;min-height:40px;box-sizing:border-box;width:100%;white-space:nowrap}
 
 .combat-dropdown>.combat-menu-toggle:focus-visible,.combat-dropdown-menu button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .combat-dropdown-menu{position:absolute;left:0;top:calc(100% + 3px);z-index:35;display:flex;flex-direction:column;gap:5px;
@@ -643,7 +643,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
   .wrap.v-sd .combat-dropdown-menu{top:auto;bottom:calc(100% + 3px)}
 }
 @media (max-width:420px){
-  .combat-dropdown{min-width:0;flex:1}
+  .combat-dropdown{min-width:0;flex:1 1 calc(50% - 8px)}
   .combat-dropdown>.combat-menu-toggle{width:100%}
   .combat-dropdown-menu{max-width:min(88vw,300px)}
 }
