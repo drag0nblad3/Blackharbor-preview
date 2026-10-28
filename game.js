@@ -1706,6 +1706,7 @@ document.addEventListener('click',e=>{
     case 'lair':startShowdown();break;
     case 'mode':S.sd.mode=S.sd.mode===p1?null:p1;break;
     case 'power':usePower();break;
+    case 'avoidDamage':avoidDamage();return;
     case 'rallySpirit':rallySpirit();return;
     case 'escort':escort();return;
     case 'hack':hack();return;
