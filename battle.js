@@ -369,6 +369,74 @@ function civFollow(u){const sd=S.sd,fs=followers(u);if(!fs.length)return;
     const r=reach(c,lim,c);let best=null,bd=1e9;for(const k in r){const[x,y]=k.split(',').map(Number);if(r[k]<bd&&near({x,y})){bd=r[k];best={x,y}}}
     if(best){c.x=best.x;c.y=best.y;placed.push(c);civHazard(c);if(isExit(c))saveCiv(c,u)}
     else{c.f=null;fxP(c.x,c.y,'WAIT!','miss');log('hero',`A civilian can't keep up with ${heroOf(u).name} and is left behind.`)}}}
+
+/* Avoid Damage uses one action. Nearby safe cover improves the defense, and
+   a missed targeted attack can strike cover if it lies in the attack path. */
+function avoidCover(u){
+  const sd=S.sd,beam=litMap(),out=[];
+  for(const p of nbrs(u)){
+    if(!inB(p.x,p.y))continue;
+    const k=p.x+','+p.y;
+    if(sd.pits.includes(k)||sd.haz.some(h=>h.k===k)||(sd.bombs||[]).some(b=>b.k===k)||beam[k])continue;
+    if(sd.walls.some(w=>w.k===k))out.push({...p,k,kind:'wall'});
+    else if(sd.obs.includes(k))out.push({...p,k,kind:'rubble'});
+    else if(sd.term&&sd.term.k===k)out.push({...p,k,kind:'terminal'});
+    else {
+      const ally=sd.units.find(o=>o!==u&&!o.ko&&o.x===p.x&&o.y===p.y);
+      if(ally)out.push({...p,k,kind:'hero',unit:ally});
+      else{const civ=sd.civs.find(o=>o.x===p.x&&o.y===p.y);if(civ)out.push({...p,k,kind:'civilian',unit:civ})}
+    }
+  }
+  return out;
+}
+const avoidEva=u=>u.avoidDamage?(avoidCover(u).length?5:3):0;
+function avoidDamage(){
+  const sd=S.sd,u=sd&&sd.units[sd.sel];
+  if(!u||u.acted||u.ko||u.avoidDamage||sd.busy||sd.result)return;
+  return act(async()=>{
+    u.acted=true;u.avoidDamage=true;
+    await A.shield(ctrU(u),COL.cyan,true);
+    const n=avoidEva(u);
+    fxU(u,'AVOID +'+n,'good');
+    log('hero',heroOf(u).name+' avoids damage: +'+n+' evasion until the next round'+(n===5?' with adjacent cover':'')+'.');
+  });
+}
+async function avoidRedirect(u,source,dmg,label){
+  if(!u.avoidDamage)return false;
+  const covers=avoidCover(u);
+  /* Ranged attacks must pass through the cover hex. An adjacent melee miss
+     can strike a target beside both attacker and defender. */
+  const origins=source.body||source.sw||source.shape?vCells(source):[source];
+  const found=[];
+  for(const from of origins){
+    const dist=cheb(from,u),line=dist>1?hexLine(from,u):[];
+    for(const cover of covers){
+      const valid=dist<=1?cheb(from,cover)<=1:line.some(p=>p.x===cover.x&&p.y===cover.y);
+      if(valid)found.push({cover,dist:cheb(from,cover)});
+    }
+  }
+  if(!found.length)return false;
+  const priority={wall:0,rubble:1,terminal:2,hero:3,civilian:4};
+  found.sort((a,b)=>priority[a.cover.kind]-priority[b.cover.kind]||a.dist-b.dist);
+  const c=found[0].cover,sd=S.sd,name=heroOf(u).name;
+  const target=c.kind==='hero'?heroOf(c.unit).name:c.kind==='civilian'?'a civilian':c.kind==='wall'?'a wall':c.kind==='rubble'?'rubble':'the evidence terminal';
+  log('hero',name+' ducks behind '+target+'; '+label+' strikes it instead.');
+  if(c.kind==='hero'){
+    if(!await wardBlocks(c.unit)){damageHero(c.unit,dmg);fxU(c.unit,'STRAY HIT!','vhit')}
+  }else if(c.kind==='civilian'){
+    harmCiv(c.unit,'a redirected '+label);
+  }else if(c.kind==='terminal'){
+    termHit(p=>p.x===c.x&&p.y===c.y,label);
+  }else if(c.kind==='rubble'){
+    sd.obs=sd.obs.filter(k=>k!==c.k);fxP(c.x,c.y,'SMASH!','vhit');
+  }else{
+    const wall=sd.walls.find(w=>w.k===c.k);
+    if(wall&&!wall.perm){sd.walls=sd.walls.filter(w=>w!==wall);fxP(c.x,c.y,'CRACK!','vhit')}
+    else fxP(c.x,c.y,'BLOCKED!','good');
+  }
+  render();
+  return true;
+}
 function rallySpirit(){const sd=S.sd,u=sd&&sd.units[sd.sel];if(!u||u.ko||u.acted||sd.busy||sd.result)return;sd.mode=sd.mode==='rallySpirit'?null:'rallySpirit';render()}
 function escort(){const sd=S.sd,u=sd.units[sd.sel];if(!u||u.ko||(u.acted&&!u.freeEvac))return;const h=heroOf(u),cs=sd.civs.filter(c=>c.f!==u.hid&&!civHeld(c)&&cheb(c,u)<=1);if(!cs.length)return;
   return act(async()=>{if(u.freeEvac)u.freeEvac=false;else u.acted=true;A.lunge('h'+u.hid,HC(cs[0].x,cs[0].y));await Promise.all(cs.map(c=>A.sparkle(HC(c.x,c.y),COL.yel)));
@@ -395,11 +463,11 @@ async function henchGrab(hm){const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd
   return true}
 async function wardBlocks(u){if(!u.ward)return false;u.ward=false;await A.shield(ctrU(u),COL.magic,true);fxU(u,'WARDED!','good');log('hero',`A ward turns the blow aside from ${heroOf(u).name}.`);render();return true}
 async function vHit(u,dmg,label,style){const h=heroOf(u);if(S.sd.v.cursed&&dmg>0)dmg=Math.max(1,dmg-2);faceTo(u);render();await strikeAnim(style,ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);
-  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const acc=vStat('acc'),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};const hit=r===20||(r!==1&&r+acc>=eva);
+  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const acc=vStat('acc'),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0)+avoidEva(u);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};const hit=r===20||(r!==1&&r+acc>=eva);
   log('vill',`${label} at ${h.name}: rolled ${r}+${acc} vs evasion ${eva}. ${hit?`Hit for ${dmg}.`:'Miss.'}`);
   if(hit&&await wardBlocks(u))return false;
   if(hit&&u.reflect&&!S.sd.v.down){u.reflect=0;log('hero',`${h.name} turns the blow back: ${VILLAINS[S.sd.vkey].short} tears a page.`);await woundAnim(`${h.name}: reflected.`)}
-  fxU(u,hit?pick(SFX_VHIT):'SWISH!',hit?'vhit':'miss');if(hit)damageHero(u,dmg);render();if(!hit)await riposte(u);return hit}
+  fxU(u,hit?pick(SFX_VHIT):'SWISH!',hit?'vhit':'miss');if(hit)damageHero(u,dmg);render();if(!hit){if(style!=='none')await avoidRedirect(u,S.sd.v,dmg,label);await riposte(u)}return hit}
 /* Version 117 (Tyler): a conditional target (weakest, farthest) is picked only among heroes the villain can reach this turn
    (within move + range, by hex distance). If nobody is in reach it goes for the nearest hero. */
 function pickTarget(mode,reach){const sd=S.sd;let L=live();if(!L.length)return null;
@@ -587,9 +655,9 @@ async function henchAct(hm){const sd=S.sd,L=live();if(!L.length)return;const def
     for(const k in opts){const[x,y]=k.split(',').map(Number);const d=cheb(t,{x,y});if(d<bd||(d===bd&&best&&Math.random()<.3)){bd=d;best=[x,y]}}
     if(best){hm.x=best[0];hm.y=best[1];render();await sleep(300)}}
   if(cheb(t,hm)<=def.rng&&!shotBlocked(hm,t)){await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id);
-    const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0);if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0};const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0),hit=r===20||(r!==1&&r+ha>=eva);
+    const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0)+avoidEva(t);if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0};const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0),hit=r===20||(r!==1&&r+ha>=eva);
     log('vill',`${def.name} attacks ${h.name}: ${r}${ha<0?'−'+(-ha):'+'+ha} vs ${eva}. ${hit?`Hit for ${henchDmg(hm)}.`:'Miss.'}`);
-    if(hit&&!await wardBlocks(t)){fxU(t,def.rng>1?'PEW!':'THUD!','vhit');damageHero(t,henchDmg(hm))}else if(!hit)fxU(t,'SWISH!','miss')}}
+    if(hit&&!await wardBlocks(t)){fxU(t,def.rng>1?'PEW!':'THUD!','vhit');damageHero(t,henchDmg(hm))}else if(!hit){fxU(t,'SWISH!','miss');await avoidRedirect(t,hm,henchDmg(hm),def.name)}}}
 /* Version 91 (Tyler): the Foreman's girders block shots (any attack at range 2+ whose hex line crosses one) and topple onto an adjacent hero
    when they come down two villain turns later, for 2 + half the Architect's level. */
 function hexLine(a,b){const A=ax(a),B=ax(b),n=cheb(a,b),out=[];const ac={q:A.q+1e-6,r:A.r+1e-6},bc={q:B.q+1e-6,r:B.r+1e-6};
@@ -704,7 +772,7 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sd
       if(t){fxU(t,'CRASH!','vhit');log('vill',`A girder topples onto ${heroOf(t).name} for ${w.dmg}.`);damageHero(t,w.dmg)}else log('vill','A girder topples over and hits nobody.');render()}checkLoss()}
   focusV(sd.vl.findIndex(o=>!o.v.down));vWarn();
   if(!sd.result){sd.round++;
-    {sd.units.forEach(u=>{u.stasis=false;u.moved=!!u.dazed;u.dazed=false;u.acted=false;u.freeEvac=false;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.buffReap=0;u.buffEva=0;u.dr=0;u.anchor=false;if(u.capUsed&&!u.abRd)u.capUsed=false;u.abRd=false;u.innUsed=0;u.abUsed=[];u.jump=false;u.ripo=false;u.ripUsed=false;u.reflect=0;
+    {sd.units.forEach(u=>{u.stasis=false;u.moved=!!u.dazed;u.dazed=false;u.acted=false;u.freeEvac=false;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.buffReap=0;u.buffEva=0;u.avoidDamage=false;u.dr=0;u.anchor=false;if(u.capUsed&&!u.abRd)u.capUsed=false;u.abRd=false;u.innUsed=0;u.abUsed=[];u.jump=false;u.ripo=false;u.ripUsed=false;u.reflect=0;
         if(u.relHit){u.relN=u.relHit===u.relKey?(u.relN||0)+1:1;u.relKey=u.relHit}else{u.relN=0;u.relKey=null}u.relHit=null;
         const h=heroOf(u);u.anchor=setOn(h,'lode');if(!u.ko){if(setOn(h,'cantor'))h.comp=Math.min(stat(h,'maxComp'),h.comp+1);if(setOn(h,'serpent'))h.hp=Math.min(stat(h,'maxHp'),h.hp+1)}u.lowP=(u.res.tech||0)<=1;u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+pwrRegen(h));u.res.magic=Math.min(arcMax(h),u.res.magic||0);if(S.facilities.includes('sanctum')&&!u.ko)h.comp=Math.min(stat(h,'maxComp'),h.comp+1)});
       roster().forEach(h=>{if(h.cd>0)h.cd--});
@@ -931,12 +999,12 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
         <button class="btn sm sub ${sd.mode==='move'?'on':''}" data-a="mode:move" data-tip="act:move" ${u.moved?'disabled':''}>${UI('move')}Move<small>${stat(h,'move')+(u.boost||0)} hex${stat(h,'move')+(u.boost||0)===1?'':'es'}</small></button>
         <button class="btn sm sub ${sd.mode==='attack'?'on':''}" data-a="mode:attack" data-tip="act:attack" ${canAct?'':'disabled'}>${UI('atk')}Attack<small>Range ${stat(h,'range')}</small></button>
         <button class="btn sm abtn t-${POW_ENG[BASE(h).power].d} ${sd.mode===BASE(h).power?'on':''}" data-a="power" data-tip="pow:${BASE(h).power}" ${powOk(u,h)?'':'disabled'}>${p.name}<small>${powCost(BASE(h).power,true)}</small></button>
-        <details class="other-actions"><summary class="btn sm">Other Actions ▾</summary><div class="other-actions-menu"><button class="btn sm" data-a="escort" data-tip="act:escort" ${(canAct||u.freeEvac)&&adjCiv?'':'disabled'}>Escort</button>${sd.term?`<button class="btn sm" data-a="hack" data-tip="act:hack" ${canHack(u)?'':'disabled'}>${UI('intel')}Hack</button>`:''}<button class="btn sm ${sd.mode==='rallySpirit'?'on':''}" data-a="rallySpirit" ${canAct?'':'disabled'}>Rally Spirit<small>Range ${lvlOf(h)} · +3 composure</small></button>${nFol?`<button class="btn sm" data-a="letgo" data-tip="act:letgo">Let go (${nFol})</button>`:''}</div></details>
+        <details class="other-actions"><summary class="btn sm">Other Actions ▾</summary><div class="other-actions-menu"><button class="btn sm" data-a="escort" data-tip="act:escort" ${(canAct||u.freeEvac)&&adjCiv?'':'disabled'}>Escort</button>${sd.term?`<button class="btn sm" data-a="hack" data-tip="act:hack" ${canHack(u)?'':'disabled'}>${UI('intel')}Hack</button>`:''}<button class="btn sm" data-a="avoidDamage" ${canAct&&!u.avoidDamage?'':'disabled'}>Avoid Damage<small>+3 evasion · +5 by cover</small></button><button class="btn sm ${sd.mode==='rallySpirit'?'on':''}" data-a="rallySpirit" ${canAct?'':'disabled'}>Rally Spirit<small>Range ${lvlOf(h)} · +3 composure</small></button>${nFol?`<button class="btn sm" data-a="letgo" data-tip="act:letgo">Let go (${nFol})</button>`:''}</div></details>
       </div>`;
     ctrlRest=`<div class="small muted">${p.txt}</div>
       <div class="resrow"><span class="r" style="--tc:var(--cyan)" data-tip="kw:comp">${UI('comp')} ${[...Array(stat(h,'maxComp'))].map((_,i)=>`<i class="${i<h.comp?'f':''}"></i>`).join('')} <b class="mono">${h.comp}/${stat(h,'maxComp')}</b></span></div>
       ${pwrMax(h)||arcMax(h)||potOf(h)?`<div class="resrow">${pwrMax(h)?`<span class="r t-tech" data-tip="res:tech">PWR ${[...Array(pwrMax(h))].map((_,i)=>`<i class="${i<u.res.tech?'f':''}"></i>`).join('')} <b class="mono">${u.res.tech}/${pwrMax(h)} · +${pwrRegen(h)}/rd</b></span>`:''}${arcMax(h)?`<span class="r t-magic" data-tip="res:magic">ARC ${[...Array(arcMax(h))].map((_,i)=>`<i class="${i<u.res.magic?'f':''}"></i>`).join('')} <b class="mono">${u.res.magic}/${arcMax(h)}</b></span>`:''}${potOf(h)?`<span class="r t-innate" data-tip="res:innate">POT <b class="mono">${potOf(h)}</b> · ${Math.max(0,innUses(h)-(u.innUsed||0))?'Innate ready':'Innate used'}</span>`:''}</div>`:''}
-      ${(u.boost||u.buffDice||u.buffStr||u.ward||u.absorb||u.evaNext||u.buffAcc||u.buffBack||u.buffReap||u.dr||u.buffEva||u.anchor)?`<div class="row">${u.boost?`<span class="tag g" data-tip="kw:boost">+${u.boost} next move${u.boostJump?' (jump)':''}</span>`:''}${u.buffDice?`<span class="tag g" data-tip="kw:buff">+${u.buffDice} dice next attack</span>`:''}${u.buffStr?`<span class="tag g" data-tip="kw:buff">+${u.buffStr} Strength next attack</span>`:''}${u.ward?'<span class="tag g" data-tip="kw:warded">Warded</span>':''}${u.absorb?`<span class="tag g" data-tip="kw:absorb">Shield: absorbs ${u.absorb}</span>`:''}${u.buffAcc?`<span class="tag g" data-tip="kw:buff">+${u.buffAcc} accuracy next attack</span>`:''}${u.buffBack?`<span class="tag g" data-tip="kw:buff">+${u.buffBack} dice on a melee attack from a side or the rear</span>`:''}${u.buffReap?`<span class="tag g" data-tip="kw:buff">Reap ${u.buffReap} per page</span>`:''}${u.dr?`<span class="tag g" data-tip="kw:guard">Guard −${u.dr} per hit</span>`:''}${u.buffEva?`<span class="tag g" data-tip="kw:guard">+${u.buffEva} evasion</span>`:''}${u.evaNext?`<span class="tag g" data-tip="kw:windward">Wind Ward +${u.evaNext} evasion</span>`:''}${u.anchor?'<span class="tag g" data-tip="kw:anchor">Anchored</span>':''}</div>`:''}
+      ${(u.boost||u.buffDice||u.buffStr||u.ward||u.absorb||u.evaNext||u.buffAcc||u.buffBack||u.buffReap||u.dr||u.buffEva||u.avoidDamage||u.anchor)?`<div class="row">${u.boost?`<span class="tag g" data-tip="kw:boost">+${u.boost} next move${u.boostJump?' (jump)':''}</span>`:''}${u.buffDice?`<span class="tag g" data-tip="kw:buff">+${u.buffDice} dice next attack</span>`:''}${u.buffStr?`<span class="tag g" data-tip="kw:buff">+${u.buffStr} Strength next attack</span>`:''}${u.ward?'<span class="tag g" data-tip="kw:warded">Warded</span>':''}${u.absorb?`<span class="tag g" data-tip="kw:absorb">Shield: absorbs ${u.absorb}</span>`:''}${u.buffAcc?`<span class="tag g" data-tip="kw:buff">+${u.buffAcc} accuracy next attack</span>`:''}${u.buffBack?`<span class="tag g" data-tip="kw:buff">+${u.buffBack} dice on a melee attack from a side or the rear</span>`:''}${u.buffReap?`<span class="tag g" data-tip="kw:buff">Reap ${u.buffReap} per page</span>`:''}${u.dr?`<span class="tag g" data-tip="kw:guard">Guard −${u.dr} per hit</span>`:''}${u.buffEva?`<span class="tag g" data-tip="kw:guard">+${u.buffEva} evasion</span>`:''}${u.avoidDamage?`<span class="tag g" data-tip="kw:guard">Avoid Damage +${avoidEva(u)} evasion</span>`:''}${u.evaNext?`<span class="tag g" data-tip="kw:windward">Wind Ward +${u.evaNext} evasion</span>`:''}${u.anchor?'<span class="tag g" data-tip="kw:anchor">Anchored</span>':''}</div>`:''}
       ${auraTags(u)}${u.ripo||(gearHas(h,'relent')&&u.relN&&u.relKey===sd.vkey)?`<div class="row">${u.ripo?'<span class="tag g" data-tip="kw:riposte">Riposte ready</span>':''}${gearHas(h,'relent')&&u.relN&&u.relKey===sd.vkey?`<span class="tag g" data-tip="kw:relent">Relentless +${Math.min(1,u.relN)} vs ${VILLAINS[sd.vkey].short}</span>`:''}</div>`:''}
       ${sd.mode==='rallySpirit'&&canAct?`<div class="cap">Rally Spirit: tap yourself or an ally within ${lvlOf(h)} hexes to restore 3 composure. Uses your action.</div>`:''}
       ${(sd.mode==='attack'||sd.mode==='arc')&&canAct&&!tg.size?`<div class="cap">Nothing in range. ${esc(h.name)} reaches ${stat(h,'range')} hex${stat(h,'range')===1?'':'es'}${stat(h,'range')===1?', so they must stand next to the target':''}, and walls, rubble and other units block shots. Move first, then attack.</div>`:''}
