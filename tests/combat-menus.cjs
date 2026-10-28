@@ -79,7 +79,10 @@ const assert=require('node:assert/strict');
     });
     console.log(JSON.stringify(checks,null,2));
     // Real pointer interactions catch overlays/scroll problems that DOM .click() misses.
+    console.log('BEFORE CLICK',JSON.stringify(await page.evaluate(()=>({open:S.sd.combatMenuOpen,aria:document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded'),sel:S.sd.sel,mode:S.sd.mode}))));
+    await page.evaluate(()=>{S.debugClicks=[];document.addEventListener('click',e=>S.debugClicks.push(e.target.closest('[data-a]')?.dataset.a||e.target.tagName),true)});
     await page.locator('.abilities-dropdown .combat-menu-toggle').click();
+    console.log('CLICK LOG',JSON.stringify(await page.evaluate(()=>S.debugClicks)));
     console.log('BEFORE RENDER',JSON.stringify(await page.evaluate(()=>({open:S.sd.combatMenuOpen,aria:document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')}))));
     await page.evaluate(()=>render());
     console.log('AFTER RENDER',JSON.stringify(await page.evaluate(()=>({open:S.sd.combatMenuOpen,aria:document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')}))));
