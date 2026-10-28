@@ -1568,7 +1568,7 @@ const TUT=[
   {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Wounds always tear out the <b>top</b> page, and his top page is a Signature Move, Big Dig. Wound him this round and it never happens.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
-  {id:'b-stun',only:['combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=4&&!S.sd.busy},
+  {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=4&&!S.sd.busy},
     t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +4 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
