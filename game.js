@@ -1568,8 +1568,8 @@ const TUT=[
   {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Wounds always tear out the <b>top</b> page, and his top page is a Signature Move, Big Dig. Wound him this round and it never happens.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
-  {id:'b-stun',only:['ab:baton'],lit:()=>'#app [data-a="ab:baton"]',done:()=>{const u=tutU('volt');return u.buffStr>=4&&!S.sd.busy},
-    t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +4 Strength on Volt\'s next attack, and Power refills a little every round. <b>Tap Stun Charge.</b>'},
+  {id:'b-stun',only:['combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]':'#app .abilities-dropdown summary',done:()=>{const u=tutU('volt');return u.buffStr>=4&&!S.sd.busy},
+    t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +4 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
   {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 8 = 14 against 12. Without it, 6 + 4 = 10 would have bounced. And there goes Big Dig!'},
@@ -1694,6 +1694,9 @@ document.addEventListener('click',e=>{
     case 'unequip':{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))break;const g=h.gear[p2];if(g){delete h.gear[p2];S.armory.push(g);clampHero(h)}break}
     case 'track':{const h=S.heroes.find(x=>x.id===p1);if(!h||h.trackPick||!TRACKS[p2]||h.ranks[p2]>=RANK_MAX)break;const mh=stat(h,'maxHp'),mc=stat(h,'maxComp');h.ranks[p2]++;h.trackPick=p2;h.hp+=Math.max(0,stat(h,'maxHp')-mh);h.comp+=Math.max(0,stat(h,'maxComp')-mc);break}
     case 'up':{const h=S.heroes.find(x=>x.id===p1);h.upgrades.push(p2);h.pendingUp--;h.upChoices=null;h.trackPick=null;if(p2==='hp')h.hp+=3;if(p2==='comp')h.comp+=2;break}
+    case 'combatPick':combatPick(p1,p2);return;
+    case 'combatClear':combatClear();return;
+    case 'combatUse':combatUse();return;
     case 'ab':useAb(p1);break;
     case 'unpouch':{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))break;const p=pouchOf(h),g=p[+p2];if(g){p.splice(+p2,1);S.armory.push(g)}break}
     case 'book':openPlaybook(p1);return;
@@ -1704,7 +1707,7 @@ document.addEventListener('click',e=>{
     case 'invnext':S.inv.step++;S.inv.res=null;S.inv.fresh=0;break;
     case 'invgo':S.inv.intro=false;break;
     case 'lair':startShowdown();break;
-    case 'mode':S.sd.mode=S.sd.mode===p1?null:p1;break;
+    case 'mode':S.sd.mode=S.sd.mode===p1?null:p1;S.sd.combatPick=null;break;
     case 'power':usePower();break;
     case 'avoidDamage':avoidDamage();return;
     case 'rallySpirit':rallySpirit();return;
