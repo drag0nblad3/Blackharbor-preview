@@ -19,7 +19,7 @@ const assert=require('node:assert/strict');
       return {button:!!document.querySelector('.other-actions-menu [data-a="combatPick:other:avoidDamage"]')};
     });
     assert.ok(setup.button,'Avoid Damage button must appear in menu');
-    await page.locator('details.other-actions summary').click();
+    await page.locator('.other-actions [data-a="combatMenu:other"]').click();
     await page.locator('.other-actions-menu [data-a="combatPick:other:avoidDamage"]').click();
     assert.ok(await page.locator('.combat-choice').textContent().then(x=>x.includes('+3 Evasion')),'Selecting Avoid Damage must show a description');
     assert.ok(await page.evaluate(()=>!S.sd.units[0].acted&&!S.sd.units[0].avoidDamage),'Selection must not execute Avoid Damage');
