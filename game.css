@@ -615,9 +615,30 @@ button.slot.pick:hover{border-color:var(--cyan)}
 }
 @media (min-width:1440px){#fsplash .fs{width:min(100%,560px)}#fsplash .fsn{font-size:3.2rem}}
 
-/* Tactical actions: compact native dropdown, usable with touch and keyboard. */
-.other-actions{position:relative;display:inline-block;min-width:132px}
-.other-actions>summary{display:flex;align-items:center;justify-content:center;cursor:pointer;list-style:none;min-height:38px}
-.other-actions>summary::-webkit-details-marker{display:none}
-.other-actions-menu{position:absolute;right:0;top:100%;z-index:30;display:flex;flex-direction:column;gap:5px;min-width:190px;max-width:min(85vw,280px);padding:8px;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px #0006}
-.other-actions-menu .btn{width:100%;min-height:40px;justify-content:center}
+/* Two compact, keyboard-accessible combat menus. Menu choices preview below
+   the controls; separate buttons confirm or cancel the selected choice. */
+.combat-dropdown{position:relative;display:inline-block;min-width:124px}
+.combat-dropdown>summary{display:flex;align-items:center;justify-content:center;cursor:pointer;list-style:none;min-height:40px}
+.combat-dropdown>summary::-webkit-details-marker{display:none}
+.combat-dropdown>summary:focus-visible,.combat-dropdown-menu button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+.combat-dropdown-menu{position:absolute;left:0;top:calc(100% + 3px);z-index:35;display:flex;flex-direction:column;gap:5px;
+  min-width:230px;max-width:min(88vw,325px);max-height:min(55vh,375px);overflow:auto;padding:8px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 24px #0008}
+.other-actions-menu{left:auto;right:0}
+.combat-dropdown-menu .btn{width:100%;min-height:44px;justify-content:flex-start;text-align:left}
+.combat-option{display:flex;align-items:center;gap:8px}
+.combat-cost-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;width:22px;height:22px;
+  font-size:19px;line-height:1;color:var(--cyan)}
+.combat-cost-icon svg,.combat-cost-icon .ui{width:19px;height:19px}
+.combat-option-text{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;flex:1}
+.combat-option-text small{white-space:normal;font-size:.75em;line-height:1.25;opacity:.75}
+.combat-choice{display:flex;flex-direction:column;gap:9px;width:100%;padding:12px;margin-top:8px;
+  border:1px solid var(--line);border-radius:9px;background:var(--panel)}
+.combat-choice .row{align-items:center}
+.combat-choice .combat-confirm{min-height:42px}
+.combat-target-help{margin-top:8px}
+@media (max-width:420px){
+  .combat-dropdown{min-width:0;flex:1}
+  .combat-dropdown>summary{width:100%}
+  .combat-dropdown-menu{max-width:min(88vw,300px)}
+}
