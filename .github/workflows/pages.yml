@@ -3,6 +3,12 @@ name: Deploy Blackharbor Preview
 on:
   push:
     branches: [main]
+    paths:
+      - 'index.html'
+      - '*.js'
+      - '*.css'
+      - 'PREVIEW_STATUS.md'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
