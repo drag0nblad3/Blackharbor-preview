@@ -430,8 +430,8 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.heal)push(`${a.mode==='ally'?'They regain':'Regain'} ${v(f.heal)} health.`);
   if(f.comp)push(`Regain ${v(f.comp)} composure.`);
   if(f.absorb)push(`${a.mode==='ally'?'They gain':'Gain'} a shield that absorbs ${v(f.absorb)} damage. It lasts until used up.`);
-  if(f.dr)push(`Take ${v(f.dr)} less damage from each hit (never below 1) until the round ends.`);
-  if(f.drAll)push(`You and adjacent allies take ${v(f.drAll)} less damage from each hit (never below 1) until the round ends.`);
+  if(f.dr)push(`Take ${v(f.dr)} less damage from each hit (never below 1), subject to the Guard limit, until the round ends.`);
+  if(f.drAll)push(`You and adjacent allies take ${v(f.drAll)} less damage from each hit (never below 1), subject to each hero's Guard limit, until the round ends.`);
   if(f.eva)push(`+${v(f.eva)} evasion until the round ends.`);
   if(f.anchor)push('You cannot be shoved or dragged until the round ends.');
   if(f.breach)push('Smash every wall and rubble pile next to you.');
@@ -532,7 +532,7 @@ if(!S.v61){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
   for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);(S.villains||[]).filter(v=>v.status==='captured'||v.beaten).forEach(v=>(DEFEAT_UNLOCK[v.key]||[]).forEach(add));S.v61=true}
 /* Version 62: new blueprints follow the arcs already reached; stats moved between slots, so clamp health and composure */
 if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V62.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
-  START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}
+  START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();
   /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});return true}}catch(e){}return false}
 /* Version 82: capture, interrogation, leads and the clue consumables are gone. Captured villains go free again (they keep their blueprints),
    a built Containment Cell is refunded, and Informant's Tips and Search Warrants are sold back for intel. */
@@ -541,6 +541,13 @@ if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
 /* Version 124: open gear blueprints by tier for the Arc already reached */
 /* Version 126: tier 3 blueprints for saves already past issue 10 */
 /* Version 130: lasting injuries from the old injury roll are healed (Rattled stays). Heroes who already retired stay retired */
+/* Balance pass: unequip new rank-3 items on earlier heroes while preserving their ownership. */
+function migrateV133(){const moved=new Set(['mutagen','compeyes']);S.armory=S.armory||[];
+  (S.heroes||[]).forEach(h=>{for(const slot of ['head','legs']){const k=h.gear&&h.gear[slot];if(k&&moved.has(k)&&!canWear(h,k)){S.armory.push(k);delete h.gear[slot]}}clampHero(h)});
+  if((S.issue||1)<TIER3_ISSUE)S.unlocked=(S.unlocked||[]).filter(it=>!moved.has(it.slice(5)));
+  else for(const k of moved)if(!S.unlocked.includes('gear:'+k))S.unlocked.push('gear:'+k);
+  if(S.sd&&S.sd.units)S.sd.units.forEach(u=>{const h=heroOf(u);if(h&&u.res){u.res.tech=Math.min(u.res.tech,pwrMax(h));u.res.magic=Math.min(u.res.magic,arcMax(h))}});
+  S.v133=true}
 function migrateV130(){(S.heroes||[]).forEach(h=>{if(h.injuries&&h.injuries.some(k=>k!=='rattled')){h.injuries=h.injuries.filter(k=>k==='rattled');clampHero(h)}});S.v130=true}
 function migrateV126(){const add=it=>{if(!S.unlocked.includes(it))S.unlocked.push(it)};if((S.issue||1)>=TIER3_ISSUE)MID_UNLOCK.forEach(add);if(arcOf(Math.min(S.issue||1,MAX_ISSUE))>=3)ARC_UNLOCK[3].forEach(add);S.v126=true}
 function migrateV124(){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),add=it=>{if(!S.unlocked.includes(it))S.unlocked.push(it)};
@@ -611,7 +618,7 @@ function stat(h,k,raw){const b=BASE(h);let v=b[k]??0;
 /* Version 126 (Tyler): Magic items no longer carry +max Arcana (worn Magic ranks fill the pool now), except the Arcana pieces Mana Font,
    Rune Sash and Philosopher's Stone; tier 3 blueprints open halfway through Arc 2 (issue TIER3_ISSUE) instead of at its start;
    and non-set tier 4 Main Hand, Off Hand and Belt gear for each discipline, so Arc 3 has options outside the sets. */
-const TIER3_ISSUE=ISSUES_PER_ARC+4,MID_UNLOCK=['gear:uplink','gear:wings','gear:serum','gear:sigil','gear:titan','gear:grimoire','gear:exo','gear:greaves','gear:claws','gear:helm','gear:familiar','gear:faraday','gear:staff','gear:halo','gear:mantle','gear:shadowpaw','gear:bloodstone','gear:hexfist','gear:crown','gear:paragon','gear:wand','gear:bandolier','gear:censer','gear:dynamo','gear:aegisgen','gear:ironbark','gear:sanctaegis'];
+const TIER3_ISSUE=ISSUES_PER_ARC+4,MID_UNLOCK=['gear:uplink','gear:wings','gear:serum','gear:mutagen','gear:compeyes','gear:sigil','gear:titan','gear:grimoire','gear:exo','gear:greaves','gear:claws','gear:helm','gear:familiar','gear:faraday','gear:staff','gear:halo','gear:mantle','gear:shadowpaw','gear:bloodstone','gear:hexfist','gear:crown','gear:paragon','gear:wand','gear:bandolier','gear:censer','gear:dynamo','gear:aegisgen','gear:ironbark','gear:sanctaegis'];
 /* Version 124: the Innate capstone's extra Innate ability is once per fight, and comes back after a round in which the hero used no abilities */
 const innOk=(u,h)=>(u.innUsed||0)<1+(stat(h,'innUses')>0&&!u.capUsed?1:0);
 const handN=g=>g.two?'Two hands':g.hand==='main'?'Main Hand':g.hand==='off'?'Off Hand':'Either Hand';
