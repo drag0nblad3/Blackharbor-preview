@@ -80,7 +80,9 @@ const assert=require('node:assert/strict');
     console.log(JSON.stringify(checks,null,2));
     // Real pointer interactions catch overlays/scroll problems that DOM .click() misses.
     await page.locator('.abilities-dropdown .combat-menu-toggle').click();
+    console.log('BEFORE RENDER',JSON.stringify(await page.evaluate(()=>({open:S.sd.combatMenuOpen,aria:document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')}))));
     await page.evaluate(()=>render());
+    console.log('AFTER RENDER',JSON.stringify(await page.evaluate(()=>({open:S.sd.combatMenuOpen,aria:document.querySelector('.abilities-dropdown .combat-menu-toggle').getAttribute('aria-expanded')}))));
     assert.ok(await page.locator('.abilities-dropdown .combat-menu-toggle').evaluate(el=>el.getAttribute('aria-expanded')==='true'),'Ability menu should remain open after an animation render');
     await page.locator('.abilities-menu [data-a="combatPick:ability:power"]').click();
     assert.ok(await page.locator('.combat-choice').textContent().then(t=>t.includes('Blur')),'Mobile: ability menu must be usable by pointer');
