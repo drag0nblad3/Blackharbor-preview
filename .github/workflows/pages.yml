@@ -27,6 +27,13 @@ jobs:
         run: |
           mkdir site
           cp index.html *.css *.js site/
+          # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
+          sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
+          grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
+          # Mark the page so it is never mistaken for the live game
+          src=$(sed -n 's/^Source: //p' PREVIEW_STATUS.md | tr -d '`<>&"')
+          sed -i 's|<title>Blackharbor</title>|<title>Blackharbor PREVIEW</title>|' site/index.html
+          echo "<div style=\"position:fixed;left:4px;bottom:4px;z-index:9999;pointer-events:none;font:700 11px monospace;background:#c2185b;color:#fff;padding:2px 6px;border-radius:4px;opacity:.85\">PREVIEW $src</div>" >> site/index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
