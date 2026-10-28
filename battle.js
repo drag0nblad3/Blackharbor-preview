@@ -1039,6 +1039,15 @@ function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko)return false;
   if(f.gain&&(u.res.magic||0)>=arcMax(h))return false;if(f.gainP&&(u.res.tech||0)>=pwrMax(h))return false;
   return true}
 
+/* Remember open dropdowns across short-lived combat animation renders.
+   The click event sees the old native details state before it toggles. */
+document.addEventListener('click',e=>{
+  const summary=e.target.closest('.combat-dropdown > summary'),sd=S&&S.sd;
+  if(!summary||!sd||S.phase!=='sd')return;
+  const details=summary.parentElement;
+  sd.combatMenuOpen=details.open?null:(details.classList.contains('abilities-dropdown')?'abilities':'other');
+},true);
+
 /* Combat menus: selecting a choice is informational; only explicit confirmation
    may activate a power, consume resources or start board targeting. */
 function combatPick(kind,key){
@@ -1049,11 +1058,12 @@ function combatPick(kind,key){
   if(kind==='other'&&!['escort','hack','avoidDamage','rallySpirit','letgo'].includes(key))return;
   if(kind!=='ability'&&kind!=='other')return;
   sd.combatPick={hid:u.hid,kind,key};
+  sd.combatMenuOpen=null;
   sd.mode=null;
   render();
 }
 function combatClear(){
-  const sd=S.sd;if(!sd||sd.busy)return;sd.combatPick=null;render();
+  const sd=S.sd;if(!sd||sd.busy)return;sd.combatPick=null;sd.combatMenuOpen=null;render();
 }
 /* Icons show what using the action consumes, not what its resource cost is.
    A future move-cost ability can mark itself with moveAct. */
@@ -1139,13 +1149,13 @@ function combatUse(){
 function combatMenus(u,h){
   const sd=S.sd,pw=BASE(h).power,p=POWERS[pw],gear=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))].filter(k=>GEAR[k]&&GEAR[k].ab);
   const choice=(kind,key,label,detail,costKind)=>`<button type="button" class="btn sm combat-option ${sd.combatPick&&sd.combatPick.hid===u.hid&&sd.combatPick.kind===kind&&sd.combatPick.key===key?'on':''}" data-a="combatPick:${kind}:${key}"><span class="combat-cost-icon" aria-label="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}" title="${costKind==='action'?'Uses action':costKind==='move'?'Uses move':'Free action'}">${combatCostIcon(costKind)}</span><span class="combat-option-text">${esc(label)}${detail?`<small>${esc(detail)}</small>`:''}</span></button>`;
-  const abilities=`<details class="combat-dropdown abilities-dropdown"><summary class="btn sm">Abilities ▾</summary>
+  const abilities=`<details class="combat-dropdown abilities-dropdown" ${sd.combatMenuOpen==='abilities'?'open':''}><summary class="btn sm">Abilities ▾</summary>
     <div class="combat-dropdown-menu abilities-menu">
       ${choice('ability','power',p.name,'Primary · '+powCost(pw,true),p.free?'free':'action')}
       ${gear.map(k=>{const g=GEAR[k],a=g.ab;return choice('ability',k,a.n,g.name+' · '+abCost(g,true),a.act?'action':a.moveAct?'move':'free')}).join('')}
     </div></details>`;
   const nFol=followers(u).length;
-  const others=`<details class="combat-dropdown other-actions"><summary class="btn sm">Other Actions ▾</summary>
+  const others=`<details class="combat-dropdown other-actions" ${sd.combatMenuOpen==='other'?'open':''}><summary class="btn sm">Other Actions ▾</summary>
     <div class="combat-dropdown-menu other-actions-menu">
       ${choice('other','escort','Escort','Gather civilians',u.freeEvac?'free':'action')}
       ${sd.term?choice('other','hack','Hack','Evidence terminal','action'):''}
@@ -1305,6 +1315,6 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
       if((!a.rng||dV(u,sd.vl[vAt].v)<=a.rng)&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);sd.aim={x,y};
         return act(async()=>{payAb(u,key);u.acted=true;log('hero',`${h.name} unleashes ${a.n} (${abCost(g)})!`);if(a.str)u.buffStr+=a.str;await heroAttack(u,'v',a.plus||0,a.dice||0,'beam');if(a.splash&&!sd.result)await splashV(a.splash)})}}}
   if(vAt>=0&&sd.vl.length>1&&unitIdx<0){focusV(vAt);render();return}
-  if(unitIdx>=0){if(sd.sel!==unitIdx)sd.combatPick=null;sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=o.moved?null:'move'}
-  else{sd.sel=null;sd.mode=null;sd.combatPick=null}
+  if(unitIdx>=0){if(sd.sel!==unitIdx){sd.combatPick=null;sd.combatMenuOpen=null}sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=o.moved?null:'move'}
+  else{sd.sel=null;sd.mode=null;sd.combatPick=null;sd.combatMenuOpen=null}
   render()}
