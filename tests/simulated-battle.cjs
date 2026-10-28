@@ -157,6 +157,55 @@ const assert=require('node:assert/strict');
   assert.equal(gearBalance.combined,4,'Set, aura, and Guard share one cap');
   assert.deepEqual(gearBalance.aegis,{self:2,ally:2},'Arcane Aegis absorbs 2 for each recipient');
   assert.deepEqual(gearBalance.migration,{moved:['compeyes','mutagen'],gear:[],unlocked:false},'Moved gear returned to armory');
+  // Validate the attack-dice rebalance in actual activated gear and paired setups.
+  const diceBalance=await page.evaluate(async()=>{
+    newCampaign();recruitQuick('volt');S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
+    const h=S.heroes.find(x=>x.cls==='volt');
+    h.ranks={tech:4,innate:4,magic:4};h.gear={};
+    S.inv={v:S.villains[0].key,clues:2};startShowdown();
+    const sd=S.sd;sd.intro=false;sd.busy=false;sd.sel=0;
+    sd.civs=[];sd.hench=[];sd.bombs=[];sd.beams=[];
+    const u=sd.units[0];u.x=4;u.y=4;u.ko=false;
+    const used=[];
+    for(const id of ['wraps','gaunt','stinger','blades','claws','lance','soulreaver']){
+      h.gear={arms:id};if(GEAR[id].two)h.gear.arms2=id;
+      u.res.tech=pwrMax(h);u.res.magic=arcMax(h);
+      u.abUsed=[];u.innUsed=0;u.capUsed=false;u.abRd=false;
+      u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.acted=false;
+      const before={power:u.res.tech,arcana:u.res.magic};
+      await useAb(id);
+      used.push({id,dice:u.buffDice,str:u.buffStr,acc:u.buffAcc,back:u.buffBack,
+        spentPower:before.power-u.res.tech,spentArcana:before.arcana-u.res.magic,
+        description:abTxt(GEAR[id].ab)});
+    }
+    h.gear={arms:'gaunt',arms2:'gaunt'};
+    const pairedGaunt=pairFx(h,GEAR.gaunt);
+    h.gear={arms:'blades',arms2:'blades'};
+    const pairedBackstab=pairFx(h,GEAR.blades);
+    h.gear={arms:'claws'};
+    const soloClawAcc=stat(h,'acc');
+    h.gear.arms2='claws';
+    const pairedClawAcc=stat(h,'acc');
+    const pairedFrenzy=pairFx(h,GEAR.claws);
+    return {used,pairedGaunt,pairedBackstab,pairedClawAcc,soloClawAcc,pairedFrenzy};
+  });
+  assert.deepEqual(diceBalance.used.map(({id,dice,str,acc,back,spentPower,spentArcana})=>
+    ({id,dice,str,acc,back,spentPower,spentArcana})),[
+      {id:'wraps',dice:1,str:0,acc:-3,back:0,spentPower:0,spentArcana:0},
+      {id:'gaunt',dice:1,str:0,acc:-2,back:0,spentPower:4,spentArcana:0},
+      {id:'stinger',dice:1,str:0,acc:-2,back:0,spentPower:3,spentArcana:0},
+      {id:'blades',dice:0,str:-2,acc:0,back:1,spentPower:0,spentArcana:0},
+      {id:'claws',dice:0,str:0,acc:-3,back:2,spentPower:0,spentArcana:0},
+      {id:'lance',dice:1,str:3,acc:-3,back:0,spentPower:4,spentArcana:0},
+      {id:'soulreaver',dice:1,str:0,acc:-2,back:0,spentPower:0,spentArcana:5}
+    ],'Seven abilities apply dice and penalty effects with unchanged activation costs');
+  assert.deepEqual(diceBalance.pairedGaunt,{dice:1,acc:-2},'Pairing Coil Gauntlets does not restore Strength');
+  assert.deepEqual(diceBalance.pairedBackstab,{back:2,str:-2},'Paired Umbral Blades retain their original extra flanking die');
+  assert.equal(diceBalance.pairedClawAcc,diceBalance.soloClawAcc-1,'Paired Graft Claws lose 1 passive Accuracy');
+  assert.deepEqual(diceBalance.pairedFrenzy,{back:3,acc:-3},'Paired Frenzy adds one flanking die');
+  for(const item of diceBalance.used)assert.doesNotMatch(item.description,/\\+−|\\+-/,'Penalty display on '+item.id);
+  assert.match(diceBalance.used.find(x=>x.id==='blades').description,/−2 Strength/,'Backstab Strength penalty visible');
+  assert.match(diceBalance.used.find(x=>x.id==='lance').description,/−3 accuracy/,'Plasma Burst Accuracy penalty visible');
   assert.deepEqual(errors,[],'No browser errors');
   console.log('Simulated battle passed: mobile and desktop menus, persistent open state, Stun Charge, Avoid Damage and Rally targeting.');
  }finally{await browser.close()}
