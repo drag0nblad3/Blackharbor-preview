@@ -21,5 +21,6 @@ jobs:
         with:
           node-version: '22'
       - run: node tests/gameplay-text.cjs
+      - run: node tests/investigation-ui.cjs
       - run: node tests/payload-bombs.cjs
       - run: node tests/cantor-rework.cjs
