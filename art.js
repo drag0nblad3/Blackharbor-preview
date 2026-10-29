@@ -291,8 +291,12 @@ function vPortrait(k,variant='card'){
     <path d="M0 0L95 0L10 116H0Z" fill="#fff5be" opacity=".12"/>
     ${motif}
     <svg x="22" y="-4" width="116" height="125" viewBox="0 0 100 104" overflow="hidden">${pieces}</svg>
-    ${VPR_SHEET[k]?`<image href="villain-portraits.avif" x="${-160*VPR_SHEET[k][0]}" y="${-116*VPR_SHEET[k][1]}"
-      width="640" height="348" preserveAspectRatio="none" aria-hidden="true"/>`:''}
+    ${VPR_SHEET[k]?`<svg class="vportrait-crop" x="0" y="0" width="160" height="116"
+      viewBox="${VPR_SHEET[k][0]*176+3} ${VPR_SHEET[k][1]*148+3} 169 140"
+      preserveAspectRatio="none" overflow="hidden">
+        <image href="villain-portraits.avif" x="0" y="0" width="704" height="444"
+          preserveAspectRatio="none" aria-hidden="true"/>
+      </svg>`:''}
     <path d="M0 115H160" stroke="${accent}" stroke-width="5"/>
     <path d="M0 1H160V115H0Z" stroke="#111f30" stroke-width="3" fill="none"/>
   </svg>`;
