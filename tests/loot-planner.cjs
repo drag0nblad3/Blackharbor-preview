@@ -51,6 +51,14 @@ for(const seed of [1,19,57]){
  assert.equal(g.get("S.heroes.find(h=>h.cls==='volt').gear.arms"),'lance','Large weapon is equipped when affordable');
  assert(g.get('ST.bigCrafts')>=1);
 }
+{
+ const g=make(81);
+ g.run(chosen.map(x=>'recruitQuick('+JSON.stringify(x)+');').join(''));
+ g.run("S.villains=[makeVillain('quarry',1)];S.salvage.quarry=5;S.issue=1");
+ g.run('plannedSpend(party(),()=>true)');
+ assert(g.get('ST.setCrafts')>0,'The bot must still buy valuable standalone boss gear in early arcs');
+ assert(g.get('S.salvage.quarry')<5,'Standalone boss gear should use salvage not earmarked for a set');
+}
 console.log('PASS: planned four-piece set completion, protected boss salvage, targeted spending, and major-upgrade evaluation.');
 
 if(process.env.CAMPAIGN_SMOKE==='1'){
