@@ -1,7 +1,6 @@
 
 /* Layout: comic-issue frame — masthead with halftone, panel-bordered sections, narration-box captions; one column on phones */
 :root{
-  color-scheme:light;
   --set:#1C8A4A; --setBg:#E2F4E8; --setGlow:rgba(40,190,100,.5);
   --paper:#EDF0F4; --panel:#FFFFFF; --ink:#151821; --muted:#596173; --line:#C4CAD5;
   --cyan:#0B86AE; --magenta:#C92463; --yellow:#F1C02C; --good:#2F8A4E; --dot:rgba(21,24,33,.13);
@@ -12,8 +11,11 @@
   --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-/* Device dark-mode preferences do not recolor the comic-book UI.
-   An explicit data-theme="dark" opt-in remains available below. */
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --set:#5BD88A; --setBg:#11281B; --setGlow:rgba(91,216,138,.45);
+  --paper:#0E1119; --panel:#171B26; --ink:#E7EAF1; --muted:#9AA1B2; --line:#2C3242;
+  --cyan:#3DB6DD; --magenta:#EE548C; --yellow:#F3CB4B; --good:#5BC27D; --dot:rgba(231,234,241,.08);
+  --cap:#3A3214; --capInk:#F6E7B0; --tech:#3DB6DD; --innate:#F08A4B; --magic:#B48CF0; color-scheme:dark}}
 :root[data-theme="dark"]{
   --set:#5BD88A; --setBg:#11281B; --setGlow:rgba(91,216,138,.45);
   --paper:#0E1119; --panel:#171B26; --ink:#E7EAF1; --muted:#9AA1B2; --line:#2C3242;
@@ -644,4 +646,44 @@ button.slot.pick:hover{border-color:var(--cyan)}
   .combat-dropdown{min-width:0;flex:1 1 calc(50% - 8px)}
   .combat-dropdown>.combat-menu-toggle{width:100%}
   .combat-dropdown-menu{max-width:min(88vw,300px)}
+}
+
+
+/* Campaign archive: compact top-right button and copy/paste modal. */
+.mast-tools{margin-left:auto;justify-content:flex-end;align-items:center;min-width:0;gap:8px}
+.mast-save-btn{white-space:nowrap;flex:none;min-height:37px;padding:7px 11px;background:var(--cap);color:var(--capInk)}
+.bh-save-dialog{
+  box-sizing:border-box;width:min(620px,calc(100vw - 24px));max-width:100%;
+  max-height:min(84dvh,820px);margin:auto;padding:16px;
+  overflow-y:auto;overscroll-behavior:contain;
+  border:3px solid var(--ink);border-radius:4px;
+  background:var(--panel);color:var(--ink);box-shadow:8px 8px 0 #0006;
+}
+.bh-save-dialog::backdrop{background:rgba(8,13,23,.78)}
+.bh-save-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.bh-save-heading .btn{flex:none}
+.bh-save-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:13px 0}
+.bh-save-tabs>.btn[aria-selected="true"]{background:var(--cyan);color:var(--panel);border-color:var(--ink)}
+.bh-save-panel{display:flex;flex-direction:column;gap:10px}
+.bh-save-panel[hidden],.bh-save-confirm[hidden]{display:none!important}
+.bh-save-code{
+  width:100%;min-height:132px;max-height:34dvh;resize:vertical;
+  padding:10px;border:2px solid var(--line);border-radius:3px;
+  background:var(--paper);color:var(--ink);font:12px/1.55 var(--mono);
+  overflow:auto;overflow-wrap:anywhere;white-space:pre-wrap;
+  -webkit-user-select:text;user-select:text;
+}
+.bh-save-panel .btn{min-height:39px}
+.bh-save-panel .row{gap:8px}
+.bh-save-status{min-height:1.45em;margin:10px 0 0;font-weight:700;color:var(--good)}
+.bh-save-status.error{color:var(--magenta)}
+.bh-save-panel p{margin:0}
+.bh-save-confirm{align-self:flex-start}
+@media(max-width:440px){
+  .mast-tools{gap:5px}
+  .mast-save-btn{font-size:.67rem;padding:5px 7px;min-height:36px}
+  .mast .issue{font-size:.84rem;padding:4px 6px}
+  .bh-save-dialog{padding:12px;max-height:92dvh}
+  .bh-save-panel .row>.btn{flex:1 1 130px}
+  .bh-save-code{min-height:120px}
 }
