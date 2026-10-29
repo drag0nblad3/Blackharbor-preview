@@ -7,6 +7,8 @@ on:
       - 'tests/simulated-battle.cjs'
       - 'tests/layout-smoke.cjs'
       - 'comic-ui.css'
+      - 'pulp-details.css'
+      - 'investigation.css'
       - 'game.css'
       - 'battle.js'
       - 'game.js'
