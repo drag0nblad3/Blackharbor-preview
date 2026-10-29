@@ -1,0 +1,188 @@
+/* BLACKHARBOR TACTICAL ART PACK / preview experiment
+   Four reusable hand-drawn SVG floor materials plus two directional sprites.
+   This stylesheet is purely visual: game rules, hex buttons, telegraphs,
+   collision and unit target handling remain in battle.js / art.css. */
+
+.wrap.v-sd .board {
+  --bh-surface: url("arena-concrete.svg");
+  --bh-surface-opacity: .66;
+  --bh-lens:#7edcff;
+}
+.wrap.v-sd .board:is(.L-gallows,.L-helios,.L-lode,.L-architect) {
+  --bh-surface:url("arena-steel.svg");
+  --bh-surface-opacity:.58;
+}
+.wrap.v-sd .board:is(.L-cantor,.L-noct) {
+  --bh-surface:url("arena-wood.svg");
+  --bh-surface-opacity:.65;
+}
+.wrap.v-sd .board:is(.L-grid,.L-serpent) {
+  --bh-surface:url("arena-circuit.svg");
+  --bh-surface-opacity:.65;
+}
+.wrap.v-sd .board:is(.L-quarry,.L-swarm,.L-bomber,.L-mole) {
+  --bh-surface:url("arena-concrete.svg");
+  --bh-surface-opacity:.69;
+}
+/* A lighter, scuffed-concrete training arena for the tutorial. */
+.wrap.v-sd .board:not(.lair) {
+  background-color:#b4c4c9;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(24,53,65,.13) 0 1px,transparent 1px 25px),
+    repeating-linear-gradient(90deg,rgba(24,53,65,.13) 0 1px,transparent 1px 25px);
+}
+/* Each hex has an existing floor image on ::after; ::before is the
+   transparent hand-painted wear layer above it. Obstacles, fire, pits,
+   charged zones, bomb danger and walls retain their own full artwork. */
+.wrap.v-sd .board .cell:not(:is(.wall,.pit,.haz,.obs,.tele,.blast,.blast2,.firing))::before {
+  background-image:
+    linear-gradient(165deg,rgba(255,253,230,.17),transparent 38%,rgba(3,16,23,.30)),
+    var(--bh-surface);
+  background-position:center,center;
+  background-size:100% 100%,115% 115%;
+  background-repeat:no-repeat;
+  opacity:var(--bh-surface-opacity);
+}
+.wrap.v-sd .board .cell:not(:is(.wall,.pit,.haz,.obs,.tele,.blast,.blast2,.firing)):nth-child(4n+1)::before {
+  background-position:center,35% 55%;
+  background-size:100% 100%,145% 130%;
+}
+.wrap.v-sd .board .cell:not(:is(.wall,.pit,.haz,.obs,.tele,.blast,.blast2,.firing)):nth-child(6n+3)::before {
+  background-position:center,65% 40%;
+  background-size:100% 100%,128% 150%;
+}
+/* Lift the six-sided tile just enough to read as an individual space. */
+.wrap.v-sd .board .cell::after {
+  box-shadow:inset 0 1px 0 rgba(255,250,209,.16),inset 0 -2px 2px rgba(3,13,21,.22);
+}
+.wrap.v-sd .board .cell:hover {
+  --cb:#fcdf77;
+  --ci:3.2px;
+}
+.wrap.v-sd .board .cell:focus-visible {
+  --cb:#ffe58b;
+  --ci:4px;
+  outline:3px solid #ffec8b;
+  outline-offset:1px;
+}
+/* Reachable tile: cyan route arrow appears ONLY when the tile is focused
+   or hovered. It never replaces a target or hazard state. */
+.wrap.v-sd .board .cell.reach:not(:is(.tele,.blast,.blast2,.wall,.pit,.haz,.obs,.tgt)):is(:hover,:focus-visible)::before {
+  background-image:
+    url("arena-move.svg"),
+    linear-gradient(165deg,rgba(185,249,255,.44),rgba(7,57,85,.23)),
+    var(--bh-surface);
+  background-size:46% 46%,100% 100%,125% 125%;
+  background-position:50% 50%,center,center;
+  background-repeat:no-repeat;
+  opacity:1;
+}
+.wrap.v-sd .board .cell.reach:not(:is(.tele,.blast,.blast2,.tgt)) {
+  --cb:#39bdeb;
+}
+/* Imminent explosion and charge telegraphs use a real warning glyph.
+   Later bomb-radius forecasts remain softer than the imminent blast. */
+.wrap.v-sd .board .cell:is(.blast,.tele)::before {
+  background-image:url("arena-danger.svg");
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:56% 56%;
+  opacity:.92;
+  animation:bhDangerBeat 1.2s ease-in-out infinite alternate;
+}
+.wrap.v-sd .board .cell.blast {
+  --cb:#ff5e7e;
+  --ci:3.6px;
+}
+.wrap.v-sd .board .cell.blast2 {
+  --cb:#bc678b;
+  --ci:2.2px;
+}
+.wrap.v-sd .board .cell.tgt {
+  --cb:#ff5878;
+  --ci:4px;
+}
+.wrap.v-sd .board .cell.ally {
+  --cb:#5ce6b3;
+  --ci:3.5px;
+}
+@keyframes bhDangerBeat {
+  from {opacity:.7;filter:drop-shadow(0 0 0 #ff6a82)}
+  to {opacity:1;filter:drop-shadow(0 0 4px #ff6a82)}
+}
+/* Board chassis: physical border, inset bezel and four brass fiducials.
+   The overlay is pointer-events:none, so every original cell remains a button. */
+.wrap.v-sd .bcol .boardwrap {
+  position:relative;
+  border:4px solid #112535;
+  background:
+    repeating-linear-gradient(135deg,#273b4b 0 8px,#1b2e41 8px 16px);
+  box-shadow:
+    0 0 0 2px #7c96a4,
+    4px 5px 0 rgba(6,20,32,.58),
+    inset 0 0 0 2px #a0adad;
+}
+.wrap.v-sd .bcol .boardwrap::after {
+  content:"";
+  position:absolute;
+  inset:5px;
+  z-index:5;
+  border:1px solid rgba(250,225,141,.35);
+  background:
+    linear-gradient(#f8d26c,#f8d26c) left top/18px 3px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) left top/3px 18px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) right top/18px 3px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) right top/3px 18px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) left bottom/18px 3px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) left bottom/3px 18px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) right bottom/18px 3px no-repeat,
+    linear-gradient(#f8d26c,#f8d26c) right bottom/3px 18px no-repeat;
+  pointer-events:none;
+}
+/* Contact shadows and a clear selected-unit ring. */
+.wrap.v-sd .board .tok.hst::before {
+  content:"";
+  position:absolute;
+  left:10%;right:10%;top:72%;height:15%;
+  background:rgba(2,13,25,.55);
+  border-radius:50%;
+  filter:blur(1.5px);
+  pointer-events:none;
+}
+.wrap.v-sd .board .tok.hst.sel .st {
+  filter:
+    drop-shadow(0 0 3px #8ee9ff)
+    drop-shadow(0 0 5px #2caee1)
+    drop-shadow(0 2px 1px rgba(0,0,0,.7));
+}
+.wrap.v-sd .board .tok.hmt {
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.65));
+}
+.wrap.v-sd .board .tok.hmt.hurt {
+  filter:drop-shadow(0 0 5px #ff5372);
+}
+/* Boss standees have deliberate silhouettes and better ground separation. */
+.wrap.v-sd .board .vtok:not(.charging) {
+  filter:drop-shadow(0 4px 2px rgba(0,0,0,.72));
+}
+.wrap.v-sd .board .vtok.focus:not(.charging) {
+  filter:
+    drop-shadow(0 0 4px #ffde64)
+    drop-shadow(0 0 2px #ffde64)
+    drop-shadow(0 4px 2px rgba(0,0,0,.72));
+}
+/* Screen-size and input rules: no expensive constant animation on phones
+   except essential live warnings, and no effect for reduced motion. */
+@media (max-width:600px){
+  .wrap.v-sd .board .cell:not(:is(.wall,.pit,.haz,.obs,.tele,.blast,.blast2,.firing))::before {
+    --bh-surface-opacity:.55;
+  }
+  .wrap.v-sd .bcol .boardwrap::after{inset:3px}
+}
+@media (prefers-reduced-motion:reduce){
+  .wrap.v-sd .board .cell:is(.blast,.tele)::before {
+    animation:none;
+    opacity:1;
+    filter:none;
+  }
+}
