@@ -1,0 +1,586 @@
+/* Blackharbor preview | comic-noir system for HQ, roster, villains and showdown.
+   Investigation retains its own isolated caseboard styling. The hex artwork
+   keeps its existing terrain, telegraph and targeting layers. */
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after){
+  --ink:#142238;
+  --muted:#495d70;
+  --line:#a8b7c5;
+  --paper:#e6f1f8;
+  --panel:#fffdf4;
+  --yellow:#f5cd45;
+  --cyan:#1979b0;
+  --magenta:#c53d4a;
+  --good:#237956;
+  --cap:#f8e6ad;
+  --capInk:#28354a;
+  --dot:rgba(20,34,56,.11);
+  --bh-white:#fffcf3;
+  --bh-navy:#142d49;
+  --bh-border:#142238;
+  --bh-paper:
+    radial-gradient(circle at 22% 28%,rgba(20,34,56,.065) 0 .55px,transparent .65px) 0 0/11px 11px,
+    radial-gradient(circle at 62% 68%,rgba(20,34,56,.04) 0 .5px,transparent .7px) 0 0/17px 17px;
+  --bh-dots:
+    radial-gradient(circle,rgba(20,34,56,.13) 0 1px,transparent 1.25px) 0 0/9px 9px;
+  --bh-blueprint:
+    linear-gradient(rgba(37,104,155,.075) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(90deg,rgba(37,104,155,.075) 1px,transparent 1px) 0 0/24px 24px,
+    linear-gradient(#e6f1f7,#e6f1f7);
+  --bh-slate:
+    linear-gradient(rgba(255,255,255,.07) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(90deg,rgba(255,255,255,.065) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(#15334f,#173c5a);
+  gap:9px;
+  max-width:1500px;
+  font-size:14px;
+  color:var(--ink);
+}
+body:has(#app:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after)){
+  background-color:#edf4f5;
+  background-image:radial-gradient(rgba(23,54,85,.07) .75px,transparent 1px);
+  background-size:13px 13px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast{
+  background:#fff7df;
+  background-image:var(--bh-dots),linear-gradient(120deg,#fff6da,#e4f2f8 65%);
+  background-size:11px 11px,auto;
+  border:3px solid var(--bh-border);
+  box-shadow:3px 3px 0 var(--bh-border);
+  padding:7px 11px;
+  gap:5px 10px;
+  color:var(--bh-border);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast h1{
+  color:#142238;
+  text-transform:uppercase;
+  letter-spacing:.02em;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast .chip{
+  background:#fffdf5;
+  color:#142238;
+  border:1.5px solid #6b8195;
+  padding:3px 6px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast .chip .ic.u{color:#247baa}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .nav{
+  gap:5px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .nav .btn{
+  background:#e5f0f6;
+  color:#142238;
+  padding:7px 10px;
+  border:2.5px solid #142238;
+  box-shadow:2px 2px 0 #142238;
+  min-height:39px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .nav .btn.on{
+  background:#f5cd45;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .btn.pri{
+  background:#f5cd45;
+  color:#142238;
+  border-color:#142238;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .btn.on{
+  background:#237eb4;
+  color:#fff;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .btn:focus-visible{
+  outline:3px solid #1c78ad;
+  outline-offset:2px;
+}
+
+/* One consistent page-level information ribbon. */
+.bh-pagehead{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  padding:11px 14px;
+  border:3px solid #142238;
+  background:var(--bh-slate);
+  color:#fff;
+  box-shadow:3px 3px 0 #142238;
+  min-width:0;
+}
+.bh-pagehead-copy{min-width:180px;flex:1 1 340px}
+.bh-page-kicker{
+  color:#ffd65c;
+  font-size:.69rem;
+  line-height:1.2;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  font-weight:800;
+}
+.bh-pagehead h2{
+  margin:3px 0;
+  color:#fff;
+  font-size:clamp(1.2rem,2vw,1.65rem);
+  text-transform:uppercase;
+  line-height:1.1;
+}
+.bh-pagehead p{
+  color:#d7e5ef;
+  margin:2px 0 0;
+  font-size:.79rem;
+  line-height:1.3;
+}
+.bh-page-stats{display:flex;align-items:stretch;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.bh-page-stat{
+  background:#fffdf4;
+  color:#142238;
+  border:2px solid #142238;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  min-width:71px;
+  padding:5px 8px;
+  box-shadow:2px 2px 0 #f5cd45;
+}
+.bh-page-stat b{font:800 1.08rem/1.2 var(--mono)}
+.bh-page-stat span{font-size:.62rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+
+/* Raised comic panels, light newsprint, dense headings. */
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel{
+  border:3px solid #142238;
+  background-color:#fffdf4;
+  background-image:var(--bh-paper);
+  background-size:11px 11px,17px 17px;
+  box-shadow:3px 3px 0 #142238;
+  padding:10px;
+  gap:8px;
+  min-width:0;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card{
+  border:1.5px solid #9daebd;
+  background:#fffdf6;
+  background-image:var(--bh-paper);
+  background-size:11px 11px,17px 17px;
+  padding:8px;
+  gap:5px;
+  box-shadow:1px 2px 0 rgba(20,34,56,.13);
+  min-width:0;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card.built{
+  border-left:5px solid #278365;
+  background-color:#eff8ee;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card.locked{
+  background:#edf0f0;
+  border-style:dashed;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary{
+  background:var(--bh-navy);
+  color:#fff;
+  border:2px solid #142238;
+  margin:-4px -4px 0;
+  padding:7px 10px;
+  min-height:37px;
+  gap:7px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary h2{
+  font-size:1rem;
+  color:#fff;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary .eyebrow{
+  color:#bed9eb;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary::after{
+  border-color:#f5cd45;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>.cbody{
+  gap:8px;
+  margin-top:9px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .cap{
+  background:#f9e5a3;
+  background-image:var(--bh-paper);
+  border:2px solid #142238;
+  color:#24334b;
+  font-size:.82rem;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .stat{
+  background:#e8f3f8;
+  border:1.5px solid #91acbc;
+  padding:5px 2px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .slot{
+  background:#edf3f7;
+  border-color:#a0b1be;
+  min-height:43px;
+  padding:5px 7px;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .slot.has{
+  background:#fff8df;
+  border-left:3px solid var(--tc,#1979b0);
+}
+
+/* HQ = workshop workbench and blueprint-covered facility plans.
+   Keep current game actions, but use screen width efficiently. */
+.wrap.v-hq-hq .hqcols{gap:10px}
+.wrap.v-hq-hq .hqcols>div{gap:10px}
+.wrap.v-hq-hq .hqa>section.panel:nth-of-type(1){
+  background-image:var(--bh-blueprint);
+}
+.wrap.v-hq-hq .hqb>section.panel{
+  background-image:
+    linear-gradient(rgba(228,240,247,.33),rgba(228,240,247,.33)),
+    var(--bh-paper);
+}
+.wrap.v-hq-hq .hqb .card{
+  border-left:3px solid #277fb2;
+}
+.wrap.v-hq-hq .hqcols .grid2{
+  grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
+  gap:7px;
+}
+.wrap.v-hq-hq .hqb .cbody>p.small{
+  padding:7px 9px;
+  background:#e8f1f8;
+  border-left:4px solid #237eb4;
+}
+.wrap.v-hq-hq .hqcols details.nested>summary{
+  background:#e7f0f6;
+  border:1px solid #bbcbd5;
+  padding:6px 8px;
+  min-height:36px;
+}
+.wrap.v-hq-hq .hqcols .row.small{gap:5px}
+.wrap.v-hq-hq .hqb .btn.sm{min-height:33px}
+
+/* Roster = compact collectible cards with full sheets on demand. */
+.wrap.v-hq-roster>.panel{gap:9px}
+.wrap.v-hq-roster .panel>.coll>.cbody>.grid2{
+  grid-template-columns:repeat(auto-fit,minmax(225px,1fr));
+  gap:8px;
+}
+.wrap.v-hq-roster .card{
+  border:2px solid #142238;
+  box-shadow:3px 3px 0 #c2a75c;
+  overflow:visible;
+}
+.wrap.v-hq-roster .card>details.coll>summary{
+  padding:6px 5px;
+  min-height:54px;
+  background:#fff2cb;
+  border:1px solid #b9aa79;
+  align-items:center;
+  gap:4px;
+}
+.wrap.v-hq-roster .card>details.coll>summary>.row{gap:5px}
+.wrap.v-hq-roster .card>details.coll>summary h3{
+  color:#142238;
+  font-size:.93rem;
+  line-height:1.15;
+}
+.wrap.v-hq-roster .card>details.coll>summary .vic{width:27px;height:27px}
+.wrap.v-hq-roster .card>details.coll>.cbody{
+  margin-top:7px;
+  gap:7px;
+  border-top:2px dashed #d2c18e;
+  padding-top:8px;
+}
+.wrap.v-hq-roster .card .stats{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.wrap.v-hq-roster .card details.coll[open]>summary{
+  background:#f6d24d;
+}
+.wrap.v-hq-roster .card .slot.pick{
+  text-align:left;
+}
+
+/* Villains = a crime dossier wall. Actual playbooks, schemes and calls to
+   investigate remain in the cards. */
+.wrap.v-hq-villains>.panel{
+  background-image:
+    linear-gradient(95deg,rgba(253,242,215,.82),rgba(246,236,214,.88)),
+    repeating-linear-gradient(25deg,rgba(92,50,27,.09) 0 2px,transparent 2px 11px);
+}
+.wrap.v-hq-villains .panel .grid2{
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:9px;
+}
+.wrap.v-hq-villains .card{
+  border:2px solid #142238;
+  background:#fff9e8;
+  box-shadow:3px 3px 0 rgba(20,34,56,.4);
+  position:relative;
+}
+.wrap.v-hq-villains .card::before{
+  content:"";
+  position:absolute;
+  top:-6px;
+  right:20px;
+  width:46px;
+  height:12px;
+  transform:rotate(3deg);
+  background:repeating-linear-gradient(90deg,rgba(255,251,230,.92) 0 9px,rgba(245,222,166,.8) 9px 18px);
+  border:1px solid #a9a18c;
+  pointer-events:none;
+}
+.wrap.v-hq-villains .card>.row:first-child{
+  padding:3px 3px 7px;
+  border-bottom:2px solid #142238;
+}
+.wrap.v-hq-villains .card h3{
+  font-size:1.02rem;
+}
+.wrap.v-hq-villains .card .meter{flex:1;max-width:210px}
+.wrap.v-hq-villains .card .meter i{flex:1;min-width:0}
+.wrap.v-hq-villains .card>.btn.pri{
+  align-self:stretch;
+  min-height:40px;
+  margin-top:auto;
+}
+
+/* Combat = darker tactical telemetry framing a bright, unchanged hex arena. */
+.wrap.v-sd .sdl{
+  gap:9px;
+}
+.wrap.v-sd .sdp .bhd{
+  background:var(--bh-slate);
+  padding:10px;
+  border:2px solid #142238;
+  color:#fff;
+}
+.wrap.v-sd .bhd h2{
+  color:#fff;
+  font-size:clamp(1rem,1.5vw,1.34rem);
+}
+.wrap.v-sd .bhd .eyebrow{
+  color:#f5d15b;
+}
+.wrap.v-sd .bhd .small{
+  color:#ebf1f9;
+}
+.wrap.v-sd .bhd .kwd{
+  border-color:#f5d15b;
+}
+.wrap.v-sd .bhd .btn.sm{
+  background:#fffdf4;
+  color:#142238;
+}
+.wrap.v-sd .bhd .cap{
+  background:#fff0c0;
+  color:#142238;
+}
+.wrap.v-sd .bcol{
+  background:#e9f2f7;
+  background-image:var(--bh-blueprint);
+  padding:8px;
+  border:3px solid #142238;
+  box-shadow:3px 3px 0 #142238;
+}
+.wrap.v-sd .bcol .boardwrap{
+  background-color:#142238;
+  padding:4px;
+  border:2px solid #142238;
+  min-width:0;
+}
+.wrap.v-sd .bcol .board{
+  border:1.5px solid #142238;
+  box-shadow:none;
+}
+.wrap.v-sd .bcol details.coll.nested{
+  background:#fffdf3;
+  border:1.5px solid #b3c2ce;
+  padding:6px;
+}
+.wrap.v-sd .bcol .legend{
+  font-size:.69rem;
+  gap:6px 10px;
+}
+.wrap.v-sd .bact{
+  background:#e9f3f9;
+  background-image:var(--bh-paper);
+  border:2.5px solid #142238;
+  padding:8px;
+  gap:6px;
+}
+.wrap.v-sd .bact>.row{
+  gap:5px;
+}
+.wrap.v-sd .bact>.row .btn{
+  min-height:40px;
+}
+.wrap.v-sd .bact .combat-dropdown-menu{
+  background:#fffdf4;
+  border:2px solid #142238;
+  color:#142238;
+  box-shadow:4px 4px 0 #142238;
+}
+.wrap.v-sd .combat-choice{
+  background:#fff8df;
+  color:#142238;
+  border:2px solid #142238;
+  padding:9px;
+}
+.wrap.v-sd .brest{
+  background:#fffdf4;
+  background-image:var(--bh-paper);
+  border:2.5px solid #142238;
+  padding:9px;
+  gap:7px;
+}
+.wrap.v-sd .brest>.eyebrow{
+  background:#142d49;
+  color:#f5d15b;
+  padding:6px 9px;
+}
+.wrap.v-sd .brest>.card{
+  border:2px solid #8ba7ba;
+}
+.wrap.v-sd .brest .resrow{gap:5px 9px}
+.wrap.v-sd .brest .resrow .r{flex-wrap:wrap}
+.wrap.v-sd .sdlog{
+  background:#fffaf0;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(50,113,164,.09) 0 1px,transparent 1px 27px),
+    linear-gradient(#fffaf0,#fffaf0);
+}
+.wrap.v-sd .sdlog .log{
+  font-family:var(--body);
+  line-height:1.28;
+}
+.wrap.v-sd .sdlog .log p{
+  background:rgba(255,255,255,.82);
+  padding:5px 8px;
+  border-bottom:1px solid #d5e0e6;
+}
+.wrap.v-sd .sdlog .log p.vill{
+  border-left-color:#c23f48;
+}
+.wrap.v-sd .sdlog .log p.hero{
+  border-left-color:#287eaf;
+}
+
+/* One-off panels: chapter pages and after-action reports use the same paper. */
+.wrap:is(.v-event,.v-arc,.v-after) .panel{
+  background-image:var(--bh-paper),linear-gradient(#fff7dc,#fffdf4);
+}
+.wrap:is(.v-event,.v-arc,.v-after) .eventsplash{
+  background-image:var(--bh-dots),linear-gradient(#fff7dc,#fffdf4);
+}
+
+/* Wide layouts keep the board and critical actions in view. */
+@media (min-width:1024px){
+  .wrap.v-hq-hq .hqcols{
+    display:grid;
+    grid-template-columns:minmax(0,.87fr) minmax(0,1.13fr);
+    align-items:start;
+  }
+  .wrap.v-hq-villains .panel .grid2{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .wrap.v-hq-roster .panel>.coll>.cbody>.grid2{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  .wrap.v-sd .sdp{
+    column-gap:9px;
+    grid-template-columns:minmax(0,1.25fr) minmax(320px,.8fr);
+  }
+  .wrap.v-sd .board{
+    width:min(calc((100vh - 175px)*1.174),calc(100vw - 500px));
+    max-width:100%;
+  }
+}
+@media (min-width:1400px){
+  .wrap.v-hq-roster .panel>.coll>.cbody>.grid2{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+  .wrap.v-hq-roster .card:has(>details[open]){
+    grid-column:span 2;
+  }
+  .wrap.v-hq-villains .panel .grid2{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media (min-width:1440px){
+  .wrap.v-sd .sdl{
+    display:grid;
+    grid-template-columns:minmax(235px,295px) minmax(0,1.5fr) minmax(310px,.95fr);
+    grid-template-rows:auto minmax(0,auto) 1fr;
+    gap:9px;
+    align-items:start;
+  }
+  .wrap.v-sd .sdp{display:contents}
+  .wrap.v-sd .sdp .bhd{
+    grid-column:1;grid-row:1/3;
+    border:3px solid #142238;
+  }
+  .wrap.v-sd .sdp .bcol{
+    grid-column:2;grid-row:1/4;
+    border:3px solid #142238;
+    min-width:0;
+  }
+  .wrap.v-sd .sdp .bact{
+    grid-column:3;grid-row:1;
+    border:3px solid #142238;
+  }
+  .wrap.v-sd .sdp .brest{
+    grid-column:3;grid-row:2/4;
+    margin-top:0;
+    border:3px solid #142238;
+    max-height:calc(100vh - 300px);
+    overflow:auto;
+    min-width:0;
+  }
+  .wrap.v-sd .sdlog{
+    grid-column:1;grid-row:3;
+    min-width:0;
+  }
+  .wrap.v-sd .board{
+    width:min(calc((100vh - 170px)*1.174),100%);
+  }
+}
+@media (max-width:1023px){
+  .wrap.v-sd .bact{
+    position:sticky;
+    bottom:0;
+    z-index:9;
+    border:3px solid #142238;
+    padding:7px 9px;
+    margin:0 -6px;
+    box-shadow:0 -3px 0 rgba(20,34,56,.22);
+  }
+  .wrap.v-sd .board{max-width:100%}
+}
+@media (max-width:700px){
+  .bh-pagehead{
+    padding:9px 10px;
+    gap:8px;
+  }
+  .bh-pagehead-copy{flex-basis:100%}
+  .bh-page-stats{width:100%;justify-content:flex-start}
+  .bh-page-stat{flex:1;min-width:0;padding:5px}
+  .bh-pagehead p{font-size:.74rem}
+  .wrap.v-hq-roster .panel>.coll>.cbody>.grid2{
+    grid-template-columns:repeat(auto-fit,minmax(225px,1fr));
+  }
+  .wrap.v-hq-villains .panel .grid2{
+    grid-template-columns:repeat(auto-fit,minmax(225px,1fr));
+  }
+  .wrap.v-hq-hq .hqcols .grid2{
+    grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
+  }
+  .wrap.v-sd .bhd h2{font-size:1.14rem}
+}
+@media (max-width:450px){
+  .wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after){
+    gap:7px;
+    font-size:13px;
+  }
+  .wrap.v-hq-roster .panel>.coll>.cbody>.grid2,
+  .wrap.v-hq-villains .panel .grid2{
+    grid-template-columns:minmax(0,1fr);
+  }
+  .wrap.v-sd .bcol{padding:5px}
+  .wrap.v-sd .bcol .boardwrap{padding:2px}
+  .wrap.v-sd .bact{margin:0 -5px}
+}
+@media (prefers-reduced-motion:reduce){
+  .wrap.v-hq-villains .card::before{transform:none}
+}
