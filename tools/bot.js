@@ -60,6 +60,7 @@ function recruitDisciplineParty(){
  const hero=newHero('custom',TRACKS[ONLY_TRACK].name+' Specialist',{...model,name:TRACKS[ONLY_TRACK].name+' Specialist'});
  S.heroes.push(hero);
  S.party=roster().map(h=>h.id);
+ revealStartingVillains();
  if(S.party.length!==4)throw Error('Single-discipline party must have 4 heroes');
 }
 const click0=a=>{const el={dataset:{a},disabled:false,getAttribute:()=>null};const ev={target:{closest:s=>s==='[data-a]'?el:null},stopPropagation(){},preventDefault(){}};(__H.click||[]).forEach(f=>f(ev))};
