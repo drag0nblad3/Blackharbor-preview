@@ -28,6 +28,7 @@ function bhSaveUnb64(text){
   catch(_){bhSaveError('The save text is not valid Base64 data.')}
   const bytes=new Uint8Array(decoded.length);
   for(let i=0;i<bytes.length;i++)bytes[i]=decoded.charCodeAt(i);
+  if(bhSaveB64(bytes)!==text)bhSaveError('Non-canonical Base64 data: the save text may have changed.');
   return bytes;
 }
 async function bhSaveZip(bytes){
