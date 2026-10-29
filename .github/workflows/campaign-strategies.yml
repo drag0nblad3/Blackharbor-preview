@@ -1,0 +1,42 @@
+name: Full campaign strategy simulations
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: 'Full campaigns per strategy'
+        default: '6'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'tests/campaign-strategies.cjs'
+      - 'tools/bot.js'
+      - 'tools/sim.js'
+      - 'tools/bh.js'
+      - 'tools/stub.js'
+      - '.github/workflows/campaign-strategies.yml'
+permissions:
+  contents: read
+jobs:
+  campaign-strategies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      RUNS: ${{ inputs.runs || '6' }}
+      SEED: 77
+      JOBS: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate campaign builds
+        run: node tests/campaign-strategies.cjs
+      - name: Save full fight and campaign results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: campaign-strategy-results
+          path: campaign-results/
+          if-no-files-found: warn
