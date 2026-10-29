@@ -5,6 +5,7 @@ render=()=>{};
 const MODE=process.env.MODE||'upgrade'; // 'upgrade' = craft upgrades for the party; 'collect' = also spend leftovers on new blueprints
 const ETHB=process.env.ETHB||'public';
 const STRATEGY=process.env.STRATEGY||'balanced';
+const LOOT_MODE=process.env.LOOT_MODE||'planned'; // 'greedy' retains the prior bot for a control group
 const PROFILES={
  balanced:{
   weights:{eva:1,acc:1,str:1,maxHp:1,maxComp:.5,maxArc:1,maxPwr:1,pwrRegen:2,move:3,speed:4,range:2,arcWound:2,pot:3},
@@ -73,11 +74,17 @@ async function idle(){let g=0;while(S.sd&&S.sd.busy&&g++<200000)await tick()}
 const GEAR_KEYS=Object.keys(GEAR).filter(k=>!GEAR[k].cons);
 const FAC_ORDER=[...new Set([...(STRATEGY==='specialist'?['workshop','training','medbay','comms','dojo','reactor']:PROFILE.fac),'workshop','skunk','medbay','training','comms','magnet','lab','cell','press','hangar','reactor','dojo','antivenom','bunker','sanctum','jammer','bombsq','optics'])];
 const gScore=(k,h)=>{if(!k||!GEAR[k])return 0;const g=GEAR[k],P=profileOf(h),W=P.weights;let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3;const f=g.ab.fx||{};s+=P.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;return s};
-const ST={crafted:new Set(),blockF:{tech:0,intel:0,both:0,none:0},blockG:{set:0,any:0,none:0},stalls:0};
+const ST={crafted:new Set(),blockF:{tech:0,intel:0,both:0,none:0},blockG:{set:0,any:0,none:0},stalls:0,
+ setGoals:[],bigGoal:null,setCrafts:0,bigCrafts:0,reserveSkips:0,goalCompleted:0};
 
 function slotKeys(g){const G=GEAR[g];if(G.slot==='arms'&&!G.two&&G.hand)return G.hand==='main'?['arms']:G.hand==='off'?['arms2']:['arms','arms2'];return SLOT_KEYS[G.slot]||[G.slot]}
 /* best upgrade gain for hero h if they wore item g */
-function gain(h,g){const G=GEAR[g];if(G.two||G.cons||!canWear(h,g)||!gearAllowed(h,g))return 0;if(Object.values(h.gear).includes(g)&&!(SLOT_KEYS[G.slot]))return 0;
+function gain(h,g){const G=GEAR[g];if(G.two||G.cons||!canWear(h,g)||!gearAllowed(h,g))return 0;
+  if(LOOT_MODE!=='greedy'){
+    const pinned=new Set([...ST.setGoals.filter(p=>p.hid===h.id).flatMap(p=>p.items),...wornGear(h).filter(k=>GEAR[k].set&&setsOn(h).includes(GEAR[k].set))]);
+    const slots=slotKeys(g);
+    if(slots.some(s=>pinned.includes(h.gear[s])&&h.gear[s]!==g))return 0;
+  }if(Object.values(h.gear).includes(g)&&!(SLOT_KEYS[G.slot]))return 0;
   const ks=slotKeys(g);let worst=null,ws=1e9;for(const s of ks){const cur=h.gear[s];if(cur&&GEAR[cur].two)return 0;const sc=gScore(cur,h);if(sc<ws){ws=sc;worst=s}}
   return Math.max(0,gScore(g,h)-ws)}
 function equipBest(hs){let did=true,g=0;while(did&&g++<50){did=false;
@@ -85,6 +92,188 @@ function equipBest(hs){let did=true,g=0;while(did&&g++<50){did=false;
     if(best){const ks=slotKeys(best);let worst=ks[0],ws=1e9;for(const s of ks){const sc=gScore(h.gear[s],h);if(sc<ws){ws=sc;worst=s}}
       if(h.gear[worst]&&ks.length>1){const o=h.gear[worst];delete h.gear[worst];S.armory.push(o)}
       if(equipHero(h,best))did=true}}}}
+/* ---------- Salvage investment planner (bot only) ----------
+   Boss salvage has opportunity cost: it buys four-piece sets as well as generic
+   items. Allocate it to the most credible set goals before shopping. One global
+   high-tier goal receives a modest any-salvage reserve. These reservations are
+   virtual: only actual crafts spend resources, and the game rules are unchanged. */
+function goalSlots(items){
+  const slots=items.map(k=>GEAR[k].slot);
+  return slots.length===new Set(slots).size&&items.every(k=>!GEAR[k].two);
+}
+function plausibleSet(h,items){
+  const maximum={tech:h.ranks.tech,innate:h.ranks.innate,magic:h.ranks.magic};
+  for(const k of items)for(const [t,n] of Object.entries(GEAR[k].reqs||{}))maximum[t]=Math.max(maximum[t],n);
+  const need=Object.keys(maximum).reduce((n,t)=>n+Math.max(0,maximum[t]-h.ranks[t]),0);
+  // No speculative hybrid investments in a pure-discipline strategy.
+  return need<=2&&items.every(k=>gearAllowed(h,k)&&GEAR[k].req<=lvlOf(h)+2);
+}
+function ownedFor(h,k){return Object.values(h.gear).includes(k)||S.armory.includes(k)}
+function setCandidates(h,boss){
+  const all=GEAR_KEYS.filter(k=>GEAR[k].set===boss&&gearAllowed(h,k)&&!GEAR[k].two);
+  const result=[];
+  for(let a=0;a<all.length;a++)for(let b=a+1;b<all.length;b++)
+  for(let d=b+1;d<all.length;d++)for(let e=d+1;e<all.length;e++){
+    const items=[all[a],all[b],all[d],all[e]];
+    if(!goalSlots(items)||!plausibleSet(h,items))continue;
+    const owned=items.filter(k=>ownedFor(h,k)).length;
+    const remaining=items.filter(k=>!ownedFor(h,k)).reduce((n,k)=>n+(GEAR[k].cost[boss]||0),0);
+    const ready=items.filter(k=>canWear(h,k)&&isUnlocked('gear:'+k)).length;
+    const newValue=items.reduce((n,k)=>n+gScore(k,h)/25,0);
+    const future=items.filter(k=>!canWear(h,k)||!isUnlocked('gear:'+k)).length;
+    // Completing a set matters more than maximizing each individual item.
+    const value=(16+newValue+owned*5+ready*2)/(4+remaining+future*2);
+    result.push({hid:h.id,boss,items,score:value,remaining,owned,ready});
+  }
+  return result.sort((a,b)=>b.score-a.score)[0];
+}
+function planSetGoals(hs){
+  const bosses=[...new Set(S.villains.map(v=>v.key))].filter(k=>SETS[k]);
+  const choices=hs.flatMap(h=>bosses.map(b=>setCandidates(h,b)).filter(Boolean))
+    .sort((a,b)=>b.score-a.score);
+  const chosen=[],seenH=new Set(),seenB=new Set();
+  // Retain a viable previous commitment: don't constantly abandon progress.
+  for(const old of ST.setGoals){
+    const h=hs.find(h=>h.id===old.hid);
+    if(h&&bosses.includes(old.boss)&&plausibleSet(h,old.items)&&!seenH.has(h.id)&&!seenB.has(old.boss)){
+      chosen.push({...old,score:setCandidates(h,old.boss)?.score||old.score});
+      seenH.add(h.id);seenB.add(old.boss);
+    }
+  }
+  for(const option of choices){
+    if(chosen.length>=2)break;
+    if(seenH.has(option.hid)||seenB.has(option.boss))continue;
+    // Don't hoard for a marginal plan when little salvage has appeared.
+    if(option.score<1.35)continue;
+    chosen.push(option);seenH.add(option.hid);seenB.add(option.boss);
+  }
+  ST.setGoals=chosen;
+}
+function remainingSetCost(p){
+  const h=roster().find(h=>h.id===p.hid);
+  if(!h)return 0;
+  return p.items.filter(k=>!ownedFor(h,k)).reduce((n,k)=>n+(GEAR[k].cost[p.boss]||0),0);
+}
+function setReserves(){
+  const saved={};
+  for(const p of ST.setGoals)saved[p.boss]=(saved[p.boss]||0)+remainingSetCost(p);
+  return saved;
+}
+function freeSalvage(reserves){
+  return Object.fromEntries(Object.entries(S.salvage).map(([k,n])=>[k,Math.max(0,n-(reserves[k]||0))]));
+}
+function availableAny(reserves){return Object.values(freeSalvage(reserves)).reduce((a,b)=>a+b,0)}
+function allocateAny(cost,reserves){
+  const free=freeSalvage(reserves),pick={};
+  let remaining=cost;
+  for(const [k,n] of Object.entries(free).sort((a,b)=>b[1]-a[1])){
+    const take=Math.min(n,remaining);
+    if(take)pick[k]=take;
+    remaining-=take;if(!remaining)break;
+  }
+  return remaining===0?pick:null;
+}
+function craftPlanned(k,reserves){
+  const g=GEAR[k];if(!afford(g.cost))return false;
+  if(g.cost.any){
+    const allocation=allocateAny(g.cost.any,reserves);
+    if(!allocation){ST.reserveSkips++;return false}
+    doCraft('craft',k,null,allocation);
+  }else{
+    if((S.salvage[g.set]||0)<g.cost[g.set])return false;
+    doCraft('craft',k);
+  }
+  ST.crafted.add(k);
+  CR.push({arc:CUR,k,tier:slotTier(g),set:!!g.set,c:Object.values(g.cost)[0]});
+  if(g.set)ST.setCrafts++;
+  if(g.req>=3)ST.bigCrafts++;
+  return true;
+}
+function equipGoals(){
+  for(const p of ST.setGoals){
+    const h=party().find(h=>h.id===p.hid);
+    if(!h)continue;
+    for(const k of p.items){
+      if(Object.values(h.gear).includes(k)||!isUnlocked('gear:'+k)||!canWear(h,k))continue;
+      if(S.armory.includes(k))equipHero(h,k);
+    }
+  }
+}
+function completeSets(){
+  for(const p of ST.setGoals){
+    const h=party().find(h=>h.id===p.hid);
+    if(h&&setOn(h,p.boss)&&!p.reported){ST.goalCompleted++;p.reported=true}
+  }
+}
+function chooseBigGoal(hs,ok){
+  const options=[];
+  for(const h of hs)for(const k of GEAR_KEYS){
+    const g=GEAR[k];
+    if(g.set||g.req<3||!g.cost.any||!isUnlocked('gear:'+k)||!ok('gear:'+k)||!gearAllowed(h,k)||ownedFor(h,k)||g.two)continue;
+    const deficit=Object.entries(g.reqs||{}).reduce((n,[t,rank])=>n+Math.max(0,rank-(h.ranks[t]||0)),0);
+    if(deficit>1)continue;
+    // Compute the gain in the intended slot without requiring wearability yet.
+    const current=Math.min(...slotKeys(k).map(s=>gScore(h.gear[s],h)));
+    const improvement=gScore(k,h)-current;
+    if(improvement<16)continue;
+    options.push({hid:h.id,k,score:improvement/(g.cost.any+2)*(deficit?0.8:1)});
+  }
+  const old=ST.bigGoal;
+  if(old&&options.some(o=>o.hid===old.hid&&o.k===old.k))return old;
+  return options.sort((a,b)=>b.score-a.score)[0]||null;
+}
+function plannedSpend(hs,ok){
+  planSetGoals(hs);
+  equipGoals();
+  // Invest boss-specific salvage in the set before permitting generic upgrades.
+  for(let guard=0;guard<22;guard++){
+    let changed=false;
+    for(const p of ST.setGoals){
+      const h=hs.find(h=>h.id===p.hid);if(!h)continue;
+      const next=p.items.filter(k=>!ownedFor(h,k)&&canWear(h,k)&&isUnlocked('gear:'+k)&&ok('gear:'+k))
+        .sort((a,b)=>(GEAR[a].cost[p.boss]||0)-(GEAR[b].cost[p.boss]||0));
+      if(next.length&&craftPlanned(next[0],{})){equipGoals();changed=true;break}
+    }
+    if(!changed)break;
+  }
+  equipGoals();completeSets();
+  // Use all non-committed salvage for a significant rank-3+ upgrade first.
+  const setHold=setReserves();
+  ST.bigGoal=chooseBigGoal(hs,ok);
+  if(ST.bigGoal){
+    const target=ST.bigGoal;
+    if(craftPlanned(target.k,setHold)){equipBest(hs);ST.bigGoal=null}
+  }
+  // When a big purchase is still pending, reserve the first available salvage
+  // toward its cost, but let a small fraction fund cheaper emergency upgrades.
+  const freeAfterSet=availableAny(setHold);
+  const bigCost=ST.bigGoal?GEAR[ST.bigGoal.k].cost.any:0;
+  const bigHold=Math.min(bigCost,Math.max(0,freeAfterSet-2));
+  let guard=0;
+  while(guard++<40){
+    const allHold={...setReserves()};
+    const available=freeSalvage(allHold);
+    // Reserve a fixed total across all boss types, but leave small-change salvage.
+    const bigReserve=bigCost?Math.min(bigCost,Math.max(0,availableAny(allHold)-2)):0;
+    const candidates=[];
+    for(const h of hs)for(const k of GEAR_KEYS){
+      const g=GEAR[k];
+      if(g.req>=4||!isUnlocked('gear:'+k)||!ok('gear:'+k)||!g.cost.any||ownedFor(h,k))continue;
+      const v=gain(h,k);if(v<=0)continue;
+      candidates.push({h,k,v,price:g.cost.any});
+    }
+    candidates.sort((a,b)=>b.v/b.price-a.v/a.price);
+    let crafted=false;
+    for(const t of candidates){
+      const alloc=allocateAny(t.price,allHold);
+      if(!alloc||availableAny(allHold)-t.price<bigReserve){ST.reserveSkips++;continue}
+      if(craftPlanned(t.k,allHold)){equipBest(hs);equipGoals();crafted=true;break}
+    }
+    if(!crafted)break;
+  }
+  equipGoals();completeSets();
+}
+
 function spend(allowed){
   const ok=it=>!allowed||allowed.has(it);
   /* facilities, greedy in priority order */
@@ -92,6 +281,7 @@ function spend(allowed){
   /* free research */
   if(S.facilities.includes('skunk')&&!allowed)research(true);
   const hs=party();equipBest(roster());
+  if(S.facilities.includes('workshop')&&LOOT_MODE!=='greedy'){plannedSpend(hs,ok);return}
   if(S.facilities.includes('workshop')){
     let made=true,guard=0;while(made&&guard++<40){made=false;
       const cand=[];for(const h of hs)for(const k of GEAR_KEYS){if(!isUnlocked('gear:'+k)||!ok('gear:'+k))continue;const v=gain(h,k);if(v>0)cand.push({h,k,v,c:Object.values(GEAR[k].cost)[0]})}
@@ -197,6 +387,7 @@ function snap(label,allowed){const un=allowed?[...allowed]:S.unlocked;const uf=u
     unlCost:ug.filter(k=>!owned.has(k)).reduce((a,k)=>a+Object.values(GEAR[k].cost)[0],0),
     facCostT:uf.filter(f=>!S.facilities.includes(f)).reduce((a,f)=>a+(FAC[f].cost.tech||0),0),facCostI:uf.filter(f=>!S.facilities.includes(f)).reduce((a,f)=>a+(FAC[f].cost.intel||0),0),
     maxSet:Math.max(0,...roster().map(h=>Math.max(0,...Object.keys(SETS).map(k=>setCount(h,k))))),setHeroes:roster().filter(h=>setsOn(h).length).length,partySet:party().filter(h=>setsOn(h).length).length,
+    setGoalCount:ST.setGoals.length,committedSetSalvage:Object.values(setReserves()).reduce((a,b)=>a+b,0),
     trust:S.trust,lvl:party().reduce((a,h)=>a+lvlOf(h),0)/4}}
 async function campaign(){newCampaign();S.guide=null;S.ui={};
   if(ONLY_TRACK)recruitDisciplineParty();
@@ -226,9 +417,9 @@ async function campaign(){newCampaign();S.guide=null;S.ui={};
     if(S.phase==='arc'){click('arcnext');continue}
     if(S.phase==='event'){levelUps();pickParty();spend();click('finale:rally');const r=await fight();res['F'+r]=1;click('debrief');snaps.push(snap('Finale'));click('next');break}
     break}
-  return {strategy:STRATEGY,rec:REC.splice(0),IN:JSON.parse(JSON.stringify(IN)),CR:CR.slice(),snaps,res,trust:S.trust,over:S.over,issue:S.issue,blockF:{...ST.blockF},blockG:{...ST.blockG},stalls:ST.stalls}}
+  return {strategy:STRATEGY,rec:REC.splice(0),IN:JSON.parse(JSON.stringify(IN)),CR:CR.slice(),snaps,res,trust:S.trust,over:S.over,issue:S.issue,blockF:{...ST.blockF},blockG:{...ST.blockG},stalls:ST.stalls,loot:{mode:LOOT_MODE,setCrafts:ST.setCrafts,bigCrafts:ST.bigCrafts,reserveSkips:ST.reserveSkips,goalCompleted:ST.goalCompleted}}}
 /* run N campaigns and return their records (sim.js calls this) */
 async function runCampaigns(N,onDone){const out=[];
-  for(let i=0;i<N;i++){ROLES.clear();for(const k in IN)delete IN[k];CR.length=0;ST.crafted=new Set();ST.blockF={tech:0,intel:0,both:0,none:0};ST.blockG={set:0,any:0,none:0};ST.stalls=0;
+  for(let i=0;i<N;i++){ROLES.clear();for(const k in IN)delete IN[k];CR.length=0;ST.crafted=new Set();ST.blockF={tech:0,intel:0,both:0,none:0};ST.blockG={set:0,any:0,none:0};ST.stalls=0;ST.setGoals=[];ST.bigGoal=null;ST.setCrafts=0;ST.bigCrafts=0;ST.reserveSkips=0;ST.goalCompleted=0;
     try{out.push(await campaign())}catch(e){out.push({err:String(e.stack).slice(0,600)})}if(onDone)onDone(i,out[out.length-1])}
   return out}
