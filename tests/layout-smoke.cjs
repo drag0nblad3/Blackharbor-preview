@@ -15,7 +15,7 @@ const path=require('node:path');
    await page.goto('file://'+process.cwd()+'/index.html');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
-     S.tut={dq:[],skip:true};S.tutDone=true;S.guide=null;
+     S.tut=null;S.tutDone=true;S.guide=null;
      S.villains=[makeVillain('cantor',2)];S.pool=[];S.view='hq';S.phase='hq';render();
    });
    const checkPage=async(scene,main,aside)=>{
@@ -38,6 +38,7 @@ const path=require('node:path');
      await page.screenshot({path:path.join(shots,size.name+'-'+scene+'.png'),animations:'disabled'});
    };
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
+   assert.equal(await page.locator('#guide').count(),0,'layout smoke setup has no blocking guide modal');
    await page.locator('.nav [data-a="view:roster"]').click();
    await checkPage('roster','.bh-roster-content','.bh-roster-rail');
    const heroId=await page.evaluate(()=>S.party[0]);
