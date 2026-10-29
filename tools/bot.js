@@ -270,16 +270,21 @@ function plannedSpend(hs,ok){
     const candidates=[];
     for(const h of hs)for(const k of GEAR_KEYS){
       const g=GEAR[k];
-      if(g.req>=4||!isUnlocked('gear:'+k)||!ok('gear:'+k)||!g.cost.any||ownedFor(h,k))continue;
+      if(!isUnlocked('gear:'+k)||!ok('gear:'+k)||(!g.cost.any&&(!g.set||!g.cost[g.set]))||ownedFor(h,k))continue;
+      // Rank-4+ generic equipment follows its dedicated saving target.
+      // Boss-specific pieces are still valid standalone upgrades, even when
+      // they don't belong to the one set currently being assembled.
+      if(g.cost.any&&g.req>=4)continue;
       const v=gain(h,k);if(v<=0)continue;
-      candidates.push({h,k,v,price:g.cost.any});
+      candidates.push({h,k,v,price:g.cost.any||g.cost[g.set]});
     }
     candidates.sort((a,b)=>b.v/b.price-a.v/a.price);
     let crafted=false;
     for(const t of candidates){
-      const alloc=allocateAny(t.price,allHold);
-      if(!alloc||availableAny(allHold)-t.price<bigReserve){ST.reserveSkips++;continue}
-      if(craftPlanned(t.k,allHold)){equipBest(hs);equipGoals();crafted=true;break}
+      const g=GEAR[t.k];
+      const free=g.cost.any?availableAny(allHold):Math.max(0,(S.salvage[g.set]||0)-(allHold[g.set]||0));
+      if(free<t.price||availableAny(allHold)-t.price<bigReserve){ST.reserveSkips++;continue}
+      if(craftPlanned(t.k,g.cost.any?allHold:{})){equipBest(hs);equipGoals();crafted=true;break}
     }
     if(!crafted)break;
   }
