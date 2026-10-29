@@ -357,7 +357,7 @@ function optScore(o){if(o.ok&&!o.ok())return -99;const t=o.h;let s=0,m;
 
 /* ---------- combat ---------- */
 function bestV(u){let bi=-1,bd=1e9;S.sd.vl.forEach((o,i)=>{if(o.v.down)return;const d=dV(u,o.v);if(d<bd){bd=d;bi=i}});return bi}
-function danger(k){const sd=S.sd;let s=0;if(sd.haz&&sd.haz.some(h=>h.k===k))s+=40;if(litMap()[k])s+=30;const[x,y]=k.split(',').map(Number);if((sd.bombs||[]).some(b=>{const p=bombP(b);return cheb(p,{x,y})<=1}))s+=15;return s}
+function danger(k){const sd=S.sd;let s=0;if(sd.haz&&sd.haz.some(h=>h.k===k))s+=40;if(litMap()[k])s+=30;const[x,y]=k.split(',').map(Number);if((sd.bombs||[]).some(b=>{const p=bombP(b);return cheb(p,{x,y})<=bombRadius(b)}))s+=15;return s}
 async function moveTo(u,score){const sd=S.sd,h=heroOf(u);if(u.moved)return;const r=reachH(u,stat(h,'move')+(u.boost||0));
   let best=null,bs=score(u.x,u.y)-danger(u.x+','+u.y);for(const k of Object.keys(r)){const[x,y]=k.split(',').map(Number);if(sd.units.some(o=>o!==u&&!o.ko&&o.x===x&&o.y===y))continue;const s=score(x,y)-danger(k);if(s>bs){bs=s;best={x,y}}}
   if(best){sd.sel=sd.units.indexOf(u);sd.mode='move';onCell(best.x,best.y);await idle()}}
