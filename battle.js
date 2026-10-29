@@ -999,6 +999,23 @@ function vZones(W,H){const sd=S.sd;if(sd.result)return '';let s='';const wl=new 
     for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!inB(x,y)||inV(v,x,y)||wl.has(x+','+y))continue;const d=dV({x,y},v);if(d<1||d>2)continue;const z=sideOf({x,y},v);if(z==='flank')continue;const h=HC(x,y);
       s+=`<polygon class="z${z==='front'?'f':'r'}${d>1?' z2':''}" points="${VHX(h.cx,h.cy,.97)}"/>`}});
   return s?`<svg class="zones" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">${s}</svg>`:''}
+
+/* Compact mission telemetry: make the board/action hierarchy useful on every device. */
+function bhCombatBrief(sd,def,h,v){
+  const title=sd.patrol?'Subway patrol':sd.finale&&S.event?S.event.title:def.name;
+  const quality=sd.patrol?'Patrol':QUAL[sd.quality]?QUAL[sd.quality].n:'Showdown';
+  return `<header class="bh-combat-brief" aria-label="Current tactical situation">
+    <div class="bh-combat-title"><span>${esc(quality)} · Round ${Math.max(1,sd.round)}</span>
+      <h2>${esc(title)}</h2></div>
+    <div class="bh-combat-metrics">
+      ${!sd.patrol?`<div data-tip="kw:playbook"><b>${v.deck.length}</b><small>Pages left</small></div>`:''}
+      <div data-tip="kw:henchman"><b>${sd.hench.filter(m=>m.hp>0).length}</b><small>Enemies</small></div>
+      <div data-tip="kw:civilian"><b>${sd.civs.length}</b><small>Civilians</small></div>
+      <div data-tip="kw:evac"><b>${sd.evac}</b><small>Evacuated</small></div>
+      <div class="bh-combat-selected"><b>${h?esc(h.name):'Choose hero'}</b><small>${h?`HP ${h.hp}/${stat(h,'maxHp')} · COMP ${h.comp}/${stat(h,'maxComp')}`:'Tap a hero on the board'}</small></div>
+    </div>
+  </header>`;
+}
 function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
   const u=sd.sel!=null?sd.units[sd.sel]:null,h=u?heroOf(u):null;
   let reachM={},tg=new Set(),al=new Set();
@@ -1074,7 +1091,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
     ((sd.bombs||[]).length?`<div class="cap charge" data-tip="kw:bomb"><b>${sd.bombs.length} lit bomb${sd.bombs.length>1?'s':''} on the board.</b> All bombs explode at the start of the next villain turn. Move outside every red-striped blast hex; advanced bombs may cover 19 hexes instead of 7.</div>`:'')+
     (v.marked?'<div class="small"><span class="disc t-innate" data-tip="kw:marked">Marked: +1 die on side and rear attacks this round</span></div>':'')+(v.cursed?'<div class="small"><span class="disc t-magic" data-tip="kw:cursed">Cursed: −2 damage this round</span></div>':'')+
     (sd.v.hex?'<div class="small"><span class="disc t-magic" data-tip="kw:hexed">Hexed: −${hexA(sd.v.hex)} evasion this round</span></div>':'')+(v.skip?'<div class="small"><span class="disc t-magic" data-tip="kw:frozen">Time Stop: loses its next turn</span></div>':'')+(v.blind?'<div class="small"><span class="disc t-tech" data-tip="kw:blinded">Blinded: −4 accuracy this round</span></div>':'')+(v.excise?'<div class="small"><span class="disc t-tech" data-tip="kw:excise">Find the Flaw: you pick the next page torn this round</span></div>':'')+(v.callout?`<div class="small"><span class="disc t-tech" data-tip="kw:callout">Called out: +${v.callout} dice on the next hero attack</span></div>`:'');
-  return `<div class="sdl"><section class="panel sdp">
+  return `<div class="sdl">${bhCombatBrief(sd,def,h,v)}<section class="panel sdp">
     <div class="bhd">    <div class="row between"><div>${sd.patrol?`<div class="eyebrow">Patrol · Round ${sd.round}</div><h2>Subway platform</h2>`:`<div class="eyebrow">${sd.finale?'Event comic':'Lair showdown'} · Round ${Math.max(1,sd.round)} · <span class="kwd" data-tip="kw:q_${sd.quality}">${QUAL[sd.quality].n}</span></div><h2>${sd.finale&&S.event?esc(S.event.title):def.name}</h2>`}</div>
     <span class="small mono" data-tip="kw:evac">Evac ${sd.evac} · Harmed ${sd.harmed}</span></div>
     ${sd.vl.length>1?`<div class="row vswitch"><span class="eyebrow">Target</span>${sd.vl.map((o,i)=>`<button class="btn sm ${i===sd.vi?'on':''}" data-a="focus:${i}" ${o.v.down?'disabled':''} style="${vSty(o.key)}">${vIc(o.key)}${VILLAINS[o.key].short} · ${o.v.down?'down':`${o.v.deck.length+o.v.discard.length} pages`}</button>`).join('')}</div>`:''}
