@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+/* Every canonical villain needs a unique, self-contained, correctly labeled portrait. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const bh=require('../tools/bh');
+const game=bh.load({seed:2026});
+const get=expr=>game.get(expr),run=code=>game.run(code);
+const names=Object.keys(get('VILLAINS'));
+assert.equal(names.length,12,'All eleven campaign villains plus Mole Boy have portrait art');
+const sample=[];
+for(const key of names){
+  const svg=get('vPortrait('+JSON.stringify(key)+')');
+  assert.match(svg,/class="vportrait vportrait-card vportrait-[a-z]+"/);
+  assert.match(svg,/role="img"/);
+  assert(svg.includes(get('VILLAINS['+JSON.stringify(key)+'].name')+' portrait'));
+  assert.match(svg,/<svg x="22" y="-4"/,'canonical figure is included');
+  assert.match(svg,/<path/,'pulp portrait is illustrated');
+  assert.doesNotMatch(svg,/url\(#eyeglow\)|url\(#hlface\)/,'SVG IDs are isolated');
+  sample.push(svg);
+}
+assert.equal(new Set(sample).size,names.length,'Each villain has distinct portrait artwork');
+const again=get("vPortrait('gallows')");
+assert.notEqual(sample[0],again,'Repeated portraits use independent resource IDs');
+assert(!get("vPortrait('unknown')"),'Unknown keys do not invent a portrait');
+run("newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=['volt','bulwark','wisp','lynx'].map(x=>newHero(x));S.party=S.heroes.map(h=>h.id);S.villains=[makeVillain('cantor',2)];S.pool=[];S.phase='hq';S.view='hq'");
+const hq=get('hqView()');
+assert.match(hq,/vportrait-thumb vportrait-cantor/,'HQ operations contains mugshot');
+const files=get("hqView('villains')");
+assert.match(files,/villain-dossier-art/,'Threat card gets major portrait');
+assert.match(files,/vportrait-card vportrait-cantor/);
+assert.match(files,/data-a="inv:cantor"/,'Portrait does not disconnect investigate');
+assert.match(files,/data-a="book:cantor"/,'Portrait does not disconnect playbook');
+run("startInv('cantor')");
+const investigation=get('invView()');
+assert.match(investigation,/vportrait-investigation vportrait-cantor/,'Investigation shows villain target');
+assert.match(investigation,/data-a="invgo"/,'Investigation actions remain');
+run("startShowdown();S.sd.intro=false;S.sd.sel=0;");
+const battle=get('sdView()');
+assert.match(battle,/vportrait-combat vportrait-cantor/,'Combat header shows villain portrait');
+assert.match(battle,/class="board/,'Hex board still present');
+assert.match(battle,/class="bact"/,'Action controls still present');
+const home=path.resolve(__dirname,'..');
+const index=fs.readFileSync(path.join(home,'index.html'),'utf8');
+assert.match(index,/href="villain-portraits.css"/);
+const css=fs.readFileSync(path.join(home,'villain-portraits.css'),'utf8');
+assert.match(css,/\.villain-dossier-art/);
+assert.match(css,/\.vportrait-combat/);
+assert.match(css,/@media \(max-width:540px\)/);
+console.log('PASS: '+names.length+' villain portraits render and connect to HQ, Villains, Investigation, and Combat.');
