@@ -129,7 +129,7 @@ function setCandidates(h,boss){
 }
 function planSetGoals(hs){
   const bosses=[...new Set(S.villains.map(v=>v.key))].filter(k=>SETS[k]);
-  const choices=hs.flatMap(h=>bosses.map(b=>setCandidates(h,b)).filter(Boolean))
+  const choices=hs.flatMap(h=>bosses.map(b=>setCandidates(h,b)).filter(p=>p&&p.ready>=3&&S.issue>=7))
     .sort((a,b)=>b.score-a.score);
   const chosen=[],seenH=new Set(),seenB=new Set();
   // Retain a viable previous commitment: don't constantly abandon progress.
@@ -141,13 +141,13 @@ function planSetGoals(hs){
     }
   }
   for(const option of choices){
-    if(chosen.length>=2)break;
+    if(chosen.length>=1)break;
     if(seenH.has(option.hid)||seenB.has(option.boss))continue;
     // Don't hoard for a marginal plan when little salvage has appeared.
-    if(option.score<1.35)continue;
+    if(option.score<1.65)continue;
     chosen.push(option);seenH.add(option.hid);seenB.add(option.boss);
   }
-  ST.setGoals=chosen;
+  ST.setGoals=chosen.slice(0,1);
 }
 function remainingSetCost(p){
   const h=roster().find(h=>h.id===p.hid);
@@ -156,7 +156,12 @@ function remainingSetCost(p){
 }
 function setReserves(){
   const saved={};
-  for(const p of ST.setGoals)saved[p.boss]=(saved[p.boss]||0)+remainingSetCost(p);
+  for(const p of ST.setGoals){
+    // Preserve most of a boss's salvage, but never freeze every scrap of
+    // early income. Other upgrades remain available while the set matures.
+    const target=remainingSetCost(p),stock=S.salvage[p.boss]||0;
+    if(target)saved[p.boss]=(saved[p.boss]||0)+Math.min(target,Math.ceil(stock*0.70));
+  }
   return saved;
 }
 function freeSalvage(reserves){
@@ -217,7 +222,7 @@ function chooseBigGoal(hs,ok){
     const current=g.two?(gScore(h.gear.arms,h)+gScore(h.gear.arms2,h)):
       Math.min(...slotKeys(k).map(s=>gScore(h.gear[s],h)));
     const improvement=gScore(k,h)-current;
-    if(improvement<16)continue;
+    if(improvement<(g.req>=4?20:28))continue;
     options.push({hid:h.id,k,score:improvement/(g.cost.any+2)*(deficit?0.8:1)});
   }
   const old=ST.bigGoal;
@@ -232,7 +237,11 @@ function plannedSpend(hs,ok){
     let changed=false;
     for(const p of ST.setGoals){
       const h=hs.find(h=>h.id===p.hid);if(!h)continue;
-      const next=p.items.filter(k=>!ownedFor(h,k)&&canWear(h,k)&&isUnlocked('gear:'+k)&&ok('gear:'+k))
+      // Don't strand the hero in an incomplete, potentially weaker set.
+      // Complete the four-piece package in one affordable investment.
+      const allReady=p.items.every(k=>ownedFor(h,k)||(canWear(h,k)&&isUnlocked('gear:'+k)&&ok('gear:'+k)));
+      if(!allReady||S.salvage[p.boss]<remainingSetCost(p))continue;
+      const next=p.items.filter(k=>!ownedFor(h,k))
         .sort((a,b)=>(GEAR[a].cost[p.boss]||0)-(GEAR[b].cost[p.boss]||0));
       if(next.length&&craftPlanned(next[0],{})){equipGoals();changed=true;break}
     }
@@ -257,7 +266,7 @@ function plannedSpend(hs,ok){
   while(guard++<40){
     const allHold={...setReserves()};
     // Reserve a fixed total across all boss types, but leave small-change salvage.
-    const bigReserve=bigCost?Math.min(bigCost,Math.max(0,availableAny(allHold)-2)):0;
+    const bigReserve=bigCost?Math.min(bigCost,Math.floor(availableAny(allHold)*0.45)):0;
     const candidates=[];
     for(const h of hs)for(const k of GEAR_KEYS){
       const g=GEAR[k];
