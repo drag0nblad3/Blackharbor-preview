@@ -209,11 +209,13 @@ function chooseBigGoal(hs,ok){
   const options=[];
   for(const h of hs)for(const k of GEAR_KEYS){
     const g=GEAR[k];
-    if(g.set||g.req<3||!g.cost.any||!isUnlocked('gear:'+k)||!ok('gear:'+k)||!gearAllowed(h,k)||ownedFor(h,k)||g.two)continue;
+    if(g.set||g.req<3||!g.cost.any||!isUnlocked('gear:'+k)||!ok('gear:'+k)||!gearAllowed(h,k)||ownedFor(h,k))continue;
+    if(g.two&&ST.setGoals.some(p=>p.hid===h.id&&p.items.some(i=>GEAR[i].slot==='arms')))continue;
     const deficit=Object.entries(g.reqs||{}).reduce((n,[t,rank])=>n+Math.max(0,rank-(h.ranks[t]||0)),0);
     if(deficit>1)continue;
     // Compute the gain in the intended slot without requiring wearability yet.
-    const current=Math.min(...slotKeys(k).map(s=>gScore(h.gear[s],h)));
+    const current=g.two?(gScore(h.gear.arms,h)+gScore(h.gear.arms2,h)):
+      Math.min(...slotKeys(k).map(s=>gScore(h.gear[s],h)));
     const improvement=gScore(k,h)-current;
     if(improvement<16)continue;
     options.push({hid:h.id,k,score:improvement/(g.cost.any+2)*(deficit?0.8:1)});
@@ -242,7 +244,11 @@ function plannedSpend(hs,ok){
   ST.bigGoal=chooseBigGoal(hs,ok);
   if(ST.bigGoal){
     const target=ST.bigGoal;
-    if(craftPlanned(target.k,setHold)){equipBest(hs);ST.bigGoal=null}
+    if(craftPlanned(target.k,setHold)){
+      const h=hs.find(h=>h.id===target.hid);
+      if(h&&canWear(h,target.k)&&S.armory.includes(target.k))equipHero(h,target.k);
+      equipBest(hs);ST.bigGoal=null
+    }
   }
   // When a big purchase is still pending, reserve the first available salvage
   // toward its cost, but let a small fraction fund cheaper emergency upgrades.
@@ -250,7 +256,6 @@ function plannedSpend(hs,ok){
   let guard=0;
   while(guard++<40){
     const allHold={...setReserves()};
-    const available=freeSalvage(allHold);
     // Reserve a fixed total across all boss types, but leave small-change salvage.
     const bigReserve=bigCost?Math.min(bigCost,Math.max(0,availableAny(allHold)-2)):0;
     const candidates=[];
@@ -268,6 +273,15 @@ function plannedSpend(hs,ok){
       if(craftPlanned(t.k,allHold)){equipBest(hs);equipGoals();crafted=true;break}
     }
     if(!crafted)break;
+  }
+  // Two-handed gear is not handled by the greedy one-slot scorer. Equip it
+  // explicitly once its owner can wear it, including if it was crafted earlier.
+  for(const h of hs)for(const k of [...new Set(S.armory)]){
+    const g=GEAR[k];
+    if(!g||!g.two||!g.cost.any||g.req<3||!canWear(h,k)||!gearAllowed(h,k))continue;
+    if(ST.setGoals.some(p=>p.hid===h.id&&p.items.some(i=>GEAR[i].slot==='arms')))continue;
+    const improvement=gScore(k,h)-gScore(h.gear.arms,h)-gScore(h.gear.arms2,h);
+    if(improvement>16&&equipHero(h,k))break;
   }
   equipGoals();completeSets();
 }
