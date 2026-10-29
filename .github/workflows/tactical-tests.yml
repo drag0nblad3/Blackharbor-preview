@@ -17,4 +17,6 @@ jobs:
       - run: node tests/tactical-actions.cjs
       - run: node tests/avoid-damage.cjs
       - run: node tests/combat-menus.cjs
+      - run: node --check save-menu.js
+      - run: node tests/save-load.cjs
       - run: node tests/simulated-battle.cjs
