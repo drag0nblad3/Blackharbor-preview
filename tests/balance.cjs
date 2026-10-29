@@ -14,8 +14,11 @@ const chance=(stat,defense)=>{
   return successes/20;
 };
 const expected=(dice,acc,str,v)=>dice*chance(acc,v.eva)*chance(str,v.tough);
-function outcome(id,hero,paired=false,flank=false,villain='gallows'){
-  const g=GEAR[id],h=HERO_BASE[hero],v=VILLAINS[villain];
+// Gear benchmark is pinned to the pre-rebalance Gallows defense profile, so
+// intentional villain changes do not look like unintended equipment changes.
+const REFERENCE_GALLOWS={eva:11,tough:13,acc:4};
+function outcome(id,hero,paired=false,flank=false,villain='gallows-reference'){
+  const g=GEAR[id],h=HERO_BASE[hero],v=villain==='gallows-reference'?REFERENCE_GALLOWS:VILLAINS[villain];
   assert(g&&h&&v&&g.ab,'Unknown benchmark');
   const mod=g.mods||{},pairMod=paired?(g.pair?.mods||{}):{},f=g.ab.fx||{},pf=paired?(g.pair?.fx||{}):{};
   const m=(obj,k)=>Number(obj[k]||0);
@@ -43,14 +46,14 @@ const cases=[
 let matchupCount=0;
 for(const [id,hero,pair,flank,target] of cases){
   const x=outcome(id,hero,pair,flank);
-  assert(Math.abs(x.active-target)<0.001,`${id} ${pair?'paired':''} Gallows benchmark changed: ${x.active} vs ${target}`);
+  assert(Math.abs(x.active-target)<0.001,`${id} ${pair?'paired':''} fixed Gallows reference benchmark changed: ${x.active} vs ${target}`);
   for(const villain of Object.keys(VILLAINS)){
     const s=outcome(id,hero,pair,flank,villain);
     assert(Number.isFinite(s.active)&&s.dice>=1,`${id} has invalid combat stats vs ${villain}`);
     assert(s.active+1e-9>=s.base,`${id} activation worsens expected wounds vs ${villain}`);
     matchupCount++;
   }
-  console.log(`${id.padEnd(12)} ${pair?'paired':'single'} ${flank?'flank':'front'}: ${x.base.toFixed(3)} -> ${x.active.toFixed(3)} expected wounds vs Gallows`);
+  console.log(`${id.padEnd(12)} ${pair?'paired':'single'} ${flank?'flank':'front'}: ${x.base.toFixed(3)} -> ${x.active.toFixed(3)} expected wounds vs fixed Gallows reference`);
 }
 // Guard against known problematic early/paired damage spikes without imposing
 // a blanket cap on high-tier weapons or flank-specialist builds.
