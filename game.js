@@ -1027,7 +1027,7 @@ function bhHqOps(){
   return `<div class="bh-rail-heading">Operations desk <small>Issue #${S.issue}</small></div>
     <div class="bh-rail-block"><div class="bh-rail-title">On the streets <span>${active.length} active</span></div>
       ${active.length?active.map(v=>`<div class="bh-ops-threat">
-        <span class="vbadge" style="${vSty(v.key)}">${vIc(v.key)}</span>
+        <span class="vportrait-mini">${vPortrait(v.key,'thumb')}</span>
         <div class="bh-ops-threat-copy"><b>${esc(VILLAINS[v.key].short)}</b><small>Level ${v.level} · Scheme ${v.scheme}/${schemeMax()}</small></div>
         <button class="btn sm" data-a="book:${v.key}" aria-label="Open ${esc(VILLAINS[v.key].name)} playbook">File</button>
       </div>`).join(''):'<p class="small">No active villains yet.</p>'}
@@ -1049,7 +1049,7 @@ function bhThreatOps(active,arc,iia){
   return `<div class="bh-rail-heading">Case docket <small>Arc ${arc} · Issue ${iia}</small></div>
     <div class="bh-rail-block"><div class="bh-rail-title">Open investigations</div>
       ${active.map(v=>`<div class="bh-case-index">
-        <span class="vbadge" style="${vSty(v.key)}">${vIc(v.key)}</span>
+        <span class="vportrait-mini">${vPortrait(v.key,'thumb')}</span>
         <div><b>${esc(VILLAINS[v.key].short)}</b><small>Level ${v.level} · ${v.scheme}/${schemeMax()} scheme</small></div>
       </div>`).join('')||'<p class="small">No active targets.</p>'}
     </div>
@@ -1087,7 +1087,8 @@ function bhRosterPick(h,where){
 function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia=(S.issue-1)%ISSUES_PER_ARC+1;
   const act=S.villains.filter(o=>o.status==='active');
   const vcard=o=>{const d=VILLAINS[o.key],seen=((S.seen&&S.seen[o.key])||[]).length;
-    return `<div class="card">
+    return `<div class="card villain-dossier-card" data-villain="${o.key}">
+    <div class="villain-dossier-art">${vPortrait(o.key,'card')}</div>
     <div class="row between"><div class="row" style="flex-wrap:nowrap;gap:8px"><span class="vbadge" style="${vSty(o.key)}">${vIc(o.key)}</span><h3>${d.name}</h3></div><span class="lvl" data-tip="kw:vlevel">LVL ${o.level}</span></div>
     <div class="small muted">${d.tag}. Drops <span class="cost">${resIc(o.key)}</span>${d.salvage}. <span class="kwd" data-tip="kw:playbook">${o.deck.length}-page playbook</span>.</div>
     <button class="btn sm" data-a="book:${o.key}" style="align-self:flex-start">Read playbook · ${seen} seen</button>
@@ -1253,7 +1254,7 @@ function invCaseShell(i,content){
       <aside class="inv-villain-rail" aria-label="Target and team">
         <div class="inv-section-title">Target dossier</div>
         <div class="inv-villain-card" style="${vSty(i.v)}">
-          <div class="inv-villain-emblem">${vIc(i.v)}</div>
+          <div class="inv-villain-visual">${vPortrait(i.v,'investigation')}</div>
           <div class="inv-villain-desc"><small>Active target · Level ${vs.level}</small>
           <h3>${esc(d.name)}</h3><span>${esc(d.tag)}</span></div>
         </div>
