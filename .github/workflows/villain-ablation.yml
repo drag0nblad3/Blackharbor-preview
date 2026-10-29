@@ -1,0 +1,36 @@
+name: Villain mechanic ablations
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/villain-ablation.cjs'
+      - '.github/workflows/villain-ablation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        boss: [cantor, gallows]
+    env:
+      BOSS: ${{ matrix.boss }}
+      SEEDS: '12'
+      SEED_START: '2500'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test villain abilities independently
+        run: node tests/villain-ablation.cjs
+      - name: Upload matched ablation results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: villain-ablation-${{ matrix.boss }}
+          path: villain-ablation-results/
+          if-no-files-found: warn
