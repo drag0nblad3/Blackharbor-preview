@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'tests/villain-rebalance.cjs'
+      - 'tests/balance.cjs'
       - '.github/workflows/villain-rebalance.yml'
   workflow_dispatch:
 permissions:
