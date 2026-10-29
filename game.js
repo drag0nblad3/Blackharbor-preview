@@ -382,10 +382,10 @@ function oFinish(){const c=S.cre;if(!c.name.trim())c.name=oRandName(oTrack(c));c
       else if(id==='notes'){const a=unlockRandom(),b=unlockRandom();L.push(`new blueprints: ${[a,b].filter(Boolean).join(', ')}`)}
       else if(id.startsWith('pat-')){const k=id.slice(4);if(!S.facilities.includes(k))S.facilities.push(k);L.push(`a free ${FAC[k].name}`)}}
     if(S.cheat&&S.cheat.xover)S.cheat.xover=false;else{S.xover=S.xover||[];S.xover.push(xArc())}}
-  recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);
+  recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains();
   S.flash=`${h.name} joins the Blackharbor Guardians${xo?` at level ${lvlOf(h)}`:''}${L.length?`, bringing ${L.join('; ')}`:''}.${S.party.includes(h.id)?' Added to the party.':' Waiting on the bench.'}`;
   S.ui=S.ui||{};S.ui['h-'+h.id]=true;S.cre=null;S.view='hq'}
-function recruitQuick(cls){if(roster().length>=ROSTER_MAX||roster().some(h=>h.cls===cls))return;const h=newHero(cls);recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id)}
+function recruitQuick(cls){if(roster().length>=ROSTER_MAX||roster().some(h=>h.cls===cls))return;const h=newHero(cls);recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains()}
 /* recruits who join after issue #1 start with 1 XP per issue completed */
 const recruitXpN=(x=0)=>Math.max(0,Math.min((S.issue||1)+x,MAX_ISSUE+1)-1);
 const recruitXpTxt=()=>recruitXpN()?`<p class="small" style="margin:0" data-tip="kw:xp">Joins with <b>${recruitXpN()} XP</b>, 1 for each issue completed.</p>`:'';
@@ -485,18 +485,66 @@ function payPow(u,h){const e=POW_ENG[BASE(h).power];if(!e)return;if(e.d!=='innat
 const engineTxt={tech:'+1 max Power',innate:'+1 Innate rank',magic:'+1 max Arcana'};
 function poolTxt(h){const o=[];if(pwrMax(h))o.push(`${pwrMax(h)} Power (+${pwrRegen(h)}/round)`);if(arcMax(h))o.push(`${arcMax(h)} Arcana (per fight)`);if(potOf(h))o.push(`Innate rank ${potOf(h)}${innUses(h)>1?' (+1 Innate ability once per fight)':''}`);return o.join(' · ')||'none'}
 const gainTxt=(h,t)=>{const c={...h,ranks:{...h.ranks,[t]:h.ranks[t]+1}},o=[],dp=pwrMax(c)-pwrMax(h),da=arcMax(c)-arcMax(h),dq=potOf(c)-potOf(h);if(dp)o.push(`+${dp} max Power`);if(da)o.push(`+${da} max Arcana`);if(dq)o.push(`+${dq} Innate rank`);return o.join(', ')};
+/* Pick a small, randomized shortlist of bosses whose unique salvage can supply
+   gear suited to the current party. Ranks are considered cumulatively across all
+   four party members; existing bosses reduce the need for more gear in the same
+   hero's slot. Only boss-specific loot is scored (generic salvage works everywhere). */
+function bossSelectionHeroes(){
+  const active=party().filter(h=>!h.retired);
+  return (active.length>=4?active:roster()).slice(0,4);
+}
+function bossGearFit(h,g){
+  if(g.cons||!g.reqs)return 0;
+  const reqs=Object.entries(g.reqs);
+  if(!reqs.length||reqs.some(([t])=>!(h.ranks[t]||0)))return 0;
+  const ready=Math.min(1,...reqs.map(([t,n])=>((h.ranks[t]||0)+1)/(n+0.5)));
+  // Higher-rank gear still matters as the party levels, but near-term loot matters more.
+  return ready/(1+0.3*(g.req-1))*(g.ab?1.15:1);
+}
+function bossLootGear(k){return Object.values(GEAR).filter(g=>!g.cons&&g.cost&&g.cost[k]);}
+function bossSelectionScores(){
+  const hs=bossSelectionHeroes(),supply={};
+  for(const vs of S.villains)for(const g of bossLootGear(vs.key))
+    for(const h of hs){const fit=bossGearFit(h,g);if(fit){const id=h.id+':'+g.slot;supply[id]=(supply[id]||0)+fit}}
+  return S.pool.map(k=>{
+    let value=0;
+    for(const g of bossLootGear(k))for(const h of hs){
+      const fit=bossGearFit(h,g);
+      if(fit)value+=fit/(1+0.55*(supply[h.id+':'+g.slot]||0));
+    }
+    return {key:k,score:value};
+  });
+}
+function chooseVillainFromPool(){
+  if(!S.pool.length)return null;
+  // A shuffled pool provides random ordering for score ties, then we randomly
+  // select one of the three best-fit bosses instead of always taking the top.
+  const shortlist=bossSelectionScores().sort((a,b)=>b.score-a.score).slice(0,3);
+  const k=pick(shortlist).key;
+  S.pool.splice(S.pool.indexOf(k),1);
+  return k;
+}
+function revealStartingVillains(){
+  // The first four recruits define the starting team; tutorial Mole Boy is
+  // kept separate and the normal boss reveal happens after the tutorial.
+  if(S.villains.length||roster().length<4||S.issue!==1)return;
+  for(let i=0;i<3;i++){
+    const k=chooseVillainFromPool();
+    if(k)S.villains.push(makeVillain(k,1));
+  }
+  if(S.villains.length)pick(S.villains).scheme=1;
+}
 function newCampaign(prev){
   const keys=shuffle(Object.keys(VILLAINS).filter(k=>!VILLAINS[k].intro));
-  /* Version 94 (Tyler): new campaigns start with the Workshop built */
+  /* Bosses reveal only when four heroes have joined the new team. */
   S={vol:(prev&&prev.vol||0)+1,issue:1,trust:6,tech:3,intel:2,salvage:Object.fromEntries(Object.keys(VILLAINS).map(k=>[k,0])),facilities:['workshop'],armory:STARTER_LOCKER.slice(),ethos:{},
     heroes:[],fallen:[],xover:[],
-    villains:keys.slice(0,3).map(k=>makeVillain(k,1)),pool:keys.slice(3),unlocked:START_UNLOCK.slice(),
+    villains:[],pool:keys,unlocked:START_UNLOCK.slice(),
     phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true};
-  pick(S.villains).scheme=1;
   S.party=[];
   S.guide={s:0,pop:null};if(prev&&prev.tutDone)S.tutDone=true;else S.tut={b:0,dq:[]};S.ui=Object.fromEntries(['hq-base','hq-ws','hq-back','hq-skunk','ro-bench'].map(k=>[k,false]));
 }
-function introduceVillain(arc,L){if(!S.pool.length)return null;const k=S.pool.shift();
+function introduceVillain(arc,L){if(!S.pool.length)return null;const k=chooseVillainFromPool();
   const hi=Math.max(0,...S.villains.filter(v=>v.status==='active').map(v=>v.level));
   const lvl=Math.min(VCAP,Math.max(2*arc,hi+1));const vs=makeVillain(k,lvl);S.villains.push(vs);
   L.push(`New threat: ${VILLAINS[k].name}, ${VILLAINS[k].tag.toLowerCase()}, arrives at level ${vs.level} with a ${vs.deck.length}-page playbook.`);return vs}
@@ -1008,7 +1056,8 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
     <div class="cap tilt">${arc<ARCS?`When this arc ends, every free villain levels up and rewrites part of their playbook, and a new villain arrives.`:'Final arc. When it ends, two villains team up for the event comic finale.'} Villains you don't hunt keep scheming. Long-press any stat, item or keyword for details.</div>
     <div class="row small"><span class="eyebrow" data-tip="kw:party">Party</span>${party().map(h=>`<span class="tag g">${esc(h.name)}</span>`).join('')||'<span class="tag">Empty</span>'}<button class="btn sm" data-a="view:roster">Change party</button></div>
     <div class="grid2">${act.map(vcard).join('')}</div>
-    ${S.pool.length?`<p class="small muted" style="margin:0">${S.pool.length} more villain${S.pool.length>1?'s':''} will surface later in this volume.</p>`:''}`)}</section>
+    ${!S.villains.length?'<p class="cap">Recruit four heroes to reveal the three opening villains. The threats will match your team’s disciplines.</p>':''}
+    ${S.villains.length&&S.pool.length?`<p class="small muted" style="margin:0">${S.pool.length} more villain${S.pool.length>1?'s':''} will surface later in this volume.</p>`:''}`)}</section>
   `;
   const fl=S.flash;S.flash=null;
   return `${guideBar()}${fl?`<div class="cap tilt"><b>Fresh off the press!</b> ${esc(fl)}</div>`:''}<div class="hqcols"><div class="hqa">${recruitPanel()}
@@ -1633,7 +1682,7 @@ function tutFinish(){const sd=S.sd,t=S.tut,win=sd.result==='win',L=[];
 function tutSkip(){const t=S.tut;S.sd=null;N=9;slotPick=null;t.skip=true;t.lines=null;S.phase='tutend';S.view='mission';tutGo(TUT.findIndex(b=>b.id==='end'))}
 function tutClose(){S.tips=[...new Set([...(S.tips||[]),...TUT_TIPS])];S.tut=null;S.tutDone=true;S.tutStash=null;S.sd=null;N=9;S.phase='hq';S.view='hq'}
 function tutKeep(){const st=S.tutStash||{};S.villains=(st.villains||S.villains).filter(v=>v.key!=='mole');S.pool=st.pool||S.pool;S.armory=[...(st.armory||[]),...S.armory];
-  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});tutClose();S.guide={s:1,pop:null}}
+  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});tutClose();revealStartingVillains();S.guide={s:1,pop:null}}
 function tutFresh(){const keep={tips:S.tips,seen:S.seen,seenR:S.seenR,tipsOff:S.tipsOff};newCampaign();Object.assign(S,keep);tutClose()}
 function tutAct(p){switch(p){
   case 'start':tutStart();scrollTo(0,0);break;
