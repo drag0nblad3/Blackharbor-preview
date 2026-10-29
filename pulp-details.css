@@ -1,0 +1,544 @@
+/*
+ * BLACKHARBOR / THE PULP PRINT EDITION
+ * Preview-only heavy art pass. Textures are pure CSS: no external assets or
+ * extra downloads. Decoration does not modify gameplay, hexes or hit targets.
+ * Loaded after comic-ui.css and investigation.css.
+ */
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after){
+  --pulp-ink:#142238;
+  --pulp-paper:#fff9e8;
+  --pulp-red:#d74444;
+  --pulp-blue:#197db3;
+  --pulp-yellow:#f6cb45;
+  --pulp-grain:
+    radial-gradient(circle at 19% 21%,rgba(57,42,27,.11) 0 .7px,transparent 1px) 0 0/11px 13px,
+    radial-gradient(circle at 68% 65%,rgba(20,34,56,.09) 0 .6px,transparent 1px) 0 0/17px 19px,
+    repeating-linear-gradient(0deg,rgba(20,34,56,.023) 0 1px,transparent 1px 7px);
+  --pulp-dots:
+    radial-gradient(circle,rgba(20,34,56,.18) 0 1.2px,transparent 1.5px) 0 0/10px 10px;
+  --pulp-dots-light:
+    radial-gradient(circle,rgba(255,255,255,.19) 0 1.4px,transparent 1.7px) 0 0/10px 10px;
+  --pulp-ray:
+    repeating-conic-gradient(from -8deg,rgba(247,202,65,.23) 0deg 10deg,transparent 10deg 21deg);
+  --pulp-cork:
+    repeating-linear-gradient(27deg,rgba(96,55,20,.11) 0 1px,transparent 1px 9px),
+    repeating-linear-gradient(-24deg,rgba(255,252,234,.12) 0 1px,transparent 1px 11px),
+    radial-gradient(circle,rgba(87,46,20,.12) 0 .8px,transparent 1px) 0 0/9px 11px;
+  --pulp-blueprint:
+    linear-gradient(90deg,rgba(28,106,153,.15) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(rgba(28,106,153,.15) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(90deg,rgba(28,106,153,.07) 1px,transparent 1px) 0 0/5.5px 5.5px,
+    linear-gradient(rgba(28,106,153,.07) 1px,transparent 1px) 0 0/5.5px 5.5px;
+  --pulp-ruled:
+    repeating-linear-gradient(0deg,rgba(24,117,178,.12) 0 1px,transparent 1px 26px);
+  --pulp-tape:
+    repeating-linear-gradient(90deg,rgba(255,247,207,.95) 0 9px,rgba(239,219,157,.83) 9px 18px);
+}
+
+/* Offset comic registration and a brighter printed-page canvas. */
+body:has(#app:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after)){
+  background-color:#e7f0ef;
+  background-image:
+    radial-gradient(circle,rgba(20,63,93,.13) 0 .9px,transparent 1.15px) 0 0/12px 12px,
+    linear-gradient(115deg,rgba(254,232,174,.48),transparent 38%,rgba(189,221,238,.35) 80%);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast{
+  background-image:
+    var(--pulp-dots),
+    linear-gradient(109deg,#fff0b6 0%,#fff9e6 39%,#c5e5f4 100%);
+  background-size:10px 10px,auto;
+  box-shadow:5px 5px 0 #142238,7px 7px 0 #d94746;
+  position:relative;
+  isolation:isolate;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .mast::after{
+  content:"";
+  position:absolute;
+  inset:0 0 0 auto;
+  width:28%;
+  background:
+    linear-gradient(135deg,transparent 35%,rgba(212,63,64,.20) 35% 43%,transparent 43% 61%,rgba(28,115,168,.15) 61% 70%,transparent 70%);
+  pointer-events:none;
+  z-index:-1;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .nav .btn{
+  background-image:
+    repeating-linear-gradient(135deg,transparent 0 9px,rgba(27,94,142,.06) 9px 12px);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .nav .btn.on{
+  background-image:
+    radial-gradient(circle,rgba(60,44,16,.11) 0 .85px,transparent 1.2px);
+  background-size:8px 8px;
+  box-shadow:3px 3px 0 #142238,5px 5px 0 #d74444;
+}
+
+/* Comic issue heading: starburst print, registration stripes and ink edging. */
+.bh-pagehead{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background-image:
+    var(--pulp-dots-light),
+    linear-gradient(118deg,#103755 0%,#1e557b 64%,#13344f 100%);
+  background-size:10px 10px,auto;
+  box-shadow:5px 5px 0 #142238,7px 7px 0 #d74745;
+}
+.bh-pagehead::before{
+  content:"";
+  position:absolute;
+  width:300px;height:300px;
+  right:-100px;top:-154px;
+  background:var(--pulp-ray);
+  border-radius:50%;
+  pointer-events:none;
+  opacity:.75;
+  z-index:-1;
+}
+.bh-pagehead::after{
+  content:"";
+  position:absolute;
+  width:7px;
+  top:0;bottom:0;
+  right:14px;
+  background:linear-gradient(90deg,#d74444 0 43%,transparent 43% 65%,#f6cb45 65% 100%);
+  opacity:.8;
+  pointer-events:none;
+}
+.bh-pagehead-copy,.bh-page-stats{position:relative;z-index:1}
+.bh-pagehead h2{
+  letter-spacing:.015em;
+  text-shadow:2px 2px 0 #0d2235;
+}
+.bh-page-kicker{
+  color:#ffe277;
+  border-bottom:2px solid rgba(255,218,95,.64);
+  display:inline-block;
+  padding-bottom:2px;
+}
+.bh-page-stat{
+  border:2px solid #142238;
+  background:
+    var(--pulp-grain),
+    linear-gradient(#fffbdf,#f2e7c4);
+  box-shadow:3px 3px 0 #e44643,4px 4px 0 #142238;
+}
+.bh-page-stat b{font-size:1.16rem}
+.bh-page-stat span{color:#39485c}
+
+/* Panels are stacked print sheets, not plain rectangles.
+   The tape sits outside content and cannot capture taps. */
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel{
+  position:relative;
+  overflow:visible;
+  background-color:#fffcf1;
+  background-image:
+    var(--pulp-grain),
+    linear-gradient(135deg,rgba(255,247,211,.62),transparent 36%);
+  background-size:auto,auto;
+  border:3px solid #142238;
+  box-shadow:4px 4px 0 #142238,7px 7px 0 rgba(210,67,62,.52);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel::before{
+  content:"";
+  position:absolute;
+  top:-8px;right:22px;
+  width:51px;height:15px;
+  background:var(--pulp-tape);
+  border:1px solid rgba(66,53,33,.35);
+  box-shadow:1px 2px 0 rgba(20,34,56,.2);
+  transform:rotate(4deg);
+  pointer-events:none;
+  opacity:.95;
+  z-index:2;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary{
+  background:
+    var(--pulp-dots-light),
+    linear-gradient(110deg,#15314c,#234969);
+  background-size:10px 10px,auto;
+  border-left:6px solid #f6cb45;
+  box-shadow:inset 0 -3px 0 rgba(9,26,41,.55);
+}
+/* Do not replace summary::after: the existing arrow is an interactive affordance. */
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel>details.coll>summary h2{
+  text-shadow:1px 2px 0 #10233a;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card{
+  background-color:#fff7df;
+  background-image:var(--pulp-grain),linear-gradient(143deg,#fffdf2,#f8edd6);
+  border:2px solid #586b7a;
+  box-shadow:2px 3px 0 #142238,4px 5px 0 rgba(220,66,64,.28);
+  position:relative;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card.built{
+  background-color:#e8f4e4;
+  background-image:var(--pulp-grain),linear-gradient(#f9ffef,#ddf0d9);
+  border-left:6px solid #237956;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .card.locked{
+  background-color:#e5e6e2;
+  background-image:repeating-linear-gradient(135deg,rgba(20,34,56,.055) 0 3px,transparent 3px 10px);
+  border-style:dashed;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .stat{
+  background:
+    var(--pulp-dots),
+    linear-gradient(160deg,#f5fbfa,#d9edf7);
+  background-size:12px 12px,auto;
+  border:1.5px solid #7893aa;
+  box-shadow:inset 2px 2px 0 rgba(255,255,255,.55);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .slot{
+  background:
+    var(--pulp-grain),
+    linear-gradient(115deg,#fefae9,#e7f1f5);
+  border:1.5px solid #8aa6b8;
+  box-shadow:inset 3px 0 0 #f0c742;
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .slot.has{
+  background:var(--pulp-grain),linear-gradient(#fff7ce,#fffcf3);
+}
+.wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .cap{
+  background:
+    var(--pulp-grain),
+    linear-gradient(#ffebad,#fff5d6);
+  border-left:6px solid #d74745;
+  box-shadow:2px 2px 0 #142238;
+}
+
+/* HQ: actual technical drawing paper, numbered equipment and stamp-like labels. */
+.wrap.v-hq-hq .bh-hq-rail,
+.wrap.v-hq-hq .hqa>section.panel:first-of-type{
+  background-color:#d9eef8;
+  background-image:
+    var(--pulp-blueprint),
+    var(--pulp-grain),
+    linear-gradient(#e8f6fc,#cde8f5);
+}
+.wrap.v-hq-hq .hqb>section.panel{
+  background-color:#fff6dc;
+  background-image:
+    repeating-linear-gradient(0deg,transparent 0 27px,rgba(51,101,130,.075) 27px 28px),
+    var(--pulp-grain),
+    linear-gradient(#fff9eb,#f2e5c7);
+}
+.wrap.v-hq-hq .bh-hq-rail>.bh-rail-heading{
+  background-image:var(--pulp-dots-light),linear-gradient(#17466d,#10334c);
+  background-size:9px 9px,auto;
+}
+.wrap.v-hq-hq .hqb .card{
+  border-left:5px solid #197db3;
+}
+.wrap.v-hq-hq .hqcols .card h3{border-bottom:1px dashed rgba(20,34,56,.22);padding-bottom:3px}
+
+/* Team dossier: old comic-book hero trading cards with ink misregistration. */
+.wrap.v-hq-roster .bh-roster-rail{
+  background-image:
+    var(--pulp-ruled),
+    var(--pulp-grain),
+    linear-gradient(#fff0c5,#fffae9);
+}
+.wrap.v-hq-roster .bh-roster-pick{
+  background:
+    var(--pulp-grain),
+    linear-gradient(120deg,#fffbea 0 74%,#ffe089 74% 100%);
+  border:2px solid #142238;
+  box-shadow:2px 2px 0 #d84644,4px 4px 0 #142238;
+  transform:none;
+}
+.wrap.v-hq-roster .bh-roster-pick:hover{
+  background-image:var(--pulp-grain),linear-gradient(120deg,#ffebaf,#ffe083);
+}
+.wrap.v-hq-roster .bh-pick-icon{
+  box-shadow:2px 2px 0 #142238;
+}
+.wrap.v-hq-roster .bh-roster-content .card{
+  border:3px solid #142238;
+  border-top:6px solid #edc34e;
+  background:
+    var(--pulp-grain),
+    linear-gradient(115deg,#fff9e8,#e9f3f8);
+  box-shadow:3px 4px 0 #142238,6px 7px 0 #d84644;
+}
+.wrap.v-hq-roster .bh-roster-content .card>details.coll>summary{
+  background:
+    radial-gradient(circle,rgba(45,65,88,.13) 0 1px,transparent 1.3px) 0 0/9px 9px,
+    linear-gradient(115deg,#fff9da,#f1d27b);
+  border:2px solid #142238;
+  min-height:56px;
+}
+.wrap.v-hq-roster .bh-roster-content .card details.coll[open]>summary{
+  background:
+    var(--pulp-grain),
+    linear-gradient(120deg,#f9d34a,#f9edbf);
+}
+
+/* Villains: corkboard / stapled dossiers / colored level badges. */
+.wrap.v-hq-villains .bh-threat-rail,
+.wrap.v-hq-villains .bh-threat-content{
+  background-color:#e4c494;
+  background-image:
+    var(--pulp-cork),
+    linear-gradient(130deg,#efdbad,#d5ac76);
+}
+.wrap.v-hq-villains .bh-threat-rail>.bh-rail-block{
+  background-image:
+    var(--pulp-grain),
+    linear-gradient(#fff9e9,#f0e4cf);
+}
+.wrap.v-hq-villains .bh-threat-content .card{
+  background:
+    var(--pulp-grain),
+    linear-gradient(130deg,#fffbed,#f4e9d5);
+  border:3px solid #142238;
+  border-left:6px solid #d74444;
+  box-shadow:4px 4px 0 rgba(20,34,56,.75),7px 7px 0 rgba(194,48,50,.4);
+  transform:rotate(-.35deg);
+  overflow:visible;
+}
+.wrap.v-hq-villains .bh-threat-content .card:nth-child(even){transform:rotate(.45deg)}
+.wrap.v-hq-villains .bh-threat-content .card::before{
+  content:"";
+  width:50px;height:15px;
+  position:absolute;top:-10px;left:42%;right:auto;
+  background:var(--pulp-tape);
+  transform:rotate(-7deg);
+  border:1px solid rgba(52,41,21,.35);
+  box-shadow:1px 2px 0 rgba(20,34,56,.18);
+  pointer-events:none;
+}
+.wrap.v-hq-villains .bh-threat-content .card .lvl{
+  background:#f6cb45;
+  color:#142238;
+  border:2px solid #142238;
+}
+.wrap.v-hq-villains .bh-threat-content .card>.row:first-child{
+  border-bottom:3px solid #142238;
+  padding-bottom:7px;
+}
+.wrap.v-hq-villains .bh-threat-content .card .btn.pri{
+  border:2px solid #142238;
+  box-shadow:3px 3px 0 #142238;
+}
+
+/* Combat: command console, industrial blueprint border and field log.
+   All terrain/cell/tokens remain untouched. */
+.wrap.v-sd .bh-combat-brief{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  background-image:
+    var(--pulp-dots-light),
+    linear-gradient(115deg,#123857,#225c83);
+  background-size:10px 10px,auto;
+  box-shadow:5px 5px 0 #142238,7px 7px 0 #d74444;
+}
+.wrap.v-sd .bh-combat-brief::after{
+  content:"";
+  position:absolute;
+  right:-40px;top:-70px;
+  width:250px;height:250px;
+  background:var(--pulp-ray);
+  border-radius:50%;
+  opacity:.48;
+  pointer-events:none;
+  z-index:-1;
+}
+.wrap.v-sd .bh-combat-brief>*{position:relative;z-index:1}
+.wrap.v-sd .bh-combat-metrics>div{
+  background:
+    var(--pulp-grain),
+    linear-gradient(#fff8df,#e9e9df);
+  border:2px solid #142238;
+  box-shadow:2px 2px 0 #d74444;
+}
+.wrap.v-sd .bh-combat-metrics .bh-combat-selected{
+  background:var(--pulp-grain),linear-gradient(#ffe382,#f4bd39);
+}
+.wrap.v-sd .bcol{
+  position:relative;
+  background-color:#d7e9f1;
+  background-image:
+    var(--pulp-blueprint),
+    linear-gradient(#eaf5f7,#c5dde8);
+  border:4px solid #142238;
+  box-shadow:4px 4px 0 #142238;
+}
+/* Mechanical corner targets decorate the frame, not the board itself. */
+.wrap.v-sd .bcol::before{
+  content:"FIELD MAP  /  TACTICAL VIEW";
+  position:relative;
+  display:block;
+  padding:4px 7px;
+  margin:0 0 5px;
+  border:2px solid #142238;
+  background:
+    repeating-linear-gradient(135deg,#f6cf53 0 9px,#192d42 9px 13px);
+  color:#fff;
+  font:800 .62rem/1.2 var(--body);
+  letter-spacing:.08em;
+  text-shadow:1px 1px 2px #142238,1px -1px 2px #142238;
+  pointer-events:none;
+}
+.wrap.v-sd .bcol .boardwrap{
+  border:3px solid #142238;
+  box-shadow:inset 0 0 0 3px #d6e4e9,3px 3px 0 rgba(20,34,56,.42);
+}
+.wrap.v-sd .bact,
+.wrap.v-sd .brest{
+  background:
+    var(--pulp-grain),
+    linear-gradient(#fffdf0,#e9f2f4);
+  border:3px solid #142238;
+  box-shadow:3px 3px 0 #142238;
+}
+.wrap.v-sd .bact{border-top:6px solid #d74444}
+.wrap.v-sd .brest{border-top:6px solid #f6cb45}
+.wrap.v-sd .bact .btn.pri{
+  background:var(--pulp-grain),linear-gradient(#ffe073,#f3c13c);
+}
+.wrap.v-sd .sdlog{
+  background:
+    var(--pulp-ruled),
+    var(--pulp-grain),
+    linear-gradient(#fffcf2,#f7eddb);
+  border-left:6px solid #d74444;
+}
+.wrap.v-sd .sdlog .log p{
+  background:rgba(255,252,242,.88);
+  border-bottom:1px dashed #a5b8c5;
+}
+
+/* One-off comic splash / origin / aftermath panels. */
+.wrap:is(.v-event,.v-arc,.v-after) .eventsplash,
+.wrap.v-hq-create .ocover{
+  background-image:
+    var(--pulp-dots),
+    repeating-conic-gradient(from 0deg at 65% 55%,rgba(245,204,69,.12) 0 11deg,transparent 11deg 21deg),
+    linear-gradient(120deg,#f8e6b0,#d9e8f4);
+  background-size:10px 10px,auto,auto;
+}
+.wrap:is(.v-event,.v-arc,.v-after) .panel{
+  border-left:8px solid #d74444;
+}
+
+/* Investigation is already cork and paper; this intensifies it without
+   replacing the existing pinned clues, and keeps all text above textures. */
+.inv-ui{
+  --pulp-inv-paper:
+    radial-gradient(circle,rgba(74,47,20,.09) 0 .8px,transparent 1px) 0 0/11px 13px,
+    repeating-linear-gradient(0deg,rgba(20,34,56,.035) 0 1px,transparent 1px 8px);
+}
+.inv-ui .inv-header{
+  position:relative;
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.18) 0 1.4px,transparent 1.6px) 0 0/9px 9px,
+    linear-gradient(112deg,#153a58,#1f5378);
+  border-left:9px solid #f5ce42;
+  box-shadow:4px 4px 0 #142238,6px 6px 0 #d74444;
+}
+.inv-ui .inv-header::after{
+  content:"";
+  position:absolute;
+  right:0;top:0;bottom:0;width:8px;
+  background:repeating-linear-gradient(0deg,#f5ce42 0 8px,#dc4242 8px 12px);
+  pointer-events:none;
+}
+.inv-ui .inv-main{
+  background-image:
+    repeating-linear-gradient(25deg,rgba(81,49,19,.10) 0 2px,transparent 2px 11px),
+    repeating-linear-gradient(-23deg,rgba(254,245,209,.13) 0 1px,transparent 1px 10px),
+    radial-gradient(circle,rgba(82,42,15,.12) 0 1px,transparent 1.25px) 0 0/12px 12px,
+    linear-gradient(#dfb788,#c99e69);
+  box-shadow:5px 5px 0 #142238,7px 7px 0 #a75f42;
+}
+.inv-ui .inv-trail{
+  position:relative;
+  isolation:isolate;
+}
+.inv-ui .inv-trail::before{
+  content:"";
+  position:absolute;
+  left:10%;right:10%;top:42%;
+  height:3px;background:#bf3e45;
+  box-shadow:0 1px 0 #81313c;
+  transform:rotate(-1deg);
+  z-index:-1;
+  pointer-events:none;
+}
+.inv-ui .inv-trail-item{
+  background-image:
+    var(--pulp-inv-paper),
+    linear-gradient(125deg,#fffef5,#f3e2c5);
+  border:2.5px solid #142238;
+  box-shadow:3px 3px 0 #142238;
+}
+.inv-ui .inv-trail-item.current{
+  background-image:var(--pulp-inv-paper),linear-gradient(#ffe580,#f9cf4e);
+}
+.inv-ui .inv-trail-item.complete{
+  background-image:var(--pulp-inv-paper),linear-gradient(#f2fbef,#d9e8ef);
+}
+.inv-ui .inv-action-stage{
+  background-image:
+    var(--pulp-inv-paper),
+    linear-gradient(#fffcf1,#f3e7d5);
+  border:3px solid #142238;
+  box-shadow:4px 4px 0 rgba(20,34,56,.72);
+}
+.inv-ui .inv-story{
+  background-image:
+    var(--pulp-inv-paper),
+    linear-gradient(#eef8fb,#d9ecf6);
+  border-left:6px solid #1978b2;
+}
+.inv-ui .inv-intro-frame .inv-story{
+  background-image:var(--pulp-inv-paper),linear-gradient(#fcefee,#f5d9d7);
+  border-left-color:#ce4144;
+}
+.inv-ui .inv-intel-rail{
+  background-image:
+    repeating-linear-gradient(0deg,rgba(28,108,165,.13) 0 1px,transparent 1px 26px),
+    var(--pulp-inv-paper),
+    linear-gradient(#e6f5fa,#d2e8f2);
+}
+.inv-ui .inv-side-block{
+  background-image:var(--pulp-inv-paper),linear-gradient(#fffef6,#f7f0df);
+  border-left:4px solid #277aaf;
+}
+.inv-ui .inv-villain-rail{
+  background-image:var(--pulp-inv-paper),linear-gradient(#fff0c9,#f4dfaf);
+}
+.inv-ui .inv-villain-card{
+  box-shadow:3px 3px 0 #142238;
+  border:3px solid #142238;
+}
+.inv-ui .inv-villain-card::after{
+  background:
+    radial-gradient(circle,rgba(255,255,255,.22) 0 1.2px,transparent 1.4px) 0 0/9px 9px,
+    linear-gradient(125deg,transparent 0 55%,rgba(255,212,78,.2) 55%);
+  opacity:.67;
+}
+.inv-ui .inv-knowledge-row>div{
+  background-image:var(--pulp-inv-paper),linear-gradient(#fffdf1,#e9f2f6);
+  box-shadow:2px 2px 0 #142238;
+}
+
+/* The layers above are decorative only; no text, buttons or battle tiles
+   are masked. Textures are reduced slightly on compact screens. */
+@media (max-width:600px){
+  .wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel::before{
+    width:34px;height:11px;right:14px;top:-6px;
+  }
+  .bh-pagehead{box-shadow:3px 3px 0 #142238,4px 4px 0 #d74444}
+  .bh-pagehead::before{opacity:.38}
+  .wrap.v-sd .bcol::before{font-size:.54rem}
+  .wrap.v-hq-villains .bh-threat-content .card{transform:none}
+  .wrap.v-hq-villains .bh-threat-content .card:nth-child(even){transform:none}
+  .inv-ui .inv-trail::before{height:2px}
+  .inv-ui .inv-main{box-shadow:3px 3px 0 #142238}
+}
+@media (prefers-reduced-motion:reduce){
+  .wrap:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-event,.v-arc,.v-after) .panel::before,
+  .wrap.v-hq-villains .bh-threat-content .card::before{transform:none}
+}
