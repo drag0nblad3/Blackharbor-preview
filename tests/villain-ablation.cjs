@@ -9,7 +9,7 @@ const BOT=fs.readFileSync(path.join(__dirname,'../tools/bot.js'),'utf8');
 const boss=process.env.BOSS||'cantor',seeds=Number(process.env.SEEDS||12),start=Number(process.env.SEED_START||2500);
 assert(['cantor','gallows'].includes(boss));assert(Number.isInteger(seeds)&&seeds>=1&&seeds<=50);
 const groups=['tech','magic','innate'],stages=[{name:'middle',issue:7,rank:3,level:4,cap:4},{name:'late',issue:13,rank:4,level:6,cap:5}];
-const variants=boss==='cantor'?['baseline','noSummons','noComposure','noGuard','lowerEvasion']:['baseline','noSummons'];
+const variants=boss==='cantor'?['baseline','singleSummon','noSummons','noComposure','noGuard','lowerEvasion']:['baseline','singleSummon','noSummons'];
 const classes={tech:['volt','cipher','rivet','volt'],magic:['wisp','sibyl','hexen','wisp'],innate:['bulwark','lynx','goliath','bulwark']};
 function setup(k,group,stage,variant){
  const heroes=classes[group].map((cls,i)=>i===3?
@@ -17,6 +17,7 @@ function setup(k,group,stage,variant){
   `newHero(${JSON.stringify(cls)})`).join(',');
  let adjustment='';
  if(variant==='noSummons')adjustment=`for(const c of Object.values(VILLAINS.${k}.cards))if(c.t==='summon'){c.t='taunt';c.amt=0;c.r=0}`;
+ if(variant==='singleSummon')adjustment=`for(const c of Object.values(VILLAINS.${k}.cards))if(c.t==='summon')c.k=1`;
  if(variant==='noComposure')adjustment=`for(const c of Object.values(VILLAINS.${k}.cards))if(c.t==='taunt'||c.t==='puppet'){c.t='taunt';c.amt=0;c.r=0};VINTEL.${k}.react.forEach(r=>{r.comp=0})`;
  if(variant==='noGuard')adjustment=`VILLAINS.${k}.elite=null;VINTEL.${k}.react.forEach(r=>{r.guard=0})`;
  if(variant==='lowerEvasion')adjustment=`VILLAINS.${k}.eva=11`;
