@@ -4,6 +4,8 @@ on:
     branches: [main]
     paths:
       - 'tests/gameplay-text.cjs'
+      - 'tests/comic-ui.cjs'
+      - 'comic-ui.css'
       - '.github/workflows/gameplay-text.yml'
       - 'game.js'
       - 'data.js'
@@ -22,5 +24,6 @@ jobs:
           node-version: '22'
       - run: node tests/gameplay-text.cjs
       - run: node tests/investigation-ui.cjs
+      - run: node tests/comic-ui.cjs
       - run: node tests/payload-bombs.cjs
       - run: node tests/cantor-rework.cjs
