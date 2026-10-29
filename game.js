@@ -141,6 +141,7 @@ function applyMk(c,mk){c={...c};if(!mk)return c;
   if(c.r!=null&&(c.t!=='hazard'||c.grow))c.r+=Math.floor(mk/2);if(c.len)c.len+=mk;if(c.ttl)c.ttl+=Math.floor(mk/2);if(c.cnt)c.cnt+=Math.floor(mk/2);
   if(c.t==='reanimate')c.heal=1+Math.floor(mk/2);return c}
 function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
+  const area=(c.radius||1)>1?`${1+3*c.radius*(c.radius+1)} hexes (radius ${c.radius})`:'7 hexes (radius 1)';
   switch(c.t){
     case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${c.dmg}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${c.dmg}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'');
     case 'burrow':return `Dives underground and bursts up next to the farthest hero, then hits them for ${c.dmg}. Leaves rubble where it went down.`;
@@ -164,9 +165,9 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.amt?` The lights die and every hero loses ${c.amt} composure.`:''}`;
     case 'converge':return `Every body of the swarm flies up to ${c.mv} hexes toward the nearest hero. That hero takes ${c.dmg} for each body next to them.`;
     case 'scatter':return `The swarm bursts apart. Each body reappears next to a different hero and strikes them for ${c.dmg}.`;
-    case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${c.dmg} damage to it and every hex around it in ${c.fuse} villain turn${c.fuse>1?'s':''}.`:''} A hero with no open hex behind them can't be jumped.`;
-    case 'bomb':return `Throws ${c.cnt>1?`${c.cnt} bombs, one at each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`a bomb at the ${TGN[c.tgt]} hero`} within ${c.rng}. ${c.cnt>1?'Each':'It'} goes off in ${c.fuse} villain turn${c.fuse>1?'s':''}: ${c.dmg} damage to its hex and every hex around it.`;
-    case 'detonate':return `Every bomb on the board goes off right now, with +${c.dmg} damage. No bombs, no boom.`;
+    case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${c.dmg} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
+    case 'bomb':return `Throws ${c.cnt>1?`${c.cnt} bombs, one at each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`a bomb at the ${TGN[c.tgt]} hero`} within ${c.rng}. ${c.cnt>1?'Each':'It'} explodes at the start of the next villain turn for ${c.dmg} damage across ${area}.`;
+    case 'swapbomb':return `Swaps hexes with one of her henchmen, leaving a 7-hex bomb (radius 1) where she stood. The bomb deals ${c.dmg} damage at the start of the next villain turn. No henchman, no swap.`;
     case 'airburst':return `Leaps to the middle of the room and charges up. On her next turn she fires instead of playing a page: ${c.dmg} damage to every hero and civilian within 3 of her. Tear pages equal to her level + 1 before then to stagger it.`;
     case 'beam':{const tail=` Each beam runs to the edge, stops at the first hero it hits and knocks them back ${c.dmg} hex${c.dmg>1?'es':''}.`+(c.ttl>1?` The beams stay lit for ${c.ttl} turns.`:'');
       switch(c.pat){case 'star':return `Fires a beam in all 6 directions for ${c.dmg}.`+tail;
@@ -178,7 +179,9 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
   }return ''}
 /* the villain's own movement runs one hex further than the table says (Tyler, V76); pull/repel distances are how far heroes are dragged, so they stay */
 const MV_UP=['strike','rampage','swallow','converge','leap'];
-function buildCard(vk,e){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk);
+function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');
+  if(vk==='bomber'&&['leap','bomb','swapbomb'].includes(c.t)){c.fuse=c.fuse?1:0;c.radius=c.bigAt&&level>=c.bigAt?2:1}
+  if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk);
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';
   if(c.bombx)c.txt+=' Heroes standing within 1 of a bomb lose 1 more.';
@@ -633,7 +636,7 @@ function migrateDisc5(){S.heroes.forEach(h=>{const r=h.ranks;for(const t in r)wh
 
 /* a fight saved on the old square board keeps its positions as hex offsets; villains get their footprint and refreshed pages */
 function migrateSd(){const sd=S.sd;sd.walls=sd.walls||[];sd.pits=sd.pits||[];sd.vl.forEach((o,i)=>{const v=o.v;v.shape=VILLAINS[o.key].shape;if(v.face==null)v.face=5;
-    ['deck','discard','wounds'].forEach(f=>v[f]=(v[f]||[]).map(c=>buildCard(o.key,{id:c.id,mk:c.mk||0})));if(v.last)v.last=buildCard(o.key,{id:v.last.id,mk:v.last.mk||0});
+    ['deck','discard','wounds'].forEach(f=>v[f]=(v[f]||[]).map(c=>buildCard(o.key,{id:c.id,mk:c.mk||0},v.level)));if(v.last)v.last=buildCard(o.key,{id:v.last.id,mk:v.last.mk||0},v.level);
     focusV(i);if(!vFits(v.x,v.y)){let best=null,bd=1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y))continue;const d=cheb({x,y},v);if(d<bd){bd=d;best={x,y}}}if(best){v.x=best.x;v.y=best.y}}
     if(vBig(v))shoveOut(5)});focusV(sd.vi||0);sd.hexv=1}
 /* Shaken: a hero at 0 composure in a fight */
@@ -946,7 +949,7 @@ function intelSync(){const i=S.inv;if(!i)return 0;let n=0;i.ovfFresh=0;
   while(i.clues>i.peak){i.peak++;if(i.peak>PREP_CLUES){S.intel++;i.ovf=(i.ovf||0)+1;i.ovfFresh++}const pool=intelPool(i.v);if(!pool.length)continue;const f=pick(pool);if(f.kind==='page')markSeen(i.v,f.id);else markSeenR(i.v,f.id);i.found.push(f);n++}
   i.fresh=n;return n}
 function markSeenR(k,id){S.seenR=S.seenR||{};const a=S.seenR[k]=S.seenR[k]||[];if(!a.includes(id))a.push(id)}
-function pageOf(k,id){const vs=vState(k),e=vs.deck.filter(x=>x.id===id).sort((a,b)=>b.mk-a.mk)[0]||{id,mk:0};return buildCard(k,e)}
+function pageOf(k,id){const vs=vState(k),e=vs.deck.filter(x=>x.id===id).sort((a,b)=>b.mk-a.mk)[0]||{id,mk:0};return buildCard(k,e,vs.level)}
 function intelTile(k,f,isNew){if(f.kind==='page'){const c=pageOf(k,f.id);return `<button type="button" class="intel pg-i ${c.sig?'sigi':''} ${isNew?'new':''}" data-a="book:${k}" data-tip="vpage:${k}:${f.id}"><span class="isfx">${esc(TYPE_SFX[c.t]||'!')}</span><span><small>${c.sig?'Signature Move':'Playbook page'}</small><b>${esc(c.n)}</b></span></button>`}
   const r=rxOf(k,f.id);return `<button type="button" class="intel rx-i ${isNew?'new':''}" data-a="book:${k}" data-tip="vrx:${k}:${f.id}"><span class="isfx">${esc(r.sfx)}</span><span><small>Hit reaction</small><b>${esc(r.n)}</b></span></button>`}
 const prepGear=()=>S.phase==='inv'&&S.inv&&S.inv.step>=3&&invQuality(S.inv.clues)==='prepared';
@@ -1308,7 +1311,7 @@ const TIPS=[
   {id:'pit',when:()=>inSd()&&S.sd.pits&&S.sd.pits.length,t:'Pits',b:()=>`Dark hexes are pits. <b>Nobody can walk into one, but shots and beams pass over.</b> A jumping hero can clear one pit hex for 2 movement, and villains bigger than one hex stride across.`},
   {id:'serpent',when:()=>sdV(o=>VILLAINS[o.key].shape==='serpent'),t:'A serpent villain',b:()=>`Ouroboros fills a chain of hexes and <b>its body follows its head</b>. Every civilian or henchman it swallows makes it one hex longer. Keep bystanders away from its mouth.`},
   {id:'swarm',when:()=>sdV(o=>VILLAINS[o.key].shape==='swarm'),t:'A swarm villain',b:()=>`Murmur is <b>three separate bodies</b>: a queen, a stinger and a shell. Each has its own facing, and you strike the body you aim at. A body with another body right beside it gets +2 toughness, so split them up.`},
-  {id:'bomber',when:()=>sdV(o=>o.key==='bomber'),t:'A leaping bomber',b:()=>`Payload <b>vaults over the nearest hero</b> and leaves a lit bomb where they stood. A bomb goes off on its hex and every hex around it when its fuse runs out, so get 2 hexes clear. She can't jump a hero with no open hex behind them, and she always lands facing away from the hero she jumped.`},
+  {id:'bomber',when:()=>sdV(o=>o.key==='bomber'),t:'A leaping bomber',b:()=>`Payload <b>vaults over the nearest hero</b> and leaves a lit bomb where they stood. Bombs explode next villain turn; some advanced bombs grow to radius 2 (19 hexes) at higher levels. Watch the full red-striped blast zone and get clear. She can't jump a hero with no open hex behind them, and she always lands facing away from the hero she jumped.`},
   {id:'grid',when:()=>sdV(o=>o.key==='grid'),t:'A beam turret',b:()=>`Gridlock is <b>bolted to the floor</b>: he turns but never moves, and nothing can shove him. His beams run in straight hex lines to the edge of the board, and each one <b>stops at the first hero it hits and knocks them back</b> as many hexes as the damage. Walls and rubble block beams, so use them as cover. His Prisms split any beam that passes through them.`},
   {id:'beams',when:()=>inSd()&&S.sd.beams&&S.sd.beams.length,t:'Lit beams',b:()=>`Red lines are lit beams. They stay until the villain's next turn. <b>Stepping into a lit hex costs ${BEAM_HOT} damage and ends your move</b>, and a normal move can't cross one. Only a hero who is <b>jumping</b> (the move after Mighty Leap, Jet or Piston Leap, a Solar Dive, or any move in Gravity Boots or Earthshaker Greaves) can clear a single lit hex for 2 movement. Leaping abilities that land on a chosen hex fly over beams too. A hero who starts their turn in a beam can step out freely.`},
   {id:'hide',when:()=>sdV(o=>o.v.hide),t:'Hidden facing',b:()=>`Nocturne hides which way she faces. Her arrow shows a question mark and her arcs aren't shaded, but <b>they still count</b>. Every hit you land reveals her facing until she fades again.`},
@@ -1408,7 +1411,7 @@ function markSeen(k,n){S.seen=S.seen||{};const a=S.seen[k]=S.seen[k]||[];if(!a.i
 let PB=null;
 function openPlaybook(k){const def=VILLAINS[k],vs=vState(k),sd=(S.sd&&S.sd.vl&&S.sd.vl.find(o=>o.key===k))||null,lvl=sd?sd.v.level:vs.level,seen=(S.seen&&S.seen[k])||[];
   const known=c=>seen.includes(c.id);
-  const remain=sd?[...sd.v.deck,...sd.v.discard]:vs.deck.map(e=>buildCard(k,e));
+  const remain=sd?[...sd.v.deck,...sd.v.discard]:vs.deck.map(e=>buildCard(k,e,vs.level));
   const sorted=remain.slice().sort((a,b)=>(known(b)-known(a))||a.n.localeCompare(b.n));
   const torn=sd?sd.v.wounds:[];
   const all=remain.concat(torn);
