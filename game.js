@@ -149,8 +149,9 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'sweep':return `Everything within ${c.r} takes ${c.dmg}. Civilians caught are harmed.`;
     case 'rampage':return `Moves ${c.mv} toward the nearest hero, then everything adjacent takes ${c.dmg}.`;
     case 'summon':return `${c.k} ${hn}s join the fight.`;
-    case 'endanger':return `Moves 2 toward the nearest civilian and harms them from up to 3 away. A hero next to them takes ${c.dmg} instead.`;
+    case 'endanger':return `Moves 2 toward the nearest civilian and harms them from up to 3 away. A hero next to them ${c.comp?`loses ${c.comp} Composure`:`takes ${c.dmg} damage`} instead.`;
     case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`;
+    case 'henchvolley':return 'Every hired gun already within range 2 of a hero immediately fires one extra shot without moving. Elite henchmen do not join the volley.';
     case 'vanish':return 'Disappears and reappears far from the heroes.';
     case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`}
     case 'puppet':return `The hero with the least composure loses ${c.amt||1} more and cannot move next round.`;
