@@ -8,6 +8,7 @@ on:
       - 'portrait-gallery.html'
       - '*.js'
       - '*.css'
+      - '*.svg'
       - '*.avif'
       - 'PREVIEW_STATUS.md'
       - '.github/workflows/pages.yml'
@@ -34,7 +35,7 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html portrait-gallery.html *.css *.js *.avif site/
+          cp index.html portrait-gallery.html *.css *.js *.avif *.svg site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
           grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
