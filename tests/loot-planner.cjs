@@ -56,6 +56,7 @@ for(const seed of [1,19,57]){
  g.run(chosen.map(x=>'recruitQuick('+JSON.stringify(x)+');').join(''));
  g.run("S.villains=[makeVillain('quarry',1)];S.salvage.quarry=5;S.issue=1");
  g.run('plannedSpend(party(),()=>true)');
+ console.log('EARLY-GEAR DIAGNOSTIC',JSON.stringify(asJson(g,"({crafts:ST.setCrafts,big:ST.bigGoal,goals:ST.setGoals,salv:S.salvage.quarry,gear:party().map(h=>({cls:h.cls,gear:h.gear})),graftGain:gain(party()[0],'graft'),wrapGain:gain(party()[0],'wraps'),unlocked:isUnlocked('gear:graft')})")));
  assert(g.get('ST.setCrafts')>0,'The bot must still buy valuable standalone boss gear in early arcs');
  assert(g.get('S.salvage.quarry')<5,'Standalone boss gear should use salvage not earmarked for a set');
 }
