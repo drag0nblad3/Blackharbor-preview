@@ -40,6 +40,17 @@ for(const seed of [1,19,57]){
  const target=asJson(g,'chooseBigGoal(party(),()=>true)');
  assert(target&&g.get('GEAR['+JSON.stringify(target.k)+'].req')>=3,'Big item goal should be selected');
 }
+{
+ const g=make(48);
+ g.run(chosen.map(x=>'recruitQuick('+JSON.stringify(x)+');').join(''));
+ g.run("S.villains=[];S.issue=13;S.heroes.find(h=>h.cls==='volt').ranks.tech=4;S.unlocked=['gear:lance'];S.salvage.gallows=6");
+ assert.equal(g.get("chooseBigGoal(party(),()=>true)?.k"),'lance','Bot should save for a major two-handed weapon');
+ g.run("plannedSpend(party(),()=>true)");
+ assert.equal(g.get("S.salvage.gallows"),6,'Insufficient salvage is preserved for the lance');
+ g.run("S.salvage.gallows=11;plannedSpend(party(),()=>true)");
+ assert.equal(g.get("S.heroes.find(h=>h.cls==='volt').gear.arms"),'lance','Large weapon is equipped when affordable');
+ assert(g.get('ST.bigCrafts')>=1);
+}
 console.log('PASS: planned four-piece set completion, protected boss salvage, targeted spending, and major-upgrade evaluation.');
 
 if(process.env.CAMPAIGN_SMOKE==='1'){
