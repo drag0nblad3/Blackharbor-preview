@@ -449,8 +449,9 @@ body:has(#app:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-even
   background-image:
     repeating-linear-gradient(25deg,rgba(81,49,19,.10) 0 2px,transparent 2px 11px),
     repeating-linear-gradient(-23deg,rgba(254,245,209,.13) 0 1px,transparent 1px 10px),
-    radial-gradient(circle,rgba(82,42,15,.12) 0 1px,transparent 1.25px) 0 0/12px 12px,
+    radial-gradient(circle,rgba(82,42,15,.12) 0 1px,transparent 1.25px),
     linear-gradient(#dfb788,#c99e69);
+  background-size:auto,auto,12px 12px,auto;
   box-shadow:5px 5px 0 #142238,7px 7px 0 #a75f42;
 }
 .inv-ui .inv-trail{
