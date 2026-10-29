@@ -127,6 +127,13 @@ const path=require('node:path');
    assert(boardTexture.includes('repeating-linear-gradient'),'Investigation corkboard texture rendered');
    await page.screenshot({path:path.join(shots,size.name+'-investigation.png'),animations:'disabled'});
 
+   await page.goto('file://'+process.cwd()+'/portrait-gallery.html');
+   await page.locator('#gallery .gallery-card').first().waitFor();
+   assert.equal(await page.locator('#gallery .gallery-card').count(),12,'Portrait gallery shows all canonical villains');
+   assert.equal(await page.locator('#gallery svg.vportrait').count(),12,'Every gallery entry has generated art');
+   const galleryWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+   assert(galleryWidth<=size.width+24,'Gallery overflows viewport');
+   await page.screenshot({path:path.join(shots,size.name+'-portrait-gallery.png'),animations:'disabled',fullPage:true});
    await page.close();
   }
   assert.deepEqual(errors,[],'Browser script errors');
