@@ -8,6 +8,13 @@ const game=bh.load({seed:2026});
 const get=expr=>game.get(expr),run=code=>game.run(code);
 const names=Object.keys(get('VILLAINS'));
 assert.equal(names.length,12,'All eleven campaign villains plus Mole Boy have portrait art');
+const spriteFile=path.resolve(__dirname,'..','villain-portraits.avif');
+const sprite=fs.readFileSync(spriteFile);
+assert.equal(sprite.subarray(4,12).toString('latin1'),'ftypavif','approved portrait sprite has AVIF image header');
+assert(sprite.length>12000 && sprite.length<90000,'portrait artwork is a lightweight real image');
+const atlas={gallows:[0,0],quarry:[1,0],cantor:[2,0],architect:[3,0],
+  helios:[0,1],serpent:[1,1],lode:[2,1],noct:[3,1],
+  swarm:[0,2],bomber:[1,2],grid:[2,2],mole:[3,2]};
 const sample=[];
 for(const key of names){
   const svg=get('vPortrait('+JSON.stringify(key)+')');
@@ -15,6 +22,9 @@ for(const key of names){
   assert.match(svg,/role="img"/);
   assert(svg.includes(get('VILLAINS['+JSON.stringify(key)+'].name')+' portrait'));
   assert.match(svg,/<svg x="22" y="-4"/,'canonical figure is included');
+  assert.match(svg,/<image href="villain-portraits\.avif"/,'approved illustrated asset overlays fallback');
+  assert(svg.includes('x="'+(-160*atlas[key][0])+'"'),'correct portrait sheet column');
+  assert(svg.includes('y="'+(-116*atlas[key][1])+'"'),'correct portrait sheet row');
   assert.match(svg,/<path/,'pulp portrait is illustrated');
   assert.doesNotMatch(svg,/url\(#eyeglow\)|url\(#hlface\)/,'SVG IDs are isolated');
   sample.push(svg);
@@ -47,4 +57,4 @@ const css=fs.readFileSync(path.join(home,'villain-portraits.css'),'utf8');
 assert.match(css,/\.villain-dossier-art/);
 assert.match(css,/\.vportrait-combat/);
 assert.match(css,/@media \(max-width:540px\)/);
-console.log('PASS: '+names.length+' villain portraits render and connect to HQ, Villains, Investigation, and Combat.');
+console.log('PASS: '+names.length+' professionally illustrated villain portraits map to correct crops in HQ, Villains, Investigation, and Combat with SVG fallback.');
