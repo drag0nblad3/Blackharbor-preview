@@ -11,11 +11,12 @@ const path=require('node:path');
  const out=path.resolve('layout-shots');fs.mkdirSync(out,{recursive:true});
  try{
   const names=['arena-concrete.svg','arena-steel.svg','arena-wood.svg','arena-circuit.svg','arena-move.svg','arena-danger.svg'];
+  const miniatures=['bulwark','volt','wisp','lynx'].map(k=>'miniature-'+k+'.svg');
   const mapping={gallows:'arena-steel.svg',quarry:'arena-concrete.svg',cantor:'arena-wood.svg',
    architect:'arena-steel.svg',helios:'arena-steel.svg',serpent:'arena-circuit.svg',
    lode:'arena-steel.svg',noct:'arena-wood.svg',swarm:'arena-concrete.svg',
    bomber:'arena-concrete.svg',grid:'arena-circuit.svg'};
-  for(const file of names){
+  for(const file of [...names,...miniatures]){
     const text=fs.readFileSync(path.resolve(file),'utf8');
     assert(text.startsWith('<svg '),file+' is an actual vector image');
     assert.match(text,/viewBox="/,file+' has scalable coordinates');
@@ -39,6 +40,30 @@ const path=require('node:path');
     assert.equal(assetStatuses.length,6,'Six original SVG sprites load in real Chromium');
     for(const a of assetStatuses){assert(a.w>0&&a.h>0,a.name+' is rendered by Chromium');}
     assert.equal(await page.locator('#lab-villain option').count(),11,'All campaign bosses supported');
+    const newArt=await page.evaluate(async files=>{
+      return Promise.all(files.map(async file=>{
+        const img=new Image();img.src=file;await img.decode();
+        return {file,width:img.naturalWidth,height:img.naturalHeight};
+      }));
+    },miniatures);
+    assert(newArt.every(a=>a.width===128&&a.height===176),'New character miniatures are individual 128x176 illustrated SVGs');
+    assert.equal(await page.locator('#lab-miniatures').getAttribute('aria-pressed'),'true','New heroes enabled on lab entry');
+    assert(await page.locator('.board .tok.hst[data-hero="bulwark"]').count()>0,'Real battle tokens retain hero identity');
+    const newHeroStyle=async()=>page.locator('.board .tok.hst[data-hero="bulwark"] .st').first()
+      .evaluate(node=>({art:getComputedStyle(node,'::after').backgroundImage,
+        original:getComputedStyle(node.querySelector('.hs')).opacity,
+        pointer:getComputedStyle(node,'::after').pointerEvents}));
+    const miniOn=await newHeroStyle();
+    assert(miniOn.art.includes('miniature-bulwark.svg'),'Original illustrated hero miniature replaces legacy art');
+    assert.equal(miniOn.original,'0','Hidden legacy hero standee remains available for comparison');
+    assert.equal(miniOn.pointer,'none','Miniature art is noninteractive and cannot block cell input');
+    await page.screenshot({path:path.join(out,size+'-experimental-new-miniatures.png'),animations:'disabled'});
+    await page.locator('#lab-miniatures').click();
+    assert.equal(await page.locator('#lab-miniatures').getAttribute('aria-pressed'),'false');
+    assert(!(await newHeroStyle()).art.includes('miniature-bulwark.svg'),'Original standees return when new sprites are disabled');
+    await page.locator('#lab-miniatures').click();
+    assert((await newHeroStyle()).art.includes('miniature-bulwark.svg'),'New character art can be restored');
+
     assert(await page.locator('.board .cell').count()>25,'Real hex cells are present');
     assert(await page.locator('.board .tok.hst').count()>0,'Actual hero standees render');
     assert(await page.locator('.board .vtok').count()>0,'Actual boss standee renders');
@@ -80,8 +105,12 @@ const path=require('node:path');
     assert.equal(graphics.tile,'none','SVG tile overlays are noninteractive');
     assert(graphics.overflow<=24,size+' board fits viewport');
     assert.deepEqual(failures,[],size+' game/battle art script errors');
+    await page.goto('file://'+process.cwd()+'/miniature-gallery.html');
+    assert.equal(await page.locator('.gallery figure img').count(),4,'Full-size art gallery contains four independent assets');
+    assert((await page.locator('.gallery img').first().evaluate(el=>el.naturalWidth))===128,'Gallery displays actual reusable SVG art');
+    await page.screenshot({path:path.join(out,size+'-original-miniatures-gallery.png'),animations:'disabled'});
     await page.close();
   }
-  console.log('PASS: 6 real scalable vector assets; 11 villain floors; true classic/illustrated toggle; hex controls and hero/boss sprites intact at phone/desktop sizes.');
+  console.log('PASS: four new standalone illustrated hero sprites, six floor/marker assets, art comparison toggles, 11 boss floors, and live battlefield geometry at phone/desktop sizes.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});
