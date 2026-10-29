@@ -795,3 +795,105 @@ body:has(#app:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-even
   .bh-roster-pick{padding:5px;min-height:42px}
 }
 
+/* Tactical workspace v2: board-led layout on mobile, top-level combat telemetry */
+.wrap.v-sd .bh-combat-brief{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:8px;padding:8px 12px;border:3px solid #142238;
+  box-shadow:3px 3px 0 #142238;
+  color:#fff;background:var(--bh-slate);
+  min-width:0;
+}
+.wrap.v-sd .bh-combat-title{
+  flex:1 1 185px;min-width:0;
+}
+.wrap.v-sd .bh-combat-title>span{
+  display:block;color:#f5cd45;font-size:.64rem;
+  font-weight:800;text-transform:uppercase;letter-spacing:.11em;
+}
+.wrap.v-sd .bh-combat-title h2{
+  font-family:var(--display);font-size:clamp(1rem,1.9vw,1.33rem);
+  color:#fff;line-height:1.12;margin:3px 0;
+}
+.wrap.v-sd .bh-combat-metrics{
+  flex:1 1 340px;display:flex;flex-wrap:wrap;
+  gap:5px;align-items:stretch;justify-content:flex-end;min-width:0;
+}
+.wrap.v-sd .bh-combat-metrics>div{
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-width:58px;
+  background:#fff9df;color:#142238;
+  border:2px solid #142238;padding:4px 6px;
+}
+.wrap.v-sd .bh-combat-metrics b{font:800 .99rem/1.2 var(--mono)}
+.wrap.v-sd .bh-combat-metrics small{
+  font:800 .58rem/1.2 var(--body);
+  text-align:center;color:#40576b;
+  text-transform:uppercase;letter-spacing:.02em;
+}
+.wrap.v-sd .bh-combat-metrics .bh-combat-selected{
+  background:#f5cd45;
+  min-width:140px;align-items:flex-start;
+}
+.wrap.v-sd .bh-combat-selected b{
+  font:800 .74rem/1.2 var(--body);
+}
+.wrap.v-sd .bh-combat-selected small{
+  font-size:.63rem;text-align:left;
+}
+@media (min-width:1440px){
+  .wrap.v-sd .sdl{
+    grid-template-rows:auto auto auto 1fr;
+  }
+  .wrap.v-sd .bh-combat-brief{
+    grid-column:1/-1;grid-row:1;
+  }
+  .wrap.v-sd .sdp .bhd{grid-column:1;grid-row:2/4}
+  .wrap.v-sd .sdp .bcol{grid-column:2;grid-row:2/5}
+  .wrap.v-sd .sdp .bact{grid-column:3;grid-row:2}
+  .wrap.v-sd .sdp .brest{grid-column:3;grid-row:3/5}
+  .wrap.v-sd .sdlog{grid-column:1;grid-row:4}
+  .wrap.v-sd .board{width:min(calc((100vh - 220px)*1.174),100%)}
+}
+@media (max-width:1023px){
+  .wrap.v-sd .sdp{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .wrap.v-sd .sdp>.bcol{order:0}
+  .wrap.v-sd .sdp>.bact{order:1}
+  .wrap.v-sd .sdp>.bhd{order:2}
+  .wrap.v-sd .sdp>.brest{order:3}
+  .wrap.v-sd .sdp>.bcol{
+    border:3px solid #142238;
+    padding:6px;
+  }
+  .wrap.v-sd .sdp>.bact{
+    background:#e9f3f9;
+    margin:0;
+  }
+  .wrap.v-sd .sdp>.bhd{
+    padding:8px;
+  }
+  .wrap.v-sd .board{width:100%;max-width:100%}
+  .wrap.v-sd .bh-combat-metrics{justify-content:flex-start}
+}
+@media (max-width:600px){
+  .wrap.v-sd .bh-combat-brief{padding:6px 7px;gap:5px}
+  .wrap.v-sd .bh-combat-title{flex-basis:100%}
+  .wrap.v-sd .bh-combat-title h2{margin:1px 0;font-size:1.02rem}
+  .wrap.v-sd .bh-combat-metrics{gap:3px;flex-basis:100%}
+  .wrap.v-sd .bh-combat-metrics>div{
+    flex:1 1 44px;min-width:0;padding:3px;
+  }
+  .wrap.v-sd .bh-combat-metrics b{font-size:.83rem}
+  .wrap.v-sd .bh-combat-metrics small{font-size:.5rem}
+  .wrap.v-sd .bh-combat-metrics .bh-combat-selected{
+    flex:2 1 100px;min-width:104px;
+  }
+  .wrap.v-sd .bh-combat-selected b{font-size:.69rem}
+  .wrap.v-sd .bh-combat-selected small{font-size:.56rem}
+  .wrap.v-sd .sdp>.bcol{padding:4px}
+  .wrap.v-sd .sdp>.bact{padding:6px}
+}
+
