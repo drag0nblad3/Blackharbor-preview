@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'game.js'
+      - 'tools/bot.js'
       - 'tests/boss-selection.cjs'
       - '.github/workflows/boss-selection.yml'
   workflow_dispatch:
