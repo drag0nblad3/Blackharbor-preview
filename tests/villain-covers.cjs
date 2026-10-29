@@ -36,7 +36,7 @@ if(process.argv.includes('--integrity-only')){
       page.on('pageerror',e=>errors.push(size.name+': '+e.message));
       page.on('request',r=>{if(/villain-covers\/[a-z]+\.webp/.test(r.url()))fullRequests.push(r.url());});
       await page.goto('file://'+root+'/index.html');
-      await page.evaluate(()=>{newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.ui=S.ui||{};render();});
+      await page.evaluate(()=>{newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.ui=S.ui||{};S.villains=Object.keys(VILLAINS).map(k=>makeVillain(k,1));S.pool=[];render();});
       await page.addStyleTag({content:'#guide,#tutc{display:none!important}'});
       const initialState=await page.evaluate(()=>JSON.stringify(S));
       assert.deepEqual(await page.evaluate(()=>Object.keys(VILLAIN_COVERS).sort()),entries.map(e=>e.key).sort());
