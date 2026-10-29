@@ -1,6 +1,7 @@
 
 /* Layout: comic-issue frame — masthead with halftone, panel-bordered sections, narration-box captions; one column on phones */
 :root{
+  color-scheme:light;
   --set:#1C8A4A; --setBg:#E2F4E8; --setGlow:rgba(40,190,100,.5);
   --paper:#EDF0F4; --panel:#FFFFFF; --ink:#151821; --muted:#596173; --line:#C4CAD5;
   --cyan:#0B86AE; --magenta:#C92463; --yellow:#F1C02C; --good:#2F8A4E; --dot:rgba(21,24,33,.13);
@@ -11,11 +12,8 @@
   --body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --set:#5BD88A; --setBg:#11281B; --setGlow:rgba(91,216,138,.45);
-  --paper:#0E1119; --panel:#171B26; --ink:#E7EAF1; --muted:#9AA1B2; --line:#2C3242;
-  --cyan:#3DB6DD; --magenta:#EE548C; --yellow:#F3CB4B; --good:#5BC27D; --dot:rgba(231,234,241,.08);
-  --cap:#3A3214; --capInk:#F6E7B0; --tech:#3DB6DD; --innate:#F08A4B; --magic:#B48CF0; color-scheme:dark}}
+/* Device dark-mode preferences do not recolor the comic-book UI.
+   An explicit data-theme="dark" opt-in remains available below. */
 :root[data-theme="dark"]{
   --set:#5BD88A; --setBg:#11281B; --setGlow:rgba(91,216,138,.45);
   --paper:#0E1119; --panel:#171B26; --ink:#E7EAF1; --muted:#9AA1B2; --line:#2C3242;
