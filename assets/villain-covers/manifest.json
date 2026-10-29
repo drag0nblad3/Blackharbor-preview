@@ -1,0 +1,220 @@
+{
+  "project": "Blackharbor",
+  "version": 1,
+  "created": "2026-10-29",
+  "repo": "drag0nblad3/Blackharbor",
+  "preview_repo": "drag0nblad3/Blackharbor-preview",
+  "status": "Artwork packaged; not committed to either repository",
+  "notes": [
+    "All 12 keys are verified in the current Blackharbor data.js VILLAINS table.",
+    "These are full 2:3 covers; display with object-fit: contain. Do not crop off lettering.",
+    "Payload is the user-selected red second generated artwork; its printed tagline differs from the original requested BOMBS AWAY! This is a known approved exception; do not substitute or edit without permission.",
+    "Architect source is an individual crop from a paired generation, 724x1086; do not upscale."
+  ],
+  "entries": [
+    {
+      "key": "gallows",
+      "villain": "Dr. Gallows",
+      "selection": "Original selected",
+      "source_filename": "dr._gallows_and_the_death_ray.png",
+      "cover_path": "assets/villain-covers/gallows.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/gallows.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 595832,
+      "thumbnail_bytes": 64656,
+      "cover_sha256": "61c75c28060dfd12483cc2bc5e205e6f9fa1709e810fdd421c0b0866818e25c7",
+      "intended_tagline": "THE DEATH RAY NEEDS A CLEAN SHOT!",
+      "note": ""
+    },
+    {
+      "key": "quarry",
+      "villain": "Mother Quarry",
+      "selection": "Alternate selected",
+      "source_filename": "mother_quarry_the_mountain_moves.png",
+      "cover_path": "assets/villain-covers/quarry.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/quarry.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 673674,
+      "thumbnail_bytes": 72640,
+      "cover_sha256": "7e43cfd607ba9dfb3429b44eb5f1fdda43a791b3389a9c38805958e3d025ee60",
+      "intended_tagline": "THE MOUNTAIN IS MOVING!",
+      "note": ""
+    },
+    {
+      "key": "cantor",
+      "villain": "The Cantor",
+      "selection": "Alternate selected",
+      "source_filename": "the_cantor_s_hypnotic_reign.png",
+      "cover_path": "assets/villain-covers/cantor.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/cantor.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 536622,
+      "thumbnail_bytes": 62046,
+      "cover_sha256": "12306c117f971ae7f57b523804bfbb149ba21052ddb4891db7e4b0a05f285365",
+      "intended_tagline": "EVERYONE, LISTEN TO MY VOICE!",
+      "note": ""
+    },
+    {
+      "key": "architect",
+      "villain": "The Architect",
+      "selection": "Original selected",
+      "source_filename": "blackharbor_04_the_architect_cover.png",
+      "cover_path": "assets/villain-covers/architect.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/architect.webp",
+      "dimensions": [
+        724,
+        1086
+      ],
+      "cover_bytes": 291004,
+      "thumbnail_bytes": 62146,
+      "cover_sha256": "64b297702e9b98b8c7137e669f98b80e1c2a782502562cdc41ac882ca508b478",
+      "intended_tagline": "WELCOME TO MY MASTERPIECE!",
+      "note": ""
+    },
+    {
+      "key": "helios",
+      "villain": "Helios Prime",
+      "selection": "Original selected",
+      "source_filename": "a_dramatic_comic_book_cover_illustration_vintage.png",
+      "cover_path": "assets/villain-covers/helios.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/helios.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 564338,
+      "thumbnail_bytes": 63956,
+      "cover_sha256": "55ceef640076d4fa6567063ec9335da7a156ecc3a21a9899d1fa1edac6dc2330",
+      "intended_tagline": "FEEL A STAR BEING BORN!",
+      "note": ""
+    },
+    {
+      "key": "serpent",
+      "villain": "Ouroboros",
+      "selection": "Alternate selected",
+      "source_filename": "ouroboros_the_feast_begins.png",
+      "cover_path": "assets/villain-covers/serpent.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/serpent.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 626636,
+      "thumbnail_bytes": 66852,
+      "cover_sha256": "560abf4b19c361f72b4647cecc9216722858dbe7cd23f68541816ef879a5760d",
+      "intended_tagline": "THE FEAST BEGINS!",
+      "note": ""
+    },
+    {
+      "key": "lode",
+      "villain": "Lodestone",
+      "selection": "Original selected",
+      "source_filename": "a_dramatic_comic_book_cover_style_illustration_vi.png",
+      "cover_path": "assets/villain-covers/lode.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/lode.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 608384,
+      "thumbnail_bytes": 67216,
+      "cover_sha256": "0ce2ce69ea64106ecb47444e9c11f910952c7c7e710c1d2c186f4bc6a92b0f5d",
+      "intended_tagline": "IRON ANSWERS ITS MASTER!",
+      "note": ""
+    },
+    {
+      "key": "noct",
+      "villain": "Nocturne",
+      "selection": "Alternate selected",
+      "source_filename": "nocturne_moonlit_harbor_strike.png",
+      "cover_path": "assets/villain-covers/noct.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/noct.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 488084,
+      "thumbnail_bytes": 54926,
+      "cover_sha256": "a5c4afdfe0e2a8f0f9a28203472a29107de125c742ad6dba53b4c32442792be8",
+      "intended_tagline": "YOU NEVER SEE THE KNIFE.",
+      "note": ""
+    },
+    {
+      "key": "swarm",
+      "villain": "Murmur",
+      "selection": "Original selected",
+      "source_filename": "a_gritty_vintage_comic_book_cover_illustration_ch.png",
+      "cover_path": "assets/villain-covers/swarm.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/swarm.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 656542,
+      "thumbnail_bytes": 71370,
+      "cover_sha256": "20ae679fa54e9f87bd4eb9e8c56d1111ea5460543c10802e92c474a139bd009b",
+      "intended_tagline": "WE ARE EVERYWHERE.",
+      "note": ""
+    },
+    {
+      "key": "bomber",
+      "villain": "Payload",
+      "selection": "Second generated red version (user selected)",
+      "source_filename": "a_gritty_vintage_comic_book_cover_illustration_fu.png",
+      "cover_path": "assets/villain-covers/bomber.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/bomber.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 533740,
+      "thumbnail_bytes": 61582,
+      "cover_sha256": "70a6660d28ac2ec666cf7d693d6fe579f34f0eb0f343ca474133af7b29b924bd",
+      "intended_tagline": "BOMBS AWAY!",
+      "note": "Printed title burst reads EVERYTHING GOES BOOM EVENTUALLY!; user explicitly chose this image."
+    },
+    {
+      "key": "grid",
+      "villain": "Gridlock",
+      "selection": "Approved new cover, issue 11",
+      "source_filename": "gridlock_neon_city_trap.png",
+      "cover_path": "assets/villain-covers/grid.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/grid.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 540274,
+      "thumbnail_bytes": 56502,
+      "cover_sha256": "b3e1d1c0ebfdb6c27dd1805c8e2833829fc91635e48607476e8fb8172367b347",
+      "intended_tagline": "NOBODY MOVE.",
+      "note": ""
+    },
+    {
+      "key": "mole",
+      "villain": "Mole Boy",
+      "selection": "Approved new cover, issue 12",
+      "source_filename": "mole_boy_everybody_down.png",
+      "cover_path": "assets/villain-covers/mole.webp",
+      "thumbnail_path": "assets/villain-covers/thumbs/mole.webp",
+      "dimensions": [
+        1024,
+        1536
+      ],
+      "cover_bytes": 535932,
+      "thumbnail_bytes": 60922,
+      "cover_sha256": "6924f8f95ffd7cc7d76c6304f387e641f5ab71390bd225759793a405afafef0d",
+      "intended_tagline": "EVERYBODY DOWN… WAY DOWN!",
+      "note": ""
+    }
+  ]
+}

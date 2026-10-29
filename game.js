@@ -1604,17 +1604,18 @@ function openPlaybook(k){const def=VILLAINS[k],vs=vState(k),sd=(S.sd&&S.sd.vl&&S
     pages:[{kind:'cover'},...sorted.map(c=>({kind:known(c)?'card':'unk',c})),...torn.map(c=>({kind:'torn',c,known:known(c)})),...rx.map(r=>({kind:sr.includes(r.id)?'rx':'rxunk',r}))]};
   const L=document.createElement('div');L.id='comic';L.setAttribute('role','dialog');L.setAttribute('aria-label',`${def.name} playbook`);document.body.appendChild(L);
   L.addEventListener('click',e=>{const b=e.target.closest('[data-pb]');if(!b)return;const[a,n]=b.dataset.pb.split(':');
+    if(a==='gallery')openCoverGallery();if(a==='art')openVillainCover(PB.k);
     if(a==='close')closePlaybook();if(a==='next')turnPB(1);if(a==='prev')turnPB(-1);if(a==='go')turnPB(+n-PB.i)});
   let sx=null;L.addEventListener('pointerdown',e=>{if(e.target.closest('.cstage'))sx=e.clientX});
   L.addEventListener('pointerup',e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(dx<-45)turnPB(1);else if(dx>45)turnPB(-1)});
   drawPB(0);L.querySelector('[data-pb="close"]').focus({preventScroll:true})}
 function closePlaybook(){const L=document.getElementById('comic');if(L)L.remove();PB=null}
-document.addEventListener('keydown',e=>{if(!PB)return;if(e.key==='Escape')closePlaybook();if(e.key==='ArrowRight')turnPB(1);if(e.key==='ArrowLeft')turnPB(-1)});
+document.addEventListener('keydown',e=>{if(!PB||document.getElementById('cover-browser'))return;if(e.key==='Escape')closePlaybook();if(e.key==='ArrowRight')turnPB(1);if(e.key==='ArrowLeft')turnPB(-1)});
 function turnPB(d){if(!PB||!d)return;const ni=PB.i+d;if(ni<0||ni>=PB.pages.length)return;
   const pg=document.querySelector('#comic .cstage .pg');if(pg&&!RM){pg.classList.add(d>0?'flipOutL':'flipOutR');setTimeout(()=>{PB.i=ni;drawPB(d)},170)}else{PB.i=ni;drawPB(d)}}
 function pbPage(p,idx){const def=VILLAINS[PB.k],n=PB.pages.length-1;
   const hd=(r)=>`<div class="hd"><span>${vIc(PB.k)}${esc(def.name)} · Playbook</span><span>${r}</span></div>`;
-  if(p.kind==='cover')return `<div class="pg pbcover">${vWm(PB.k)}<small>${PB.inFight?'This fight':'Case file'} · Level ${PB.lvl}</small><b>${esc(def.name)}</b><span class="ctag">${esc(def.tag)}</span>
+  if(p.kind==='cover')return `<div class="pg pbcover">${villainCoverPreview(PB.k)}<small>${PB.inFight?'This fight':'Case file'} · Level ${PB.lvl}</small><b>${esc(def.name)}</b><span class="ctag">${esc(def.tag)}</span>
     <div class="cstats"><span><b>${PB.remainN}</b> pages left</span>${PB.inFight?`<span><b>${PB.tornN}</b> torn out</span>`:''}<span><b>${PB.seenN}/${PB.total}</b> seen</span><span><b>${PB.rxN}/${PB.rxT}</b> hit reactions known</span></div>
     <small>Swipe or tap Next to read</small></div>`;
   if(p.kind==='rx'||p.kind==='rxunk'){const show=p.kind==='rx',r=p.r;return `<div class="pg"><div class="hd"><span>${vIc(PB.k)}${esc(def.name)} · Hit reaction</span><span>Hit deck</span></div><div class="sigrib r">Signature reaction</div><div class="art tac ${show?'':'unk'}"><span>${show?esc(r.sfx):'???'}</span></div><h2>${show?esc(r.n):'???'}</h2><div class="tx ${show?'':'muted'}">${show?esc(r.txt):`One of ${esc(def.short)}'s signature hit reactions. Uncover clues while investigating, or draw it in a fight, to learn it.`}</div><div class="ft">${show&&r.src?`Lost when ${esc(def.cards[r.src].n)} is torn`:show?'Shuffled into the hit deck':'Unknown reaction'}</div></div>`}
@@ -1624,8 +1625,8 @@ function pbPage(p,idx){const def=VILLAINS[PB.k],n=PB.pages.length-1;
   if(p.kind==='torn')return `<div class="pg tornpg ${sg?'sig':''}" style="clip-path:${tearTop}">${body}</div><div class="tornlabel">Torn out this fight</div>`;
   return `<div class="pg ${sg?'sig':''}">${body}</div>`}
 function drawPB(d){const L=document.getElementById('comic');if(!L||!PB)return;const def=VILLAINS[PB.k],p=PB.pages[PB.i];
-  L.innerHTML=`<div class="cbar"><div><div class="eyebrow">Villain playbook</div><h3>${esc(def.name)}</h3></div><button class="btn sm" data-pb="close" type="button">Close</button></div>
-    <div class="cstage"><div class="book pbook vth" style="${vSty(PB.k)}">${pbPage(p,PB.i)}</div></div>
+  L.innerHTML=`<div class="cbar"><div><div class="eyebrow">Villain playbook</div><h3>${esc(def.name)}</h3></div><button class="btn sm" data-pb="gallery" type="button">Comic covers · 12</button><button class="btn sm" data-pb="close" type="button">Close</button></div>
+    <div class="cstage"><div class="book pbook vth ${p.kind==='cover'?'has-cover':''}" style="${vSty(PB.k)}">${pbPage(p,PB.i)}</div></div>
     <div class="cnav"><button class="btn sm" data-pb="prev" type="button" ${PB.i?'':'disabled'}>Prev</button><span class="mono small">${PB.i?`${PB.i} / ${PB.pages.length-1}`:'Cover'}</span><button class="btn sm" data-pb="next" type="button" ${PB.i<PB.pages.length-1?'':'disabled'}>Next</button></div>
     <div class="cstrip">${PB.pages.map((q,i)=>`<button type="button" class="tile ${q.kind} ${q.kind==='card'&&q.c.sig?'sig':''} ${i===PB.i?'cur':''}" data-pb="go:${i}" aria-label="${q.kind==='cover'?'Cover':q.kind==='unk'?'Unknown page':q.kind==='torn'?'Torn page':q.kind==='rx'?esc(q.r.n):q.kind==='rxunk'?'Unknown hit reaction':esc(q.c.n)}"></button>`).join('')}</div>`;
   const pg=L.querySelector('.cstage .pg');if(pg&&d&&!RM)pg.classList.add(d>0?'flipInL':'flipInR')}

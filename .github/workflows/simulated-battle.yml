@@ -7,6 +7,10 @@ on:
       - 'tests/simulated-battle.cjs'
       - 'tests/layout-smoke.cjs'
       - 'tests/battle-graphics.cjs'
+      - 'tests/villain-covers.cjs'
+      - 'villain-covers.js'
+      - 'villain-covers.css'
+      - 'assets/villain-covers/**'
       - 'combat-art-lab.html'
       - 'miniature-gallery.html'
       - 'miniature-experiment.css'
@@ -36,6 +40,8 @@ jobs:
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
+      - name: Check all 12 comic covers on mobile and desktop
+        run: node tests/villain-covers.cjs
       - name: Run simulated battle test
         run: node tests/simulated-battle.cjs
       - name: Check real illustrated battle graphics and before-after screenshots

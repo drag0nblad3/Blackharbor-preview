@@ -1,0 +1,26 @@
+/* Approved comic covers always display edge to edge with all lettering visible. */
+#comic .cbar{flex-wrap:wrap}
+#comic .cbar>div{flex:1 1 140px}
+#comic .pbook.has-cover{aspect-ratio:auto}
+#comic .has-cover .pbcover{position:relative;overflow:visible}
+.cover-preview{display:block;align-self:center;width:min(100%,240px);padding:0;border:0;background:#151821;color:#fff;cursor:zoom-in}
+.cover-preview img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain}
+.cover-preview span{display:block;padding:6px;font:600 12px var(--mono)}
+#cover-browser{box-sizing:border-box;width:min(1100px,calc(100% - 24px));max-width:none;max-height:calc(100dvh - 24px);padding:16px;border:3px solid #151821;background:#171c29;color:#fff;overflow:auto}
+#cover-browser::backdrop{background:rgb(10 13 20 / .92)}
+#cover-browser .cover-bar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+#cover-browser h2{flex:1 1 180px;margin:0;font-family:var(--display);font-weight:400}
+#cover-browser button,#cover-browser a{min-height:44px}
+#cover-browser button:focus-visible,#cover-browser a:focus-visible,.cover-preview:focus-visible{outline:3px solid #f3cb4b;outline-offset:3px}
+.cover-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(140px,100%),1fr));gap:16px}
+.cover-card{display:flex;flex-direction:column;gap:8px;padding:8px;background:#242d40;color:#fff;border:2px solid #7486a8;cursor:zoom-in;font:600 15px var(--body, sans-serif)}
+.cover-card img{display:block;width:100%;height:auto;aspect-ratio:2/3;object-fit:contain}
+.cover-full{display:block;margin:0 auto;width:auto;height:auto;max-width:100%;max-height:70dvh;object-fit:contain;background:#10131c}
+.cover-controls{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:16px}
+#cover-browser .cover-original{display:inline-flex;align-items:center;color:#f3cb4b;text-align:center}
+.cover-help{font-size:13px;text-align:center;color:#c9cdd8}
+@media(max-width:540px){
+  #cover-browser{padding:10px;width:calc(100% - 12px);max-height:calc(100dvh - 12px)}
+  .cover-grid{gap:10px}
+  .cover-full{max-height:65dvh}
+}

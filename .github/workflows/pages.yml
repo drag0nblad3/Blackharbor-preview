@@ -12,6 +12,7 @@ on:
       - '*.css'
       - '*.svg'
       - '*.avif'
+      - 'assets/villain-covers/**'
       - 'PREVIEW_STATUS.md'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -38,6 +39,7 @@ jobs:
         run: |
           mkdir site
           cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html *.css *.js *.avif *.svg site/
+          cp -R assets site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
           grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
