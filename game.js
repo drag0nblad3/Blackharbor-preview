@@ -1131,7 +1131,7 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
     <div class="row small"><span class="eyebrow" data-tip="kw:party">Party</span>${party().map(h=>`<span class="tag g">${esc(h.name)}</span>`).join('')||'<span class="tag">Empty</span>'}<button class="btn sm" data-a="view:roster">Change party</button></div>
     <div class="grid2">${act.map(vcard).join('')}</div>
     ${!S.villains.length?'<p class="cap">Recruit four heroes to reveal the three opening villains. The threats will match your team’s disciplines.</p>':''}
-    ${S.villains.length&&S.pool.length?`<p class="small muted" style="margin:0">${S.pool.length} more villain${S.pool.length>1?'s':''} will surface later in this volume.</p>`:''}`)}</section>
+    ${S.villains.length&&S.pool.length?`<p class="small muted" style="margin:0">${S.pool.length} more villain${S.pool.length>1?'s':''} will surface later in this volume.</p>`:''}`)}</section></div>
   `;
   const fl=S.flash;S.flash=null;
   return `${guideBar()}${bhPagehead('Guardians command center','Headquarters','Develop facilities, outfit the team, and prepare for the next issue.',[['Field team',`${party().length}/4`],['Facilities',S.facilities.length],['Armory',S.armory.length]])}${fl?`<div class="cap tilt"><b>Fresh off the press!</b> ${esc(fl)}</div>`:''}<div class="bh-hq-layout"><aside class="bh-hq-rail">${bhHqOps()}</aside><div class="hqcols"><div class="hqa">${recruitPanel()}
