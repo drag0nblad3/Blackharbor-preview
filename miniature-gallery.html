@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blackharbor / Experimental Hero Miniatures</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#dbe6eb;color:#142438;font:15px/1.45 system-ui,Arial,sans-serif;
+ background-image:radial-gradient(rgba(26,59,79,.12) .85px,transparent 1px);background-size:12px 12px}
+main{max-width:1250px;margin:20px auto;padding:0 14px 40px}
+header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;
+ background:#172f49;color:#fff;padding:17px;border:4px solid #102336;
+ box-shadow:5px 5px 0 #102336,8px 8px 0 #d34348}
+small.kicker{font-weight:900;color:#ffd65b;letter-spacing:.13em;text-transform:uppercase;font-size:11px}
+h1{font:bold clamp(1.5rem,3.6vw,2.5rem)/1.12 system-ui;margin:4px 0}
+header p{max-width:610px;margin:6px 0 0;font-size:13px;color:#d8e8f0}
+a{color:#163b60}header a{align-self:center;display:inline-block;background:#ffd35e;color:#102336;
+ border:2px solid #091e32;padding:10px 12px;text-decoration:none;font-weight:900;
+ box-shadow:3px 3px 0 #040e1b}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:20px;margin:24px 0}
+figure{margin:0;background:#fff7e5;border:4px solid #122638;padding:9px;box-shadow:5px 5px 0 #122638,8px 8px 0 #c74849}
+.stage{height:290px;position:relative;border:2px solid #193950;overflow:hidden;
+ background:
+ radial-gradient(ellipse at 50% 100%,rgba(8,31,44,.32) 0 26%,transparent 28%),
+ repeating-linear-gradient(0deg,rgba(48,118,153,.15) 0 1px,transparent 1px 28px),
+ repeating-linear-gradient(90deg,rgba(48,118,153,.15) 0 1px,transparent 1px 28px),
+ linear-gradient(165deg,#d0e8ec,#a1bfc9)}
+.stage:after{content:"";position:absolute;inset:7px;pointer-events:none;
+ border:1px solid rgba(252,225,141,.7)}
+.stage img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(3px 5px 2px rgba(9,24,38,.45))}
+figcaption{margin-top:9px;display:flex;flex-direction:column;gap:2px}
+figcaption b{font-size:1.16rem;font-weight:1000;text-transform:uppercase}
+figcaption span{font-size:.75rem;font-weight:800;color:#536679;text-transform:uppercase;letter-spacing:.07em}
+code{font-size:.73rem;background:#e8eef1;padding:3px 5px;overflow-wrap:anywhere}
+.note{background:#fff8d8;border-left:6px solid #d34348;padding:11px 13px;font-size:.84rem}
+@media(max-width:540px){main{padding:0 10px}.gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+figure{padding:5px;border-width:3px;box-shadow:3px 3px 0 #122638}.stage{height:202px}figcaption b{font-size:.9rem}}
+@media(max-width:360px){.gallery{grid-template-columns:minmax(0,1fr)}.stage{height:265px}}
+</style>
+</head>
+<body><main>
+<header><div><small class="kicker">Blackharbor / Experimental Character Art</small>
+<h1>NEW TACTICAL MINIATURES</h1>
+<p>Four independently illustrated, full-body character graphics created for the real combat renderer. Compare them with existing standees inside the art lab.</p></div>
+<a href="combat-art-lab.html">Open the real combat demo</a></header>
+<div class="gallery">
+<figure><div class="stage"><img src="miniature-bulwark.svg" alt="New full-body comic illustration of Bulwark with armor and broad shield"></div><figcaption><b>Bulwark</b><span>Armored guardian / shield</span><code>miniature-bulwark.svg</code></figcaption></figure>
+<figure><div class="stage"><img src="miniature-volt.svg" alt="New full-body illustration of Volt wearing an inventor coat and lightning glove"></div><figcaption><b>Volt</b><span>Arc engineer / tesla gauntlet</span><code>miniature-volt.svg</code></figcaption></figure>
+<figure><div class="stage"><img src="miniature-wisp.svg" alt="New full-body illustration of Wisp in a running pose with spectral ribbons"></div><figcaption><b>Wisp</b><span>Phantom speedster / ghost trail</span><code>miniature-wisp.svg</code></figcaption></figure>
+<figure><div class="stage"><img src="miniature-lynx.svg" alt="New full-body illustration of Lynx wearing a tracker hood with claws extended"></div><figcaption><b>Lynx</b><span>Tracker / claw blades</span><code>miniature-lynx.svg</code></figcaption></figure>
+</div>
+<p class="note">The illustrations are real, standalone SVG game assets (transparent backgrounds and scalable geometry), not crops of a screenshot. The experiment runs only in the preview art lab; the approved production combat graphics and existing campaign saves remain unchanged.</p>
+</main></body></html>
