@@ -1378,7 +1378,7 @@ function cellTip(x,y){const sd=S.sd;if(!sd||S.phase!=='sd')return null;const k=x
   if(u){const h=heroOf(u);return {title:h.name,eyebrow:`Hero · health ${h.hp}/${stat(h,'maxHp')} · composure ${h.comp}/${stat(h,'maxComp')}`,body:`Move ${stat(h,'move')}, range ${stat(h,'range')}, ${stat(h,'speed')} attack ${stat(h,'speed')===1?'die':'dice'}, evasion ${stat(h,'eva')}. ${u.moved&&u.acted?'Done for this round.':u.moved?'Has moved, can still act.':u.acted?'Has acted, can still move.':'Can still move and act this round.'} Tap to select.`}}
   const c=sd.civs.find(c=>c.x===x&&c.y===y);
   if(c)return G('civilian',c.f?`Following ${heroOf(sd.units.find(o=>o.hid===c.f)).name}. `:civHeld(c)?'Grabbed by a henchman: knock it out to free them. ':'');
-  const bm=(sd.bombs||[]).find(b=>b.k===k);if(bm)return G('bomb',`Fuse ${bm.fuse}. `);
+  const bm=(sd.bombs||[]).find(b=>b.k===k);if(bm){const radius=Math.max(1,Math.min(2,bm.radius||1));return G('bomb',`Explodes next villain turn. ${1+3*radius*(radius+1)}-hex blast (radius ${radius}). `)}
   if(sd.term&&sd.term.k===k)return G('terminal');
   const lit=litMap()[k];if(lit)return G('beam',`This hex deals ${lit}. `);
   if(sd.vl.some(o=>o.v.charge&&!o.v.down&&o.v.charge.zone.includes(k)))return G('charge');
