@@ -136,6 +136,12 @@ const path=require('node:path');
    await page.locator('#gallery .gallery-card').first().waitFor();
    assert.equal(await page.locator('#gallery .gallery-card').count(),12,'Portrait gallery shows all canonical villains');
    assert.equal(await page.locator('#gallery svg.vportrait').count(),12,'Every gallery entry has generated art');
+   const crops=await page.locator('#gallery svg.vportrait-crop').evaluateAll(nodes=>
+     nodes.map(n=>n.getAttribute('viewBox')));
+   assert.equal(crops.length,12,'All characters have isolated crop viewports');
+   assert.equal(new Set(crops).size,12,'No two villains show the same source crop');
+   assert(crops.every(v=>v.endsWith(' 169 140')),'Crop excludes source sheet dividers');
+
    const galleryWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
    assert(galleryWidth<=size.width+24,'Gallery overflows viewport');
    await page.screenshot({path:path.join(shots,size.name+'-portrait-gallery.png'),animations:'disabled',fullPage:true});
