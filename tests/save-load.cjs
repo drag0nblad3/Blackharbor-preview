@@ -6,9 +6,17 @@ const assert=require('node:assert/strict');
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   try{
     await page.goto('file://'+process.cwd()+'/index.html');
+    const early=await page.evaluate(async()=>{
+      newCampaign();recruitQuick('volt');
+      const code=await bhSaveEncode(S),decoded=await bhSaveDecode(code);
+      return {villains:decoded.state.villains.length,pool:decoded.state.pool.length};
+    });
+    assert.equal(early.villains,0,'Early campaigns do not reveal bosses yet');
+    assert.ok(early.pool>0,'Early campaigns retain a villain pool');
+    console.log('PASS: early game saves work before villain reveal');
     const ready=await page.evaluate(()=>{
       newCampaign();S.tut=null;S.tutDone=true;S.guide=null;S.tipsOff=true;S.tips=[];
-      recruitQuick('volt');
+      recruitQuick('volt');recruitQuick('lynx');recruitQuick('wisp');recruitQuick('goliath');
       S.trust=17;S.heroes[0].name='Étoile 星 🔥';
       S.chronicle.push('First issue: 東京 saved.');
       render();
