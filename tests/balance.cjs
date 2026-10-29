@@ -36,7 +36,7 @@ const cases=[
   ['blades','lynx',false,true,1.080],
   ['blades','lynx',true,true,1.800],
   ['claws','lynx',false,true,1.320],
-  ['claws','lynx',true,true,2.250],
+  ['claws','lynx',true,true,1.750],
   ['lance','volt',false,false,1.980],
   ['soulreaver','hexen',false,false,1.690]
 ];
@@ -57,13 +57,17 @@ for(const [id,hero,pair,flank,target] of cases){
 assert(outcome('wraps','lynx').active<=1.05,'Tier-1 Seismic Wrap damage spike');
 assert(outcome('gaunt','volt',true).active<=1.40,'Paired Coil Gauntlets damage spike');
 assert(outcome('blades','lynx',true,true).active<=1.95,'Paired Umbral Blade flank damage spike');
-assert(outcome('claws','lynx',true,true).active<=2.40,'Paired Graft Claw flank damage spike');
+assert(outcome('claws','lynx',true,true).active<=1.90,'Paired Graft Claw flank damage spike');
 assert(outcome('lance','volt').active<=2.10,'Plasma Lance damage spike');
 assert.equal(GEAR.wraps.ab.fx.acc,-3);
 assert.equal(GEAR.gaunt.ab.fx.acc,-2);
 assert.equal(GEAR.stinger.ab.fx.acc,-2);
 assert.equal(GEAR.blades.ab.fx.str,-2);
 assert.equal(GEAR.claws.ab.fx.acc,-3);
+assert.equal(GEAR.claws.pair.mods.speed,1,'Pairing grants exactly one attack die');
+assert.equal(GEAR.claws.pair.mods.acc,-1,'Pairing reduces accuracy by one');
+assert.equal(GEAR.claws.pair.mods.str||0,0,'Pairing gives no extra Strength beyond two claws');
+assert.equal(GEAR.claws.pair.fx?.back||0,0,'Pairing gives no extra Frenzy die');
 assert.equal(GEAR.lance.ab.fx.acc,-3);
 assert.equal(GEAR.soulreaver.ab.fx.acc,-2);
 // Passive avoidance baseline for a legal low-tier Wisp loadout.
