@@ -83,7 +83,7 @@ function gain(h,g){const G=GEAR[g];if(G.two||G.cons||!canWear(h,g)||!gearAllowed
   if(LOOT_MODE!=='greedy'){
     const pinned=new Set([...ST.setGoals.filter(p=>p.hid===h.id).flatMap(p=>p.items),...wornGear(h).filter(k=>GEAR[k].set&&setsOn(h).includes(GEAR[k].set))]);
     const slots=slotKeys(g);
-    if(slots.some(s=>pinned.includes(h.gear[s])&&h.gear[s]!==g))return 0;
+    if(slots.some(s=>pinned.has(h.gear[s])&&h.gear[s]!==g))return 0;
   }if(Object.values(h.gear).includes(g)&&!(SLOT_KEYS[G.slot]))return 0;
   const ks=slotKeys(g);let worst=null,ws=1e9;for(const s of ks){const cur=h.gear[s];if(cur&&GEAR[cur].two)return 0;const sc=gScore(cur,h);if(sc<ws){ws=sc;worst=s}}
   return Math.max(0,gScore(g,h)-ws)}
@@ -246,9 +246,7 @@ function plannedSpend(hs,ok){
   }
   // When a big purchase is still pending, reserve the first available salvage
   // toward its cost, but let a small fraction fund cheaper emergency upgrades.
-  const freeAfterSet=availableAny(setHold);
   const bigCost=ST.bigGoal?GEAR[ST.bigGoal.k].cost.any:0;
-  const bigHold=Math.min(bigCost,Math.max(0,freeAfterSet-2));
   let guard=0;
   while(guard++<40){
     const allHold={...setReserves()};
