@@ -46,7 +46,7 @@ const villains=get("hqView('villains')");
 assert.match(villains,/Blackharbor intelligence/);
 assert.match(villains,/class="bh-threat-layout"/,'threat page has intelligence index plus case files');
 assert.match(villains,/class="bh-threat-rail"/);
-assert.match(villains,/class="bh-threat-content"/);
+assert.match(villains,/class="panel bh-threat-content"/);
 assert.match(villains,/Threat board/);
 assert.match(villains,/data-a="inv:cantor"/);
 assert.match(villains,/data-a="book:cantor"/);
