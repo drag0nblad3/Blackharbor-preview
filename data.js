@@ -227,7 +227,7 @@ const SETS={
  grid:{n:'Turret Stance',mods:{acc:2},txt:'+2 accuracy, and +1 die on attacks made before you move in a round.'}
 };
 const VILLAINS = {
- gallows:{name:'Dr. Gallows',short:'Gallows',tag:'Mad scientist',salvage:'Coils',rstyle:'bolt',eva:11,tough:13,deckBonus:2,acc:4,hench:{name:'Drone',rng:3,style:'shot'},elite:{name:'The Failed Experiment',short:'Experiment',rng:1,style:'slash',mv:2,brute:1},base:['lash','drones','ray','mono','field','snipe'],adv:['galv','chain','death','legion','storm','shock'],cards:{
+ gallows:{name:'Dr. Gallows',short:'Gallows',tag:'Mad scientist',salvage:'Coils',rstyle:'bolt',eva:10,tough:13,deckBonus:2,acc:4,hench:{name:'Drone',rng:2,style:'shot'},elite:{name:'The Failed Experiment',short:'Experiment',rng:1,style:'slash',mv:2,brute:1},base:['lash','drones','ray','mono','field','snipe'],adv:['galv','chain','death','legion','storm','shock'],cards:{
   lash:{n:'Tesla Lash',t:'strike',tgt:'nearest',mv:2,rng:3,dmg:3},
   drones:{n:'Drone Swarm',t:'summon',k:2},
   ray:{n:'Hostage Ray',t:'endanger',dmg:2},
@@ -237,11 +237,11 @@ const VILLAINS = {
   galv:{n:'Galvanize',t:'reanimate'},
   chain:{n:'Chain Lightning',t:'multi',cnt:3,rng:4,dmg:2},
   death:{n:'Death Ray',t:'strike',tgt:'farthest',mv:0,rng:8,dmg:5,sig:true,shout:'Hold still. The Death Ray needs a clean shot!',brk:'You cracked the Death Ray\'s focusing crystal!'},
-  legion:{n:'Drone Legion',t:'summon',k:3},
+  legion:{n:'Drone Legion',t:'summon',k:2},
   storm:{n:'Tesla Storm',t:'sweep',r:2,dmg:3,sig:true,shout:'Science demands a bigger storm!',brk:'You grounded his Tesla tower!'},
   shock:{n:'Neural Shock',t:'puppet',amt:2}
  },shape:'one'},
- quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',eva:9,tough:18,acc:2,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
+ quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',eva:9,tough:17,acc:2,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
   bull:{n:'Bull Rush',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nothing stands in my way!',brk:'You broke her charging stride!',crush:2},
   slam:{n:'Seismic Slam',t:'sweep',r:1,dmg:4},
   wreck:{n:'Throw Wreckage',fx:'throw',t:'strike',tgt:'nearest',mv:0,rng:4,dmg:3,col:true},
@@ -255,8 +255,8 @@ const VILLAINS = {
   bedrock:{n:'Bedrock',t:'reanimate'},
   split:{n:'Earthsplitter',t:'rampage',mv:5,dmg:3,sig:true,shout:'I will split this city in two!',brk:'You sheared off her earthsplitting fist!',crush:3}
  },shape:'big'},
- cantor:{name:'The Cantor',short:'Cantor',tag:'Crime lord and mesmerist',salvage:'Ledgers',rstyle:'shot',eva:14,tough:13,acc:4,hench:{name:'Hired gun',rng:3,style:'shot'},elite:{name:'The Made Man',short:'Made Man',rng:1,style:'slash',guard:1},base:['guns','whisper','stil','lev','pup','van'],adv:['crowd','dbl','enf','black','mar','body'],cards:{
-  guns:{n:'Hired Guns',t:'summon',k:3},
+ cantor:{name:'The Cantor',short:'Cantor',tag:'Crime lord and mesmerist',salvage:'Ledgers',rstyle:'shot',eva:13,tough:13,acc:4,hench:{name:'Hired gun',rng:2,style:'shot'},elite:{name:'The Made Man',short:'Made Man',rng:1,style:'slash',guard:1},base:['guns','whisper','stil','lev','pup','van'],adv:['crowd','dbl','enf','black','mar','body'],cards:{
+  guns:{n:'Hired Guns',t:'summon',k:2},
   whisper:{n:'Velvet Whisper',t:'taunt',amt:2,r:5,sig:true,shout:'Come closer. I have a secret for you…',brk:'You corked his golden voice!'},
   stil:{n:'Stiletto',t:'strike',tgt:'nearest',mv:3,rng:1,dmg:3},
   lev:{n:'Leverage',t:'endanger',dmg:2},
@@ -264,7 +264,7 @@ const VILLAINS = {
   van:{n:'Vanish',t:'vanish'},
   crowd:{n:'Crowd Control',t:'taunt',amt:3,r:8,sig:true,shout:'Everyone, listen to my voice!',brk:'You cut the wires to his speakers!'},
   dbl:{n:'Double Cross',t:'strike',tgt:'nearest',mv:4,rng:1,dmg:4},
-  enf:{n:'Enforcers',t:'summon',k:3},
+  enf:{n:'Enforcers',t:'summon',k:2},
   black:{n:'Blackmail',t:'endanger',dmg:3},
   mar:{n:'The Whole Outfit',t:'summon',k:4,sig:true,shout:'Boys, earn your pay!',brk:'You cut off his payroll!'},
   body:{n:'Body Double',t:'reanimate'}
@@ -353,7 +353,7 @@ const VILLAINS = {
   hivest:{n:'Hivestorm',t:'sweep',r:2,dmg:3,sig:true,shout:'THE HIVE RISES.',brk:'You smoked out the hive!'},
   engulf:{n:'Engulf',t:'converge',mv:6,dmg:3,sig:true,shout:'WE WILL SWALLOW YOU.',brk:'You split the swarm apart!'}
  },shape:'swarm'},
- bomber:{name:'Payload',short:'Payload',tag:'Rooftop bomber',salvage:'Fuses',rstyle:'rock',eva:14,tough:11,deckBonus:1,acc:5,hench:{name:'Sapper',rng:1,style:'slash'},base:['over','lit','kick','sappers','tick','hostage'],adv:['twin','carpet','cluster','dms','ricochet','spare','air'],cards:{
+ bomber:{name:'Payload',short:'Payload',tag:'Rooftop bomber',salvage:'Fuses',rstyle:'rock',eva:14,tough:11,deckBonus:1,acc:5,hench:{name:'Sapper',rng:1,style:'slash'},elite:{name:'The Bombardier',short:'Bombardier',rng:3,style:'shot',mv:2,bombardier:1},base:['over','lit','kick','sappers','tick','hostage'],adv:['twin','carpet','cluster','dms','ricochet','spare','air'],cards:{
   over:{n:'Over the Top',t:'leap',cnt:1,mv:4,fuse:1,dmg:3,sig:true,shout:'Heads up!',brk:'You snapped her spring boots!'},
   lit:{n:'Lit Fuse',t:'bomb',tgt:'farthest',cnt:1,rng:5,fuse:2,dmg:3},
   kick:{n:'Bounding Kick',t:'strike',tgt:'nearest',mv:3,rng:1,dmg:3},
@@ -368,7 +368,7 @@ const VILLAINS = {
   spare:{n:'Spare Fuses',t:'reanimate'},
   air:{n:'Airburst',t:'airburst',zone:'nova',dmg:6,sig:true,shout:'Look up!',brk:'You shot the airburst out of the sky!'}
  },shape:'one'},
- grid:{name:'Gridlock',short:'Gridlock',tag:'Light-cage engineer',salvage:'Lenses',rstyle:'bolt',eva:8,tough:18,acc:4,hench:{name:'Prism',rng:2,style:'shot'},base:['lattice','red','sight','twin','prisms','noroad'],adv:['gridlock','sweep','focus','refract','tlock','array','recal'],cards:{
+ grid:{name:'Gridlock',short:'Gridlock',tag:'Light-cage engineer',salvage:'Lenses',rstyle:'bolt',eva:9,tough:17,acc:4,hench:{name:'Prism',rng:2,style:'shot'},base:['lattice','red','sight','twin','prisms','noroad'],adv:['gridlock','sweep','focus','refract','tlock','array','recal'],cards:{
   lattice:{n:'Lattice',t:'beam',pat:'star',dmg:2,sig:true,shout:'Every road in this city leads to me.',brk:'You cracked his emitter crown!'},
   red:{n:'Red Light',t:'beam',pat:'fan',dmg:3},
   sight:{n:'Long Sightline',t:'beam',pat:'aim',tgt:'farthest',cnt:1,dmg:3},
