@@ -39,7 +39,7 @@ const comparisons=strategies.map(strategy=>{
  const greedy=rows.find(x=>x.strategy===strategy&&x.mode==='greedy'),planned=rows.find(x=>x.strategy===strategy&&x.mode==='planned');
  return {strategy,greedy,planned,winRateChange:greedy&&planned?Math.round((planned.wins/planned.fights-greedy.wins/greedy.fights)*1000)/10:null};
 });
-fs.writeFileSync(path.join(out,'summary.json'),JSON.stringify({seed,runs,method:'Matched campaign RNG seeds and identical adaptive boss selection; compares opportunistic, single-set investment against greedy LOOT_MODE.',comparisons},null,2));
+fs.writeFileSync(path.join(out,'summary.json'),JSON.stringify({seed,runs,method:'Matched campaign RNG seeds and identical adaptive boss selection; compares opportunistic set investment, major-upgrade savings, and unreserved standalone boss gear against greedy LOOT_MODE.',comparisons},null,2));
 console.log('IMPACT SUMMARY');
 for(const x of comparisons)console.log('COMPARE '+JSON.stringify({strategy:x.strategy,greedy:x.greedy?.wins+'/'+x.greedy?.fights,planned:x.planned?.wins+'/'+x.planned?.fights,winRateChange:x.winRateChange,setCrafts:x.planned?.setCrafts,setsCompleted:x.planned?.completedSets,majorCrafts:x.planned?.majorCrafts,greedySetFights:x.greedy?.heroSetFights,plannedSetFights:x.planned?.heroSetFights}));
 assert.equal(errors,0,'Campaign errors '+errors);
