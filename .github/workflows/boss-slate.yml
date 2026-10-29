@@ -1,0 +1,38 @@
+name: Boss availability campaign study
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: 'Seeded campaigns per strategy and boss slate'
+        default: '6'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'tests/boss-slate.cjs'
+      - 'tests/boss-slate.patch.js'
+      - '.github/workflows/boss-slate.yml'
+permissions:
+  contents: read
+jobs:
+  boss-slate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      RUNS: ${{ inputs.runs || '6' }}
+      SEED: 77
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare boss slates using full campaigns
+        run: node tests/boss-slate.cjs
+      - name: Upload complete fight data and summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: boss-slate-results
+          path: boss-slate-results/
+          if-no-files-found: warn
