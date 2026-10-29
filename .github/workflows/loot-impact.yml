@@ -1,0 +1,37 @@
+name: Loot strategy impact benchmark
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: 'Campaigns per strategy and loot mode'
+        default: '6'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'tests/loot-impact.cjs'
+      - '.github/workflows/loot-impact.yml'
+permissions:
+  contents: read
+jobs:
+  comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      RUNS: ${{ inputs.runs || '6' }}
+      SEED: 77
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare greedy and investment-aware crafting
+        run: node tests/loot-impact.cjs
+      - name: Upload detailed comparison data
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: loot-impact-results
+          path: loot-impact-results/
+          if-no-files-found: warn
