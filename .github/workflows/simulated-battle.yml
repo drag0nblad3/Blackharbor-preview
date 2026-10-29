@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'tests/simulated-battle.cjs'
+      - 'tests/layout-smoke.cjs'
+      - 'comic-ui.css'
+      - 'game.css'
       - 'battle.js'
       - 'game.js'
       - 'index.html'
@@ -24,3 +27,12 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run simulated battle test
         run: node tests/simulated-battle.cjs
+      - name: Check screen layout at phone and desktop sizes
+        run: node tests/layout-smoke.cjs
+      - name: Upload layout screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blackharbor-layout-screenshots
+          path: layout-shots/
+          if-no-files-found: ignore
