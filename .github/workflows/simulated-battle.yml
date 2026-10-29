@@ -6,6 +6,10 @@ on:
     paths:
       - 'tests/simulated-battle.cjs'
       - 'tests/layout-smoke.cjs'
+      - 'tests/battle-graphics.cjs'
+      - 'combat-art-lab.html'
+      - 'battle-graphics.css'
+      - 'arena-*.svg'
       - 'comic-ui.css'
       - 'pulp-details.css'
       - 'villain-portraits.avif'
@@ -31,6 +35,8 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run simulated battle test
         run: node tests/simulated-battle.cjs
+      - name: Check real illustrated battle graphics and before-after screenshots
+        run: node tests/battle-graphics.cjs
       - name: Check screen layout at phone and desktop sizes
         run: node tests/layout-smoke.cjs
       - name: Upload layout screenshots
