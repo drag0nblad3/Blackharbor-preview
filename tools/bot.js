@@ -311,7 +311,17 @@ function spend(allowed){
   /* free research */
   if(S.facilities.includes('skunk')&&!allowed)research(true);
   const hs=party();equipBest(roster());
-  if(S.facilities.includes('workshop')&&LOOT_MODE!=='greedy'){plannedSpend(hs,ok);return}
+  if(S.facilities.includes('workshop')&&LOOT_MODE!=='greedy'){
+    if(STRATEGY==='mobility'){
+      // The tactical bot needs immediate mobility gear. Only switch to a set
+      // investment once a relevant four-piece package can be bought and worn.
+      planSetGoals(hs);
+      const p=ST.setGoals[0],h=p&&hs.find(x=>x.id===p.hid);
+      const ready=p&&h&&p.items.every(k=>canWear(h,k)&&(ownedFor(h,k)||(isUnlocked('gear:'+k)&&ok('gear:'+k))));
+      if(ready&&S.salvage[p.boss]>=remainingSetCost(p)){plannedSpend(hs,ok);return}
+      ST.setGoals=[];ST.bigGoal=null;
+    }else{plannedSpend(hs,ok);return}
+  }
   if(S.facilities.includes('workshop')){
     let made=true,guard=0;while(made&&guard++<40){made=false;
       const cand=[];for(const h of hs)for(const k of GEAR_KEYS){if(!isUnlocked('gear:'+k)||!ok('gear:'+k))continue;const v=gain(h,k);if(v>0)cand.push({h,k,v,c:Object.values(GEAR[k].cost)[0]})}
