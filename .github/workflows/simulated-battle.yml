@@ -8,6 +8,8 @@ on:
       - 'tests/layout-smoke.cjs'
       - 'comic-ui.css'
       - 'pulp-details.css'
+      - 'villain-portraits.avif'
+      - 'portrait-gallery.html'
       - 'investigation.css'
       - 'game.css'
       - 'battle.js'
