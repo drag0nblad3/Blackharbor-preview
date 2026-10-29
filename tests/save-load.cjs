@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
   try{
     await page.goto('file://'+process.cwd()+'/index.html');
     const ready=await page.evaluate(()=>{
-      newCampaign();S.tut=null;S.tutDone=true;S.guide=null;
+      newCampaign();S.tut=null;S.tutDone=true;S.guide=null;S.tipsOff=true;S.tips=[];
       recruitQuick('volt');
       S.trust=17;S.heroes[0].name='Étoile 星 🔥';
       S.chronicle.push('First issue: 東京 saved.');
