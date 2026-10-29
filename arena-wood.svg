@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 144 144" width="144" height="144">
+<defs><linearGradient id="varnish" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f3c77c" stop-opacity=".13"/><stop offset="1" stop-color="#160b18" stop-opacity=".4"/></linearGradient><pattern id="gr" width="35" height="23" patternUnits="userSpaceOnUse"><path d="M2 4q12 7 26 1M5 12q8-3 22 3M2 18l19-2" stroke="#261a24" stroke-width=".9" opacity=".39" fill="none"/></pattern></defs>
+<rect width="144" height="144" fill="url(#gr)"/>
+<path d="M0 37H144M0 86H144M0 132H144" stroke="#130e19" stroke-width="4" opacity=".51"/>
+<path d="M0 34H144M0 83H144M0 129H144" stroke="#f8cc7e" stroke-width="1.5" opacity=".37"/>
+<path d="M45 0V37M105 37V86M30 86V132M123 132V144" stroke="#130e19" stroke-width="3" opacity=".5"/>
+<g fill="none" stroke="#281521" stroke-linecap="round" stroke-width="1.6" opacity=".55">
+<path d="M8 11Q29 3 47 16Q62 19 80 10M49 27Q69 21 96 28M115 6L140 9M3 53Q20 51 38 57M43 66Q73 53 98 62M13 105Q40 111 65 98M75 121Q102 114 140 122"/>
+<path d="M14 22Q30 28 43 22M81 77Q100 69 135 76M15 118Q24 114 38 121"/>
+</g>
+<g fill="#101a21" opacity=".68"><circle cx="8" cy="7" r="2"/><circle cx="40" cy="30" r="2"/><circle cx="109" cy="45" r="2"/><circle cx="132" cy="75" r="2"/><circle cx="34" cy="98" r="2"/><circle cx="116" cy="113" r="2"/></g>
+<rect width="144" height="144" fill="url(#varnish)"/></svg>
