@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'portrait-gallery.html'
       - '*.js'
       - '*.css'
       - 'PREVIEW_STATUS.md'
@@ -32,7 +33,7 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html *.css *.js site/
+          cp index.html portrait-gallery.html *.css *.js site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
           grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
