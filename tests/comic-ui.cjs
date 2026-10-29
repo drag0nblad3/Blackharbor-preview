@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+/* Preview design regression: the visual redesign must not disconnect actions. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const bh=require('../tools/bh');
+const g=bh.load({seed:41});
+const run=code=>g.run(code), get=code=>g.get(code);
+const root=path.resolve(__dirname,'..');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const skin=fs.readFileSync(path.join(root,'comic-ui.css'),'utf8');
+assert.match(index,/href="investigation.css"/);
+assert.match(index,/href="comic-ui.css"/);
+assert(index.indexOf('investigation.css')<index.indexOf('comic-ui.css'),'shared CSS loads after Investigation');
+for(const name of ['v-hq-hq','v-hq-roster','v-hq-villains','v-sd'])assert(skin.includes(name),name+' must be themed');
+for(const sel of ['.bh-pagehead','.hqcols','.inv-','.sdl','.bcol','.bact','.brest','.card','.slot'])
+  if(sel!=='.inv-')assert(skin.includes(sel),sel+' must have a visual rule');
+assert.match(skin,/@media \(max-width:700px\)/,'mobile layout exists');
+assert.match(skin,/@media \(min-width:1440px\)/,'wide tactical layout exists');
+assert.match(skin,/prefers-reduced-motion/,'motion preferences respected');
+assert.doesNotMatch(skin,/\.cell(?:\:|::|\s|\{)/,'new material skin must not override combat tile states');
+run("newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=['volt','bulwark','wisp','lynx'].map(x=>newHero(x));S.party=S.heroes.map(h=>h.id);S.villains=[makeVillain('cantor',2)];S.pool=[];S.view='hq'");
+const hq=get('hqView()');
+assert.match(hq,/Guardians command center/);
+assert.match(hq,/Field team/);
+assert.match(hq,/Facilities/);
+assert.match(hq,/Armory/);
+assert.match(hq,/data-a="view:roster"|data-a="build:|data-a="craft:/,'HQ interactions retained');
+run("S.view='roster'");
+const roster=get('rosterView()');
+assert.match(roster,/Heroes of Blackharbor/);
+assert.match(roster,/Upgrades/);
+assert.match(roster,/data-cid="h-/);
+assert.match(roster,/COMP \d+\/\d+/);
+assert.match(roster,/HP \d+\/\d+/);
+assert.doesNotMatch(roster,/data-cid="h-[^"]+" open/,'hero sheets start compact outside the tutorial');
+run("S.view='villains'");
+const villains=get("hqView('villains')");
+assert.match(villains,/Blackharbor intelligence/);
+assert.match(villains,/Threat board/);
+assert.match(villains,/data-a="inv:cantor"/);
+assert.match(villains,/data-a="book:cantor"/);
+assert.match(villains,/Scheme/);
+console.log('PASS: HQ, roster, villain dossier and combat styles are wired to the preview game; data and actions retained.');
