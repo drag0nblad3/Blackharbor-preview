@@ -39,20 +39,50 @@ const path=require('node:path');
    };
    // Suppress onboarding overlays for layout-only screenshots; they are tested separately.
    await page.addStyleTag({content:'#guide, #tutc {display:none !important}'});
+
+   const assertStablePalette=async(scene,selectors)=>{
+     const capture=()=>page.evaluate((selectors)=>{
+       const root=getComputedStyle(document.documentElement);
+       const fields=el=>{
+         if(!el)return null;
+         const c=getComputedStyle(el);
+         return {background:c.backgroundColor,text:c.color,border:c.borderTopColor};
+       };
+       return {
+         scheme:root.colorScheme,
+         paper:root.getPropertyValue('--paper').trim(),
+         panel:root.getPropertyValue('--panel').trim(),
+         ink:root.getPropertyValue('--ink').trim(),
+         elements:Object.fromEntries(selectors.map(q=>[q,fields(document.querySelector(q))]))
+       };
+     },selectors);
+     await page.emulateMedia({colorScheme:'light'});
+     const light=await capture();
+     await page.emulateMedia({colorScheme:'dark'});
+     const dark=await capture();
+     assert.equal(light.scheme,'light','new UI uses a light color scheme for native controls');
+     assert.deepEqual(dark,light,scene+': OS dark mode should not recolor game UI');
+     await page.emulateMedia({colorScheme:'light'});
+   };
+   await assertStablePalette('HQ',['body','.mast','.nav .btn','.bh-pagehead','.bh-hq-rail','.hqcols .panel','.hqcols .card']);
+
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
    await page.locator('.nav [data-a="view:roster"]').click();
    await checkPage('roster','.bh-roster-content','.bh-roster-rail');
+   await assertStablePalette('Roster',['body','.mast','.nav .btn','.bh-roster-rail','.bh-roster-content .card']);
    const heroId=await page.evaluate(()=>S.party[0]);
    await page.locator('.bh-roster-pick').first().click();
    assert.equal(await page.locator('[data-cid="h-'+heroId+'"]').getAttribute('open'),'','Selecting a hero opens the actual full sheet');
    await page.locator('.nav [data-a="view:villains"]').click();
    await checkPage('villains','.bh-threat-content','.bh-threat-rail');
+   await assertStablePalette('Villains',['body','.mast','.nav .btn','.bh-threat-rail','.bh-threat-content .card']);
    await page.evaluate(()=>{
      S.inv={v:'cantor',clues:3};startShowdown();
      S.sd.intro=false;S.sd.sel=0;S.sd.busy=false;
      render();
    });
    await page.locator('.bh-combat-brief').waitFor();
+   await assertStablePalette('Combat',['body','.mast','.nav .btn','.bh-combat-brief','.bcol','.bact','.brest','.board','.cell']);
    await page.locator('.sdp .bcol .board').waitFor();
    await page.locator('.sdp .bact').waitFor();
    const combat=await page.evaluate(()=>{
@@ -70,6 +100,10 @@ const path=require('node:path');
    }
    assert(combat.width<=size.width+24,'combat horizontal overflow '+(combat.width-size.width)+'px');
    await page.screenshot({path:path.join(shots,size.name+'-combat.png'),animations:'disabled'});
+   await page.evaluate(()=>{S.phase='hq';S.view='villains';startInv('cantor');render()});
+   await page.locator('.inv-ui').waitFor();
+   await assertStablePalette('Investigation',['body','.mast','.nav .btn','.inv-ui','.inv-header','.inv-main','.inv-intel-rail','.inv-action-stage']);
+
    await page.close();
   }
   assert.deepEqual(errors,[],'Browser script errors');
