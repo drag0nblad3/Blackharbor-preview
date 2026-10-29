@@ -120,6 +120,14 @@ const assert=require('node:assert/strict');
     });
     assert.equal(desktopFit,true,'Save dialog stays inside desktop viewport');
     console.log('PASS: Save / Load is usable at mobile and desktop widths');
+    await page.locator('[data-bh-tab="import"]').click();
+    await page.locator('#bh-save-input').fill(battleCode);
+    await page.locator('[data-bh-check]').click();
+    await page.locator('[data-bh-import]').waitFor({state:'visible'});
+    await page.locator('[data-bh-import]').click();
+    await page.waitForFunction(()=>typeof S!=='undefined'&&S.phase==='sd'&&S.sd?.units?.[0]?.acted&&S.sd?.v===S.sd?.vl?.[S.sd.vi||0]?.v);
+    assert.equal(await page.evaluate(()=>S.sd.busy),false,'Reloaded combat must be playable, not left busy');
+    console.log('PASS: importing a mid-combat save restores the showdown and action state');
     assert.deepEqual(errors,[],'No browser JavaScript errors');
   }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
