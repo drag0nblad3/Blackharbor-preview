@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="pulp-details.css">
   <link rel="stylesheet" href="villain-portraits.css">
   <link id="battle-art-pack" rel="stylesheet" href="battle-graphics.css">
+  <link rel="stylesheet" href="miniature-experiment.css">
   <style>
     :root{color-scheme:light}
     .art-lab-bar{position:sticky;top:0;z-index:90;
@@ -57,10 +58,11 @@
     <div class="art-lab-controls">
       <label for="lab-villain">Lair <select id="lab-villain"></select></label>
       <button id="lab-compare" type="button" aria-pressed="true">Illustrated graphics ON</button>
+      <button id="lab-miniatures" type="button" aria-pressed="true">New hero art ON</button>
       <a href="index.html">Back to preview</a>
     </div>
   </div>
-  <p id="lab-notice">Explore the real board, terrain and unit graphics. Switch to classic to compare. This art lab does not read or write your campaign save.</p>
+  <p id="lab-notice">Explore the real board, terrain and unit graphics. Compare both battle materials and brand-new illustrated hero miniatures against the original art. This lab never reads or writes your campaign save.</p>
   <div class="wrap" id="app"></div>
   <script src="data.js"></script>
   <script src="game.js"></script>
@@ -95,6 +97,13 @@
       css.disabled=!css.disabled;
       toggle.setAttribute('aria-pressed',String(!css.disabled));
       toggle.textContent=css.disabled?'Classic graphics ON':'Illustrated graphics ON';
+    });
+    document.body.classList.add('bh-new-miniatures');
+    const miniBtn=document.getElementById('lab-miniatures');
+    miniBtn.addEventListener('click',()=>{
+      const enabled=document.body.classList.toggle('bh-new-miniatures');
+      miniBtn.setAttribute('aria-pressed',String(enabled));
+      miniBtn.textContent=enabled?'New hero art ON':'Original hero art ON';
     });
     picker.value='cantor';
     try{scene(picker.value)}catch(e){
