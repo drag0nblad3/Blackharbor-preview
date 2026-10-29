@@ -1,0 +1,71 @@
+name: Large campaign balance study
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: 'Full campaign attempts per build strategy (default 60)'
+        default: '60'
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths:
+      - 'tests/large-campaign-study.cjs'
+      - 'tests/large-campaign-report.cjs'
+      - '.github/workflows/large-campaign-study.yml'
+permissions:
+  contents: read
+jobs:
+  simulate:
+    name: 60 campaigns - ${{ matrix.strategy }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        strategy: [balanced, assault, fortress, mobility, support, specialist, techOnly, magicOnly, innateOnly]
+    env:
+      STRATEGY: ${{ matrix.strategy }}
+      RUNS: ${{ inputs.runs || '60' }}
+      SEED: '1700'
+      JOBS: '4'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Simulate full campaigns
+        run: node tests/large-campaign-study.cjs
+      - name: Store campaign records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: campaign-study-${{ matrix.strategy }}
+          path: campaign-study-results/
+          if-no-files-found: warn
+  aggregate:
+    name: Aggregate boss, gear, discipline and difficulty analysis
+    needs: simulate
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: campaign-study-*
+          path: campaign-study-results/
+          merge-multiple: true
+      - name: Analyze all campaigns
+        run: node tests/large-campaign-report.cjs
+      - name: Show report
+        run: cat campaign-study-results/REPORT.md
+      - name: Upload combined study and CSVs
+        uses: actions/upload-artifact@v4
+        with:
+          name: large-campaign-balance-study
+          path: campaign-study-results/
+          if-no-files-found: error
