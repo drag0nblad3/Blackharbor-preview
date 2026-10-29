@@ -129,7 +129,8 @@ function setCandidates(h,boss){
 }
 function planSetGoals(hs){
   const bosses=[...new Set(S.villains.map(v=>v.key))].filter(k=>SETS[k]);
-  const choices=hs.flatMap(h=>bosses.map(b=>setCandidates(h,b)).filter(p=>p&&p.ready>=3&&S.issue>=7))
+  const choices=hs.flatMap(h=>bosses.map(b=>setCandidates(h,b)).filter(p=>p&&p.ready>=3&&S.issue>=7&&
+    (STRATEGY!=='mobility'||['helios','bomber'].includes(p.boss))))
     .sort((a,b)=>b.score-a.score);
   const chosen=[],seenH=new Set(),seenB=new Set();
   // Retain a viable previous commitment: don't constantly abandon progress.
@@ -160,7 +161,10 @@ function setReserves(){
     // Preserve most of a boss's salvage, but never freeze every scrap of
     // early income. Other upgrades remain available while the set matures.
     const target=remainingSetCost(p),stock=S.salvage[p.boss]||0;
-    if(target)saved[p.boss]=(saved[p.boss]||0)+Math.min(target,Math.ceil(stock*0.70));
+    // Mobility benefits from staying flexible: wait until a movement/range set
+    // is nearly affordable rather than trading away early mobility upgrades.
+    if(STRATEGY==='mobility'&&stock<target*0.75)continue;
+    if(target)saved[p.boss]=(saved[p.boss]||0)+Math.min(target,Math.ceil(stock*(STRATEGY==='mobility'?0.40:0.70)));
   }
   return saved;
 }
@@ -266,7 +270,7 @@ function plannedSpend(hs,ok){
   while(guard++<40){
     const allHold={...setReserves()};
     // Reserve a fixed total across all boss types, but leave small-change salvage.
-    const bigReserve=bigCost?Math.min(bigCost,Math.floor(availableAny(allHold)*0.45)):0;
+    const bigReserve=bigCost?Math.min(bigCost,Math.floor(availableAny(allHold)*(STRATEGY==='mobility'?0.15:0.45))):0;
     const candidates=[];
     for(const h of hs)for(const k of GEAR_KEYS){
       const g=GEAR[k];
