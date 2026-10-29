@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 176" width="128" height="176" role="img" aria-label="Volt, the arc engineer">
+<defs>
+ <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffec9b"/><stop offset=".54" stop-color="#d99b35"/><stop offset="1" stop-color="#78471d"/></linearGradient>
+ <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4f9f7"/><stop offset=".35" stop-color="#c7a262"/><stop offset="1" stop-color="#78471d"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f9d7b4"/><stop offset=".67" stop-color="#b87860"/><stop offset="1" stop-color="#713e39"/></linearGradient>
+ <radialGradient id="energy"><stop stop-color="#fffef0"/><stop offset=".35" stop-color="#fff1a1"/><stop offset="1" stop-color="#fff1a1" stop-opacity="0"/></radialGradient>
+ <filter id="aura" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4"/></filter>
+ <pattern id="ink" width="10" height="11" patternUnits="userSpaceOnUse"><circle cx="2" cy="4" r=".7" fill="#091620" opacity=".23"/></pattern>
+</defs>
+<ellipse cx="65" cy="164" rx="41" ry="8" fill="#081924" opacity=".5"/>
+
+<circle cx="115" cy="28" r="29" fill="url(#energy)" opacity=".52"/>
+<path d="M110 2l-8 16 10-2-7 16M127 11l-9 11 9 6-11 14M87 25l16 0-7 10 13-1" fill="none" stroke="#ffef7b" stroke-width="3.1" stroke-linejoin="miter"/>
+<path d="M18 78l-9 9M31 54L20 61" stroke="#ffdc7c" stroke-width="2" opacity=".7"/>
+
+<g stroke="#101b2b" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round">
+<!-- Twin coat tails, insulated trousers and boots -->
+<path d="M41 68Q26 83 28 123L17 157 35 150 46 160 63 142 82 152 90 116 83 68Z" fill="#a85e2d"/>
+<path d="M37 107l18 7-5 39-13 12-17-5 8-13zM69 111l17-4 11 42 7 9-20 8-15-13z" fill="#20374a"/>
+<path d="M26 151l26 2 5 10-16 5-21-6zM82 153l22-1 5 10-21 8-13-8z" fill="#121d2a"/>
+<path d="M29 118l18 8 2 7M73 125l19-7" stroke="#6a8f9f" fill="none" stroke-width="2"/>
+<!-- Engine backpack cooling coils -->
+<path d="M29 67L17 77 20 105 30 109 41 94Z" fill="#313744"/>
+<circle cx="26" cy="84" r="12" fill="#f7cf62"/>
+<circle cx="26" cy="84" r="6" fill="#fff8bf" stroke="#c6872c"/>
+<path d="M29 72L39 67 39 103 26 111" fill="none" stroke="#a17d46" stroke-width="3"/>
+<!-- Coat and torso -->
+<path d="M38 59L58 52 80 61 92 94 77 128 45 120 33 91Z" fill="url(#suit)"/>
+<path d="M53 65l12 5 14-7-4 36-18 17-9-17Z" fill="#27435c"/>
+<path d="M60 65L66 81 57 113M66 81l13-10" fill="none" stroke="#ffe28b" stroke-width="3.5"/>
+<path d="M42 61L54 60 59 111 45 119 33 93Z" fill="#c57c2f"/>
+<path d="M77 61L88 68 93 96 80 124 68 118Z" fill="#d18d34"/>
+<path d="M47 107l29 2M49 116l26 1" fill="none" stroke="#55381d" stroke-width="2"/>
+<!-- Face, welder's goggles and bright hair -->
+<path d="M44 29Q50 13 66 15Q84 15 87 34L82 56 72 67 51 57 43 43Z" fill="#58371e"/>
+<path d="M49 32Q64 22 79 33L79 50 71 60 53 56Z" fill="url(#skin)"/>
+<path d="M42 35L52 19 71 14 88 25 84 39 73 29 62 35 49 33Z" fill="#342d29"/>
+<path d="M46 39l34-1-1 13-14 3-15-3z" fill="#183c56"/>
+<path d="M50 41h13v9H50zM66 41h11v9H66z" fill="#f9d567"/>
+<path d="M54 43l7 3M68 43l7 3" stroke="#fff8ce" stroke-width="2"/>
+<path d="M60 55l6 2 7-2" fill="none" stroke="#77472f" stroke-width="1.5"/>
+<!-- Left hand gripping insulated coil -->
+<path d="M38 66l-15 5-8 27 13 9 16-22Z" fill="#bf7b36"/>
+<path d="M13 98l16 7-4 13-19-6z" fill="#293948"/>
+<path d="M8 105l20 8-3 7-20-7z" fill="#ffd35b"/>
+<!-- Raised tesla glove and power cell -->
+<path d="M80 67L93 59 105 34 119 39 110 72 98 89 84 88Z" fill="#d09a42"/>
+<path d="M98 52l14 4-5 24-17-8z" fill="#315978"/>
+<path d="M106 30l13 6 1 18-17 1-5-12Z" fill="#2f5966"/>
+<path d="M102 32l19 14M110 31l1 21" fill="none" stroke="#a0ffff" stroke-width="2.5"/>
+<circle cx="114" cy="28" r="7" fill="#fff2ab" stroke="#e6a633" stroke-width="2"/>
+<!-- Copper coils on chest -->
+<path d="M48 79q12-15 25 0t-22 17" stroke="#fce28a" stroke-width="2.5" fill="none"/>
+</g>
+<path d="M15 164Q66 170 114 161" fill="none" stroke="#f4f2d9" stroke-width="2" opacity=".24"/>
+</svg>

@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 176" width="128" height="176" role="img" aria-label="Wisp, the phantom speedster">
+<defs>
+ <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a1ffee"/><stop offset=".54" stop-color="#27bda8"/><stop offset="1" stop-color="#0f5061"/></linearGradient>
+ <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4f9f7"/><stop offset=".35" stop-color="#70d7d0"/><stop offset="1" stop-color="#0f5061"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f9d7b4"/><stop offset=".67" stop-color="#b87860"/><stop offset="1" stop-color="#713e39"/></linearGradient>
+ <radialGradient id="energy"><stop stop-color="#fffef0"/><stop offset=".35" stop-color="#bbfff3"/><stop offset="1" stop-color="#bbfff3" stop-opacity="0"/></radialGradient>
+ <filter id="aura" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4"/></filter>
+ <pattern id="ink" width="10" height="11" patternUnits="userSpaceOnUse"><circle cx="2" cy="4" r=".7" fill="#091620" opacity=".23"/></pattern>
+</defs>
+<ellipse cx="65" cy="164" rx="41" ry="8" fill="#081924" opacity=".5"/>
+
+<path d="M8 119Q-6 104 12 75Q33 39 59 51" fill="none" stroke="#89ffef" stroke-width="4" opacity=".65"/>
+<path d="M21 156Q16 142 31 128M112 168q-17-7-14-25" fill="none" stroke="#89ffef" stroke-width="3.5" opacity=".6"/>
+<circle cx="74" cy="85" r="50" fill="url(#energy)" opacity=".17"/>
+
+<g stroke="#101b2b" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round">
+<!-- Ethereal smoke trails creating a dynamic running silhouette -->
+<path d="M41 72Q12 71 9 103Q6 128 0 145Q34 133 49 113L79 127 111 154 99 111 97 73Z" fill="#167d81" opacity=".64" stroke="#0e4b55" stroke-width="1.5"/>
+<path d="M32 88Q14 106 12 122M35 105Q15 128 6 132M90 108l18 28" fill="none" stroke="#a5fff2" stroke-width="4" opacity=".56"/>
+<!-- One leg in sprint forward -->
+<path d="M51 109L68 118 53 138 48 160 32 162 34 142Z" fill="#154557"/>
+<path d="M67 108l19-8 12 27 17 18-7 13-21-12-21-20Z" fill="#116d75"/>
+<path d="M31 150l20 1-2 12-28 3-4-9z" fill="#0d273b"/>
+<path d="M100 143l14-6 9 14-7 11-25-9z" fill="#112f42"/>
+<path d="M37 133l14 2M88 127l13 8" stroke="#88f5e8" stroke-width="3"/>
+<!-- Torso twisted dynamically -->
+<path d="M44 57Q62 49 81 58L85 87 70 117 48 109 36 85Z" fill="url(#suit)"/>
+<path d="M44 64l20 10 16-9-9 41-20-5z" fill="#0d5c6c"/>
+<path d="M48 78L64 83 80 72M45 94l22 8" fill="none" stroke="#9dfff2" stroke-width="3.5"/>
+<path d="M56 65l7 10 14-15" fill="none" stroke="#f2edbb" stroke-width="2.4"/>
+<!-- Trailing scarf split in a ghostly V -->
+<path d="M45 56L34 68 15 78 8 87 33 82 16 103 47 82Z" fill="#39c7b0" opacity=".87"/>
+<path d="M38 69L9 83M42 82L16 98" fill="none" stroke="#f0fff3" stroke-width="2.1"/>
+<!-- Rear hand -->
+<path d="M38 70L24 84 11 79 5 89 16 98 43 90Z" fill="#1a7777"/>
+<path d="M9 80l-6 13 7 5 10-8" fill="#b9e5c6"/>
+<!-- Extended hand in movement -->
+<path d="M79 66L92 74 112 63 120 72 98 94 81 88Z" fill="#27968c"/>
+<path d="M110 63l10-10 6 5-6 14-10 2" fill="#b2e9cf"/>
+<!-- Face and headpiece -->
+<path d="M44 24Q54 9 68 13Q86 17 88 38L78 57 52 61 41 45Z" fill="#b1f1dc"/>
+<path d="M47 32Q60 23 78 32L78 48 67 57 51 51Z" fill="url(#skin)"/>
+<path d="M43 34Q45 13 68 10Q85 11 89 34L83 41 76 30 67 36 58 26 47 41Z" fill="#e8fcf6"/>
+<path d="M44 32Q25 32 24 16Q41 25 53 12" fill="#a1ffeb" opacity=".9"/>
+<path d="M49 39l29-2-3 10-23 1z" fill="#0c6470"/>
+<path d="M53 40l10 2m5-2 8 1" stroke="#aafff8" stroke-width="2.5"/>
+<path d="M61 53q7 2 11-2" fill="none" stroke="#844e4e" stroke-width="1.6"/>
+<!-- Belt / teleport sigil -->
+<path d="M49 102L70 110" stroke="#a9ffff" stroke-width="3"/>
+<circle cx="59" cy="106" r="4" fill="#f4fff5" stroke="#0c6570"/>
+</g>
+<path d="M15 164Q66 170 114 161" fill="none" stroke="#f4f2d9" stroke-width="2" opacity=".24"/>
+</svg>

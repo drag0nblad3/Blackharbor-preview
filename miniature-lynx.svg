@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 176" width="128" height="176" role="img" aria-label="Lynx, the Tracker">
+<defs>
+ <linearGradient id="suit" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0b576"/><stop offset=".54" stop-color="#b65b29"/><stop offset="1" stop-color="#543020"/></linearGradient>
+ <linearGradient id="armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f4f9f7"/><stop offset=".35" stop-color="#c88a4a"/><stop offset="1" stop-color="#543020"/></linearGradient>
+ <linearGradient id="skin" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#f9d7b4"/><stop offset=".67" stop-color="#b87860"/><stop offset="1" stop-color="#713e39"/></linearGradient>
+ <radialGradient id="energy"><stop stop-color="#fffef0"/><stop offset=".35" stop-color="#ffbf68"/><stop offset="1" stop-color="#ffbf68" stop-opacity="0"/></radialGradient>
+ <filter id="aura" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.4"/></filter>
+ <pattern id="ink" width="10" height="11" patternUnits="userSpaceOnUse"><circle cx="2" cy="4" r=".7" fill="#091620" opacity=".23"/></pattern>
+</defs>
+<ellipse cx="65" cy="164" rx="41" ry="8" fill="#081924" opacity=".5"/>
+
+<path d="M10 153L2 165M117 120l9-4M6 112l-5 5" stroke="#f4b971" stroke-width="2" opacity=".7"/>
+<ellipse cx="68" cy="85" rx="43" ry="56" fill="url(#energy)" opacity=".06"/>
+
+<g stroke="#101b2b" stroke-width="2.7" stroke-linejoin="round" stroke-linecap="round">
+<!-- A tracker with independently designed cloak and prowling crouch -->
+<path d="M43 60L24 68 12 119 25 143 15 155 44 145 59 155 88 135 88 65Z" fill="#653a27"/>
+<path d="M25 76l-3 34 13 23M83 71l-7 56" fill="none" stroke="#e9a46e" stroke-width="3" opacity=".62"/>
+<!-- Crouched legs and pointed reinforced boots -->
+<path d="M47 111l18 6-18 21-23 13-10-11 18-19z" fill="#3e3a38"/>
+<path d="M68 109l19-4 12 23 17 5-5 16-26-5-18-19z" fill="#5c4434"/>
+<path d="M14 138l12 12-12 17-11-8zM104 135l14 5 9 10-12 14-18-11z" fill="#172937"/>
+<path d="M29 135l17-8M84 128l17 5" stroke="#d09859" stroke-width="3"/>
+<!-- Layered coat / leather scale armor -->
+<path d="M43 56L69 50 83 65 86 106 68 121 45 112 35 85Z" fill="url(#suit)"/>
+<path d="M43 68L58 64 76 73 78 103 65 110 46 99Z" fill="#5b342a"/>
+<path d="M46 76l24-6M49 84l24-5M51 94l22-8" fill="none" stroke="#d58d4a" stroke-width="3.2"/>
+<path d="M60 61l4 49M43 99l35 8" fill="none" stroke="#f6ca8f" stroke-width="2"/>
+<path d="M48 110l19 7 16-10" fill="none" stroke="#1c2730" stroke-width="4"/>
+<path d="M59 108l8 3" stroke="#f5c36c" stroke-width="4"/>
+<!-- Arm with retractable tracking claw -->
+<path d="M40 68l-14 9-7 28 18 9 11-26Z" fill="#8f5539"/>
+<path d="M20 99l19 7-4 16-18-6z" fill="#2a3d41"/>
+<path d="M18 110l17 8-8 10-17-8z" fill="#c7955e"/>
+<path d="M13 117l-10 29 15-20M21 123l-2 29 12-25" fill="none" stroke="#d5e4df" stroke-width="3.8"/>
+<!-- Other wrist arcing out -->
+<path d="M82 65L96 73 100 96 87 106 74 88Z" fill="#965937"/>
+<path d="M90 91l16-3 6 16-18 7-10-11z" fill="#283e45"/>
+<path d="M105 93l17-17-6 23-6 14M110 101l18-11-13 26" fill="none" stroke="#cce3d5" stroke-width="4"/>
+<!-- Hooked hood with feline ear tips -->
+<path d="M46 29L47 13 58 21Q72 13 82 23L93 9 90 35 86 51 44 54 38 39Z" fill="#7c462c"/>
+<path d="M49 24L47 15 59 30 74 24 87 13 82 32" fill="none" stroke="#e8a16d" stroke-width="3"/>
+<path d="M48 34Q62 24 78 34L80 47 69 59 54 52Z" fill="url(#skin)"/>
+<path d="M46 38L81 38 75 48 54 48Z" fill="#302f36"/>
+<path d="M52 41l10 2m8-2 8 1" stroke="#ffbd54" stroke-width="3"/>
+<path d="M62 51l7 3 5-4" fill="none" stroke="#69433c" stroke-width="2"/>
+<!-- Scarf thrown back -->
+<path d="M45 52l-9 9-23-2L3 47 27 51l-16-15 32 8 20 14Z" fill="#cd7a3c"/>
+<path d="M26 54l19 5" stroke="#ffe1a1" stroke-width="2"/>
+</g>
+<path d="M15 164Q66 170 114 161" fill="none" stroke="#f4f2d9" stroke-width="2" opacity=".24"/>
+</svg>
