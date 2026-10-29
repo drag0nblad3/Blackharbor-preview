@@ -1,18 +1,15 @@
-// Headless-only experimental boss slate switch. This does not alter production rules.
-// Always preserve all 12 bosses and the seed-determined order of the remaining pool.
-const originalNewCampaignForSlate=newCampaign;
-newCampaign=function(...args){
- originalNewCampaignForSlate(...args);
+// Headless-only experimental starting-boss switch. No production-rule changes.
+// Bosses are assigned only when the fourth hero joins, as in normal campaigns.
+const originalRevealStartingVillains=revealStartingVillains;
+revealStartingVillains=function(){
  const requested=(process.env.BOSS_START||'').split(',').filter(Boolean);
- if(!requested.length)return;
- if(requested.length!==3||new Set(requested).size!==3)throw Error('BOSS_START requires three unique boss keys');
- const originalStates=S.villains;
- const order=[...originalStates.map(v=>v.key),...S.pool];
- if(requested.some(k=>!order.includes(k)))throw Error('Unknown initial boss key in '+requested.join(','));
- const map=new Map(originalStates.map(v=>[v.key,v]));
- S.villains=requested.map(k=>map.get(k)||makeVillain(k,1));
- S.villains.forEach(v=>{v.scheme=0});
+ if(!requested.length)return originalRevealStartingVillains();
+ if(S.villains.length||roster().length<4||S.issue!==1)return;
+ if(requested.length!==3||new Set(requested).size!==3)throw Error('BOSS_START requires 3 unique bosses');
+ if(requested.some(k=>!S.pool.includes(k)))throw Error('BOSS_START includes unavailable villain');
+ for(const k of requested){
+  S.pool.splice(S.pool.indexOf(k),1);
+  S.villains.push(makeVillain(k,1));
+ }
  S.villains[0].scheme=1;
- S.pool=order.filter(k=>!requested.includes(k));
- if(S.villains.length!==3||S.pool.length!==order.length-3)throw Error('Boss slate incorrectly altered campaign roster');
 };
