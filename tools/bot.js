@@ -4,6 +4,30 @@
 render=()=>{};
 const MODE=process.env.MODE||'upgrade'; // 'upgrade' = craft upgrades for the party; 'collect' = also spend leftovers on new blueprints
 const ETHB=process.env.ETHB||'public';
+const STRATEGY=process.env.STRATEGY||'balanced';
+const PROFILES={
+ balanced:{
+  weights:{eva:1,acc:1,str:1,maxHp:1,maxComp:.5,maxArc:1,maxPwr:1,pwrRegen:2,move:3,speed:4,range:2,arcWound:2,pot:3},
+  upgrades:['speed','str','acc','hp','eva','move','range','comp'],fac:[],focus:[]},
+ assault:{
+  weights:{eva:.4,acc:3.2,str:3.3,maxHp:.6,maxComp:.3,maxArc:.5,maxPwr:1,pwrRegen:1,move:2.5,speed:9,range:2.5,arcWound:1,pot:2},
+  upgrades:['speed','acc','str','range','move','hp','eva','comp'],fac:['workshop','training','dojo','optics','reactor'],
+  focus:['dice','str','acc','back','again']},
+ fortress:{
+  weights:{eva:5,acc:.6,str:.8,maxHp:5,maxComp:1.2,maxArc:1,maxPwr:1.2,pwrRegen:2,move:1.5,speed:1.5,range:1,arcWound:1,pot:2},
+  upgrades:['eva','hp','comp','str','acc','speed','move','range'],fac:['medbay','workshop','antivenom','bunker'],
+  focus:['dr','drAll','ward','absorb','heal','evaNext','eva']},
+ mobility:{
+  weights:{eva:3,acc:2,str:1.2,maxHp:1.1,maxComp:.6,maxArc:1,maxPwr:1,pwrRegen:1.5,move:8,speed:3,range:5,arcWound:1,pot:2},
+  upgrades:['move','range','eva','speed','acc','str','hp','comp'],fac:['workshop','hangar','optics','training'],
+  focus:['move','boost','jump','tele','eva']},
+ support:{
+  weights:{eva:2.2,acc:2.5,str:1,maxHp:2,maxComp:3,maxArc:4,maxPwr:4,pwrRegen:5,move:2,speed:2,range:3,arcWound:3,pot:5},
+  upgrades:['comp','acc','hp','eva','speed','range','move','str'],fac:['comms','medbay','workshop','lab','sanctum'],
+  focus:['heal','comp','rally','scry','hex','curse','gain','gainP','absorb']}
+};
+if(!PROFILES[STRATEGY])throw Error('Unknown campaign strategy: '+STRATEGY);
+const PROFILE=PROFILES[STRATEGY];
 const click0=a=>{const el={dataset:{a},disabled:false,getAttribute:()=>null};const ev={target:{closest:s=>s==='[data-a]'?el:null},stopPropagation(){},preventDefault(){}};(__H.click||[]).forEach(f=>f(ev))};
 let CUR=1;const IN={},CR=[];const sv=()=>({...S.salvage}),tot=o=>Object.values(o).reduce((a,b)=>a+b,0);
 const add=(src,n,vk)=>{if(!n)return;const a=IN[CUR]=IN[CUR]||{src:{},vil:{}};a.src[src]=(a.src[src]||0)+n;if(vk)a.vil[vk]=(a.vil[vk]||0)+n};
@@ -12,9 +36,9 @@ const click=a=>{if(a.startsWith('craft:')){const k=a.slice(6),G=GEAR[k];if(affor
 const tick=()=>new Promise(r=>setImmediate(r));
 async function idle(){let g=0;while(S.sd&&S.sd.busy&&g++<200000)await tick()}
 const GEAR_KEYS=Object.keys(GEAR).filter(k=>!GEAR[k].cons);
-const FAC_ORDER=['workshop','skunk','medbay','training','comms','magnet','lab','cell','press','hangar','reactor','dojo','antivenom','bunker','sanctum','jammer','bombsq','optics'];
-const W={eva:1,acc:1,str:1,maxHp:1,maxComp:.5,maxArc:1,maxPwr:1,pwrRegen:2,move:3,speed:4,range:2,arcWound:2,pot:3};
-const gScore=k=>{if(!k||!GEAR[k])return 0;const g=GEAR[k];let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab)s+=3;if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;return s};
+const FAC_ORDER=[...new Set([...PROFILE.fac,'workshop','skunk','medbay','training','comms','magnet','lab','cell','press','hangar','reactor','dojo','antivenom','bunker','sanctum','jammer','bombsq','optics'])];
+const W=PROFILE.weights;
+const gScore=k=>{if(!k||!GEAR[k])return 0;const g=GEAR[k];let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3;const f=g.ab.fx||{};s+=PROFILE.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;return s};
 const ST={crafted:new Set(),blockF:{tech:0,intel:0,both:0,none:0},blockG:{set:0,any:0,none:0},stalls:0};
 
 function slotKeys(g){const G=GEAR[g];if(G.slot==='arms'&&!G.two&&G.hand)return G.hand==='main'?['arms']:G.hand==='off'?['arms2']:['arms','arms2'];return SLOT_KEYS[G.slot]||[G.slot]}
@@ -50,9 +74,9 @@ function noteBlocks(){
 
 function levelUps(){for(const h of roster()){let g=0;while(h.pendingUp>0&&g++<10){
   if(!h.trackPick){const m=BASE(h).track;let t=h.ranks[m]<RANK_MAX?m:Object.keys(TRACKS).filter(k=>h.ranks[k]<RANK_MAX).sort((a,b)=>h.ranks[a]-h.ranks[b])[0];if(t)click(`track:${h.id}:${t}`);else h.trackPick='none'}
-  const ch=shuffle(Object.keys(UPG).filter(k=>k!=='range'||stat(h,'range')>1)).slice(0,3);const pref=['speed','str','acc','hp','eva','move','range','comp'];
+  const ch=shuffle(Object.keys(UPG).filter(k=>k!=='range'||stat(h,'range')>1)).slice(0,3);const pref=PROFILE.upgrades;
   ch.sort((a,b)=>pref.indexOf(a)-pref.indexOf(b));click(`up:${h.id}:${ch[0]}`)}}}
-function pickParty(){const r=roster().slice().sort((a,b)=>(lvlOf(b)+3*b.hp/stat(b,'maxHp'))-(lvlOf(a)+3*a.hp/stat(a,'maxHp')));S.party=r.slice(0,4).map(h=>h.id)}
+function pickParty(){const score=h=>{const alive=3*h.hp/stat(h,'maxHp'),base=lvlOf(h)+alive;if(STRATEGY==='balanced')return base;const p=PROFILE.weights,cl=BASE(h);const v=(p.speed*cl.speed+p.acc*cl.acc+p.str*cl.str+p.eva*(cl.eva-8)/2+p.maxHp*(cl.maxHp-8)/2+p.move*cl.move+p.range*cl.range+p.maxComp*cl.maxComp)/30;return base+v};const r=roster().slice().sort((a,b)=>score(b)-score(a));S.party=r.slice(0,4).map(h=>h.id)}
 
 function optScore(o){if(o.ok&&!o.ok())return -99;const t=o.h;let s=0,m;
   if((m=t.match(/Roll (\d+)\+ for (\d) clue/)))s+=(21-+m[1])/20*3*+m[2];else if((m=t.match(/\+(\d) clue/)))s+=3*+m[1];
@@ -163,7 +187,7 @@ async function campaign(){newCampaign();S.guide=null;S.ui={};
     if(S.phase==='arc'){click('arcnext');continue}
     if(S.phase==='event'){levelUps();pickParty();spend();click('finale:rally');const r=await fight();res['F'+r]=1;click('debrief');snaps.push(snap('Finale'));click('next');break}
     break}
-  return {rec:REC.splice(0),IN:JSON.parse(JSON.stringify(IN)),CR:CR.slice(),snaps,res,trust:S.trust,over:S.over,issue:S.issue,blockF:{...ST.blockF},blockG:{...ST.blockG},stalls:ST.stalls}}
+  return {strategy:STRATEGY,rec:REC.splice(0),IN:JSON.parse(JSON.stringify(IN)),CR:CR.slice(),snaps,res,trust:S.trust,over:S.over,issue:S.issue,blockF:{...ST.blockF},blockG:{...ST.blockG},stalls:ST.stalls}}
 /* run N campaigns and return their records (sim.js calls this) */
 async function runCampaigns(N,onDone){const out=[];
   for(let i=0;i<N;i++){for(const k in IN)delete IN[k];CR.length=0;ST.crafted=new Set();ST.blockF={tech:0,intel:0,both:0,none:0};ST.blockG={set:0,any:0,none:0};ST.stalls=0;
