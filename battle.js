@@ -651,7 +651,7 @@ async function henchAct(hm){const sd=S.sd,L=live();if(!L.length)return;const def
     if(best){hm.x=best[0];hm.y=best[1];render();await sleep(300)}}
     const adj=L.filter(u=>cheb(u,hm)<=def.rng);if(o&&!adj.length)return}
   else if(!hm.elite&&await henchGrab(hm))return;
-  if(hm.elite)await eliteTurn(hm,def,L);if(sd.result||!sd.hench.includes(hm))return;
+  if(hm.elite&&await eliteTurn(hm,def,L))return;if(sd.result||!sd.hench.includes(hm))return;
   let t=L.slice().sort((a,b)=>cheb(a,hm)-cheb(b,hm))[0];
   if(cheb(t,hm)>def.rng){const opts=reach(hm,def.mv||3,hm);let best=null,bd=cheb(t,hm);
     for(const k in opts){const[x,y]=k.split(',').map(Number);const d=cheb(t,{x,y});if(d<bd||(d===bd&&best&&Math.random()<.3)){bd=d;best=[x,y]}}
@@ -668,6 +668,19 @@ function hexLine(a,b){const A=ax(a),B=ax(b),n=cheb(a,b),out=[];const ac={q:A.q+1
 function shotBlocked(a,b){const sd=S.sd;if(cheb(a,b)<=1||!sd.walls.some(w=>w.girder))return false;return hexLine(a,b).some(p=>sd.walls.some(w=>w.girder&&w.k===p.x+','+p.y))}
 const shotVB=(u,v)=>vCells(v).every(c=>shotBlocked(u,c));
 async function eliteTurn(hm,def,L){const sd=S.sd,o=sd.vl.find(o=>o.key===hm.owner&&!o.v.down);if(!o)return;
+  // Payload's Bombardier alternates ranged shots with a telegraphed bomb
+  // lob. The toss replaces its normal attack, and uses the existing fuse,
+  // avoidance, blast, and friendly-fire rules instead of immediate damage.
+  if(def.bombardier&&sd.round%2===0){
+    const target=L.filter(u=>cheb(u,hm)<=4).sort((a,b)=>cheb(a,hm)-cheb(b,hm))[0];
+    if(target&&dropBomb(target.x,target.y,1,2+Math.floor(henchLv(hm)/3))){
+      await A.smoke(ctrU(target),3);
+      fxU(target,'FUSE!','vhit');
+      log('vill',`${def.name} lobs a short-fuse bomb at ${heroOf(target).name} from up to 4 hexes away.`);
+      render();
+      return true;
+    }
+  }
   if(def.priest&&sd.hench.filter(m=>!m.elite&&m.owner===hm.owner).length<2){const t=freeTiles((x,y)=>cheb({x,y},hm)===1)[0];
     if(t){sd.hench.push({id:'p'+Date.now(),owner:hm.owner,x:t.x,y:t.y,hp:henchHp(2)});await A.smoke(HC(t.x,t.y),3);fxP(t.x,t.y,'RISE!','say');log('vill',`${def.name} chants, and a fallen ${VILLAINS[hm.owner].hench.name.toLowerCase()} rises again.`);render()}}
   if(def.foreman){const near=L.slice().sort((a,b)=>dV(a,o.v)-dV(b,o.v))[0];const t=near&&freeTiles((x,y)=>cheb({x,y},near)===1&&dV({x,y},o.v)<dV(near,o.v))[0];
