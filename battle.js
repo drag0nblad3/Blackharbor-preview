@@ -1005,8 +1005,10 @@ function bhCombatBrief(sd,def,h,v){
   const title=sd.patrol?'Subway patrol':sd.finale&&S.event?S.event.title:def.name;
   const quality=sd.patrol?'Patrol':QUAL[sd.quality]?QUAL[sd.quality].n:'Showdown';
   return `<header class="bh-combat-brief" aria-label="Current tactical situation">
-    <div class="bh-combat-title"><span>${esc(quality)} · Round ${Math.max(1,sd.round)}</span>
-      <h2>${esc(title)}</h2></div>
+    <div class="bh-combat-title">
+      ${!sd.patrol?`<span class="vportrait-combat">${vPortrait(sd.vkey,'combat')}</span>`:''}
+      <div class="bh-combat-title-copy"><span>${esc(quality)} · Round ${Math.max(1,sd.round)}</span>
+        <h2>${esc(title)}</h2></div></div>
     <div class="bh-combat-metrics">
       ${!sd.patrol?`<div data-tip="kw:playbook"><b>${v.deck.length}</b><small>Pages left</small></div>`:''}
       <div data-tip="kw:henchman"><b>${sd.hench.filter(m=>m.hp>0).length}</b><small>Enemies</small></div>
