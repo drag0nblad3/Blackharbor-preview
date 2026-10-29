@@ -1,0 +1,24 @@
+name: Adaptive boss selection
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'game.js'
+      - 'tests/boss-selection.cjs'
+      - '.github/workflows/boss-selection.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  boss-selection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Adaptive boss unit and full-campaign tests
+        env:
+          CAMPAIGN_SMOKE: '1'
+        run: node tests/boss-selection.cjs
