@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
  try{
   await page.goto('file://'+process.cwd()+'/index.html');
   await page.evaluate(()=>{
-   newCampaign();recruitQuick('volt');recruitQuick('wisp');
+   newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
    S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
    const volt=S.heroes.find(h=>h.cls==='volt');
    volt.gear.arms='baton';volt.gear.acc='uplink';
@@ -90,7 +90,7 @@ const assert=require('node:assert/strict');
 
   // Source-level balance values plus live combat calculations (one workflow, no extra suite).
   const gearBalance=await page.evaluate(async()=>{
-    newCampaign();recruitQuick('volt');recruitQuick('wisp');
+    newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
     S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
     const w=S.heroes.find(h=>h.cls==='wisp'),h=S.heroes.find(h=>h.cls==='volt');
     w.gear={body:'shroud',head:'hood',legs:'moonslip',acc:'sunamulet',acc2:'sunamulet'};
@@ -159,7 +159,7 @@ const assert=require('node:assert/strict');
   assert.deepEqual(gearBalance.migration,{moved:['compeyes','mutagen'],gear:[],unlocked:false},'Moved gear returned to armory');
   // Validate the attack-dice rebalance in actual activated gear and paired setups.
   const diceBalance=await page.evaluate(async()=>{
-    newCampaign();recruitQuick('volt');S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
+    newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
     const h=S.heroes.find(x=>x.cls==='volt');
     h.ranks={tech:4,innate:4,magic:4};h.gear={};
     S.inv={v:S.villains[0].key,clues:2};startShowdown();
