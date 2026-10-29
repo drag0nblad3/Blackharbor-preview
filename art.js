@@ -249,6 +249,9 @@ return F})();
 /* Villain portrait plates, based on canonical painted VFIG villain art.
    Self-contained vector illustrations: no remote images, no extra load or save changes.
    ID scoping keeps gradients and glows independent across simultaneous dossiers. */
+const VPR_SHEET={gallows:[0,0],quarry:[1,0],cantor:[2,0],architect:[3,0],
+  helios:[0,1],serpent:[1,1],lode:[2,1],noct:[3,1],
+  swarm:[0,2],bomber:[1,2],grid:[2,2],mole:[3,2]};
 let VPR_SEQ=0;
 function vPortrait(k,variant='card'){
   const d=VILLAINS[k];
@@ -288,6 +291,8 @@ function vPortrait(k,variant='card'){
     <path d="M0 0L95 0L10 116H0Z" fill="#fff5be" opacity=".12"/>
     ${motif}
     <svg x="22" y="-4" width="116" height="125" viewBox="0 0 100 104" overflow="hidden">${pieces}</svg>
+    ${VPR_SHEET[k]?`<image href="villain-portraits.avif" x="${-160*VPR_SHEET[k][0]}" y="${-116*VPR_SHEET[k][1]}"
+      width="640" height="348" preserveAspectRatio="none" aria-hidden="true"/>`:''}
     <path d="M0 115H160" stroke="${accent}" stroke-width="5"/>
     <path d="M0 1H160V115H0Z" stroke="#111f30" stroke-width="3" fill="none"/>
   </svg>`;
