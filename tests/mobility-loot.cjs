@@ -15,4 +15,4 @@ for(const mode of modes){
  report.push(summary);console.log('MOBILITY '+JSON.stringify(summary));
 }
 fs.writeFileSync(path.join(out,'summary.json'),JSON.stringify(report,null,2));
-console.log('PASS: 12 matched mobility campaigns, zero simulation errors.');
+console.log('PASS: 12 matched mobility campaigns with opportunistic set purchasing, zero simulation errors.');
