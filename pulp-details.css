@@ -11,24 +11,24 @@
   --pulp-blue:#197db3;
   --pulp-yellow:#f6cb45;
   --pulp-grain:
-    radial-gradient(circle at 19% 21%,rgba(57,42,27,.11) 0 .7px,transparent 1px) 0 0/11px 13px,
-    radial-gradient(circle at 68% 65%,rgba(20,34,56,.09) 0 .6px,transparent 1px) 0 0/17px 19px,
+    repeating-linear-gradient(11deg,rgba(57,42,27,.052) 0 1px,transparent 1px 9px),
+    repeating-linear-gradient(107deg,rgba(20,34,56,.042) 0 1px,transparent 1px 13px),
     repeating-linear-gradient(0deg,rgba(20,34,56,.023) 0 1px,transparent 1px 7px);
   --pulp-dots:
-    radial-gradient(circle,rgba(20,34,56,.18) 0 1.2px,transparent 1.5px) 0 0/10px 10px;
+    radial-gradient(circle,rgba(20,34,56,.18) 0 1.2px,transparent 1.5px);
   --pulp-dots-light:
-    radial-gradient(circle,rgba(255,255,255,.19) 0 1.4px,transparent 1.7px) 0 0/10px 10px;
+    radial-gradient(circle,rgba(255,255,255,.19) 0 1.4px,transparent 1.7px);
   --pulp-ray:
     repeating-conic-gradient(from -8deg,rgba(247,202,65,.23) 0deg 10deg,transparent 10deg 21deg);
   --pulp-cork:
     repeating-linear-gradient(27deg,rgba(96,55,20,.11) 0 1px,transparent 1px 9px),
     repeating-linear-gradient(-24deg,rgba(255,252,234,.12) 0 1px,transparent 1px 11px),
-    radial-gradient(circle,rgba(87,46,20,.12) 0 .8px,transparent 1px) 0 0/9px 11px;
+    repeating-linear-gradient(98deg,rgba(87,46,20,.085) 0 1px,transparent 1px 15px);
   --pulp-blueprint:
-    linear-gradient(90deg,rgba(28,106,153,.15) 1px,transparent 1px) 0 0/22px 22px,
-    linear-gradient(rgba(28,106,153,.15) 1px,transparent 1px) 0 0/22px 22px,
-    linear-gradient(90deg,rgba(28,106,153,.07) 1px,transparent 1px) 0 0/5.5px 5.5px,
-    linear-gradient(rgba(28,106,153,.07) 1px,transparent 1px) 0 0/5.5px 5.5px;
+    repeating-linear-gradient(90deg,rgba(28,106,153,.15) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(0deg,rgba(28,106,153,.15) 0 1px,transparent 1px 22px),
+    repeating-linear-gradient(90deg,rgba(28,106,153,.06) 0 1px,transparent 1px 5.5px),
+    repeating-linear-gradient(0deg,rgba(28,106,153,.06) 0 1px,transparent 1px 5.5px);
   --pulp-ruled:
     repeating-linear-gradient(0deg,rgba(24,117,178,.12) 0 1px,transparent 1px 26px);
   --pulp-tape:
@@ -426,14 +426,15 @@ body:has(#app:is(.v-hq-hq,.v-hq-roster,.v-hq-villains,.v-hq-create,.v-sd,.v-even
    replacing the existing pinned clues, and keeps all text above textures. */
 .inv-ui{
   --pulp-inv-paper:
-    radial-gradient(circle,rgba(74,47,20,.09) 0 .8px,transparent 1px) 0 0/11px 13px,
+    repeating-linear-gradient(112deg,rgba(74,47,20,.045) 0 1px,transparent 1px 13px),
     repeating-linear-gradient(0deg,rgba(20,34,56,.035) 0 1px,transparent 1px 8px);
 }
 .inv-ui .inv-header{
   position:relative;
   background-image:
-    radial-gradient(circle,rgba(255,255,255,.18) 0 1.4px,transparent 1.6px) 0 0/9px 9px,
+    radial-gradient(circle,rgba(255,255,255,.18) 0 1.4px,transparent 1.6px),
     linear-gradient(112deg,#153a58,#1f5378);
+  background-size:9px 9px,auto;
   border-left:9px solid #f5ce42;
   box-shadow:4px 4px 0 #142238,6px 6px 0 #d74444;
 }
