@@ -53,6 +53,10 @@ const path=require('node:path');
     assert(!(await floor()).includes('arena-wood.svg'),'Toggle restores real classic board surface');
     await page.screenshot({path:path.join(out,size+'-battle-classic-cantor.png'),animations:'disabled'});
     await page.locator('#lab-compare').click();
+    await page.waitForFunction(()=>{
+      const node=document.querySelector('.board .cell:not(.wall):not(.pit):not(.haz):not(.obs)');
+      return node&&getComputedStyle(node,'::before').backgroundImage.includes('arena-wood.svg');
+    },undefined,{timeout:8000}); // Re-enabling a previously disabled <link> can be asynchronous.
     assert((await floor()).includes('arena-wood.svg'),'Illustrated materials can be re-enabled');
     for(const [key,asset] of Object.entries(mapping)){
       await page.selectOption('#lab-villain',key);
