@@ -10,7 +10,9 @@ const BOT=fs.readFileSync(path.join(__dirname,'../tools/bot.js'),'utf8');
 const DATA=vm.runInNewContext(fs.readFileSync('data.js','utf8')+'\n({VILLAINS,GEAR,VINTEL})');
 const bosses=Object.keys(DATA.VILLAINS).filter(k=>k!=='mole');
 const groups=['mixed','tech','magic','innate'];
-const scenarios=[{stage:'early',issue:1,rank:1,bossLevel:1},{stage:'middle',issue:7,rank:3,bossLevel:3},{stage:'late',issue:13,rank:5,bossLevel:5}];
+// Stress-test tiers use moderate, capped hero gear and slightly stronger villains;
+// deliberately avoid 100% win rates that hide meaningful boss differences.
+const scenarios=[{stage:'early',issue:1,rank:1,bossLevel:2,gearCap:3},{stage:'middle',issue:7,rank:3,bossLevel:4,gearCap:4},{stage:'late',issue:13,rank:4,bossLevel:6,gearCap:5}];
 const group=process.env.GROUP||'mixed';
 const seeds=Number(process.env.SEEDS||12),seedStart=Number(process.env.SEED_START||2300);
 assert(groups.includes(group));assert(Number.isInteger(seeds)&&seeds>0&&seeds<=120);
@@ -40,6 +42,9 @@ const makeSetup=(k,stage)=>{
  S.facilities=['workshop'];S.armory=STARTER_LOCKER.filter(x=>GEAR[x]&&!GEAR[x].cons);
  if(${rank}>1)S.armory.push(...Object.keys(GEAR).filter(x=>GEAR[x].cost.any&&!GEAR[x].cons&&GEAR[x].req<=${rank}&&GEAR[x].req>=2));
  equipBest(S.heroes);
+ // The full generic item catalog makes a benchmark party unrealistically
+ // powerful. Retain only the best few pieces at each tier.
+ S.heroes.forEach(h=>{const keep=Object.entries(h.gear).sort((a,b)=>gScore(b[1],h)-gScore(a[1],h)).slice(0,${stage.gearCap});h.gear=Object.fromEntries(keep)});
  S.heroes.forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});
  S.inv={v:${JSON.stringify(k)},clues:3};startShowdown();S.sd.intro=false;`;
 };
