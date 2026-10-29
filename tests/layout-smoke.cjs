@@ -76,6 +76,7 @@ const path=require('node:path');
      };
    });
    assert(heavyArt.loaded,'heavy pulp stylesheet successfully loaded');
+   console.log('PULP_ART_COMPUTED',JSON.stringify(heavyArt));
    assert(heavyArt.headingShadow.includes('rgb(215, 71, 69)'), 'comic page header has offset red ink shadow');
    assert(heavyArt.hqTexture.includes('repeating-linear-gradient'),'HQ blueprint line artwork rendered');
 
