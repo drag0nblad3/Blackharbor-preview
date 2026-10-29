@@ -177,7 +177,7 @@ function startShowdown(opt={}){
   hs.forEach(h=>{h.comp=stat(h,'maxComp');h.cd=0});
   lastPos={};
   sd.vl.forEach((o,vi)=>{const n=Math.min(4,fin?Math.ceil(o.v.level/2):o.v.level)+(q==='ambush'?1:0);
-    for(let i=0;i<n;i++){const t=pick(freeTiles((x,y)=>y>=1&&y<=4&&Math.abs(x-(o.v.x+.5))<=3))||pick(freeTiles((x,y)=>y<=5));if(t)sd.hench.push({id:'h'+vi+'_'+i,owner:o.key,x:t.x,y:t.y,hp:henchHp(2)})}
+    for(let i=0;i<n;i++){const t=pick(freeTiles((x,y)=>y>=1&&y<=4&&Math.abs(x-(o.v.x+.5))<=3))||pick(freeTiles((x,y)=>y<=5));if(t)sd.hench.push({id:'h'+vi+'_'+i,owner:o.key,x:t.x,y:t.y,hp:regularHenchHp(o.key)})}
     if(eliteOf(o.key)&&o.v.level>=3){const t=freeTiles((x,y)=>dV({x,y},o.v)===1)[0]||pick(freeTiles((x,y)=>y<=4));if(t){sd.hench.push(mkElite(o,t));sd.elites=(sd.elites||[]).concat(o.key)}}});
   if(S.facilities.includes('dojo'))sd.units.forEach(u=>u.evaNext=6);
   /* about a third of civilians start deep in the lair, behind or beside the villain */
@@ -275,7 +275,7 @@ function strikeAnim(style,from,to,col,tid){
 const ctrU=u=>HC(u.x,u.y),ctrV=()=>vCtr(S.sd.v);
 
 /* ---------- card reveals: comic book opening (draws) and torn pages (wounds) ---------- */
-const TYPE_SFX={multi:'BARRAGE!',walls:'BUILD!',hazard:'MELTDOWN!',cage:'CAGED!',shrapnel:'DEMOLISH!',fortify:'FORTIFY!',charge:'CHARGING!',strike:'STRIKE!',sweep:'SHOCKWAVE!',summon:'BACKUP!',endanger:'HOSTAGE!',taunt:'TAUNT!',vanish:'POOF!',reanimate:'RECHARGE!',puppet:'OBEY!',rampage:'RAMPAGE!',swallow:'GULP!',pull:'ATTRACT!',repel:'REPEL!',fade:'FADE…',converge:'SWARM!',scatter:'SCATTER!',leap:'BOING!',bomb:'TSSS!',swapbomb:'SWITCH!',airburst:'LOOK UP!',beam:'ZZARK!',burrow:'SHUNK!'};
+const TYPE_SFX={multi:'BARRAGE!',walls:'BUILD!',hazard:'MELTDOWN!',cage:'CAGED!',shrapnel:'DEMOLISH!',fortify:'FORTIFY!',charge:'CHARGING!',strike:'STRIKE!',sweep:'SHOCKWAVE!',summon:'BACKUP!',endanger:'HOSTAGE!',taunt:'TAUNT!',henchvolley:'OPEN FIRE!',vanish:'POOF!',reanimate:'RECHARGE!',puppet:'OBEY!',rampage:'RAMPAGE!',swallow:'GULP!',pull:'ATTRACT!',repel:'REPEL!',fade:'FADE…',converge:'SWARM!',scatter:'SCATTER!',leap:'BOING!',bomb:'TSSS!',swapbomb:'SWITCH!',airburst:'LOOK UP!',beam:'ZZARK!',burrow:'SHUNK!'};
 const TAC_SFX={weak:'CRACK!',armor:'TINK!',over:'OPENING!',counter:'COUNTER!',mono:'BLAH BLAH…',shield:'NO!',escape:'HA HA!',glance:'SOLID!'};
 const TEAR=(()=>{const z=[];for(let i=0;i<=12;i++)z.push([i*100/12,48+(i%2?6:-5)+((i*37)%5)-2]);return z})();
 const tearTop=`polygon(0 0,100% 0,${TEAR.slice().reverse().map(([x,y])=>`${x}% ${y}%`).join(',')})`;
@@ -501,15 +501,29 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       await A.smoke(ctrV(),3);vPut(v,sp.x,sp.y);noFlip.add('v'+sd.vi);const k0=from.x+','+from.y;if(!sd.obs.includes(k0))sd.obs.push(k0);render();await A.smoke(ctrV(),3);fxV('SHUNK!','say');
       log('vill',`${vn} dives underground and bursts up next to ${heroOf(t).name}, leaving rubble where he went down.`);await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
     case 'rampage':{const t=pickTarget('nearest');if(t)await vMove(()=>vToward(t,c.mv,1),c.crush||0,c.n);await sweep(1,dmgScale(c.dmg),c.n);break}
-    case 'summon':{const added=[];for(let i=0;i<c.k;i++){const t=freeTiles().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(t){const m={id:'s'+Date.now()+i,owner:sd.vkey,x:t.x,y:t.y,hp:henchHp(2)};sd.hench.push(m);added.push(m)}}
+    case 'summon':{const added=[];for(let i=0;i<c.k;i++){const t=freeTiles().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(t){const m={id:'s'+Date.now()+i,owner:sd.vkey,x:t.x,y:t.y,hp:regularHenchHp(sd.vkey)};sd.hench.push(m);added.push(m)}}
       fxV('GET THEM!','say');render();await Promise.all(added.map(m=>A.smoke(ctrU(m))));log('vill',`${added.length} ${VILLAINS[sd.vkey].hench.name.toLowerCase()}s arrive.`);break}
     case 'endanger':{const cv=sd.civs.slice().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(cv)faceTo(cv);
-      if(!cv){const t=pickTarget('nearest');if(t){await vMove(()=>vToward(t,2,1));if(dV(t,v)<=1)await vHit(t,dmgScale(2),c.n,'slash')}break}
+      const undermine=u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.comp);fxU(u,'RATTLED!','vhit');
+        log('vill',`${c.n}: ${h.name} loses ${c.comp} Composure.`);render()};
+      if(!cv){const t=pickTarget('nearest');if(t){await vMove(()=>vToward(t,2,1));
+        if(dV(t,v)<=1){if(c.comp)undermine(t);else await vHit(t,dmgScale(2),c.n,'slash')}}break}
       await vMove(()=>vToward(cv,2,1));const prot=live().find(u=>cheb(u,cv)<=1);
-      if(prot){A.lunge('h'+prot.hid,ctrU(cv));await strikeAnim(vStyle(c),ctrV(),ctrU(prot),COL.mag,'v'+S.sd.vi);log('hero',`${heroOf(prot).name} shields a civilian and takes ${dmgScale(c.dmg||2)}.`);
-        if(!await wardBlocks(prot)){await A.shield(ctrU(prot),COL.yel);fxU(prot,'OOF!','vhit');damageHero(prot,dmgScale(c.dmg||2))}}
+      if(prot){A.lunge('h'+prot.hid,ctrU(cv));await strikeAnim(vStyle(c),ctrV(),ctrU(prot),COL.mag,'v'+S.sd.vi);
+        if(c.comp){log('hero',`${heroOf(prot).name} shields a civilian but is rattled by ${vn}'s leverage.`);undermine(prot)}
+        else{log('hero',`${heroOf(prot).name} shields a civilian and takes ${dmgScale(c.dmg||2)}.`);
+          if(!await wardBlocks(prot)){await A.shield(ctrU(prot),COL.yel);fxU(prot,'OOF!','vhit');damageHero(prot,dmgScale(c.dmg||2))}}}
       else if(dV(cv,v)<=3){await strikeAnim(vStyle(c),ctrV(),ctrU(cv),COL.mag,'v'+S.sd.vi);harmCiv(cv,c.n)}
       else{log('vill',`${c.n} falls short. The civilian runs.`);fxP(cv.x,cv.y,'EEK!','miss')}break}
+    case 'henchvolley':{
+      let fired=0;
+      for(const hm of [...sd.hench]){
+        if(sd.result)break;
+        if(hm.owner!=='cantor'||hm.elite||!sd.hench.includes(hm))continue;
+        if(await henchShoot(hm,VILLAINS.cantor.hench,live()))fired++;
+      }
+      log('vill',`${vn} orders every hired gun to fire! ${fired} shot${fired===1?'':'s'} fired.`);
+      break}
     case 'taunt':{await A.ring(ctrV(),COL.yel,c.r*2+2,{dashed:true,fill:false,count:3});
       const hit=live().filter(u=>dV(u,v)<=c.r);const lm=litMap(),ex=u=>(c.bombx&&(sd.bombs||[]).some(b=>cheb(bombP(b),u)<=1)?1:0)+(c.litx&&lm[u.x+','+u.y]?1:0);hit.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt-ex(u));fxU(u,'GRR!','miss')});
       log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);break}
@@ -651,6 +665,7 @@ const hName=hm=>hm.elite?eliteOf(hm.owner||S.sd.vkey).name:'the '+VILLAINS[hm.ow
 function mkElite(o,t){const L=o.v.level;return {id:'e_'+o.key,owner:o.key,x:t.x,y:t.y,hp:henchHp(2+L),elite:1}}
 /* Version 107 (Tyler): Hive Jammer takes 1 health off every henchman, down to 1 */
 const henchHp=n=>S.facilities.includes('jammer')?Math.max(1,n-1):n;
+const regularHenchHp=owner=>henchHp(owner==='cantor'?1:2);
 const eliteEva=hm=>9+Math.floor(henchLv(hm)/2);
 function henchLv(hm){const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd.vkey));return o?o.v.level:sd.v.level}
 /* Version 89 (Tyler): three more special henchmen. Gallows' Failed Experiment is slow (moves 2), hits 1 harder and shrugs off the first hit
@@ -668,10 +683,21 @@ async function henchAct(hm){const sd=S.sd,L=live();if(!L.length)return;const def
   if(cheb(t,hm)>def.rng){const opts=reach(hm,def.mv||3,hm);let best=null,bd=cheb(t,hm);
     for(const k in opts){const[x,y]=k.split(',').map(Number);const d=cheb(t,{x,y});if(d<bd||(d===bd&&best&&Math.random()<.3)){bd=d;best=[x,y]}}
     if(best){hm.x=best[0];hm.y=best[1];render();await sleep(300)}}
-  if(cheb(t,hm)<=def.rng&&!shotBlocked(hm,t)){await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id);
-    const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0)+avoidEva(t);if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0};const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0),hit=r===20||(r!==1&&r+ha>=eva);
-    log('vill',`${def.name} attacks ${h.name}: ${r}${ha<0?'−'+(-ha):'+'+ha} vs ${eva}. ${hit?`Hit for ${henchDmg(hm)}.`:'Miss.'}`);
-    if(hit&&!await wardBlocks(t)){fxU(t,def.rng>1?'PEW!':'THUD!','vhit');damageHero(t,henchDmg(hm))}else if(!hit){fxU(t,'SWISH!','miss');await avoidRedirect(t,hm,henchDmg(hm),def.name)}}}
+  await henchShoot(hm,def,L)}
+// One normal henchman shot; also used by Crowd Control without moving.
+async function henchShoot(hm,def,L){
+  const t=L.filter(u=>cheb(u,hm)<=def.rng&&!shotBlocked(hm,u))
+    .sort((a,b)=>cheb(a,hm)-cheb(b,hm))[0];
+  if(!t)return false;
+  await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id);
+  const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0)+avoidEva(t);
+  if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0}
+  const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0),hit=r===20||(r!==1&&r+ha>=eva);
+  log('vill',`${def.name} attacks ${h.name}: ${r}${ha<0?'−'+(-ha):'+'+ha} vs ${eva}. ${hit?`Hit for ${henchDmg(hm)}.`:'Miss.'}`);
+  if(hit&&!await wardBlocks(t)){fxU(t,def.rng>1?'PEW!':'THUD!','vhit');damageHero(t,henchDmg(hm))}
+  else if(!hit){fxU(t,'SWISH!','miss');await avoidRedirect(t,hm,henchDmg(hm),def.name)}
+  return true}
+
 /* Version 91 (Tyler): the Foreman's girders block shots (any attack at range 2+ whose hex line crosses one) and topple onto an adjacent hero
    when they come down two villain turns later, for 2 + half the Architect's level. */
 function hexLine(a,b){const A=ax(a),B=ax(b),n=cheb(a,b),out=[];const ac={q:A.q+1e-6,r:A.r+1e-6},bc={q:B.q+1e-6,r:B.r+1e-6};
@@ -694,7 +720,7 @@ async function eliteTurn(hm,def,L){const sd=S.sd,o=sd.vl.find(o=>o.key===hm.owne
     }
   }
   if(def.priest&&sd.hench.filter(m=>!m.elite&&m.owner===hm.owner).length<2){const t=freeTiles((x,y)=>cheb({x,y},hm)===1)[0];
-    if(t){sd.hench.push({id:'p'+Date.now(),owner:hm.owner,x:t.x,y:t.y,hp:henchHp(2)});await A.smoke(HC(t.x,t.y),3);fxP(t.x,t.y,'RISE!','say');log('vill',`${def.name} chants, and a fallen ${VILLAINS[hm.owner].hench.name.toLowerCase()} rises again.`);render()}}
+    if(t){sd.hench.push({id:'p'+Date.now(),owner:hm.owner,x:t.x,y:t.y,hp:regularHenchHp(hm.owner)});await A.smoke(HC(t.x,t.y),3);fxP(t.x,t.y,'RISE!','say');log('vill',`${def.name} chants, and a fallen ${VILLAINS[hm.owner].hench.name.toLowerCase()} rises again.`);render()}}
   if(def.foreman){const near=L.slice().sort((a,b)=>dV(a,o.v)-dV(b,o.v))[0];const t=near&&freeTiles((x,y)=>cheb({x,y},near)===1&&dV({x,y},o.v)<dV(near,o.v))[0];
     if(t){sd.walls.push({k:t.x+','+t.y,ttl:2,girder:1,dmg:2+Math.floor(henchLv(hm)/2)});await A.smoke(HC(t.x,t.y),3);fxP(t.x,t.y,'CLANG!','say');log('vill',`${def.name} bolts a girder into place in front of ${heroOf(near).name}. It blocks shots, and it will topple in 2 turns.`);render()}}}
 function drawTactic(){const sd=S.sd,k=sd.vkey,v=sd.v;sd.tdk=sd.tdk||{};
@@ -755,7 +781,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(pull&&!u.ko&&u.anchor&&!sd.result){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`)}
     if(pull&&!u.ko&&!u.anchor&&!sd.result){let n=0;for(let i=0;i<pull;i++){const t=benchTile(u,v,(a,b)=>dV(a,v)-dV(b,v));if(!t||dV(t,v)>=dV(u,v))break;u.x=t.x;u.y=t.y;n++}if(n){fxU(u,'YANKED!','vhit');log('vill',`${h.name} is dragged ${n} hex${n>1?'es':''} toward ${VILLAINS[sd.vkey].short}.`);render();await sleep(260)}}
     if(wall&&!sd.result){const t=benchTile(u,v,(a,b)=>dV(a,v)-dV(b,v));if(t){sd.walls.push({k:t.x+','+t.y,ttl:2});await A.smoke(HC(t.x,t.y),2);log('vill','A scaffold wall slams down.');render()}}
-    for(let n=0;n<summon&&!sd.result;n++){const t=freeTiles((x,y)=>dV({x,y},v)===1)[0];if(!t)break;sd.hench.push({id:'r'+Date.now()+n,owner:sd.vkey,x:t.x,y:t.y,hp:henchHp(2)});fxP(t.x,t.y,'BACKUP!','say');log('vill',`A ${VILLAINS[sd.vkey].hench.name.toLowerCase()} joins the fight.`);render()}
+    for(let n=0;n<summon&&!sd.result;n++){const t=freeTiles((x,y)=>dV({x,y},v)===1)[0];if(!t)break;sd.hench.push({id:'r'+Date.now()+n,owner:sd.vkey,x:t.x,y:t.y,hp:regularHenchHp(sd.vkey)});fxP(t.x,t.y,'BACKUP!','say');log('vill',`A ${VILLAINS[sd.vkey].hench.name.toLowerCase()} joins the fight.`);render()}
     if(bombAt&&!sd.result&&!u.ko&&dropBomb(u.x,u.y,1,dmgScale(bombAt))){fxU(u,'TSSS!','vhit');log('vill',`${VILLAINS[sd.vkey].short} leaves a lit bomb at ${h.name}'s feet.`);render()}
     if(flee&&!sd.result){const was=JSON.stringify(vCells(v));await vMove(()=>vAway(u,2,{strict:true}));if(JSON.stringify(vCells(v))!==was){fxV('HA HA!','say');log('vill','The villain slips out of reach.')}else{fxV('CORNERED!','good');log('vill','The villain tries to slip away, but there is nowhere to go.')}}
     if(wounds&&!u.ko){if(reap){const n=reap*wounds;h.hp=Math.min(stat(h,'maxHp'),h.hp+n);fxU(u,`+${n} HP`,'good');log('hero',`${h.name} reaps ${n} health.`)}
