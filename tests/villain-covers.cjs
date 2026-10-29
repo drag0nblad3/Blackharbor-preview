@@ -86,6 +86,7 @@ if(process.argv.includes('--integrity-only')){
       // Browsing artworks must not reveal cards, alter rules, statistics or campaign saves.
       assert.equal(await page.evaluate(()=>JSON.stringify(S)),initialState);
       await page.locator('[data-cover="close"]').click();
+      await page.locator('#cover-browser').waitFor({state:'detached'});
       assert.equal(await page.locator('#cover-browser').count(),0);
       assert.equal(await page.locator('[data-pb="gallery"]').evaluate(e=>e===document.activeElement),true);
       await page.locator('[data-pb="art"]').click();
@@ -98,6 +99,7 @@ if(process.argv.includes('--integrity-only')){
       await page.keyboard.press('Tab');
       assert(await page.evaluate(()=>!!document.activeElement.closest('#cover-browser')),'Modal traps keyboard focus');
       await page.keyboard.press('Escape');
+      await page.locator('#cover-browser').waitFor({state:'detached'});
       assert.equal(await page.locator('#cover-browser').count(),0);
       assert.equal(await page.locator('#comic').count(),1,'Escape returns to playbook');
       assert(await page.locator('[data-pb="art"]').evaluate(e=>e===document.activeElement),'Focus returns to cover button');
