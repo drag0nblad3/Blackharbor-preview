@@ -80,7 +80,10 @@ function bhSaveValidate(state){
     if(!Array.isArray(state[key]))bhSaveError('The save is missing its '+key+' records.');
   }
   if(!bhSaveIsObject(state.salvage))bhSaveError('The save is missing its resources.');
-  if(state.heroes.length>50||state.villains.length<1||state.villains.length>100||
+  // New campaigns legitimately have zero revealed bosses until four recruits join.
+  if(state.villains.length===0&&state.pool.length===0)
+    bhSaveError('The save has no villains remaining to reveal.');
+  if(state.heroes.length>50||state.villains.length>100||
      state.party.length>12||state.pool.length>100)
     bhSaveError('The save contains an invalid number of heroes or villains.');
   for(const h of state.heroes){
