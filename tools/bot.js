@@ -239,7 +239,7 @@ function plannedSpend(hs,ok){
       const h=hs.find(h=>h.id===p.hid);if(!h)continue;
       // Don't strand the hero in an incomplete, potentially weaker set.
       // Complete the four-piece package in one affordable investment.
-      const allReady=p.items.every(k=>ownedFor(h,k)||(canWear(h,k)&&isUnlocked('gear:'+k)&&ok('gear:'+k)));
+      const allReady=p.items.every(k=>canWear(h,k)&&(ownedFor(h,k)||(isUnlocked('gear:'+k)&&ok('gear:'+k))));
       if(!allReady||S.salvage[p.boss]<remainingSetCost(p))continue;
       const next=p.items.filter(k=>!ownedFor(h,k))
         .sort((a,b)=>(GEAR[a].cost[p.boss]||0)-(GEAR[b].cost[p.boss]||0));
