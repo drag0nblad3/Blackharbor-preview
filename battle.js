@@ -1056,7 +1056,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
     VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
   /* standees overlap the hex above, so heroes and villains are drawn top rows first (villains by their lowest row) */
   sd.units.forEach((o,i)=>{const hh=heroOf(o),b=BASE(hh);const done=o.moved&&o.acted;
-    VT.push([o.y+.1,`<div class="tok hst ${o.ko?'ko':''} ${sd.sel===i?'sel':''} ${done?'done':''} ${hurt(o)}" data-tid="h${o.hid}" ${D(o.x,o.y)} style="${P(o.x,o.y)}"><span class="st" title="${esc(hh.name)}">${standee(hh,o)}${o.guard?'<span class="gd"></span>':''}${hh.comp<=0&&!o.ko?'<span class="sh">!</span>':''}</span></div>`])});
+    VT.push([o.y+.1,`<div class="tok hst ${o.ko?'ko':''} ${sd.sel===i?'sel':''} ${done?'done':''} ${hurt(o)}" data-tid="h${o.hid}" data-hero="${hh.cls}" ${D(o.x,o.y)} style="${P(o.x,o.y)}"><span class="st" title="${esc(hh.name)}">${standee(hh,o)}${o.guard?'<span class="gd"></span>':''}${hh.comp<=0&&!o.ko?'<span class="sh">!</span>':''}</span></div>`])});
   VT.sort((p,q)=>p[0]-q[0]).forEach(t=>toks+=t[1]);
   if(!FAST)hitTick(sd);const now=Date.now();(sd.fx||[]).forEach(f=>{const el=now-f.born;if(el>1600)return;
     toks+=`<div class="fx k-${f.k}" style="left:${f.cx*100/W}%;top:${f.cy*100/H}%;animation-delay:-${el}ms" aria-hidden="true"><div class="b"><span>${esc(f.t)}</span></div></div>`});
