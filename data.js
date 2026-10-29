@@ -61,7 +61,7 @@ const GEAR = {
  wyrm:{name:'Wyrmhide Boots',slot:'legs',type:'innate',reqs:{innate:1,magic:1},cost:{any:3},mods:{move:1,maxComp:1,maxArc:1},ab:null,req:2},
  exo:{name:'Exo-Frame',slot:'body',type:'tech',reqs:{tech:2,innate:1},cost:{any:5},mods:{maxHp:3,eva:2},ab:{id:'exo',n:'Servo Slam',c:3,fx:{str:4}},req:3},
  greaves:{name:'Piston Greaves',slot:'legs',type:'innate',reqs:{tech:2,innate:1},cost:{any:4},mods:{maxHp:2,eva:2},ab:{id:'greaves',n:'Piston Leap',min:1,fx:{boost:1,jump:1}},req:3},
- claws:{name:'Graft Claw',slot:'arms',type:'innate',reqs:{tech:1,innate:2},cost:{any:5},mods:{str:2},ab:{id:'claws',n:'Frenzy',min:2,fx:{back:2,acc:-3}},req:3,pair:{mods:{str:1,speed:1,acc:-1},fx:{back:1},txt:'+1 Strength and +1 attack die, −1 passive accuracy, and Frenzy gets +1 more die from a side or the rear'},hand:'either'},
+ claws:{name:'Graft Claw',slot:'arms',type:'innate',reqs:{tech:1,innate:2},cost:{any:5},mods:{str:2},ab:{id:'claws',n:'Frenzy',min:2,fx:{back:2,acc:-3}},req:3,pair:{mods:{speed:1,acc:-1},txt:'+1 attack die and −1 accuracy'},hand:'either'},
  helm:{name:'Neural Helm',slot:'head',type:'tech',reqs:{tech:1,innate:2},cost:{any:4},mods:{acc:2,maxComp:2,maxHp:2},ab:{id:'helm',n:'Neural Reset',c:2,fx:{comp:3}},req:3},
  familiar:{name:'Familiar Drone',slot:'acc',type:'tech',reqs:{tech:2,magic:1},cost:{any:3},mods:{eva:2,maxComp:2},ab:{id:'familiar',n:'Scry Feed',c:2,fx:{scry:2}},req:3},
  faraday:{name:'Faraday Coat',slot:'body',type:'magic',reqs:{tech:2,magic:1},cost:{any:5},mods:{eva:2,maxHp:2},ab:null,req:3},
