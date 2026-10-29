@@ -7,6 +7,7 @@ on:
       - 'index.html'
       - 'portrait-gallery.html'
       - 'combat-art-lab.html'
+      - 'miniature-gallery.html'
       - '*.js'
       - '*.css'
       - '*.svg'
@@ -36,7 +37,7 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html portrait-gallery.html combat-art-lab.html *.css *.js *.avif *.svg site/
+          cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html *.css *.js *.avif *.svg site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
           grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
