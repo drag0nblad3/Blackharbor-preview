@@ -90,6 +90,7 @@ const assert=require('node:assert/strict');
     console.log('PASS: local recovery backup restores previous campaign');
     await page.locator('[data-save-open]').click();
     await page.keyboard.press('Escape');
+    await page.locator('#bh-save-dialog').waitFor({state:'detached'});
     assert.equal(await page.locator('#bh-save-dialog').count(),0,'Escape closes modal');
     console.log('PASS: Escape closes save modal');
     // The same format must preserve a mid-combat position and unit actions.
