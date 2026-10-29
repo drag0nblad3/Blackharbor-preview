@@ -13,6 +13,7 @@ const path=require('node:path');
    const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
    page.on('pageerror',e=>errors.push(size.name+': '+e.message));
    await page.goto('file://'+process.cwd()+'/index.html');
+   assert.equal(await page.locator('link[href="pulp-details.css"]').count(),1,'pulp art layer is linked');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
      S.tut=null;S.tutDone=true;S.guide=null;
@@ -65,6 +66,18 @@ const path=require('node:path');
      await page.emulateMedia({colorScheme:'light'});
    };
    await assertStablePalette('HQ',['body','.mast','.nav .btn','.bh-pagehead','.bh-hq-rail','.hqcols .panel','.hqcols .card']);
+   const heavyArt=await page.evaluate(()=>{
+     const head=document.querySelector('.bh-pagehead');
+     const hq=document.querySelector('.bh-hq-rail');
+     return {
+       loaded:[...document.styleSheets].some(x=>x.href&&x.href.endsWith('/pulp-details.css')),
+       headingShadow:getComputedStyle(head).boxShadow,
+       hqTexture:getComputedStyle(hq).backgroundImage
+     };
+   });
+   assert(heavyArt.loaded,'heavy pulp stylesheet successfully loaded');
+   assert(heavyArt.headingShadow.includes('rgb(215, 71, 69)'), 'comic page header has offset red ink shadow');
+   assert(heavyArt.hqTexture.includes('repeating-linear-gradient'),'HQ blueprint line artwork rendered');
 
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
    await page.locator('.nav [data-a="view:roster"]').click();
@@ -103,10 +116,13 @@ const path=require('node:path');
    await page.evaluate(()=>{S.phase='hq';S.view='villains';startInv('cantor');render()});
    await page.locator('.inv-ui').waitFor();
    await assertStablePalette('Investigation',['body','.mast','.nav .btn','.inv-ui','.inv-header','.inv-main','.inv-intel-rail','.inv-action-stage']);
+   const boardTexture=await page.evaluate(()=>getComputedStyle(document.querySelector('.inv-main')).backgroundImage);
+   assert(boardTexture.includes('repeating-linear-gradient'),'Investigation corkboard texture rendered');
+   await page.screenshot({path:path.join(shots,size.name+'-investigation.png'),animations:'disabled'});
 
    await page.close();
   }
   assert.deepEqual(errors,[],'Browser script errors');
-  console.log('PASS: desktop and phone HQ, Roster, Villains and Combat layouts rendered; screenshots recorded.');
+  console.log('PASS: HQ, Roster, Villains, Combat and Investigation pulp art passes at mobile and desktop sizes; screenshots recorded.');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});
