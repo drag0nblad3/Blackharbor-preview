@@ -23,8 +23,11 @@ for(const key of names){
   assert(svg.includes(get('VILLAINS['+JSON.stringify(key)+'].name')+' portrait'));
   assert.match(svg,/<svg x="22" y="-4"/,'canonical figure is included');
   assert.match(svg,/<image href="villain-portraits\.avif"/,'approved illustrated asset overlays fallback');
-  assert(svg.includes('x="'+(-160*atlas[key][0])+'"'),'correct portrait sheet column');
-  assert(svg.includes('y="'+(-116*atlas[key][1])+'"'),'correct portrait sheet row');
+  const cropViewBox=(atlas[key][0]*176+3)+' '+(atlas[key][1]*148+3)+' 169 140';
+  assert.match(svg,/class="vportrait-crop"/,'each portrait has a dedicated clipping viewport');
+  assert(svg.includes('viewBox="'+cropViewBox+'"'),'portrait crops exact source-sheet tile for '+key);
+  assert.match(svg,/overflow="hidden"/,'neighboring portraits cannot bleed into crop');
+  assert.match(svg,/width="704" height="444"/,'sprite is positioned at original image dimensions');
   assert.match(svg,/<path/,'pulp portrait is illustrated');
   assert.doesNotMatch(svg,/url\(#eyeglow\)|url\(#hlface\)/,'SVG IDs are isolated');
   sample.push(svg);
