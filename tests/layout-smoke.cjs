@@ -13,6 +13,11 @@ const path=require('node:path');
    const page=await browser.newPage({viewport:{width:size.width,height:size.height},deviceScaleFactor:1});
    page.on('pageerror',e=>errors.push(size.name+': '+e.message));
    await page.goto('file://'+process.cwd()+'/index.html');
+   const painting=await page.evaluate(async ()=>{
+     const img=new Image();img.src='villain-portraits.avif';
+     await img.decode();return {width:img.naturalWidth,height:img.naturalHeight};
+   });
+   assert.deepEqual(painting,{width:704,height:444},'professionally illustrated sprite decodes in Chromium');
    assert.equal(await page.locator('link[href="pulp-details.css"]').count(),1,'pulp art layer is linked');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
