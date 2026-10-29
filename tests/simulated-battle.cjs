@@ -183,11 +183,11 @@ const assert=require('node:assert/strict');
     h.gear={arms:'blades',arms2:'blades'};
     const pairedBackstab=pairFx(h,GEAR.blades);
     h.gear={arms:'claws'};
-    const soloClawAcc=stat(h,'acc');
+    const soloClawAcc=stat(h,'acc'),soloClawStr=stat(h,'str'),soloClawSpeed=stat(h,'speed');
     h.gear.arms2='claws';
-    const pairedClawAcc=stat(h,'acc');
+    const pairedClawAcc=stat(h,'acc'),pairedClawStr=stat(h,'str'),pairedClawSpeed=stat(h,'speed');
     const pairedFrenzy=pairFx(h,GEAR.claws);
-    return {used,pairedGaunt,pairedBackstab,pairedClawAcc,soloClawAcc,pairedFrenzy};
+    return {used,pairedGaunt,pairedBackstab,pairedClawAcc,soloClawAcc,soloClawStr,pairedClawStr,soloClawSpeed,pairedClawSpeed,pairedFrenzy};
   });
   assert.deepEqual(diceBalance.used.map(({id,dice,str,acc,back,spentPower,spentArcana})=>
     ({id,dice,str,acc,back,spentPower,spentArcana})),[
@@ -201,8 +201,10 @@ const assert=require('node:assert/strict');
     ],'Seven abilities apply dice and penalty effects with unchanged activation costs');
   assert.deepEqual(diceBalance.pairedGaunt,{dice:1,acc:-2},'Pairing Coil Gauntlets does not restore Strength');
   assert.deepEqual(diceBalance.pairedBackstab,{back:2,str:-2},'Paired Umbral Blades retain their original extra flanking die');
-  assert.equal(diceBalance.pairedClawAcc,diceBalance.soloClawAcc-1,'Paired Graft Claws lose 1 passive Accuracy');
-  assert.deepEqual(diceBalance.pairedFrenzy,{back:3,acc:-3},'Paired Frenzy adds one flanking die');
+  assert.equal(diceBalance.pairedClawAcc,diceBalance.soloClawAcc-1,'Paired Graft Claws lose 1 Accuracy');
+  assert.equal(diceBalance.pairedClawStr,diceBalance.soloClawStr+2,'Paired Graft Claws add only the second claw\'s +2 Strength');
+  assert.equal(diceBalance.pairedClawSpeed,diceBalance.soloClawSpeed+1,'Paired Graft Claws give +1 attack die');
+  assert.deepEqual(diceBalance.pairedFrenzy,{back:2,acc:-3},'Pairing does not add an extra Frenzy flanking die');
   for(const item of diceBalance.used)assert.doesNotMatch(item.description,/\\+−|\\+-/,'Penalty display on '+item.id);
   assert.match(diceBalance.used.find(x=>x.id==='blades').description,/−2 Strength/,'Backstab Strength penalty visible');
   assert.match(diceBalance.used.find(x=>x.id==='lance').description,/−3 accuracy/,'Plasma Burst Accuracy penalty visible');
