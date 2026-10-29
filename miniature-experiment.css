@@ -1,0 +1,76 @@
+/*
+ * Blackharbor: New Character Art Experiment — PREVIEW ART LAB ONLY
+ * These four full-body, inked, cel-shaded SVGs are original hero designs,
+ * not cropped standees or a filter applied to the legacy artwork.
+ * All old artwork is retained and returns immediately when toggled off.
+ */
+.bh-new-miniatures .wrap.v-sd .board .tok.hst:is(
+ [data-hero="bulwark"],
+ [data-hero="volt"],
+ [data-hero="wisp"],
+ [data-hero="lynx"]
+) .st>.hs {
+  opacity:0 !important;
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst:is(
+ [data-hero="bulwark"],
+ [data-hero="volt"],
+ [data-hero="wisp"],
+ [data-hero="lynx"]
+) .st::after{
+  content:"";
+  position:absolute;
+  z-index:3;
+  pointer-events:none;
+  left:-29%;
+  bottom:-5%;
+  width:158%;
+  height:205%;
+  background-position:center bottom;
+  background-size:contain;
+  background-repeat:no-repeat;
+  filter:drop-shadow(0 3px 2px rgba(2,9,17,.75));
+  transform-origin:50% 86%;
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst[data-hero="bulwark"] .st::after {
+  background-image:url("miniature-bulwark.svg");
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst[data-hero="volt"] .st::after {
+  background-image:url("miniature-volt.svg");
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst[data-hero="wisp"] .st::after {
+  background-image:url("miniature-wisp.svg");
+  left:-41%;
+  width:177%;
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst[data-hero="lynx"] .st::after {
+  background-image:url("miniature-lynx.svg");
+  left:-38%;
+  width:172%;
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst.sel .st::after {
+  filter:
+    drop-shadow(0 0 3px #b6f9ff)
+    drop-shadow(0 0 5px #28bdea)
+    drop-shadow(0 3px 2px rgba(2,9,17,.75));
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst.done .st::after {
+  opacity:.7;
+  filter:grayscale(.45) drop-shadow(0 3px 1px rgba(0,0,0,.68));
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst.ko .st::after {
+  opacity:.42;filter:grayscale(.8);
+}
+.bh-new-miniatures .wrap.v-sd .board .tok.hst .st .gd,
+.bh-new-miniatures .wrap.v-sd .board .tok.hst .st .sh{
+  z-index:6;
+}
+@media(max-width:600px){
+ .bh-new-miniatures .wrap.v-sd .board .tok.hst .st::after{
+    height:186%;
+    bottom:-3%;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+ .bh-new-miniatures .wrap.v-sd .board .tok.hst .st::after{animation:none}
+}
