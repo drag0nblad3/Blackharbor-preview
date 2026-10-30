@@ -145,7 +145,7 @@ const assert=require('node:assert/strict');
   assert.deepEqual(gearBalance.values.owl,{maxHp:2,maxComp:1});
   assert.deepEqual(gearBalance.values.circuit,{maxComp:2});
   assert.deepEqual(gearBalance.values.compeyes,{acc:3,eva:1,maxComp:2});
-  assert.deepEqual(gearBalance.values.mutagen,{move:1,eva:1,maxHp:3});
+  assert.deepEqual(gearBalance.values.mutagen,{move:1,eva:1,maxHp:2});
   assert.deepEqual(gearBalance.values.reqs,[3,3]);
   assert.equal(gearBalance.values.tierTwoHas,false);
   assert.equal(gearBalance.values.midHas,true);
