@@ -483,9 +483,20 @@ const POW_ENG={arc:{d:'tech',c:2},patch:{d:'tech',c:3},barricade:{d:'tech',c:2},
   blur:{d:'magic',c:1},omen:{d:'magic',c:1},curse:{d:'magic',c:2},aegis:{d:'magic',c:2},drain:{d:'magic',c:2},serene:{d:'magic',c:1}};
 const powCost=(pw,short)=>{const e=POW_ENG[pw];return e.d==='innate'?(short?`REQ INN ${e.min}`:`requires Innate rank ${e.min}+ and uses your Innate ability for the round`):`${e.c} ${short?TRACKS[e.d].abbr:TRACKS[e.d].res}`};
 function powOk(u,h){const pw=BASE(h).power,e=POW_ENG[pw],P=POWERS[pw];if(!e||u.ko)return false;if(!P.free&&u.acted)return false;if(pw==='mark'&&u.markUsed)return false;
-  if(e.d!=='innate'&&(u.abUsed||[]).includes('pow'))return false;
-  if(e.d==='innate')return potOf(h)>=e.min&&innOk(u,h);return (u.res[e.d]||0)>=e.c}
-function payPow(u,h){const e=POW_ENG[BASE(h).power];if(!e)return;if(e.d!=='innate')(u.abUsed=u.abUsed||[]).push('pow');u.abRd=true;if(e.d==='innate'){if(u.innUsed)u.capUsed=true;u.innUsed=(u.innUsed||0)+1}else u.res[e.d]=Math.max(0,(u.res[e.d]||0)-e.c)}
+  if(e.d!=='innate'&&!bridgeOn(h,'paragon')&&(u.abUsed||[]).includes('pow'))return false;
+  if(e.d==='innate')return potOf(h)>=e.min&&innOk(u,h);return (u.res[e.d]||0)>=(e.d==='magic'?arcCost(u,h,e.c):e.c)}
+function payPow(u,h){const e=POW_ENG[BASE(h).power];if(!e)return;if(e.d!=='innate')(u.abUsed=u.abUsed||[]).push('pow');u.abRd=true;if(e.d==='magic'){payArc(u,h,e.c);return}if(e.d==='innate'){if(u.innUsed)u.capUsed=true;u.innUsed=(u.innUsed||0)+1}else u.res[e.d]=Math.max(0,(u.res[e.d]||0)-e.c)}
+/* Hybrid bridge perks: rank BRIDGE_RANK+ in every listed discipline */
+const BRIDGE_RANK=2;
+const BRIDGE={techno:{n:'Technomancer',need:['tech','magic'],txt:'Once per round, as a free action, trade 3 Power for 1 Arcana or 1 Arcana for 3 Power.'},
+  augment:{n:'Augmented',need:['tech','innate'],txt:'Once per round, when you take damage, gain that much Power (up to your max).'},
+  primal:{n:'Primal',need:['innate','magic'],txt:'Turn on Blood Price in a fight: each Magic ability or power then costs 1 less Arcana and 1 composure.'},
+  paragon:{n:'Paragon',need:['tech','innate','magic'],txt:'Your Tech and Magic abilities and powers have no once-per-round limit. You still pay their Power or Arcana each time.'}};
+const bridgeOn=(h,k)=>BRIDGE[k].need.every(t=>(h.ranks[t]||0)>=BRIDGE_RANK);
+const bridgesOf=h=>Object.keys(BRIDGE).filter(k=>bridgeOn(h,k));
+const bridgeTxt=k=>`${BRIDGE[k].n} (${BRIDGE[k].need.map(t=>TRACKS[t].name+' '+BRIDGE_RANK).join(', ')}): ${BRIDGE[k].txt}`;
+const arcCost=(u,h,c)=>u&&u.bloodPay&&c>0&&h.comp>=1&&bridgeOn(h,'primal')?c-1:c;
+function payArc(u,h,c){const n=arcCost(u,h,c);if(n<c){h.comp-=1;log('hero',`Blood Price: ${h.name} pays 1 composure to save 1 Arcana.`)}u.res.magic=Math.max(0,(u.res.magic||0)-n)}
 const engineTxt={tech:'+1 max Power',innate:'+1 Innate rank',magic:'+1 max Arcana'};
 function poolTxt(h){const o=[];if(pwrMax(h))o.push(`${pwrMax(h)} Power (+${pwrRegen(h)}/round)`);if(arcMax(h))o.push(`${arcMax(h)} Arcana (per fight)`);if(potOf(h))o.push(`Innate rank ${potOf(h)}${innUses(h)>1?' (+1 Innate ability once per fight)':''}`);return o.join(' · ')||'none'}
 const gainTxt=(h,t)=>{const c={...h,ranks:{...h.ranks,[t]:h.ranks[t]+1}},o=[],dp=pwrMax(c)-pwrMax(h),da=arcMax(c)-arcMax(h),dq=potOf(c)-potOf(h);if(dp)o.push(`+${dp} max Power`);if(da)o.push(`+${da} max Arcana`);if(dq)o.push(`+${dq} Innate rank`);return o.join(', ')};
@@ -1188,7 +1199,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
     :`<div class="slot"><span class="sl">${SLOTS[s]}</span><span class="muted">Empty</span></div>`}).join('');
   const efr=gearOK&&S.armory.length?eqFilter(h):null,avail=efr?efr.ks:[];
   const lvlUp=h.pendingUp>0?(!h.trackPick?`<div class="cap"><b>Level up!</b> Which discipline does ${esc(h.name)} grow into?</div>
-    <div class="grid2">${Object.entries(TRACKS).map(([t,d])=>{const n=h.ranks[t],mx=n>=RANK_MAX,nx=n+1,pk=nx===1&&t===b.track?'':perkTxt(t,nx),gn=gainTxt(h,t);return `<button class="btn opt t-${t}" data-a="track:${h.id}:${t}" data-tip="kw:${t}" style="border-color:var(--tc)" ${mx?'disabled':''}><span style="color:var(--tc)">${d.name} ${n} → ${mx?'mastered':nx}${nx===RANK_MAX?' · Capstone':''}</span><small>${mx?`Already at the rank ${RANK_MAX} cap.`:[pk&&`Capstone: ${pk}`,gn&&`Engine: ${gn}`,`Opens ${d.name} ${nx} gear`].filter(Boolean).join('. ')+'.'}</small></button>`}).join('')}</div>`
+    <div class="grid2">${Object.entries(TRACKS).map(([t,d])=>{const n=h.ranks[t],mx=n>=RANK_MAX,nx=n+1,pk=nx===1&&t===b.track?'':perkTxt(t,nx),gn=gainTxt(h,t),br=bridgesOf({...h,ranks:{...h.ranks,[t]:h.ranks[t]+1}}).filter(k=>!bridgeOn(h,k)).map(k=>BRIDGE[k].n).join(' and ');return `<button class="btn opt t-${t}" data-a="track:${h.id}:${t}" data-tip="kw:${t}" style="border-color:var(--tc)" ${mx?'disabled':''}><span style="color:var(--tc)">${d.name} ${n} → ${mx?'mastered':nx}${nx===RANK_MAX?' · Capstone':''}</span><small>${mx?`Already at the rank ${RANK_MAX} cap.`:[pk&&`Capstone: ${pk}`,gn&&`Engine: ${gn}`,br&&`Unlocks the ${br} bridge perk`,`Opens ${d.name} ${nx} gear`].filter(Boolean).join('. ')+'.'}</small></button>`}).join('')}</div>`
     :`<div class="cap"><b>${TRACKS[h.trackPick]?`${TRACKS[h.trackPick].name} rank gained.`:'Every discipline is mastered.'}</b> Now choose one upgrade:</div><div class="row">${h.upChoices.map(k=>`<button class="btn sm pri" data-a="up:${h.id}:${k}" data-tip="upg:${k}">${UPG[k].name}</button>`).join('')}</div>`):'';
   const SK={HP:'hp',MOV:'move',DICE:'speed',ACC:'acc',STR:'str',EVA:'eva',RNG:'range',COMP:'comp'},SI={HP:'hp',MOV:'move',DICE:'dice',ACC:'acc',STR:'str',EVA:'eva',RNG:'rng',COMP:'comp'};
   const st=[['HP',`${h.hp}/${mx}`],['MOV',stat(h,'move')],['DICE',stat(h,'speed')],['ACC',(stat(h,'acc')<0?'':'+')+stat(h,'acc')],['STR',(stat(h,'str')<0?'':'+')+stat(h,'str')],['EVA',stat(h,'eva')],['RNG',stat(h,'range')],['COMP',mc]];
@@ -1196,7 +1207,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
   ${atHQ&&where==='party'?`<div class="row"><button class="btn sm" data-a="bench:${h.id}">Move to bench</button></div>`:''}${atHQ&&where==='bench'?(party().length<4?`<div class="row"><button class="btn sm pri" data-a="join:${h.id}">Join the party</button></div>`:`<div class="row"><span class="eyebrow">Swap in for</span>${party().map(o=>`<button class="btn sm" data-a="swap:${h.id}:${o.id}">${esc(o.name)}</button>`).join('')}</div>`):''}
   <div class="small muted">${esc(b.role)}${h.name!==b.name?` · carries the ${esc(b.name)} mantle`:''}</div>${h.origin?`<div class="small muted" data-tip="kw:origin">Origin: ${esc(h.origin.join(' · '))}</div>`:''}
   <div class="row">${ranks}</div>
-  <div class="small muted" data-tip="kw:engines">Combat engines: ${res}</div>
+  <div class="small muted" data-tip="kw:engines">Combat engines: ${res}</div>${bridgesOf(h).map(k=>`<div class="small" data-tip="kw:bridge"><b>${BRIDGE[k].n}.</b> ${BRIDGE[k].txt}</div>`).join('')}
   <div class="bar" data-tip="kw:hp"><i style="width:${100*h.hp/mx}%"></i></div><div class="bar c" data-tip="kw:comp"><i style="width:${100*h.comp/mc}%"></i></div>
   <div class="stats ico">${st.map(([k,v])=>`<div class="stat" data-tip="kw:${SK[k]}" title="${k}" aria-label="${k} ${v}">${UI(SI[k])}<b>${v}</b></div>`).join('')}</div>
   <div class="small" data-tip="pow:${b.power}"><b>${p.name}.</b> ${p.txt}</div>
@@ -1958,6 +1969,7 @@ document.addEventListener('click',e=>{
     case 'combatClear':combatClear();return;
     case 'combatUse':combatUse();return;
     case 'ab':useAb(p1);break;
+    case 'bridge':bridgeAct(p1);break;
     case 'unpouch':{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))break;const p=pouchOf(h),g=p[+p2];if(g){p.splice(+p2,1);S.armory.push(g)}break}
     case 'book':openPlaybook(p1);return;
     case 'inv':startInv(p1);break;
