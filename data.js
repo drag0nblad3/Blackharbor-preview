@@ -337,7 +337,7 @@ const VILLAINS = {
   eclipse:{n:'Total Eclipse',t:'fade',amt:2,shakenDmg:1,sig:true,shout:'Lights out.',brk:'You lit up the whole room!'},
   mirror:{n:'Mirror Images',t:'reanimate',dupe:1},
   flurry:{n:'Blade Flurry',t:'multi',cnt:3,rng:2,dmg:2},
-  deathm:{n:'Death Mark',t:'charge',zone:'mark',follow:1,dmg:8,sig:true,shout:'Your name is on my list.',brk:'You burned her list of names!'}
+  deathm:{n:'Death Mark',t:'charge',zone:'hero',follow:1,dmg:8,sig:true,shout:'Your name is on my list.',brk:'You burned her list of names!'}
  },shape:'one'},
  swarm:{name:'Murmur',short:'Murmur',tag:'A living swarm',salvage:'Chitin',rstyle:'shot',eva:14,tough:11,acc:4,hench:{name:'Mite',rng:1,style:'slash'},base:['converge','sting','hum','brood','bite','cloud'],adv:['scatter','venom','regrow','hail','hivest','engulf'],cards:{
   converge:{n:'Converge',t:'converge',mv:4,dmg:2,sig:true,shout:'WE COME TOGETHER.',brk:'You broke the swarm\'s formation!'},

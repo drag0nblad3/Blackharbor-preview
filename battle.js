@@ -302,7 +302,7 @@ function reveal(o){if(FAST)return Promise.resolve();
 function villainCardView(c){const sd=S.sd,def=VILLAINS[sd.vkey];return {vk:sd.vkey,mode:'open',deck:`${def.name} · Playbook`,tag:`Round ${Math.max(1,sd.round)}`,sfx:TYPE_SFX[c.t]||'!',title:c.n,text:c.txt,
   sig:!!c.sig,rib:c.sig?'★ Signature Move ★':'',art:'vil',coverCls:c.sig?'vil sig':'vil',coverTop:c.sig?'★ Signature move! ★':'Villain turn',coverTitle:def.name,coverFoot:`Issue #${S.issue} · ${remainingPages(sd.v)} pages left`}}
 const ARCN={front:'front',flank:'side',rear:'rear'};const arcTxt=a=>a.map(x=>ARCN[x]).join(' and ')+(a.length>1?' arcs':' arc');
-function tacticCardView(tc,h,side,inArc,why){return {mode:'open',deck:tc.sig?`${VILLAINS[tc.sig].short} · Hit reaction`:'Hit deck',tag:h.name,sfx:tc.sig?tc.sfx:TAC_SFX[tc.id]||'!',title:tc.n,text:tc.txt,
+function tacticCardView(tc,h,side,inArc,why){return {mode:'open',deck:tc.sig?`${VILLAINS[tc.sig].short} · Hit reaction`:'Hit deck',tag:h.name,sfx:tc.sig?tc.sfx:TAC_SFX[tc.id]||'!',title:tc.n,text:tc.sig?rxTxt(tc,S.sd.v.level):tc.txt,
   rib:tc.sig?'Signature reaction':'',ribCls:'r',foot:[why||(tc.arc&&side?`${h.name} struck from the ${ARCN[side]} arc: ${inArc?'it triggers!':'wrong side, it does nothing.'}`:''),tc.sig&&tc.src?`Lost when ${VILLAINS[tc.sig].cards[tc.src].n} is torn from the playbook.`:''].filter(Boolean).join(' '),art:'tac',coverCls:'tac',coverTop:'Hit!',coverTitle:`${h.name} connects`,coverFoot:'Draw a hit card'}}
 async function woundAnim(foot,q){const sd=S.sd,v=sd.v,k=sd.vkey;if(!v.deck.length&&v.discard.length){v.deck=shuffle(v.discard);v.discard=[];log('sys','The playbook is reshuffled.')}
   if(v.excise&&v.deck.length>1&&woundTarget(v)!==v.planned){const top=v.deck.slice(0,v.excise);v.excise=0;top.forEach(c=>markSeen(k,c.id));
@@ -489,12 +489,19 @@ async function henchGrab(hm){const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd
   else{fxP(cv.x,cv.y,first?'GOTCHA!':'HELP!','vhit');log('vill',`A ${hn.toLowerCase()} holds a civilian hostage.`)}
   return true}
 async function wardBlocks(u){if(!u.ward)return false;u.ward=false;await A.shield(ctrU(u),COL.magic,true);fxU(u,'WARDED!','good');log('hero',`A ward turns the blow aside from ${heroOf(u).name}.`);render();return true}
+/* the page being played, so vHit can apply its upgrade riders (accUp, daze, knock); null outside execCard */
+let CUR_CARD=null;
+function dazeU(u,why){if(u.ko||u.dazed)return;u.dazed=true;fxU(u,'DAZED!','vhit');log('vill',`${why?why+': ':''}${heroOf(u).name} can't move next round.`)}
+async function knockU(u,n){const sd=S.sd,v=sd.v,h=heroOf(u);if(u.anchor){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`);return}
+  let k=0;for(let i=0;i<n;i++){const t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(b,v)-dV(a,v))[0];if(!t||dV(t,v)<=dV(u,v))break;u.x=t.x;u.y=t.y;k++}
+  if(k){log('vill',`${h.name} is knocked back ${k} hex${k>1?'es':''}.`);render();await sleep(FAST?0:200)}}
+async function upRiders(u,up){if(up.daze)dazeU(u,up.n);if(up.knock)await knockU(u,up.knock)}
 async function vHit(u,dmg,label,style){const h=heroOf(u);if(S.sd.v.cursed&&dmg>0)dmg=Math.max(1,dmg-2);faceTo(u);render();await strikeAnim(style,ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);
-  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const acc=vStat('acc'),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0)+avoidEva(u);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};const hit=r===20||(r!==1&&r+acc>=eva);
+  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const up=CUR_CARD||{},acc=vStat('acc')+(up.accUp||0),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0)+avoidEva(u);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};const hit=r===20||(r!==1&&r+acc>=eva);
   log('vill',`${label} at ${h.name}: rolled ${r}+${acc} vs evasion ${eva}. ${hit?`Hit for ${dmg}.`:'Miss.'}`);
   if(hit&&await wardBlocks(u))return false;
   if(hit&&u.reflect&&!S.sd.v.down){u.reflect=0;log('hero',`${h.name} turns the blow back: ${VILLAINS[S.sd.vkey].short} tears a page.`);await woundAnim(`${h.name}: reflected.`)}
-  fxU(u,hit?pick(SFX_VHIT):'SWISH!',hit?'vhit':'miss');if(hit)damageHero(u,dmg);render();if(!hit){if(style!=='none')await avoidRedirect(u,S.sd.v,dmg,label);await riposte(u)}return hit}
+  fxU(u,hit?pick(SFX_VHIT):'SWISH!',hit?'vhit':'miss');if(hit)damageHero(u,dmg);if(hit&&!u.ko)await upRiders(u,up);render();if(!hit){if(style!=='none')await avoidRedirect(u,S.sd.v,dmg,label);await riposte(u)}return hit}
 /* Version 117 (Tyler): a conditional target (weakest, farthest) is picked only among heroes the villain can reach this turn
    (within move + range, by hex distance). If nobody is in reach it goes for the nearest hero. */
 function pickTarget(mode,reach){const sd=S.sd;let L=live();if(!L.length)return null;
@@ -511,7 +518,8 @@ async function vMove(fn,crush=0,label=''){const sd=S.sd,v=sd.v,ox=v.x,oy=v.y,osw
     else if(sd.civs.includes(o)){if(crush)harmCiv(o,label||'the stampede');else fxP(o.x,o.y,'EEK!','miss')}}
   if(v.smashed&&v.smashed.length){const ks=v.smashed;delete v.smashed;await Promise.all(ks.map(k=>{const[x,y]=k.split(',').map(Number);return A.smoke(HC(x,y),3)}));fxV('KRASH!','vhit');log('vill',`${VILLAINS[sd.vkey].name} smashes straight through ${ks.length>1?ks.length+' hexes of walls and rubble':'a wall'}.`);render()}
   if(sh.length)render()}
-async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
+async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c)}finally{CUR_CARD=was}}
+async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
   if(await specialBossCard(c))return;
   switch(c.t){
     case 'strike':{let t=pickTarget(c.tgt,(VILLAINS[sd.vkey].rooted?0:c.mv||0)+(c.rng||1));if(!t)break;await vMove(()=>vToward(t,c.mv,c.rng),c.crush||0,c.n);
@@ -530,18 +538,19 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       log('vill',`${vn} dives underground and bursts up next to ${heroOf(t).name}, leaving rubble where he went down.`);await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
     case 'rampage':{const t=pickTarget('nearest');if(t)await vMove(()=>vToward(t,c.mv,1),c.crush||0,c.n);await sweep(1,dmgScale(c.dmg),c.n);break}
     case 'summon':{const added=[];for(let i=0;i<c.k;i++){const t=freeTiles().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(t){const m={id:'s'+Date.now()+i,owner:sd.vkey,x:t.x,y:t.y,hp:regularHenchHp(sd.vkey)};sd.hench.push(m);added.push(m)}}
-      fxV('GET THEM!','say');render();await Promise.all(added.map(m=>A.smoke(ctrU(m))));log('vill',`${added.length} ${VILLAINS[sd.vkey].hench.name.toLowerCase()}s arrive.`);break}
+      fxV('GET THEM!','say');render();await Promise.all(added.map(m=>A.smoke(ctrU(m))));log('vill',`${added.length} ${VILLAINS[sd.vkey].hench.name.toLowerCase()}s arrive.`);
+      if(c.rush&&added.length){log('vill','They attack as soon as they arrive.');const was=CUR_CARD;CUR_CARD=null;try{for(const m of added){if(sd.result)break;if(sd.hench.includes(m))await henchAct(m)}}finally{CUR_CARD=was}}break}
     case 'endanger':{const cv=sd.civs.slice().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(cv)faceTo(cv);
       const undermine=u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.comp);fxU(u,'RATTLED!','vhit');
         log('vill',`${c.n}: ${h.name} loses ${c.comp} Composure.`);render()};
-      if(!cv){const t=pickTarget('nearest');if(t){await vMove(()=>vToward(t,2,1));
+      if(!cv){const t=pickTarget('nearest');if(t){await vMove(()=>vToward(t,c.emv||2,1));
         if(dV(t,v)<=1){if(c.comp)undermine(t);else await vHit(t,dmgScale(2),c.n,'slash')}}break}
-      await vMove(()=>vToward(cv,2,1));const prot=live().find(u=>cheb(u,cv)<=1);
+      await vMove(()=>vToward(cv,c.emv||2,1));const prot=live().find(u=>cheb(u,cv)<=1);
       if(prot){A.lunge('h'+prot.hid,ctrU(cv));await strikeAnim(vStyle(c),ctrV(),ctrU(prot),COL.mag,'v'+S.sd.vi);
         if(c.comp){log('hero',`${heroOf(prot).name} shields a civilian but is rattled by ${vn}'s leverage.`);undermine(prot)}
         else{log('hero',`${heroOf(prot).name} shields a civilian and takes ${dmgScale(c.dmg||2)}.`);
-          if(!await wardBlocks(prot)){await A.shield(ctrU(prot),COL.yel);fxU(prot,'OOF!','vhit');damageHero(prot,dmgScale(c.dmg||2))}}}
-      else if(dV(cv,v)<=3){await strikeAnim(vStyle(c),ctrV(),ctrU(cv),COL.mag,'v'+S.sd.vi);harmCiv(cv,c.n)}
+          if(!await wardBlocks(prot)){await A.shield(ctrU(prot),COL.yel);fxU(prot,'OOF!','vhit');damageHero(prot,dmgScale(c.dmg||2));if(c.daze)dazeU(prot,c.n)}}}
+      else if(dV(cv,v)<=(c.ereach||3)){await strikeAnim(vStyle(c),ctrV(),ctrU(cv),COL.mag,'v'+S.sd.vi);harmCiv(cv,c.n)}
       else{log('vill',`${c.n} falls short. The civilian runs.`);fxP(cv.x,cv.y,'EEK!','miss')}break}
     case 'henchvolley':{
       let fired=0;
@@ -554,7 +563,8 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       break}
     case 'taunt':{await A.ring(ctrV(),COL.yel,c.r*2+2,{dashed:true,fill:false,count:3});
       const hit=live().filter(u=>dV(u,v)<=c.r);const lm=litMap(),ex=u=>(c.bombx&&(sd.bombs||[]).some(b=>cheb(bombP(b),u)<=1)?1:0)+(c.litx&&lm[u.x+','+u.y]?1:0);hit.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt-ex(u));fxU(u,'GRR!','miss')});
-      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);shakenSting(c,hit);break}
+      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);shakenSting(c,hit);
+      if(c.shakeDaze)hit.filter(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')).forEach(u=>dazeU(u,c.n));break}
     case 'vanish':{let best=null,bs=-1;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const s=Math.min(...live().map(u=>dV(u,{x,y})))+Math.random();if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),9);fxV('POOF!','miss');{const t=pickTarget('nearest');if(t)faceTo(t)}log('vill',`${vn} vanishes and reappears across the room.`);break}
     case 'multi':{const ts=live().filter(u=>dV(u,v)<=c.rng).sort((a,b)=>dV(a,v)-dV(b,v)).slice(0,c.cnt);
@@ -591,13 +601,13 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
         if(!ps.length){log('vill',`${c.n}: no ${VILLAINS[sd.vkey].hench.name.toLowerCase()}s left, so ${vn} fires himself.`);lines=[aimLine(v,near)];v.face=lines[0].d}
         else lines=ps.map(m=>aimLine(m,L.slice().sort((a,b)=>cheb(a,m)-cheb(b,m))[0]))}
       else if(c.pat==='sweep'){faceTo(near);const hit=new Set(),f=v.face;
-        for(let i=0;i<(c.cnt||4)&&!sd.result;i++){const d=(f+i)%6;v.face=d;render();await sleep(FAST?0:160);await fireBeams([{from:emitCell(v,d),d}],dmgScale(c.dmg),c.n,{hit,ttl:c.ttl})}break}
-      fxV('WHIRR!','say');render();await sleep(FAST?0:220);await fireBeams(lines,dmgScale(c.dmg),c.n,{ttl:c.ttl});break}
+        for(let i=0;i<(c.cnt||4)&&!sd.result;i++){const d=(f+i)%6;v.face=d;render();await sleep(FAST?0:160);await fireBeams([{from:emitCell(v,d),d}],dmgScale(c.dmg),c.n,{hit,ttl:c.ttl,daze:c.daze})}break}
+      fxV('WHIRR!','say');render();await sleep(FAST?0:220);await fireBeams(lines,dmgScale(c.dmg),c.n,{ttl:c.ttl,daze:c.daze});break}
     case 'charge':{if(sd.mimic&&!v.charge){log('vill',`Without Nocturne charging beside it, the double's ${c.n} fizzles.`);break}
-      if(sd.mimic&&v.charge){const t=pickTarget('nearest');if(!t)break;const add=hexesWithin(t,1).filter(p=>inB(p.x,p.y)&&!inV(v,p.x,p.y)).map(p=>p.x+','+p.y);
+      if(sd.mimic&&v.charge){const t=pickTarget('nearest');if(!t)break;const add=hexesWithin(t,v.charge.tr??1).filter(p=>inB(p.x,p.y)&&!inV(v,p.x,p.y)).map(p=>p.x+','+p.y);
         v.charge.zone=[...new Set([...v.charge.zone,...add])];if(v.charge.track&&!v.charge.track.includes(t.hid))v.charge.track.push(t.hid);log('vill',`The double marks ${heroOf(t).name} for ${c.n} too.`);render();break}
-      const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};
-      if(c.follow&&c.zone==='mark')sd.v.charge.track=live().slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp).slice(0,2).map(u=>u.hid);render();
+      const z=chargeZone(c.zone,c);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v),...(c.daze?{daze:1}:{}),...(c.zone==='hero'?{tr:0}:c.zr?{tr:1+c.zr}:{})};
+      if(c.follow)sd.v.charge.track=live().slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp).slice(0,c.zone==='hero'?1+(c.zr||0):2).map(u=>u.hid);render();
       await A.ring(ctrV(),COL.yel,4,{inward:true,count:3});fxV('CHARGING…','say');log('vill',`${vn} begins charging ${c.n}! ${z.length} hexes are marked. Tear ${chargeNeed(v)} pages or get clear before it fires.`);break}
     case 'reanimate':{await A.ring(ctrV(),COL.mag,3,{inward:true,count:2});let n=0;for(let i=0;i<(c.heal||1)&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('ZZZAP!','vhit');log('vill',`${vn} recovers ${n} torn page${n>1?'s':''}.`)}else log('vill',`${vn} has nothing to recover.`);if(c.dupe&&!sd.mimic){const s=doubleSpot(v,5);if(s)leaveDupe(v,s.p)}break}
     case 'swallow':{const hn=VILLAINS[sd.vkey].hench.name.toLowerCase(),byC=(a,b)=>cheb(a,v)-cheb(b,v);let ate=0;
@@ -626,13 +636,13 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       if(!ts.length)log('vill',`${c.n}: nobody is close enough to throw.`);
       for(const u of ts){let n=0,slam=false;for(let i=0;i<c.mv;i++){const t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(b,v)-dV(a,v))[0];if(!t||dV(t,v)<=dV(u,v)){slam=true;break}u.x=t.x;u.y=t.y;n++}
         render();await sleep(FAST?0:180);const hn=heroOf(u).name;
-        if(slam){if(await wardBlocks(u))continue;fxU(u,'SLAM!','vhit');damageHero(u,dm);log('vill',`${hn} is flung ${n} hex${n===1?'':'es'} and slams into something for ${dm}.`)}
+        if(slam){if(await wardBlocks(u))continue;fxU(u,'SLAM!','vhit');damageHero(u,dm);log('vill',`${hn} is flung ${n} hex${n===1?'':'es'} and slams into something for ${dm}.`);if(c.daze)dazeU(u)}
         else{fxU(u,'WHOOSH!','miss');log('vill',`${hn} is flung ${n} hexes away.`)}}
       render();break}
     case 'fade':{const L=live(),from={x:v.x,y:v.y};let best=null,bs=-1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const d=L.length?Math.min(...L.map(u=>cheb(u,{x,y}))):3,s=-Math.abs(d-3)+Math.random()*.9;if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}v.face=rnd(6)-1;v.hide=true;if(c.evaUp&&!sd.mimic){v.fadeEva=c.evaUp;log('vill',`${vn} is hard to pin down: +${c.evaUp} evasion until her next action.`)}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),6);
       if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} composure.`);shakenSting(c,L)}
-      fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);jumpDupe(v,from);render();break}
+      fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);jumpDupe(v,from);if(c.twin&&!sd.mimic){const s2=doubleSpot(v,5);if(s2)leaveDupe(v,s2.p)}render();break}
     case 'converge':{const t=pickTarget('nearest');if(!t)break;if(!v.sw){await vMove(()=>vToward(t,c.mv,1));if(dV(t,v)<=1)await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
       const os=JSON.stringify([v.x,v.y,v.sw]);swBodies(v).forEach(b=>swStep(v,b.i,t,c.mv,1,-1));faceTo(t);if(JSON.stringify([v.x,v.y,v.sw])!==os){render();await sleep(FAST?0:420)}
       const adj=swBodies(v).filter(b=>cheb(b,t)===1).length;
@@ -644,25 +654,25 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
         if(sp){swSet(v,b.i,sp.x,sp.y,dirC(HC(sp.x,sp.y),HC(t.x,t.y)));noFlip.add(`v${sd.vi}s${b.i}`);pairs.push([b.i,t])}});
       noFlip.add('v'+sd.vi);render();fxV('BZZZT!','say');log('vill',`${vn} bursts into ${pairs.length} pieces that land beside the heroes.`);
       for(const [i,t] of pairs){if(sd.result||t.ko)continue;const b=swBodies(v)[i];if(!b||cheb(b,t)>1)continue;await vHit(t,dmgScale(c.dmg),`${c.n} (${SWN[b.k]})`,'slash')}break}
-    case 'puppet':{const L=live();if(!L.length)break;const u=L.sort((a,b)=>heroOf(a).comp-heroOf(b).comp)[0],h=heroOf(u);
+    case 'puppet':{const L=live();if(!L.length)break;for(const u of L.sort((a,b)=>heroOf(a).comp-heroOf(b).comp).slice(0,c.tgts||1)){const h=heroOf(u);
       await Promise.all([A.bolt(ctrV(),ctrU(u),COL.magic,true),A.bolt(ctrV(),ctrU(u),COL.magic,true)]);h.comp=Math.max(0,h.comp-(c.amt||1));u.dazed=true;fxU(u,'?!','vhit');
       log('vill',`${h.name}'s limbs stop obeying. They can't move next round.`);
       if(c.pull){if(u.anchor)log('hero',`${h.name} is anchored and isn't dragged.`);else{let n=0;for(let i=0;i<c.pull;i++){const t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(a,v)-dV(b,v))[0];if(!t||dV(t,v)>=dV(u,v))break;u.x=t.x;u.y=t.y;n++}
-        if(n){fxU(u,'DRAGGED!','vhit');log('vill',`${h.name} walks ${n} hex${n>1?'es':''} toward ${vn} against their will.`);render();await sleep(FAST?0:320)}}}
+        if(n){fxU(u,'DRAGGED!','vhit');log('vill',`${h.name} walks ${n} hex${n>1?'es':''} toward ${vn} against their will.`);render();await sleep(FAST?0:320)}}}}
       break}
     case 'leap':{let n=0;const done=[];
       for(let i=0;i<(c.cnt||1)&&!sd.result;i++){const L=live().filter(u=>!done.includes(u)&&dV(u,v)<=c.mv).sort((a,b)=>dV(a,v)-dV(b,v));let t=null,sp=null;
         for(const u of L){const s=leapSpot(u);if(s){t=u;sp=s;break}}
-        if(!t)break;done.push(t);const lit=c.fuse&&dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1);await vLeap(t,sp);n++;
+        if(!t)break;done.push(t);const lit=c.fuse&&dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1,c.daze);await vLeap(t,sp);n++;
         if(lit)fxU(t,'TSSS!','vhit');log('vill',`${vn} vaults over ${heroOf(t).name}${lit?' and leaves a lit bomb at their feet':''}.`);render()}
       if(!n){const t=pickTarget('nearest');if(!t)break;log('vill',`Nobody close enough has open ground behind them, so ${vn} bounds toward ${heroOf(t).name}.`);await vMove(()=>vToward(t,c.mv,1));
-        if(c.fuse&&dV(t,v)<=3){await A.throw(ctrV(),ctrU(t),'bomb');if(dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1)){fxU(t,'TSSS!','vhit');log('vill',`She tosses the bomb at ${heroOf(t).name} instead.`)}}else fxV('TCH!','say')}
+        if(c.fuse&&dV(t,v)<=3){await A.throw(ctrV(),ctrU(t),'bomb');if(dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1,c.daze)){fxU(t,'TSSS!','vhit');log('vill',`She tosses the bomb at ${heroOf(t).name} instead.`)}}else fxV('TCH!','say')}
       render();break}
     case 'bomb':{const inR=()=>{const L=live().filter(u=>dV(u,v)<=c.rng).sort((a,b)=>dV(a,v)-dV(b,v));return c.tgt==='farthest'?L.reverse():L};let ts=inR();
       if(!ts.length){const t=pickTarget('nearest');if(t)await vMove(()=>vToward(t,2,c.rng));ts=inR()}
       ts=ts.slice(0,c.cnt||1);if(!ts.length){log('vill',`${c.n}: nobody in range to throw at.`);fxV('TCH!','say');break}
       faceTo(ts[0]);render();const got=[];
-      for(const t of ts){await A.throw(ctrV(),ctrU(t),'bomb');if(dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1)){got.push(t);fxU(t,'TSSS!','vhit')}render()}
+      for(const t of ts){await A.throw(ctrV(),ctrU(t),'bomb');if(dropBomb(t.x,t.y,c.fuse,dmgScale(c.dmg),c.radius||1,c.daze)){got.push(t);fxU(t,'TSSS!','vhit')}render()}
       log('vill',got.length?`${c.n}: ${got.length>1?`${got.length} lit bombs land`:'a lit bomb lands'} at ${got.map(t=>heroOf(t).name).join(' and ')}'s feet. 1 villain turn to get clear. Blast covers ${1+3*(c.radius||1)*((c.radius||1)+1)} hexes.`:`${c.n}: she is out of bombs, ${BOMB_MAX} are already lit.`);break}
     case 'swapbomb':{
        // Switch with an allied henchman and leave a normal seven-hex bomb.
@@ -675,13 +685,13 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
        const to={x:chosen.x,y:chosen.y};
        await A.smoke(ctrV(),4);vPut(v,to.x,to.y);chosen.x=from.x;chosen.y=from.y;
        noFlip.add('v'+sd.vi);
-       dropBomb(from.x,from.y,1,dmgScale(c.dmg),1);
+       dropBomb(from.x,from.y,1,dmgScale(c.dmg),c.radius||1,c.daze);
        render();await A.smoke(ctrV(),4);fxV('SWITCH!','say');
-       log('vill',`${vn} swaps places with ${hName(chosen)} and leaves a seven-hex bomb at her old position. It detonates next villain turn.`);
+       log('vill',`${vn} swaps places with ${hName(chosen)} and leaves a ${(c.radius||1)>1?'19':'seven'}-hex bomb at her old position. It detonates next villain turn.`);
        break}
      case 'airburst':{const m=N>>1,sp=hexesWithin({x:m,y:m},2).sort((a,b)=>cheb(a,{x:m,y:m})-cheb(b,{x:m,y:m})).find(p=>(p.x===v.x&&p.y===v.y)||vFits(p.x,p.y,true));
       if(sp&&(sp.x!==v.x||sp.y!==v.y)){fxV('BOING!','say');vPut(v,sp.x,sp.y);render();await sleep(FAST?0:RM?60:360)}
-      {const t=pickTarget('nearest');if(t)faceTo(t)}const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};render();
+      {const t=pickTarget('nearest');if(t)faceTo(t)}const z=chargeZone(c.zone,c);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v),...(c.daze?{daze:1}:{})};render();
       await A.ring(ctrV(),COL.yel,4,{inward:true,count:3});fxV('CHARGING…','say');log('vill',`${vn} lands in the middle of the room and starts the countdown on ${c.n}. ${z.length} hexes are marked. Tear ${chargeNeed(v)} pages or get clear before it fires.`);break}
   }}
 /* Payload leaps clear over a hero, past anything in between, onto the hex straight behind them or one of the two beside it */
@@ -914,7 +924,7 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
   finishIssue(L,{hunted:sd.vkey,headline,vkey:sd.vkey})}
 
 
-function chargeZone(z){const sd=S.sd,v=sd.v,L=live().slice().sort((a,b)=>dV(a,v)-dV(b,v)),ks=new Set();
+function chargeZone(z,c={}){const sd=S.sd,v=sd.v,zr=c.zr||0,L=live().slice().sort((a,b)=>dV(a,v)-dV(b,v)),ks=new Set();
   const box=(t,r=1)=>hexesWithin(t,r).forEach(p=>{if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(p.x+','+p.y)});
   const hurt=()=>L.slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp);
   if(z==='blast'&&L[0]){box(L[0],2);faceTo(L[0])}
@@ -924,7 +934,11 @@ function chargeZone(z){const sd=S.sd,v=sd.v,L=live().slice().sort((a,b)=>dV(a,v)
     for(let k=-2*N;k<=2*N;k++){const p=off(A.q+AXD[d][0]*k,A.r+AXD[d][1]*k);if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(p.x+','+p.y)}})}
   if(z==='focus'&&L.length){const t=hurt()[0];faceTo(t);box(t);
     for(let d=0;d<6;d++){let p=t;for(let g=0;g<2*N;g++){p=step(p,d);const k=p.x+','+p.y;if(!inB(p.x,p.y)||sd.obs.includes(k)||(sd.walls||[]).some(w=>w.k===k)||inV(v,p.x,p.y))break;ks.add(k)}}}
-  if(z==='nova')for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!inV(v,x,y)&&dV({x,y},v)<=3)ks.add(x+','+y);
+  if(z==='nova')for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!inV(v,x,y)&&dV({x,y},v)<=3+zr)ks.add(x+','+y);
+  /* Death Mark: only the marked heroes' own hexes, 1 more hero per upgrade ring */
+  if(z==='hero'&&L.length){const ts=hurt().slice(0,1+zr);ts.forEach(t=>ks.add(t.x+','+t.y));faceTo(ts[0]);v.hide=false}
+  /* upgrade rings widen the other zones */
+  if(zr&&z!=='nova'&&z!=='hero')for(let i=0;i<zr;i++)[...ks].forEach(k=>{const[x,y]=k.split(',').map(Number);hexesWithin({x,y},1).forEach(p=>{if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(p.x+','+p.y)})});
   return [...ks]}
 async function hazardTick(){const sd=S.sd;if(!sd.haz.length)return;
   for(const u of live().filter(u=>sd.haz.some(h=>h.k===u.x+','+u.y))){const hz=sd.haz.find(h=>h.k===u.x+','+u.y);
@@ -936,16 +950,16 @@ async function hazardTick(){const sd=S.sd;if(!sd.haz.length)return;
 const BOMB_MAX=4;
 const bombP=b=>{const[x,y]=b.k.split(',').map(Number);return {x,y}};
 const bombRadius=b=>Math.max(1,Math.min(2,b.radius||1));
-function dropBomb(x,y,fuse,dmg,radius=1){const sd=S.sd,k=x+','+y;sd.bombs=sd.bombs||[];const e=sd.bombs.find(b=>b.k===k);
+function dropBomb(x,y,fuse,dmg,radius=1,daze){const sd=S.sd,k=x+','+y;sd.bombs=sd.bombs||[];const e=sd.bombs.find(b=>b.k===k);
   // Always one-round fuses, including legacy callers and loaded saves.
-  if(e){e.fuse=1;e.dmg=Math.max(e.dmg,dmg);e.radius=Math.max(bombRadius(e),radius);return true}
-  if(sd.bombs.length>=BOMB_MAX)return false;sd.bombs.push({k,fuse:1,dmg,o:sd.vkey,radius});return true}
+  if(e){e.fuse=1;e.dmg=Math.max(e.dmg,dmg);e.radius=Math.max(bombRadius(e),radius);if(daze)e.daze=1;return true}
+  if(sd.bombs.length>=BOMB_MAX)return false;sd.bombs.push({k,fuse:1,dmg,o:sd.vkey,radius,...(daze?{daze:1}:{})});return true}
 async function blowBombs(list,bonus=0){const sd=S.sd;
   for(const b of list){if(sd.result)break;sd.bombs=sd.bombs.filter(o=>o!==b);const p=bombP(b),radius=bombRadius(b),inZ=q=>cheb(q,p)<=radius,sap=sd.hench.some(m=>m.owner===b.o&&!m.elite&&cheb(m,p)<=1)?1:0,dm=b.dmg+bonus+sap;
     render();await A.ring(HC(p.x,p.y),COL.yel,2*radius+1.4,{count:2});fxP(p.x,p.y,pick(['KA-BOOM!','BLAM!','KRAKOOM!']),'vhit');
     if(sap)log('vill','A Sapper packed that bomb: +1 damage.');
     const hd=dm,hs=live().filter(inZ),hm=sd.hench.filter(m=>m.owner!=='bomber'&&inZ(m));
-    for(const u of hs){if(await wardBlocks(u))continue;fxU(u,'OOF!','vhit');damageHero(u,hd);log('vill',`A bomb goes off on ${heroOf(u).name} for ${hd}.`)}
+    for(const u of hs){if(await wardBlocks(u))continue;fxU(u,'OOF!','vhit');damageHero(u,hd);log('vill',`A bomb goes off on ${heroOf(u).name} for ${hd}.`);if(b.daze)dazeU(u)}
     sd.civs.filter(inZ).forEach(c=>harmCiv(c,'a bomb'));termHit(inZ,'A bomb');
     hm.forEach(m=>{m.hp-=dm;m.hurtAt=Date.now()});const dead=hm.filter(m=>m.hp<=0);if(dead.length){sd.hench=sd.hench.filter(m=>m.hp>0);log('vill',`The blast takes out ${dead.length} of the villain's own henchm${dead.length>1?'en':'an'}.`)}
     if(!hs.length&&!hm.length)log('vill','A bomb goes off, but nobody is close enough to get hurt.');
@@ -995,7 +1009,7 @@ async function fireBeams(lines,dmg,label,o={}){const sd=S.sd,v=sd.v,hitSet=o.hit
   for(const e of hits){const u=e.r.hit,h=heroOf(u);if(u.ko||sd.result)continue;if(await wardBlocks(u))continue;
     fxU(u,'ZZARK!','vhit');damageHero(u,dm);let n=0;
     if(!u.ko){if(u.anchor)fxU(u,'ANCHORED!','good');else for(let i=0;i<dm;i++){const t=step(u,e.L.d);if(!inB(t.x,t.y)||blocked(t.x,t.y,{self:u}))break;u.x=t.x;u.y=t.y;n++}}
-    log('vill',`${label} hits ${h.name} for ${dm}${n?` and knocks them back ${n} hex${n>1?'es':''}`:u.anchor?'. They are anchored and hold firm':''}.`);render();await sleep(FAST?0:220)}
+    if(o.daze)dazeU(u);log('vill',`${label} hits ${h.name} for ${dm}${n?` and knocks them back ${n} hex${n>1?'es':''}`:u.anchor?'. They are anchored and hold firm':''}.`);render();await sleep(FAST?0:220)}
   const nk=new Set(lit.flatMap(e=>e.r.ks)).size;
   log('vill',hits.length||civs.length?`${nk} hexes stay lit until ${VILLAINS[sd.vkey].short}'s next turn.`:`${label}: ${lit.length} beam${lit.length===1?'':'s'} light up ${nk} hexes, but nobody is caught.`);
   checkLoss();return hits.map(e=>e.r.hit)}
@@ -1007,7 +1021,7 @@ async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null
   await Promise.all([A.bolt(ctrV(),cells[Math.floor(cells.length/2)],COL.yel),...cells.map((p,i)=>sleep(i*22).then(()=>A.ring(p,COL.yel,1.4)))]);
   sd.firing=null;const inZ=p=>ch.zone.includes(p.x+','+p.y);
   const hit=live().filter(inZ);
-  const cd=ch.dmg>0&&v.cursed?Math.max(1,ch.dmg-2):ch.dmg;for(const u of hit){if(await wardBlocks(u))continue;fxU(u,pick(['FWOOOM!','KRAKOOM!']),'vhit');damageHero(u,cd);log('vill',`${ch.n} scorches ${heroOf(u).name} for ${ch.dmg}.`)}
+  const cd=ch.dmg>0&&v.cursed?Math.max(1,ch.dmg-2):ch.dmg;for(const u of hit){if(await wardBlocks(u))continue;fxU(u,pick(['FWOOOM!','KRAKOOM!']),'vhit');damageHero(u,cd);log('vill',`${ch.n} scorches ${heroOf(u).name} for ${ch.dmg}.`);if(ch.daze)dazeU(u)}
   sd.civs.filter(inZ).forEach(c=>harmCiv(c,ch.n));termHit(inZ,ch.n);
   if(!hit.length)log('vill',`${ch.n} fires, but everyone got clear!`);render()}
 

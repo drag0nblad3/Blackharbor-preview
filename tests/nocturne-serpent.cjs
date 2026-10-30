@@ -50,9 +50,12 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.heroes[1].comp=1');await play('eclipse');assert.equal(get('S.heroes[1].hp'),49);assert.equal(get('S.heroes[0].hp'),50);
  // Death Mark follows its targets.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=2;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=7});S.heroes[0].hp=10;S.heroes[1].hp=20');await play('deathm');
- assert.deepEqual(get('S.sd.v.charge.track'),get('[S.sd.units[0].hid,S.sd.units[1].hid]'));
- run('S.sd.units[0].x=8;S.sd.units[0].y=0;bossObserve()');assert(get('S.sd.v.charge.zone.includes("8,0")'));assert(!get('S.sd.v.charge.zone.includes("1,7")'));
- await run('fireCharge()');assert(get('S.heroes[0].hp<10'));
+ // Tyler (2026-10-30): no area. It marks only the most injured hero's own hex; Death Mark II marks two heroes.
+ assert.deepEqual(get('S.sd.v.charge.track'),get('[S.sd.units[0].hid]'));assert.deepEqual(get('S.sd.v.charge.zone'),['1,7']);
+ run('S.sd.units[0].x=8;S.sd.units[0].y=0;bossObserve()');assert.deepEqual(get('S.sd.v.charge.zone'),['8,0']);
+ run('S.sd.units[1].x=8;S.sd.units[1].y=1');await run('fireCharge()');assert(get('S.heroes[0].hp<10'));assert.equal(get('S.heroes[1].hp'),20);
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=2;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=7});S.heroes[0].hp=10;S.heroes[1].hp=20');await run("execCard(buildCard('noct',{id:'deathm',mk:1},2))");
+ assert.deepEqual(get('S.sd.v.charge.track'),get('[S.sd.units[0].hid,S.sd.units[1].hid]'));assert.deepEqual(get('S.sd.v.charge.zone.slice().sort()'),['1,7','3,7']);
  // Ouroboros: civilians first, then heroes, then the weakest cultist.
  setup('serpent');assert.equal(get('VILLAINS.serpent.eva'),12);
  run(`S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8});S.sd.civs=[{x:S.sd.v.x,y:Math.min(8,S.sd.v.y+2),f:null}];S.sd.hench=[{id:'c1',owner:'serpent',x:S.sd.v.x+1,y:S.sd.v.y,hp:3},{id:'c2',owner:'serpent',x:S.sd.v.x-1,y:S.sd.v.y,hp:1}]`);
@@ -70,5 +73,5 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Shaken is -3 Strength/accuracy/evasion, and ending a fight at 0 composure no longer leaves Rattled.
  setup('noct');run('S.heroes[0].comp=0');assert.equal(get("stat(S.heroes[0],'acc')+3"),get("(S.heroes[0].comp=1,stat(S.heroes[0],'acc'))"));
  run("S.heroes[0].comp=0;S.sd.result='win';debrief()");assert(!get("S.heroes[0].injuries.includes('rattled')"));
- console.log('PASS: Nocturne shadow doubles, Shadow Double, least-composure knives, Shaken damage, tracking Death Mark; Ouroboros prey order, puppet pull and Evasion 12.');
+ console.log('PASS: Nocturne shadow doubles, Shadow Double, least-composure knives, Shaken damage, single-target tracking Death Mark; Ouroboros prey order, puppet pull and Evasion 12.');
 })().catch(e=>{console.error(e);process.exit(1)});

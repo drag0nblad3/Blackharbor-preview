@@ -5,7 +5,7 @@ function bossObserve(){
   const sd=S.sd;if(S.phase!=='sd'||!sd||sd.result)return;
   for(const {v} of sd.vl){
     if(v.down){delete v.circuit;delete v.shadowMark;delete v.setup;delete v.solarHeat;continue}
-    if(v.charge&&v.charge.track){const ks=new Set();for(const id of v.charge.track){const u=sd.units.find(o=>o.hid===id&&!o.ko);if(u)hexesWithin(u,1).forEach(p=>{if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(bossKey(p))})}v.charge.zone=[...ks]}
+    if(v.charge&&v.charge.track){const ks=new Set();for(const id of v.charge.track){const u=sd.units.find(o=>o.hid===id&&!o.ko);if(u)hexesWithin(u,v.charge.tr??1).forEach(p=>{if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(bossKey(p))})}v.charge.zone=[...ks]}
     if(v.circuit){const [a,b]=v.circuit.map(id=>sd.units.find(u=>u.hid===id));if(!a||!b||a.ko||b.ko||cheb(a,b)>=4){delete v.circuit;log('hero','Closed Circuit breaks.')}}
     const m=v.shadowMark;if(m){const u=sd.units.find(u=>u.hid===m.hid);if(!u||u.ko){delete v.shadowMark;continue}
       if(u.x!==m.x||u.y!==m.y){delete v.shadowMark;
