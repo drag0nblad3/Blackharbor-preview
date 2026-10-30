@@ -335,7 +335,7 @@ const VILLAINS = {
   spot:{n:'Spotlight',t:'charge',zone:'mark',dmg:6,sig:true,shout:'There you are…',brk:'You smashed her spotlight!'},
   garrote:{n:'Garrote',t:'strike',tgt:'lowcomp',mv:5,rng:1,dmg:4},
   eclipse:{n:'Total Eclipse',t:'fade',amt:2,shakenDmg:1,sig:true,shout:'Lights out.',brk:'You lit up the whole room!'},
-  mirror:{n:'Mirror Images',t:'reanimate'},
+  mirror:{n:'Mirror Images',t:'reanimate',dupe:1},
   flurry:{n:'Blade Flurry',t:'multi',cnt:3,rng:2,dmg:2},
   deathm:{n:'Death Mark',t:'charge',zone:'mark',follow:1,dmg:8,sig:true,shout:'Your name is on my list.',brk:'You burned her list of names!'}
  },shape:'one'},
@@ -619,7 +619,7 @@ const EXTRA_PAGES={
  helios:{sunspot:{n:'Solar Debt',t:'solar'},dawn:{n:'Dawn Sweep',t:'multi',cnt:3,rng:3,dmg:2}},
  serpent:{mesmer:{n:'Mesmerizing Sway',t:'puppet',amt:1,pull:2},lashout:{n:'Wide Coils',t:'sweep',r:2,dmg:2}},
  lode:{scrapfall:{n:'Scrap Satellites',t:'satellites'},magpulse:{n:'Magnetic Pulse',t:'repel',r:2,mv:2,dmg:2}},
- noct:{decoy:{n:'Stolen Shadow',t:'shadow'},double:{n:'Shadow Double',t:'double',rng:5,dmg:3},terror:{n:'Isolated Prey',t:'strike',tgt:'farthest',mv:3,rng:1,dmg:3}},
+ noct:{decoy:{n:'Stolen Shadow',t:'shadow',knife:1,comp:1,rng:4},double:{n:'Shadow Double',t:'double',rng:5,dmg:3},terror:{n:'Isolated Prey',t:'strike',tgt:'farthest',mv:3,rng:1,dmg:3}},
  swarm:{needle:{n:'Borrowed Bodies',t:'borrow'},gather:{n:'Gather the Brood',t:'converge',mv:3,dmg:2}},
  bomber:{satchel:{n:'Satchel Toss',t:'bomb',tgt:'nearest',cnt:1,rng:3,fuse:1,dmg:4},spring:{n:'Springboard',t:'leap',cnt:1,mv:6,fuse:1,dmg:2}},
  grid:{cross:{n:'Cross Traffic',t:'beam',pat:'fan',dmg:2,ttl:2},sidelight:{n:'Side Lights',t:'beam',pat:'aim',tgt:'farthest',cnt:2,dmg:2}}

@@ -19,6 +19,10 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Shadow Double appears beside the least composed hero in range and strikes.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.heroes[2].comp=1');await play('double');
  assert(get('S.sd.hench.some(m=>m.dupe&&cheb(m,S.sd.units[2])===1)'));assert.equal(logs(new RegExp('Shadow Double at '+get('S.heroes[2].name'))),1);
+ // Mirror Images leaves a double; Stolen Shadow throws a knife and costs composure.
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.sd.v.wounds=[S.sd.v.deck.pop()]');await play('mirror');assert.equal(get('S.sd.hench.filter(m=>m.dupe).length'),1);
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6})');await play('decoy');assert(get('!!S.sd.v.shadowMark'));
+ assert.equal(logs(/Stolen Shadow at/),1);assert.equal(get('S.heroes.filter(h=>h.comp===9).length'),1);
  // Knife in the Dark targets the lowest composure in reach.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=2+i;u.y=6});S.heroes[3].comp=2');
  assert.equal(get('pickTarget(S.sd.vl[0].v&&"lowcomp",9).hid'),get('S.sd.units[3].hid'));

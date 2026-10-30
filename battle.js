@@ -594,7 +594,7 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
     case 'charge':{const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};
       if(c.follow&&c.zone==='mark')sd.v.charge.track=live().slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp).slice(0,2).map(u=>u.hid);render();
       await A.ring(ctrV(),COL.yel,4,{inward:true,count:3});fxV('CHARGING…','say');log('vill',`${vn} begins charging ${c.n}! ${z.length} hexes are marked. Tear ${chargeNeed(v)} pages or get clear before it fires.`);break}
-    case 'reanimate':{await A.ring(ctrV(),COL.mag,3,{inward:true,count:2});let n=0;for(let i=0;i<(c.heal||1)&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('ZZZAP!','vhit');log('vill',`${vn} recovers ${n} torn page${n>1?'s':''}.`)}else log('vill',`${vn} has nothing to recover.`);break}
+    case 'reanimate':{await A.ring(ctrV(),COL.mag,3,{inward:true,count:2});let n=0;for(let i=0;i<(c.heal||1)&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('ZZZAP!','vhit');log('vill',`${vn} recovers ${n} torn page${n>1?'s':''}.`)}else log('vill',`${vn} has nothing to recover.`);if(c.dupe&&!sd.mimic){const s=doubleSpot(v,5);if(s)leaveDupe(v,s.p)}break}
     case 'swallow':{const hn=VILLAINS[sd.vkey].hench.name.toLowerCase(),byC=(a,b)=>cheb(a,v)-cheb(b,v);let ate=0;
       /* Tyler (2026-10-30): prey in reach in this order: civilians, heroes, then the weakest regular henchmen. Nothing in reach: chase a civilian, else the nearest hero. */
       const prey=n=>{const R=(n?2:c.mv)+1,cv=sd.civs.filter(o=>cheb(o,v)<=R).sort(byC)[0];if(cv)return {o:cv,k:'c'};
