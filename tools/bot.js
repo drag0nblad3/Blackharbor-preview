@@ -400,6 +400,12 @@ async function botMoveGear(u,h,phase){const sd=S.sd,v=sd.v,rng=stat(h,'range');i
     if(phase==='post'&&a.mode==='cover'&&dV(u,v)<=5){const r=abV(a.r,potOf(h));let best=null,bd=dV(u,v);
       for(let y=0;y<N;y++)for(let x=0;x<N;x++){const p={x,y};if(cheb(p,u)>r||cheb(p,u)<1||blocked(x,y)||cheb(p,u)!==1)continue;const d=dV(p,v);if(d<bd){bd=d;best=p}}
       if(best){sd.mode='abcover';sd.abKey=k;await onCell(best.x,best.y);await idle();sd.mode=null}}}}
+/* Hybrid bridge perks that need a button (2026-10-30, Tyler). Augmented and Paragon are passive.
+   Primal: Blood Price on while composure is above half. Technomancer: once per round, refill whichever pool is lower. */
+function botBridge(u,h){const sd=S.sd;sd.sel=sd.units.indexOf(u);
+  if(bridgeOn(h,'primal')){const want=h.comp*2>stat(h,'maxComp');if(!!u.bloodPay!==want)bridgeAct('blood')}
+  if(bridgeOn(h,'techno')&&!u.convRd){const p=(u.res.tech||0)/Math.max(1,pwrMax(h)),a=(u.res.magic||0)/Math.max(1,arcMax(h));
+    if(a<0.34&&p>0.5&&(u.res.tech||0)>=3)bridgeAct('toArc');else if(p<0.34&&a>0.5&&(u.res.magic||0)>=2)bridgeAct('toPwr')}}
 async function botPower(u,h,phase){const sd=S.sd,pw=BASE(h).power;sd.sel=sd.units.indexOf(u);if(!powOk(u,h))return;
   const v=sd.v,hurt=o=>stat(heroOf(o),'maxHp')-heroOf(o).hp,low=o=>heroOf(o).comp<=Math.ceil(stat(heroOf(o),'maxComp')/2);
   if(phase==='move'){if(pw==='leap'&&!u.moved&&dV(u,v)>stat(h,'move')+stat(h,'range'))return usePower();return}
@@ -464,7 +470,7 @@ async function heroTurn(u,resc){const sd=S.sd,h=heroOf(u);if(u.ko||sd.result)ret
       const tgt=followers(u).length&&!free.some(c=>cheb(c,u)<=4)?sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}}):free.length?free:sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}});
       await moveTo(u,(x,y)=>-Math.min(...tgt.map(t=>cheb(t,{x,y}))));await esc();await attack(u);await avoid(u);return}}
   const vi=bestV(u);if(vi<0)return;focusV(vi);const v=sd.vl[vi].v,rng=stat(h,'range');
-  if(ABIL){await botPower(u,h,'move');await botMoveGear(u,h,'move');await idle()}
+  if(ABIL){botBridge(u,h);await botPower(u,h,'move');await botMoveGear(u,h,'move');await idle()}
   await moveTo(u,(x,y)=>{const p={x,y},d=dV(p,v);if(d<=rng){const sd2=sideOf(p,v);return 100+(sd2==='rear'?10:sd2==='flank'?5:0)+(rng>1?Math.min(d,rng)*1.5:0)}return -d*2-(sd.hench.some(m=>cheb(m,p)<=1)?1:0)});
   if(sigThreat(u)&&(heroOf(u).hp*2<=stat(h,'maxHp')||(dV(u,v)>rng&&!sd.hench.some(m=>cheb(m,u)<=rng)))){if(ABIL){await botAbs(u,h,'pre',false);await botAbs(u,h,'post',false);await botPower(u,h,'post');await botMoveGear(u,h,'post');await idle()}await avoid(u);if(u.acted||sd.result||u.ko)return}
   if(await pullSat(u)){if(ABIL&&!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}return}
