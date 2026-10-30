@@ -200,11 +200,12 @@ function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(b
   c.uid=Math.random().toString(36).slice(2,9);return c}
 const VCAP=8;
 function makeVillain(k,level){const vs={key:k,level:1,scheme:0,status:'active',deck:VILLAINS[k].base.map(id=>({id,mk:0})),advIdx:0,beaten:0};
-  addAdv(vs,3+(VILLAINS[k].deckBonus||0));for(let l=1;l<Math.min(level,VCAP);l++)levelUpVillain(vs);return vs}
+  addAdv(vs,3+(VILLAINS[k].deckBonus||0));for(let l=1;l<Math.min(level,VCAP);l++)levelUpVillain(vs,true);return vs}
 /* playbook size a villain should own at its level */
 const deckSize=vs=>VILLAINS[vs.key].base.length+3+(VILLAINS[vs.key].deckBonus||0)+3*(Math.min(vs.level,VCAP)-1); /* Version 123 (Tyler): +3 pages per level again */
 function addAdv(vs,n){const adv=VILLAINS[vs.key].adv,out=[];for(let i=0;i<n;i++){const id=adv[vs.advIdx%adv.length],mk=Math.floor(vs.advIdx/adv.length);vs.deck.push({id,mk});vs.advIdx++;out.push(buildCard(vs.key,{id,mk}).n)}return out}
-function levelUpVillain(vs){if(vs.level>=VCAP)return [];vs.level++;return addAdv(vs,3)}
+/* Tyler, 2026-10-30: no villain level-ups from the last Arc 3 issue, so the finale meets them as Arc 3 ended. */
+function levelUpVillain(vs,force){if(vs.level>=VCAP||(S.issue>=MAX_ISSUE&&!force))return [];vs.level++;return addAdv(vs,3)}
 function upgradeVillain(vs,n=3){const idx=vs.deck.map((e,i)=>i).sort((a,b)=>vs.deck[a].mk-vs.deck[b].mk||a-b).slice(0,n);
   return idx.map(i=>{const before=buildCard(vs.key,vs.deck[i]).n;vs.deck[i].mk++;return `${before} → ${buildCard(vs.key,vs.deck[i]).n}`})}
 // Preserve deck size and upgrade budget; sample once when an investigation begins.
@@ -601,7 +602,7 @@ function arcTransition(newArc){const L=[];
   return {arc:newArc,lines:L}}
 function finishIssue(L,{hunted,headline,vkey}){
   for(const o of S.villains){if(o.key===hunted||o.status!=='active')continue;o.scheme++;
-    if(o.scheme>=schemeMax()){o.scheme=0;levelUpVillain(o);S.trust-=2;L.push(`${VILLAINS[o.key].name}'s scheme hits the city while you were busy. −2 trust, and they rise to level ${o.level}.`)}}
+    if(o.scheme>=schemeMax()){o.scheme=0;const was=o.level;levelUpVillain(o);S.trust-=2;L.push(`${VILLAINS[o.key].name}'s scheme hits the city while you were busy. −2 trust${o.level>was?`, and they rise to level ${o.level}`:''}.`)}}
   if(S.facilities.includes('press')){S.trust++;L.push('Press Office: +1 trust.')}
   if(S.ethos.b==='public'){S.trust++;L.push('Public Faces: +1 trust.')}
   {const n=fieldCount('scrap');if(n){S.tech+=n;L.push(`Scavenger's Satchel: +${n} tech.`)}}
@@ -1735,7 +1736,14 @@ function skunkPanel(){if(!S.facilities.includes('skunk'))return '';const rd=S.rd
 
 /* ============ EVENT COMIC FINALE ============ */
 const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','City Under Siege','Twilight of Heroes'];
-function setupEvent(){const free=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level);const keys=free.slice(0,2).map(v=>v.key);
+/* Tyler, 2026-10-30: the finale is a villain never revealed this volume at level 8, teamed with a level 8 Mole Boy.
+   Mole Boy's playbook is his four pages repeated up to the level-8 size, upgraded evenly from I to III. */
+function finaleMole(){const ids=VILLAINS.mole.base,vs={...moleState(),level:VCAP,deck:[]},n=deckSize(vs);
+  for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
+function setupEvent(){let k=chooseVillainFromPool(),fresh=!!k;
+  if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest free villain
+  if(fresh)S.villains.push(makeVillain(k,VCAP));else{const vs=vState(k);while(vs.level<VCAP)levelUpVillain(vs,true)}
+  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole());const keys=[k,'mole'];
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
 const PREP={scout:{n:'Coordinated recon',txt:'Both villains start with 1 page already torn out.'},
   evac:{n:'Evacuate the district',txt:'Only 2 civilians remain on the battlefield instead of 4, and the city thanks you: +2 trust.'},
@@ -1750,7 +1758,7 @@ function finaleDebrief(){const sd=S.sd,L=[],names=S.event.keys.map(k=>VILLAINS[k
   let headline;
   if(sd.result==='win'){headline='City saved!';S.trust+=3;L.push(`${names} are beaten together and the city is safe again. +3 trust.`)}
   else{headline=sd.result==='loss'?'Blackharbor falls':'They got away';L.push(sd.result==='loss'?`${names} overwhelm the team.`:`${names} slip away before the dust settles.`)}
-  const beatN=S.villains.filter(v=>v.beaten).length+(sd.result==='win'?S.event.keys.filter(k=>!vState(k).beaten).length:0),total=S.villains.length;
+  const beatN=S.villains.filter(v=>v.beaten).length+(sd.result==='win'?S.event.keys.filter(k=>!VILLAINS[k].intro&&!vState(k).beaten).length:0),total=S.villains.filter(v=>!VILLAINS[v.key].intro).length;
   S.chronicle.push(`Event comic, "${S.event.title}": ${headline.toLowerCase().replace('!','')}.`);
   const win=sd.result==='win'&&S.trust>0;
   S.over={win,txt:win?`"${S.event.title}" ends in victory. Volume ${S.vol} closes with ${beatN} of ${total} villains beaten in their lairs.`:`"${S.event.title}" ends in defeat. Volume ${S.vol} closes with ${beatN} of ${total} villains beaten in their lairs, and the city remembers who failed it.`};

@@ -396,27 +396,58 @@ async function attack0(u){const sd=S.sd,h=heroOf(u);if(u.acted||u.ko||sd.result)
   const vi=bestV(u);if(vi>=0){const v=sd.vl[vi].v;if(dV(u,v)<=rng){const SR={rear:0,flank:1,front:2},c=vCells(v).filter(q=>cheb(u,q)<=rng).sort((a,b)=>SR[sideOf(u,v,v.sw?a:undefined)]-SR[sideOf(u,v,v.sw?b:undefined)])[0];
     sd.mode='attack';await onCell(c.x,c.y);await idle();return}}
   const m=sd.hench.find(m=>cheb(m,u)<=rng);if(m){sd.mode='attack';await onCell(m.x,m.y);await idle()}}
+/* Tactics for the charging-slot rules: Avoid Damage, captives and satellites. */
+let AVN=0,SATN=0,CAPN=0,SATUP=0;
+/* Is this hero the likely target of a planned signature page? Known pages use
+   their own targeting; unknown ones are assumed to hit the nearest hero. */
+function sigThreat(u){const sd=S.sd;return sd.vl.some(o=>{const v=o.v,c=v.planned;if(v.down||!c||!c.sig)return false;
+  if((v.turnDamage||0)+1>=chargeNeed(v))return false;
+  const near=()=>live().slice().sort((a,b)=>dV(a,v)-dV(b,v))[0]===u;
+  if(!plannedKnown(o.key,v))return near();
+  if(c.t==='strike'){const vi=sd.vi;focusV(sd.vl.indexOf(o));const t=pickTarget(c.tgt||'nearest',(c.mv||0)+(c.rng||1));focusV(vi);return t===u}
+  if(c.t==='henchvolley')return sd.hench.some(m=>cheb(m,u)<=(m.rng||1)+1);
+  if(c.t==='charge'||c.zone)return false;   // windup hexes: the move step already dodges them
+  return dV(u,v)<=(c.r||c.rng||3)})}
+async function avoid(u){const sd=S.sd;if(u.acted||u.ko||sd.result||u.avoidDamage)return;sd.sel=sd.units.indexOf(u);await avoidDamage();await idle();if(u.avoidDamage)AVN++}
+/* A hired gun holding a captive that this hero can reach and shoot this turn. */
+function captorFor(u){const sd=S.sd,h=heroOf(u),reach=stat(h,'move')+(u.boost||0)+stat(h,'range');
+  return sd.hench.filter(m=>m.owner==='cantor'&&sd.civs.some(c=>c.held===m.id)&&cheb(m,u)<=reach).sort((a,b)=>a.hp-b.hp||cheb(a,u)-cheb(b,u))[0]}
+async function hitCaptor(u,m){const sd=S.sd,h=heroOf(u),rng=stat(h,'range');
+  await moveTo(u,(x,y)=>{const d=cheb({x,y},m);return d<=rng?100-d:-d});
+  if(!u.acted&&!sd.result&&cheb(m,u)<=rng&&!shotBlocked(u,m)){sd.sel=sd.units.indexOf(u);sd.mode='attack';await onCell(m.x,m.y);await idle();
+    if(!sd.hench.includes(m))CAPN++;return true}return false}
+/* Pull a satellite instead of attacking when this hero's attack is weak
+   (3 dice or fewer), since the first wound would be absorbed anyway. */
+async function pullSat(u){const sd=S.sd;if(u.acted||u.ko||sd.result)return false;const v=satelliteTarget(u);if(!v||stat(heroOf(u),'speed')>3)return false;
+  sd.sel=sd.units.indexOf(u);await act(async()=>{u.acted=true;dropSatellite(v,u)});await idle();SATN++;return true}
 async function heroTurn(u,resc){const sd=S.sd,h=heroOf(u);if(u.ko||sd.result)return;
+  const bossReach=sd.vl.some(o=>!o.v.down&&dV(u,o.v)<=stat(h,'move')+(u.boost||0)+stat(h,'range'));
+  if(resc?!sd.civs.some(c=>c.f==null&&!civHeld(c)):!bossReach){const m=captorFor(u);if(m&&!sd.units.some(o=>o!==u&&!o.ko&&o.huntId===m.id&&o.huntRound===sd.round)){u.huntId=m.id;u.huntRound=sd.round;
+    if(await hitCaptor(u,m)){if(!sd.result&&!u.ko&&ABIL){await botAbs(u,h,'post',false);await idle()}return}}}
   if(resc){const free=sd.civs.filter(c=>c.f==null&&!civHeld(c)),fol=followers(u);
     const esc=async()=>{if(!u.acted&&sd.civs.some(c=>c.f==null&&!civHeld(c)&&cheb(c,u)<=1)){sd.sel=sd.units.indexOf(u);await escort();await idle()}};
     if(fol.length||free.length){await esc();
       const tgt=followers(u).length&&!free.some(c=>cheb(c,u)<=4)?sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}}):free.length?free:sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}});
-      await moveTo(u,(x,y)=>-Math.min(...tgt.map(t=>cheb(t,{x,y}))));await esc();await attack(u);return}}
+      await moveTo(u,(x,y)=>-Math.min(...tgt.map(t=>cheb(t,{x,y}))));await esc();await attack(u);await avoid(u);return}}
   const vi=bestV(u);if(vi<0)return;focusV(vi);const v=sd.vl[vi].v,rng=stat(h,'range');
   await moveTo(u,(x,y)=>{const p={x,y},d=dV(p,v);if(d<=rng){const sd2=sideOf(p,v);return 100+(sd2==='rear'?10:sd2==='flank'?5:0)+(rng>1?Math.min(d,rng)*1.5:0)}return -d*2-(sd.hench.some(m=>cheb(m,p)<=1)?1:0)});
+  if(sigThreat(u)&&(heroOf(u).hp*2<=stat(h,'maxHp')||(dV(u,v)>rng&&!sd.hench.some(m=>cheb(m,u)<=rng)))){if(ABIL){await botAbs(u,h,'post',false);await idle()}await avoid(u);if(u.acted||sd.result||u.ko)return}
+  if(await pullSat(u)){if(ABIL&&!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}return}
   if(ABIL){const inR=dV(u,v)<=rng;await botAbs(u,h,'pre',inR);await botPower(u,h,'pre');await idle();if(sd.result||u.ko)return}
   await attack(u);
   if(ABIL&&!sd.result&&!u.ko){for(const k of abList(h))if(abKind(GEAR[k])==='again'&&abOk(u,h,k)&&!sd.result&&!u.ko){await useAbK(u,h,k);await idle();await attack(u)}
-    if(!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}}}
+    if(!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}}
+  await avoid(u)}
 const REC=[];let ABN=0,PWN=0;{const _pa=payAb,_pp=payPow;payAb=function(u,k){ABN++;return _pa(u,k)};payPow=function(u,h){PWN++;return _pp(u,h)}}
-async function fight(){const sd=S.sd;ABN=0;PWN=0;
+async function fight(){const sd=S.sd;ABN=0;PWN=0;AVN=0;SATN=0;CAPN=0;SATUP=0;
   REC.push({issue:S.issue,arc:arcOf(S.issue),fin:S.phase==='event'||!!sd.finale,vs:sd.vl.map(o=>({k:o.key,lv:o.v.level})),
     fac:S.facilities.slice(),hs:sd.units.map(u=>{const h=heroOf(u);return {c:h.cls||h.base||h.id,lv:lvlOf(h),disc:BASE(h).track,acc:stat(h,'acc'),str:stat(h,'str'),dice:stat(h,'speed'),eva:stat(h,'eva'),rng:stat(h,'range'),role:ROLES.get(h.id)||null,origin:BASE(h).track,sets:setsOn(h),gear:wornGear(h),ranks:{...h.ranks},ups:h.upgrades.slice(),pw:pwrMax(h),ar:arcMax(h)}})});let g=0;while((sd.round<1||sd.busy)&&g++<200000)await tick();
   let rounds=0;while(!sd.result&&rounds<40){rounds++;
     const L=sd.units.filter(u=>!u.ko);const resc=sd.civs.length?L.slice().sort((a,b)=>stat(heroOf(b),'move')-stat(heroOf(a),'move'))[0]:null;
+    if(sd.vl.some(o=>!o.v.down&&o.v.satellites>0))SATUP++;
     for(const u of sd.units.slice()){if(sd.result)break;await heroTurn(u,u===resc)}
     if(sd.result)break;await villainPhase();await idle()}
-  {const R=REC[REC.length-1];R.rounds=rounds;R.ko=sd.units.filter(u=>u.ko).length;R.hpLost=sd.units.reduce((t,u)=>{const h=heroOf(u);return t+Math.max(0,stat(h,'maxHp')-h.hp)},0);R.res=sd.result||'stall';R.ab=ABN;R.pw=PWN}
+  {const R=REC[REC.length-1];R.rounds=rounds;R.ko=sd.units.filter(u=>u.ko).length;R.hpLost=sd.units.reduce((t,u)=>{const h=heroOf(u);return t+Math.max(0,stat(h,'maxHp')-h.hp)},0);R.res=sd.result||'stall';R.ab=ABN;R.pw=PWN;R.av=AVN;R.sat=SATN;R.cap=CAPN;R.satUp=SATUP}
   if(!sd.result){ST.stalls++;endSd('escape')}
   return sd.result}
 

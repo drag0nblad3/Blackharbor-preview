@@ -709,7 +709,7 @@ function henchLv(hm){const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd.vkey));
 /* Version 89 (Tyler): three more special henchmen. Gallows' Failed Experiment is slow (moves 2), hits 1 harder and shrugs off the first hit
    each round. Ouroboros' High Priest attacks from range 3 and raises a fallen Cultist each round while fewer than 2 remain. The Architect's
    Foreman throws up a wall next to the hero closest to the Architect each round (it lasts 2 rounds). */
-function henchDmg(hm){if(hm.elite)return 1+Math.floor(henchLv(hm)/2)+(eliteOf(hm.owner||S.sd.vkey).brute?1:0);const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd.vkey)),lv=o?o.v.level:sd.v.level;return 1+Math.floor(lv/4)}
+function henchDmg(hm){if(hm.elite)return 1+Math.floor(henchLv(hm)/2)+(eliteOf(hm.owner||S.sd.vkey).brute?1:0);const sd=S.sd,ok=hm.owner||sd.vkey;/* Tyler, 2026-10-30: Cantor's hired guns follow the normal curve again (2 at level 4, 3 at level 8) */const o=sd.vl.find(o=>o.key===ok),lv=o?o.v.level:sd.v.level;return 1+Math.floor(lv/4)}
 async function henchAct(hm){if(hm.shadow||hm.collectionRound===S.sd.round)return;const sd=S.sd,L=live();if(!L.length)return;const def=hm.elite?eliteOf(hm.owner||sd.vkey):VILLAINS[hm.owner||sd.vkey].hench;
   if(hm.elite&&def.guard){const o=sd.vl.find(o=>o.key===hm.owner&&!o.v.down);if(o&&dV(hm,o.v)>1){const opts=reach(hm,3,hm);let best=null,bd=1e9;
     for(const k in opts){const[x,y]=k.split(',').map(Number);if(dV({x,y},o.v)!==1)continue;const d=Math.min(...L.map(u=>cheb(u,{x,y})));if(d<bd){bd=d;best=[x,y]}}
@@ -893,8 +893,8 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
     vs.beaten=(vs.beaten||0)+1;
     if(S.ethos.a==='restraint'){S.salvage[sd.vkey]++;L.push(`Restraint: +1 ${def.salvage}.`)}
     {const un=unlock(DEFEAT_UNLOCK[sd.vkey]);if(un.length)L.push(`Seized blueprints: ${un.join(', ')}.`)}
-    levelUpVillain(vs);vs.scheme=0;headline='Victory!';L.push(`${def.name} escapes in the chaos and returns at level ${vs.level}.`)}
-  else if(res==='loss'){S.trust-=2;const add=levelUpVillain(vs);vs.scheme=0;headline='Defeat';L.push(`The team is carried out of the lair. −2 trust. ${def.name} grows bolder (level ${vs.level}).`)}
+    {const was=vs.level;levelUpVillain(vs);vs.scheme=0;headline='Victory!';L.push(`${def.name} escapes in the chaos${vs.level>was?` and returns at level ${vs.level}`:''}.`)}}
+  else if(res==='loss'){S.trust-=2;const was=vs.level,add=levelUpVillain(vs);vs.scheme=0;headline='Defeat';L.push(`The team is carried out of the lair. −2 trust.${vs.level>was?` ${def.name} grows bolder (level ${vs.level}).`:''}`)}
   else{S.trust--;S.salvage[sd.vkey]++;vs.scheme=0;headline='Slipped away';L.push(`${def.name} gets away. You recover 1 ${def.salvage}. −1 trust.`)}
   if(S.facilities.includes('lab')){S.tech++;L.push('The lab reverse-engineers scraps: +1 tech.')}
   const med=S.facilities.includes('medbay'),train=S.facilities.includes('training'),xpAt=L.length,xpL=[];

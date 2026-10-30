@@ -311,7 +311,7 @@ const VILLAINS = {
   eyes:{n:'Serpent Eyes',t:'puppet',amt:2,pull:2},
   squeeze:{n:'Tightening Coils',t:'sweep',r:1,dmg:4}
  },shape:'serpent'},
- lode:{name:'Lodestone',short:'Lode',tag:'Magnetic tyrant',salvage:'Lodestones',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Scrap drone',rng:3,style:'shot'},base:['attract','spike','shrap','field','scrap','crush'],adv:['repel','rail','polar','storm','vortex','compact'],cards:{
+ lode:{name:'Lodestone',short:'Lode',tag:'Magnetic tyrant',salvage:'Lodestones',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Scrap drone',rng:2,style:'shot'},base:['attract','spike','shrap','field','scrap','crush'],adv:['repel','rail','polar','storm','vortex','compact'],cards:{
   attract:{n:'Attract',t:'pull',r:5,mv:2,dmg:3,sig:true,shout:'Everything comes to me!',brk:'You burned out his attractor coil!'},
   spike:{n:'Rail Spike',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:3,fx:'bolt'},
   shrap:{n:'Iron Rain',t:'multi',cnt:2,rng:4,dmg:2,fx:'shot'},
