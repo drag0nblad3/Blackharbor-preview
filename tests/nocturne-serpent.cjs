@@ -25,6 +25,9 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  setup('noct');run(`S.sd.v.x=4;S.sd.v.y=4;S.sd.vturn=false;S.sd.v.planned=${card('garrote')};S.sd.v.x=6;jumpDupe(S.sd.v,{x:4,y:4})`);assert(get('S.sd.dupes.some(d=>d.x===4&&d.y===4&&d.plan.id==="garrote")'));
  run("S.sd.dupes=[];delete S.sd.v.dupes;S.sd.hench=[{id:'sh',owner:'noct',x:2,y:2,hp:1,shadow:true}];S.sd.v.shadowId='sh'");await run('resolveBossSetup(S.sd.v)');
  assert.deepEqual(get('[S.sd.v.x,S.sd.v.y]'),[2,2]);assert(get('S.sd.dupes.some(d=>d.x===6&&d.y===4)'));
+ // Fade: +4 evasion until her next action. Vanishing Silhouette data spins her.
+ setup('noct');const e0=get("vStat('eva')");await play('fade');assert.equal(get("vStat('eva')"),e0+4);assert.match(get('bossStatusView()'),/\+4 evasion/);
+ assert(get("VINTEL.noct.react.find(r=>r.id==='vanishing').spin"));
  // A copied charge adds marks around the hero nearest the double.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.dupes[0].x=8;S.sd.dupes[0].y=7');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('deathm')};await execCard(c);await dupeTurn(v,c,d)})()`);assert(get('S.sd.v.charge.zone.includes("6,8")'));

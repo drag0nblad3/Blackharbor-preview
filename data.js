@@ -327,7 +327,7 @@ const VILLAINS = {
  },shape:'diamond'},
  noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
   knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',dupeLow:1,mv:4,rng:1,dmg:3},
-  fade:{n:'Fade',t:'fade',sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
+  fade:{n:'Fade',t:'fade',evaUp:4,sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   shades:{n:'Shades',t:'summon',k:2},
   dread:{n:'Whispers in the Dark',t:'taunt',amt:2,r:4,shakenDmg:1},
@@ -632,7 +632,7 @@ const EXTRA_REACTIONS={
  helios:[{id:'afterglow',n:'Afterglow',sfx:'GLARE!',comp:2,txt:'The attacker loses 2 Composure.'},{id:'ventgap',n:'Open Vent',sfx:'VENT!',arc:['flank'],tough:-3,dmg:1,txt:'Side arc: −3 toughness; the attacker takes 1 heat damage.'}],
  serpent:[{id:'constrict',n:'Constricting Tail',sfx:'WRAP!',adj:1,pull:1,comp:1,txt:'The attacker is pulled 1 hex toward Ouroboros and loses 1 Composure.'},{id:'softscale',n:'Soft Scales',sfx:'SHED!',arc:['flank'],tough:-2,txt:'Side arc: −2 toughness for this wound.'}],
  lode:[{id:'repelshot',n:'Repelled Shot',sfx:'REPEL!',ranged:1,push:1,txt:'Ranged attack: the attacker is pushed 1 hex away.'},{id:'shortcoil',n:'Shorted Coil',sfx:'SHORT!',arc:['flank'],tough:-2,drainPower:1,txt:'Side arc: −2 toughness; the attacker loses 1 Power.'}],
- noct:[{id:'terror',n:'Sudden Dread',sfx:'HUSH!',arc:['front'],comp:2,txt:'Front arc: the attacker loses 2 Composure.'},{id:'vanishing',n:'Vanishing Silhouette',sfx:'FADE!',arc:['rear'],hide:1,txt:'Rear arc: Nocturne hides her facing again.'}],
+ noct:[{id:'terror',n:'Sudden Dread',sfx:'HUSH!',arc:['front'],comp:2,txt:'Front arc: the attacker loses 2 Composure.'},{id:'vanishing',n:'Vanishing Silhouette',sfx:'FADE!',arc:['rear'],hide:1,spin:1,txt:'Rear arc: Nocturne turns to face a random direction and hides her facing again.'}],
  swarm:[{id:'broodguard',n:'Brood Guard',sfx:'BUZZ!',guard:1,txt:'A nearby henchman blocks the wound.'},{id:'scatterwing',n:'Loose Formation',sfx:'SCATTER!',tough:-2,escape:1,txt:'−2 toughness; the swarm retreats 2 hexes.'}],
  bomber:[{id:'pocket',n:'Pocket Charge',sfx:'TSSS!',arc:['rear'],bomb:1,txt:'Rear arc: leave a one-round bomb at the attacker for 1 damage.'},{id:'misstep',n:'Unsteady Landing',sfx:'WHOOPS!',tough:-2,escape:1,txt:'−2 toughness; Payload springs 2 hexes away.'}],
  grid:[{id:'pulse',n:'Lane Pulse',sfx:'PULSE!',flash:1,txt:'Lit beams pulse for 1 damage to heroes standing in them.'},{id:'crosswire',n:'Crossed Wires',sfx:'SHORT!',arc:['rear'],tough:-3,txt:'Rear arc: −3 toughness for this wound.'}]

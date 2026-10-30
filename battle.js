@@ -101,7 +101,7 @@ const vAway=(p,steps,o={})=>vSlide(p,steps,0,o,1);
 const hexA=x=>x===true?4:(x||0);
 /* Version 121 (Tyler): villain accuracy grows at half speed (+1 every 2 levels). Version 122: it starts at +4 at level 1 */
 const vLvB=(k,lv)=>k==='acc'?4+Math.floor((lv-1)/2):lv-1;
-function vStat(k){const sd=S.sd;return VILLAINS[sd.vkey][k]+vLvB(k,sd.v.level)-(k==='eva'?hexA(sd.v.hex):0)-(k==='acc'&&sd.v.blind?3:0)}
+function vStat(k){const sd=S.sd;return VILLAINS[sd.vkey][k]+vLvB(k,sd.v.level)+(k==='eva'?sd.v.fadeEva||0:0)-(k==='eva'?hexA(sd.v.hex):0)-(k==='acc'&&sd.v.blind?3:0)}
 function log(k,t){S.sd.log.push({k,t});if(S.sd.log.length>60)S.sd.log.shift()}
 /* comic SFX: positions are in board units (see HC) */
 let fxTimer;
@@ -630,7 +630,7 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
         else{fxU(u,'WHOOSH!','miss');log('vill',`${hn} is flung ${n} hexes away.`)}}
       render();break}
     case 'fade':{const L=live(),from={x:v.x,y:v.y};let best=null,bs=-1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const d=L.length?Math.min(...L.map(u=>cheb(u,{x,y}))):3,s=-Math.abs(d-3)+Math.random()*.9;if(s>bs){bs=s;best=[x,y]}}
-      await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}v.face=rnd(6)-1;v.hide=true;noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),6);
+      await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}v.face=rnd(6)-1;v.hide=true;if(c.evaUp&&!sd.mimic){v.fadeEva=c.evaUp;log('vill',`${vn} is hard to pin down: +${c.evaUp} evasion until her next action.`)}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),6);
       if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} composure.`);shakenSting(c,L)}
       fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);jumpDupe(v,from);render();break}
     case 'converge':{const t=pickTarget('nearest');if(!t)break;if(!v.sw){await vMove(()=>vToward(t,c.mv,1));if(dV(t,v)<=1)await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
@@ -793,13 +793,13 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(v.hide){v.hide=false;fxU(u,'GOTCHA!','good');log('hero',`${h.name} lands a hit and reads her stance. ${VILLAINS[sd.vkey].short}'s facing is revealed.`)}
     const ranged=dV(u,v)>1,close=body&&swBodies(v).some(o=>o.i!==body.i&&cheb(o,body)===1);
     if(body)log('hero',`${h.name} strikes the ${SWN[body.k].toLowerCase()} body from its ${ARCN[side]} arc.${close?' Another body is right beside it: +2 toughness.':''}`);
-    let powerDrain=0,counter=0,flee=false,drain=0,summon=0,push=0,wall=false,pull=0,hide=false,bombAt=0,fuseTick=false,reflect=0,flash=false;const rows=[],q={splash:[]};
+    let spin=false,powerDrain=0,counter=0,flee=false,drain=0,summon=0,push=0,wall=false,pull=0,hide=false,bombAt=0,fuseTick=false,reflect=0,flash=false;const rows=[],q={splash:[]};
     for(let i=0;i<hits&&!sd.result;i++){let tc=drawTactic();if(tc.sig)tc={...tc,...rxOf(tc.sig,tc.id)};if(v.repress){v.repress=false;log('hero',`${tc.n} is revealed and repressed.`);tc={id:'glance',n:tc.n+' (repressed)',txt:'Repressed: this reaction has no effect. Roll to wound normally.'};}const okArc=!tc.arc||tc.arc.includes(side),okRng=!tc.ranged||ranged,okPart=!tc.part||(body&&body.k===tc.part),inArc=okArc&&okRng&&okPart;
       const why=!tc.sig?'':!okPart?`${h.name} hit the ${body?SWN[body.k].toLowerCase():''} body, not the ${SWN[tc.part].toLowerCase()}, so it does nothing.`:!okRng?`${h.name} is adjacent, and it only answers ranged attacks.`:tc.ranged&&okArc?`${h.name} attacked from range: it triggers!`:'';
       const note=why||(tc.arc&&side?`${h.name} struck from the ${ARCN[side]} arc: ${inArc?'it triggers!':'wrong side, it does nothing.'}`:'');
       if(tc.sig&&!inArc){log('hero',why||`${tc.n} only works in the ${arcTxt(tc.arc)}. ${h.name} is in the ${ARCN[side]} arc, so it does nothing.`);fxU(u,!okPart?'WRONG BODY!':!okRng?'TOO CLOSE!':'WRONG SIDE!','good')}
       let tough=vStat('tough')+(close?2:0),auto=false,block=false,blockTxt='A civilian is in the way.';
-      if(tc.sig&&inArc){if(tc.auto)auto=true;powerDrain+=tc.drainPower||0;tough+=(tc.tough||0)+(tc.gorge?2*Math.min(3,v.ate||0):0);if(tc.dmg&&(!tc.adj||dV(u,v)<=1))counter+=tc.dmg;drain+=tc.comp||0;summon+=tc.summon||0;if(tc.escape)flee=true;if(tc.push&&(!tc.adj||dV(u,v)<=1))push=Math.max(push,tc.push);if(tc.pull)pull=Math.max(pull,tc.pull);if(tc.hide)hide=true;if(tc.wall)wall=true;if(tc.bomb)bombAt=Math.max(bombAt,tc.bomb);if(tc.fuse)fuseTick=true;if(tc.reflect)reflect=Math.max(reflect,tc.reflect);if(tc.flash)flash=true;
+      if(tc.sig&&inArc){if(tc.auto)auto=true;powerDrain+=tc.drainPower||0;tough+=(tc.tough||0)+(tc.gorge?2*Math.min(3,v.ate||0):0);if(tc.dmg&&(!tc.adj||dV(u,v)<=1))counter+=tc.dmg;drain+=tc.comp||0;summon+=tc.summon||0;if(tc.escape)flee=true;if(tc.push&&(!tc.adj||dV(u,v)<=1))push=Math.max(push,tc.push);if(tc.pull)pull=Math.max(pull,tc.pull);if(tc.hide)hide=true;if(tc.spin)spin=true;if(tc.wall)wall=true;if(tc.bomb)bombAt=Math.max(bombAt,tc.bomb);if(tc.fuse)fuseTick=true;if(tc.reflect)reflect=Math.max(reflect,tc.reflect);if(tc.flash)flash=true;
         if(tc.guard&&sd.hench.some(hm=>dV(hm,v)<=1)){block=true;blockTxt='A henchman takes the blow.'}}
       else if(!tc.sig){if(tc.id==='weak')auto=true;if(tc.id==='armor')tough+=4;if(tc.id==='over')tough-=4;if(tc.id==='counter')counter+=2;
       if(tc.id==='shield'&&sd.civs.some(c=>dV(c,v)<=2))block=true;if(tc.id==='escape')flee=true}
@@ -833,6 +833,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(flash&&!sd.result){const lm=litMap(),on=live().filter(o=>lm[o.x+','+o.y]);fxV('FLASH!','say');
       if(on.length){for(const o of on){fxU(o,'ZZT!','vhit');damageHero(o,optic(1))}log('vill',`Flashback! Every lit beam pulses: ${on.map(o=>heroOf(o).name).join(', ')} take${on.length>1?'':'s'} ${optic(1)}.`);checkLoss()}
       else log('vill','Flashback! The beams pulse, but nobody is standing in one.');render()}
+    if(spin&&!sd.result&&!v.down){v.face=rnd(6)-1;noFlip.add('v'+sd.vi);log('vill',`${VILLAINS[sd.vkey].short} whirls to face a new direction.`)}
     if(hide&&!sd.result&&!v.down){v.hide=true;log('vill',`${VILLAINS[sd.vkey].short} melts back into the shadows. Her facing is hidden again.`);render()}
     }finally{sd.reactionContext=false}
   }else{const hm=target,meva=hm.elite?eliteEva(hm):7;for(let i=0;i<dice;i++){const r=d20();rolls.push(r);if(r===20||(r!==1&&r+acc>=meva))hits++}
@@ -852,7 +853,7 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sd
   beamTick();await hazardTick();checkLoss();await bombTick();checkLoss();
   for(let i=0;i<sd.vl.length&&!sd.result;i++){if(sd.vl[i].v.down)continue;focusV(i);const v=sd.v,vn=VILLAINS[sd.vkey].name;
     await resolveBossSetup(v);if(sd.result||v.down)continue;
-    const finishBorrow=beginBorrowedAction(v),dup=takeDupes(v);let acted=null;try{
+    delete v.fadeEva;const finishBorrow=beginBorrowedAction(v),dup=takeDupes(v);let acted=null;try{
     if(v.skip){v.skip=false;cancelPlan(v);log('hero',`${vn} loses its planned action.`);}
     else if(v.charge){await fireCharge();if(v.planned){v.discard.push(v.planned);v.planned=null;}checkLoss();}
     else if(v.planned){const c=v.planned;await reveal(villainCardView(c));markSeen(sd.vkey,c.id);

@@ -33,6 +33,7 @@ function bossStatusView(){const sd=S.sd,lines=[];
     if(v.shadowMark)lines.push(`${n}: Stolen Shadow marks ${heroOf(sd.units.find(u=>u.hid===v.shadowMark.hid)).name}. Their next movement leaves a copy.`);
     if(v.shadowId&&sd.hench.some(m=>m.id===v.shadowId))lines.push(`${n}: destroy the 1-HP purple-ringed shadow before the next action to prevent the swap.`);
     {const d=(v.dupes||[]).filter(id=>(sd.dupes||[]).some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will repeat the page she has planned${(sd.dupes||[]).some(m=>v.dupes.includes(m.id)&&m.plan)?' (locked in: tearing or skipping her page does not stop them)':''}, then dissipate. Doubles cannot be harmed; stay out of their reach.`)}
+    if(v.fadeEva)lines.push(`${n}: Fade gives +${v.fadeEva} evasion until her next action.`);
     if(v.charge&&v.charge.track)lines.push(`${n}: ${v.charge.n} follows its targets: ${v.charge.track.map(id=>sd.units.find(u=>u.hid===id)).filter(u=>u&&!u.ko).map(u=>heroOf(u).name).join(' and ')}.`);
     if(v.borrowed)lines.push(`${n}: ${v.borrowed.filter(b=>sd.hench.some(m=>m.id===b.id)).length}/${v.borrowed.length} infested carriers survive. Green rings mark next-action origins.`);
   }
