@@ -104,7 +104,7 @@ async function resolveBossSetup(v){
   }
   delete v.shadowMark;
   if(v.shadowId){const m=sd.hench.find(m=>m.id===v.shadowId);delete v.shadowId;
-    if(m){sd.hench=sd.hench.filter(o=>o!==m);if(vFits(m.x,m.y,true)){const old={x:v.x,y:v.y};v.x=m.x;v.y=m.y;m.x=old.x;m.y=old.y;sd.hench.push(m);log('vill','Nocturne swaps with her stolen shadow. The spent copy fades.');sd.hench=sd.hench.filter(o=>o!==m)}}
+    if(m){sd.hench=sd.hench.filter(o=>o!==m);if(vFits(m.x,m.y,true)){const old={x:v.x,y:v.y};v.x=m.x;v.y=m.y;m.x=old.x;m.y=old.y;sd.hench.push(m);log('vill','Nocturne swaps with her stolen shadow. The spent copy fades.');sd.hench=sd.hench.filter(o=>o!==m);jumpDupe(v,old)}}
   }
   render();
 }
@@ -130,12 +130,14 @@ function restoreBorrowedBodies(v){
 /* Nocturne's shadow doubles (Tyler, 2026-10-30): an untouchable copy that repeats her next action from its own hex, then dissipates.
    They live in sd.dupes, not sd.hench, so no attack, blast or aura can reach them; they still occupy their hex. */
 function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const id='dupe-'+sd.round+'-'+Math.random().toString(36).slice(2,6);
-  (sd.dupes=sd.dupes||[]).push({id,owner:sd.vkey,x:p.x,y:p.y});(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
+  const d={id,owner:sd.vkey,x:p.x,y:p.y};if(!sd.vturn&&v.planned)d.plan=JSON.parse(JSON.stringify(v.planned));(sd.dupes=sd.dupes||[]).push(d);(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
 /* the hex beside the least composed hero within rng (any hero if none), where a double steps out */
 function doubleSpot(v,rng){const L=live();if(!L.length)return null;const inR=L.filter(u=>dV(u,v)<=rng),t=(inR.length?inR:L).sort((a,b)=>heroOf(a).comp-heroOf(b).comp||dV(a,v)-dV(b,v))[0];
   const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(!p){log('vill','Her shadow finds no room beside its prey.');return null}return {t,p}}
 /* each double locks in its own copy of the page she has planned; tearing or skipping her page later does not touch it */
 function planDupes(v){const sd=S.sd;if(!v.planned||!v.dupes)return;for(const m of sd.dupes||[])if(v.dupes.includes(m.id)&&!m.plan)m.plan=JSON.parse(JSON.stringify(v.planned))}
+/* Tyler (2026-10-30): every jump or teleport Nocturne makes leaves a double at the hex she left. */
+function jumpDupe(v,from){const sd=S.sd,o=sd.vl.find(o=>o.v===v);if(!o||!VILLAINS[o.key].dupeOnJump||v.down||(from.x===v.x&&from.y===v.y))return;const vi=sd.vi;focusV(sd.vl.indexOf(o));leaveDupe(v,from);focusV(vi)}
 function takeDupes(v){const d=v.dupes||[];delete v.dupes;return d}
 async function dupeTurn(v,c0,ids){const sd=S.sd;
   for(const id of ids){const m=(sd.dupes||[]).find(o=>o.id===id);if(!m)continue;sd.dupes=sd.dupes.filter(o=>o!==m);const c=m.plan||c0;

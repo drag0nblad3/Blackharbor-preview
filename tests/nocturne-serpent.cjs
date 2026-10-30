@@ -2,7 +2,7 @@ const assert=require('node:assert/strict'),bh=require('../tools/bh');
 const g=bh.load({seed:303}),run=s=>g.run(s),get=s=>JSON.parse(JSON.stringify(g.get(s)));
 g.ctx.setTimeout=fn=>setImmediate(fn);
 run('render=()=>{bossObserve()};fx=()=>{};');
-function setup(k){run(`newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=['hexen','volt','wisp','bulwark'].map(k=>newHero(k));S.party=S.heroes.map(h=>h.id);S.facilities=[];S.villains=[makeVillain('${k}',2)];S.pool=[];S.inv={v:'${k}',clues:3};startShowdown();S.sd.intro=false;S.sd.obs=[];S.sd.walls=[];S.sd.pits=[];S.sd.haz=[];S.sd.hench=[];S.sd.civs=[];S.sd.term=null;S.sd.bombs=[];S.sd.beams=[];S.sd.units.forEach((u,i)=>{u.x=i*2;u.y=8;u.res={tech:30,magic:30};heroOf(u).hp=50;heroOf(u).comp=10});S.sd.sel=0;`)}
+function setup(k){run(`newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=['hexen','volt','wisp','bulwark'].map(k=>newHero(k));S.party=S.heroes.map(h=>h.id);S.facilities=[];S.villains=[makeVillain('${k}',2)];S.pool=[];S.inv={v:'${k}',clues:3};startShowdown();S.sd.intro=false;S.sd.obs=[];S.sd.walls=[];S.sd.pits=[];S.sd.haz=[];S.sd.hench=[];S.sd.civs=[];S.sd.term=null;S.sd.bombs=[];S.sd.beams=[];S.sd.units.forEach((u,i)=>{u.x=i*2;u.y=8;u.res={tech:30,magic:30};heroOf(u).hp=50;heroOf(u).comp=10});S.sd.sel=0;S.sd.vturn=true;`)}
 const card=id=>`buildCard(S.sd.vkey,{id:'${id}',mk:0})`,play=id=>run(`execCard(${card(id)})`);
 const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
 (async()=>{
@@ -21,6 +21,10 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=3+i%2;u.y=6})');await play('fade');
  run(`S.sd.v.planned=${card('stars')};S.sd.vl.forEach(o=>planDupes(o.v))`);assert.equal(get('S.sd.dupes[0].plan.id'),'stars');
  run('S.sd.v.planned=null');await run('(async()=>{const v=S.sd.v,d=takeDupes(v);await dupeTurn(v,null,d)})()');assert.equal(logs(/mimics Throwing Stars/),1);assert(!get('S.sd.dupes.length'));
+ // Every jump or teleport leaves a double: slipping away mid-round locks in her planned page; the Stolen Shadow swap leaves one too.
+ setup('noct');run(`S.sd.v.x=4;S.sd.v.y=4;S.sd.vturn=false;S.sd.v.planned=${card('garrote')};S.sd.v.x=6;jumpDupe(S.sd.v,{x:4,y:4})`);assert(get('S.sd.dupes.some(d=>d.x===4&&d.y===4&&d.plan.id==="garrote")'));
+ run("S.sd.dupes=[];delete S.sd.v.dupes;S.sd.hench=[{id:'sh',owner:'noct',x:2,y:2,hp:1,shadow:true}];S.sd.v.shadowId='sh'");await run('resolveBossSetup(S.sd.v)');
+ assert.deepEqual(get('[S.sd.v.x,S.sd.v.y]'),[2,2]);assert(get('S.sd.dupes.some(d=>d.x===6&&d.y===4)'));
  // A copied charge adds marks around the hero nearest the double.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.dupes[0].x=8;S.sd.dupes[0].y=7');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('deathm')};await execCard(c);await dupeTurn(v,c,d)})()`);assert(get('S.sd.v.charge.zone.includes("6,8")'));

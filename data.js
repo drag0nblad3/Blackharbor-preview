@@ -325,7 +325,7 @@ const VILLAINS = {
   vortex:{n:'Iron Vortex',t:'pull',r:8,mv:3,dmg:4,sig:true,shout:'Iron answers its master!',brk:'You jammed the vortex generator!'},
   compact:{n:'Compactor',t:'sweep',r:1,dmg:4}
  },shape:'diamond'},
- noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
+ noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
   knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',dupeLow:1,mv:4,rng:1,dmg:3},
   fade:{n:'Fade',t:'fade',sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
@@ -428,9 +428,9 @@ const VINTEL = {
       {id:'plate',n:'Ferrous Plating',sfx:'CLANNG!',arc:['front'],tough:4,txt:'Front arc. +4 toughness for this wound.'},
       {id:'repulse',n:'Repulsor Field',sfx:'VWOMM!',arc:['rear'],dmg:1,push:2,txt:'Rear arc. Reaction: the attacker takes 1 damage and is flung 2 hexes away.'}]},
   noct:{intro:'Nobody has seen her face and lived to describe it. She hunts the wounded, and she is gone before they hit the floor.',
-    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Her knives go for the hero with the least composure, and a Shaken hero bleeds from her whispers. Every fade leaves an untouchable shadow double that copies her next move: get out of its reach.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
+    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Her knives go for the hero with the least composure, and a Shaken hero bleeds from her whispers. Every time she fades, slips away or swaps places she leaves an untouchable shadow double that copies her next move: get out of its reach.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
     react:[{id:'riposte',n:'Riposte',sfx:'SHHK!',arc:['front'],dmg:3,txt:'Front arc. Reaction: a knife comes straight back. The attacker takes 3 damage, at any range.'},
-      {id:'veil',n:'Shadow Veil',sfx:'FSSSH…',arc:['flank'],escape:1,hide:1,txt:'Side arcs. Reaction: she slips 2 hexes away and her facing is hidden again.'},
+      {id:'veil',n:'Shadow Veil',sfx:'FSSSH…',arc:['flank'],escape:1,hide:1,txt:'Side arcs. Reaction: she slips 2 hexes away, leaving a shadow double behind, and her facing is hidden again.'},
       {id:'feint',n:'Feint',sfx:'TOO SLOW!',tough:3,txt:'+3 toughness for this wound.'}]},
   swarm:{intro:'A million stolen drones that learned to think together, then learned to hunt. Murmur is not one body. It is three, and they look after each other.',
     hints:['Three bodies: a queen, a stinger and a shell. Each has its own facing, and you strike the body you aim at.','A body with another body next to it is harder to wound. Pick off the stray, from behind.','Each body hangs on one playbook page. Tear that page and the body drops out of the swarm.'],
