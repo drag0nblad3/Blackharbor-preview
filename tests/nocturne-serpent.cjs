@@ -15,7 +15,14 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Destroying the double first stops the copy; a non-attack page is not copied.
  await play('fade');run('S.sd.hench=S.sd.hench.filter(m=>!m.dupe)');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('stars')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),1);
- await play('fade');await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('shades')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),1);assert(!get('S.sd.hench.some(m=>m.dupe)'));
+ // Doubles copy every page, not only attacks.
+ run('S.sd.hench=[]');await play('fade');await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('shades')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),2);assert(!get('S.sd.hench.some(m=>m.dupe)'));
+ assert.equal(get('S.sd.hench.length'),4);
+ // A copied charge adds marks around the hero nearest the double.
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.hench.find(m=>m.dupe).x=8;S.sd.hench.find(m=>m.dupe).y=7');
+ await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('deathm')};await execCard(c);await dupeTurn(v,c,d)})()`);assert(get('S.sd.v.charge.zone.includes("6,8")'));
+ // Knife in the Dark leaves a double beside a hero at half composure or less.
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=5;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=7});S.heroes.forEach(h=>h.comp=1);globalThis.vStat0=vStat;vStat=()=>99');await play('knife');run('vStat=vStat0');assert.equal(get('S.sd.hench.filter(m=>m.dupe).length'),1);
  // Shadow Double appears beside the least composed hero in range and strikes.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.heroes[2].comp=1');await play('double');
  assert(get('S.sd.hench.some(m=>m.dupe&&cheb(m,S.sd.units[2])===1)'));assert.equal(logs(new RegExp('Shadow Double at '+get('S.heroes[2].name'))),1);

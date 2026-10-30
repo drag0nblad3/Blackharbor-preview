@@ -128,7 +128,6 @@ function restoreBorrowedBodies(v){
 }
 
 /* Nocturne's shadow doubles (Tyler, 2026-10-30): a 1-HP copy that repeats her next action from its own hex, then dissipates. */
-const DUPE_MIMIC=['strike','multi','sweep','taunt','endanger'];
 function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const id='dupe-'+sd.round+'-'+Math.random().toString(36).slice(2,6);
   sd.hench.push({id,owner:sd.vkey,x:p.x,y:p.y,hp:1,shadow:true,dupe:true});(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
 /* the hex beside the least composed hero within rng (any hero if none), where a double steps out */
@@ -137,7 +136,7 @@ function doubleSpot(v,rng){const L=live();if(!L.length)return null;const inR=L.f
 function takeDupes(v){const d=v.dupes||[];delete v.dupes;return d}
 async function dupeTurn(v,c,ids){const sd=S.sd;
   for(const id of ids){const m=sd.hench.find(o=>o.id===id);if(!m)continue;sd.hench=sd.hench.filter(o=>o!==m);
-    if(c&&DUPE_MIMIC.includes(c.t)&&!sd.result&&!v.down&&live().length){const keep={x:v.x,y:v.y,face:v.face,hide:v.hide};v.x=m.x;v.y=m.y;sd.mimic=true;
+    if(c&&!sd.result&&!v.down&&live().length){const keep={x:v.x,y:v.y,face:v.face,hide:v.hide};v.x=m.x;v.y=m.y;sd.mimic=true;
       log('vill',`Her shadow double mimics ${c.n}.`);fxV('MIMIC!','say');
       try{await execCard(c)}finally{sd.mimic=false;v.x=keep.x;v.y=keep.y;v.face=keep.face;v.hide=keep.hide}checkLoss()}
     log('vill','The shadow double dissipates.');render()}}

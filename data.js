@@ -326,7 +326,7 @@ const VILLAINS = {
   compact:{n:'Compactor',t:'sweep',r:1,dmg:4}
  },shape:'diamond'},
  noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
-  knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',mv:4,rng:1,dmg:3},
+  knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',dupeLow:1,mv:4,rng:1,dmg:3},
   fade:{n:'Fade',t:'fade',sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   shades:{n:'Shades',t:'summon',k:2},
