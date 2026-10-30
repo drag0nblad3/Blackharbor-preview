@@ -363,8 +363,8 @@ async function moveTo(u,score){const sd=S.sd,h=heroOf(u);if(u.moved)return;const
   if(best){sd.sel=sd.units.indexOf(u);sd.mode='move';onCell(best.x,best.y);await idle()}}
 /* ---------- abilities (ported from combat-sim/bot.js) ---------- */
 const ABIL=!!process.env.ABIL;
-const ATK=['dice','str','acc','back','reap','callout','mark','hex'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor'],VDEB=['curse','blind','skip','tear','vsplash','excise','scry','bury','foresee','scramble','eclipse'];
-function abKind(g){const f=g.ab.fx||{};if(g.ab.mode==='strike')return 'strike';if(g.ab.mode==='tele')return 'tele';if(g.ab.mode==='cover')return 'skip';
+const ATK=['dice','str','acc','back','reap','callout','mark','hex'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor','reactionWard','moveEva'],VDEB=['repress','reactionPeek','revealFacing','curse','blind','skip','tear','vsplash','excise','scry','bury','foresee','scramble','eclipse'];
+function abKind(g){const f=g.ab.fx||{};if(g.ab.mode==='blast')return 'blast';if(g.ab.mode==='strike')return 'strike';if(g.ab.mode==='tele')return 'tele';if(g.ab.mode==='cover')return 'skip';
   if(f.again)return 'again';if(f.heal)return 'heal';if(ATK.some(k=>f[k]))return 'atk';if(VDEB.some(k=>f[k]))return 'deb';if(f.shock)return 'shock';
   if(DEF.some(k=>f[k]))return 'def';if(f.comp||f.rally)return 'comp';if(f.gain||f.gainP)return 'gain';if(f.boost||f.move)return 'move';return 'skip'}
 const abList=h=>[...new Set(Object.values(h.gear))].filter(k=>GEAR[k].ab);
@@ -372,9 +372,11 @@ async function useAbK(u,h,k,ally){const sd=S.sd,g=GEAR[k];sd.sel=sd.units.indexO
   if(g.ab.mode==='ally'){sd.mode='abally';sd.abKey=k;const t=ally||u;await onCell(t.x,t.y);return true}
   if(g.ab.mode){return false}await useAb(k);return true}
 async function botAbs(u,h,phase,will){const sd=S.sd;for(const k of abList(h)){if(sd.result||u.ko)return;const g=GEAR[k],kind=abKind(g),f=g.ab.fx||{};if(!abOk(u,h,k))continue;
-    if(g.ab.mode==='ally'){const al=live().filter(o=>cheb(o,u)<=abV(g.ab.r,potOf(h)));
+    if(g.ab.mode==='ally'){const al=live().filter(o=>cheb(o,u)<=abV(g.ab.r,potOf(h))&&allyAbilityOK(u,o,g.ab));
       if(f.heal){const t=al.filter(o=>stat(heroOf(o),'maxHp')-heroOf(o).hp>=2).sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0];if(t&&phase==='pre')await useAbK(u,h,k,t)}
       else if(phase==='post'){const t=al.filter(o=>!o.evaNext&&dV(o,sd.v)<=2).sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0];if(t)await useAbK(u,h,k,t)}continue}
+    if(phase==='pre'&&kind==='blast'){const [r,d]=f.blast;const tiles=sd.hench.filter(m=>cheb(m,u)<=g.ab.r&&!shotBlocked(u,m)).map(m=>({...m,score:sd.hench.filter(t=>cheb(t,m)<=r).reduce((s,t)=>s+Math.min(t.hp,d),0)})).sort((a,b)=>b.score-a.score);if(tiles.length){sd.sel=sd.units.indexOf(u);useAb(k);await onCell(tiles[0].x,tiles[0].y);}continue;}
+    if(phase==='pre'&&f.reactionWard&&will&&!u.reactionWard)await useAbK(u,h,k);
     if(phase==='pre'){if(kind==='heal'&&stat(h,'maxHp')-h.hp>=3)await useAbK(u,h,k);
       else if(kind==='atk'&&will)await useAbK(u,h,k);else if(kind==='deb'&&dV(u,sd.v)<=6)await useAbK(u,h,k);
       else if(kind==='comp'&&h.comp<=Math.ceil(stat(h,'maxComp')/2))await useAbK(u,h,k);

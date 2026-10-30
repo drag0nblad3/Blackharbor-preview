@@ -135,7 +135,7 @@ const ROMAN=['','II','III','IV','V','VI','VII'];
 const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
 const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
-const chargeNeed=v=>v.level+1; /* Version 120 (Tyler): level + 1 pages to stagger */
+const chargeNeed=v=>Math.max(1,v.level); // Successful wounds in one hero round.
 function applyMk(c,mk){c={...c};if(!mk)return c;
   if(c.dmg!=null)c.dmg+=mk;if(c.amt!=null)c.amt+=mk;if(c.k!=null)c.k+=Math.ceil(mk/2);if(c.mv)c.mv+=mk;if(c.rng>1)c.rng+=mk;
   if(c.r!=null&&(c.t!=='hazard'||c.grow))c.r+=Math.floor(mk/2);if(c.len)c.len+=mk;if(c.ttl)c.ttl+=Math.floor(mk/2);if(c.cnt)c.cnt+=Math.floor(mk/2);
@@ -143,6 +143,14 @@ function applyMk(c,mk){c={...c};if(!mk)return c;
 function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
   const area=(c.radius||1)>1?`${1+3*c.radius*(c.radius+1)} hexes (radius ${c.radius})`:'7 hexes (radius 1)';
   switch(c.t){
+    case 'circuit':return 'Links the two nearest heroes until the next boss action. Power-costing abilities drain 1 Composure from the other hero. Separate by 4 hexes to break the link permanently.';
+    case 'heave':return 'Marks a three-hex line through the nearest hero. Before the next boss action, it rises into permanent rubble. Occupants are pushed to the nearest open hex; trapped heroes take 2 damage. Occupied hexes cannot become rubble.';
+    case 'collection':return 'Each hired gun moves up to 2 hexes toward a civilian and takes custody when adjacent. Guards already holding a civilian drag them up to 2 hexes toward the board edge. Captives remain on the board; defeat their guard to free them.';
+    case 'renovate':return 'Marks the nearest hero and the surrounding six hexes. Before the next boss action, rubble and temporary walls inside disappear; empty perimeter hexes become walls for 2 hero rounds. Occupants leave doorways.';
+    case 'solar':return 'Until the next boss action, abilities used within 2 hexes add 1 Heat (maximum 4). Then heroes within 2 take damage equal to Heat. At 3 or 4 Heat, Helios also tears one draw-pile page.';
+    case 'satellites':return 'Turns up to two rubble hexes within 3 into satellites (maximum two). Each absorbs one successful attack wound, then falls beside Lodestone toward the attacker. An adjacent hero may spend an action to pull one down reliably.';
+    case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.';
+    case 'borrow':return 'Infests up to two regular mites, replacing up to two secondary swarm-body origins for the next action. Destroying a carrier removes that origin for that action. No extra attacks; infestation expires after that action.';
     case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${c.dmg}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${c.dmg}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'');
     case 'burrow':return `Dives underground and bursts up next to the farthest hero, then hits them for ${c.dmg}. Leaves rubble where it went down.`;
     case 'multi':return `Hits up to ${c.cnt} heroes within ${c.rng} for ${c.dmg} each.`;
@@ -169,14 +177,14 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${c.dmg} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
     case 'bomb':return `Throws ${c.cnt>1?`${c.cnt} bombs, one at each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`a bomb at the ${TGN[c.tgt]} hero`} within ${c.rng}. ${c.cnt>1?'Each':'It'} explodes at the start of the next villain turn for ${c.dmg} damage across ${area}.`;
     case 'swapbomb':return `Swaps hexes with one of her henchmen, leaving a 7-hex bomb (radius 1) where she stood. The bomb deals ${c.dmg} damage at the start of the next villain turn. No henchman, no swap.`;
-    case 'airburst':return `Leaps to the middle of the room and charges up. On her next turn she fires instead of playing a page: ${c.dmg} damage to every hero and civilian within 3 of her. Tear pages equal to her level + 1 before then to stagger it.`;
+    case 'airburst':return `Leaps to the middle of the room and charges up. On her next turn she fires instead of playing a page: ${c.dmg} damage to every hero and civilian within 3 of her. Deal wounds equal to her level in one hero round to tear the charging page instead.`;
     case 'beam':{const tail=` Each beam runs to the edge, stops at the first hero it hits and knocks them back ${c.dmg} hex${c.dmg>1?'es':''}.`+(c.ttl>1?` The beams stay lit for ${c.ttl} turns.`:'');
       switch(c.pat){case 'star':return `Fires a beam in all 6 directions for ${c.dmg}.`+tail;
         case 'fan':return `Turns to the nearest hero and fires 3 beams from its front for ${c.dmg}.`+tail;
         case 'aim':return `Turns and fires a beam at ${c.cnt>1?`each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`the ${TGN[c.tgt]} hero`} for ${c.dmg}. A hero who isn't in a straight line with it may be missed.`+tail;
         case 'sweep':return `Fires a beam ahead, then turns and fires again, ${c.cnt} times in all, for ${c.dmg} each.`+tail;
         case 'prism':return `Every ${hn} fires a beam at its nearest hero for ${c.dmg}.`+tail}return ''}
-    case 'charge':return `Charges up and marks ${ZONEN[c.zone]}. On its next turn it fires instead of playing a page: ${c.dmg} damage to every hero and civilian in the marked hexes. Tear pages equal to its level + 1 before then to stagger it.`;
+    case 'charge':return `Charges up and marks ${ZONEN[c.zone]}. On its next turn it fires instead of playing a page: ${c.dmg} damage to every hero and civilian in the marked hexes. Deal wounds equal to its level in one hero round to tear the charging page instead.`;
   }return ''}
 /* the villain's own movement runs one hex further than the table says (Tyler, V76); pull/repel distances are how far heroes are dragged, so they stay */
 const MV_UP=['strike','rampage','swallow','converge','leap'];
@@ -198,6 +206,14 @@ function addAdv(vs,n){const adv=VILLAINS[vs.key].adv,out=[];for(let i=0;i<n;i++)
 function levelUpVillain(vs){if(vs.level>=VCAP)return [];vs.level++;return addAdv(vs,3)}
 function upgradeVillain(vs,n=3){const idx=vs.deck.map((e,i)=>i).sort((a,b)=>vs.deck[a].mk-vs.deck[b].mk||a-b).slice(0,n);
   return idx.map(i=>{const before=buildCard(vs.key,vs.deck[i]).n;vs.deck[i].mk++;return `${before} → ${buildCard(vs.key,vs.deck[i]).n}`})}
+// Preserve deck size and upgrade budget; sample once when an investigation begins.
+function selectEncounterDeck(vs){if(VILLAINS[vs.key].intro)return;
+  const def=VILLAINS[vs.key],size=vs.deck.length,marks=vs.deck.map(e=>e.mk||0).sort((a,b)=>a-b);
+  const anchors=[...new Set(VINTEL[vs.key].react.map(r=>r.src).filter(Boolean))];
+  const ids=Object.keys(def.cards),chosen=anchors.slice(0,size);let bag=[];
+  while(chosen.length<size){if(!bag.length)bag=shuffle(ids.filter(id=>chosen.length>=ids.length||!chosen.includes(id)));if(!bag.length)bag=shuffle(ids.slice());chosen.push(bag.pop());}
+  vs.deck=chosen.map((id,i)=>({id,mk:marks[i]||0}));vs.encounterIssue=S.issue;
+}
 /* unlocks */
 
 
@@ -429,6 +445,16 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(a.mode==='tele')push(`${a.leap?'Leap':'Teleport'} to an empty hex within ${v(a.r)} hexes.`);
   if(a.mode==='cover')push(`Raise a wall on an empty hex within ${v(a.r)}. It blocks movement and crumbles at the end of the next round.`);
   if(a.mode==='strike')push(`Attack a villain ${a.rng?`within ${a.rng} hexes`:'at any range'} with ${a.dice?`${a.dice} dice`:`your dice +${a.plus}`}${a.str?` and +${a.str} Strength`:''}.${a.splash?` Every henchman within 2 of it takes ${a.splash} damage.`:''}`);
+  if(f.moveEva)push('On activation, gain +1 Evasion for each hex already walked or jumped this hero round, until round end. Teleports and forced movement do not count.');
+  if(f.allyEva)push(`They gain +${f.allyEva} Evasion until round end.`);
+  if(f.pushAlly)push('Push another hero 1 hex away from you into a chosen safe empty hex.');
+  if(f.pullAlly)push(`Pull another hero up to ${f.pullAlly} hexes toward you through chosen safe empty hexes.`);
+  if(f.swapAlly)push('Exchange positions with another hero without spending either move.');
+  if(f.reactionWard)push('Prevent all damage from hit reactions to the recipient until round end. Movement and other non-damage effects still apply.');
+  if(f.repress)push('Repress the next revealed hit reaction against this villain. Roll to wound normally. Lasts until triggered; does not stack.');
+  if(f.reactionPeek)push('Inspect the next hit reaction without consuming it.');
+  if(f.revealFacing)push('Reveal the targeted villain’s facing.');
+  if(a.mode==='blast')push(`Choose a visible hex within ${a.r}; deal ${f.blast[1]} damage to henchmen within ${f.blast[0]} of it.`);
   if(f.evaNext)push(`${a.mode==='ally'?'They get':'Get'} +${v(f.evaNext)} evasion against the next attack on ${a.mode==='ally'?'them':'you'}.`);
   if(f.ward)push(a.mode==='ally'?'They ignore the next hit against them.':'Ignore the next hit against you.');
   if(f.heal)push(`${a.mode==='ally'?'They regain':'Regain'} ${v(f.heal)} health.`);
@@ -448,7 +474,7 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.callout)push(`The next hero attack on the villain this round gets +${pl(f.callout,'die','dice')}.`);
   if(f.mark)push('Once per fight. Until the round ends, every hero attack on the villain from a side arc or the blind spot gets +1 die.');
   if(f.hex)push(`The villain has −${f.hexAmt||4} evasion until the round ends.`);
-  if(f.blind)push('The villain is blinded: −4 accuracy until the round ends.');
+  if(f.blind)push('The villain is blinded: −3 accuracy until the round ends.');
   if(f.vsplash)push(`Every henchman within 2 of the villain takes ${v(f.vsplash)} damage.`);
   if(f.reflect)push('Until the round ends, the first time the villain hits you, it tears one of its own pages.');
   if(f.riposte)push('Until the round ends, the first time the villain misses you, strike back with a free 1-die attack if it is within your range.');
@@ -483,10 +509,10 @@ const POW_ENG={arc:{d:'tech',c:2},patch:{d:'tech',c:3},barricade:{d:'tech',c:2},
   brace:{d:'innate',min:1},mark:{d:'innate',min:1},quake:{d:'innate',min:1},regen:{d:'innate',min:1},berserk:{d:'innate',min:1},leap:{d:'innate',min:1},
   blur:{d:'magic',c:1},omen:{d:'magic',c:1},curse:{d:'magic',c:2},aegis:{d:'magic',c:2},drain:{d:'magic',c:2},serene:{d:'magic',c:1}};
 const powCost=(pw,short)=>{const e=POW_ENG[pw];return e.d==='innate'?(short?`REQ INN ${e.min}`:`requires Innate rank ${e.min}+ and uses your Innate ability for the round`):`${e.c} ${short?TRACKS[e.d].abbr:TRACKS[e.d].res}`};
-function powOk(u,h){const pw=BASE(h).power,e=POW_ENG[pw],P=POWERS[pw];if(!e||u.ko)return false;if(!P.free&&u.acted)return false;if(pw==='mark'&&u.markUsed)return false;
+function powOk(u,h){const pw=BASE(h).power,e=POW_ENG[pw],P=POWERS[pw];if(!e||u.ko)return false;if(!P.free&&u.acted)return false;if(pw==='mark'&&u.markUsed)return false;if(pw==='curse'&&S.sd.v.repress)return false;
   if(e.d!=='innate'&&!bridgeOn(h,'paragon')&&(u.abUsed||[]).includes('pow'))return false;
   if(e.d==='innate')return potOf(h)>=e.min&&innOk(u,h);return (u.res[e.d]||0)>=(e.d==='magic'?arcCost(u,h,e.c):e.c)}
-function payPow(u,h){const e=POW_ENG[BASE(h).power];if(!e)return;if(e.d!=='innate')(u.abUsed=u.abUsed||[]).push('pow');u.abRd=true;if(e.d==='magic'){payArc(u,h,e.c);return}if(e.d==='innate'){if(u.innUsed)u.capUsed=true;u.innUsed=(u.innUsed||0)+1}else u.res[e.d]=Math.max(0,(u.res[e.d]||0)-e.c)}
+function payPow(u,h){const e=POW_ENG[BASE(h).power];if(!e)return;bossAbility(u,e.d==='tech'&&e.c>0);if(e.d!=='innate')(u.abUsed=u.abUsed||[]).push('pow');u.abRd=true;if(e.d==='magic'){payArc(u,h,e.c);return}if(e.d==='innate'){if(u.innUsed)u.capUsed=true;u.innUsed=(u.innUsed||0)+1}else u.res[e.d]=Math.max(0,(u.res[e.d]||0)-e.c)}
 /* Hybrid bridge perks: rank BRIDGE_RANK+ in every listed discipline */
 const BRIDGE_RANK=2;
 const BRIDGE={techno:{n:'Technomancer',need:['tech','magic'],txt:'Once per round, as a free action, trade 3 Power for 1 Arcana or 1 Arcana for 3 Power.'},
@@ -590,14 +616,14 @@ function finishIssue(L,{hunted,headline,vkey}){
   else if((!S.villains.some(v=>v.status==='active')&&!S.pool.length)||S.issue>MAX_ISSUE){S.finalePending=true;S.arcInfo=null;(S.after.lines).push('The volume builds to its climax. The event comic begins.')}
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function load(){try{const t=localStorage.getItem(KEY);if(t){S=JSON.parse(t);if(S.sd){S.sd.busy=false;S.sd.vturn=false;if(!S.sd.vl){S.sd.v.charge=S.sd.charge;S.sd.v.hex=S.sd.hex;S.sd.vl=[{key:S.sd.vkey,v:S.sd.v}];S.sd.vi=0}S.sd.v=S.sd.vl[S.sd.vi||0].v;N=S.sd.N||9}S.seen=S.seen||{};S.seenR=S.seenR||{};if(S.sd&&!S.sd.bombs)S.sd.bombs=[];if(S.sd&&!S.sd.beams)S.sd.beams=[];if(S.salvage&&S.salvage.serpent==null)S.salvage.serpent=0;if(S.salvage&&S.pool&&S.villains){const have=new Set([...S.pool,...S.villains.map(v=>v.key)]);['lode','noct','swarm','bomber','grid'].forEach(k=>{if(S.salvage[k]==null)S.salvage[k]=0;if(!have.has(k))S.pool.splice(rnd(S.pool.length+1)-1,0,k)})}if(S.sd&&!S.sd.hexv){try{migrateSd()}catch(e){}}if(S.sd&&!S.sd.exits)S.sd.exits=mkExits(S.sd.N||9,!!S.sd.finale);S.xover=S.xover||[];if(S.cre&&S.phase!=='hq'){S.cre=null;if(S.view==='create')S.view='mission'}if(S.inv){if(S.inv.peak==null)S.inv.peak=S.inv.clues;S.inv.found=S.inv.found||[]}if(!S.party){const had=roster();S.party=had.slice(0,4).map(h=>h.id);Object.keys(HERO_BASE).forEach(c=>{if(!S.heroes.some(h=>h.cls===c)){const n=newHero(c);giveStart(n);S.heroes.push(n)}})}if(!S.d20){S.heroes.forEach(h=>{if(h.base){h.base={...h.base};for(const k of ['acc','str','eva'])h.base[k]=(h.base[k]||0)*2}});S.d20=true}if(!S.str1){S.heroes.forEach(h=>{if(h.base){h.base={...h.base};h.base.str=(h.base.str||0)-1}});S.str1=true}if(!S.deck3){(S.villains||[]).forEach(v=>{if(v.level>1)addAdv(v,v.level-1)});S.deck3=true}if(!S.deck2){(S.villains||[]).forEach(v=>{const d=deckSize(v)-v.deck.length,nb=VILLAINS[v.key].base.length;if(d>0)addAdv(v,d);for(let i=d;i<0&&v.deck.length>nb;i++){v.deck.pop();v.advIdx=Math.max(0,v.advIdx-1)}});S.deck2=true}if(!S.mig3){S.heroes.forEach(h=>{const r=h.ranks;if(h.cls==='volt')[r.tech,r.magic]=[r.magic,r.tech];if(h.cls==='wisp')[r.magic,r.innate]=[r.innate,r.magic]});S.mig3=true}if(!S.disc5)migrateDisc5();if(!S.v22)migrateV22();if(!S.v59)migrateV59();
+function load(){try{const t=localStorage.getItem(KEY);if(t){S=JSON.parse(t);if(S.sd){S.sd.busy=false;S.sd.vturn=false;S.sd.reactionContext=false;if(!S.sd.vl){S.sd.v.charge=S.sd.charge;S.sd.v.hex=S.sd.hex;S.sd.vl=[{key:S.sd.vkey,v:S.sd.v}];S.sd.vi=0}S.sd.v=S.sd.vl[S.sd.vi||0].v;N=S.sd.N||9}S.seen=S.seen||{};S.seenR=S.seenR||{};if(S.sd&&!S.sd.bombs)S.sd.bombs=[];if(S.sd&&!S.sd.beams)S.sd.beams=[];if(S.salvage&&S.salvage.serpent==null)S.salvage.serpent=0;if(S.salvage&&S.pool&&S.villains){const have=new Set([...S.pool,...S.villains.map(v=>v.key)]);['lode','noct','swarm','bomber','grid'].forEach(k=>{if(S.salvage[k]==null)S.salvage[k]=0;if(!have.has(k))S.pool.splice(rnd(S.pool.length+1)-1,0,k)})}if(S.sd&&!S.sd.hexv){try{migrateSd()}catch(e){}}if(S.sd&&!S.sd.exits)S.sd.exits=mkExits(S.sd.N||9,!!S.sd.finale);S.xover=S.xover||[];if(S.cre&&S.phase!=='hq'){S.cre=null;if(S.view==='create')S.view='mission'}if(S.inv){if(S.inv.peak==null)S.inv.peak=S.inv.clues;S.inv.found=S.inv.found||[]}if(!S.party){const had=roster();S.party=had.slice(0,4).map(h=>h.id);Object.keys(HERO_BASE).forEach(c=>{if(!S.heroes.some(h=>h.cls===c)){const n=newHero(c);giveStart(n);S.heroes.push(n)}})}if(!S.d20){S.heroes.forEach(h=>{if(h.base){h.base={...h.base};for(const k of ['acc','str','eva'])h.base[k]=(h.base[k]||0)*2}});S.d20=true}if(!S.str1){S.heroes.forEach(h=>{if(h.base){h.base={...h.base};h.base.str=(h.base.str||0)-1}});S.str1=true}if(!S.deck3){(S.villains||[]).forEach(v=>{if(v.level>1)addAdv(v,v.level-1)});S.deck3=true}if(!S.deck2){(S.villains||[]).forEach(v=>{const d=deckSize(v)-v.deck.length,nb=VILLAINS[v.key].base.length;if(d>0)addAdv(v,d);for(let i=d;i<0&&v.deck.length>nb;i++){v.deck.pop();v.advIdx=Math.max(0,v.advIdx-1)}});S.deck2=true}if(!S.mig3){S.heroes.forEach(h=>{const r=h.ranks;if(h.cls==='volt')[r.tech,r.magic]=[r.magic,r.tech];if(h.cls==='wisp')[r.magic,r.innate]=[r.innate,r.magic]});S.mig3=true}if(!S.disc5)migrateDisc5();if(!S.v22)migrateV22();if(!S.v59)migrateV59();
 /* Version 61: new set pieces unlock for arcs already reached and villains already beaten */
 if(!S.v61){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V61.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
   for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);(S.villains||[]).filter(v=>v.status==='captured'||v.beaten).forEach(v=>(DEFEAT_UNLOCK[v.key]||[]).forEach(add));S.v61=true}
 /* Version 62: new blueprints follow the arcs already reached; stats moved between slots, so clamp health and composure */
 if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V62.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
   START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();
-  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});return true}}catch(e){}return false}
+  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();return true}}catch(e){}return false}
 /* Version 82: capture, interrogation, leads and the clue consumables are gone. Captured villains go free again (they keep their blueprints),
    a built Containment Cell is refunded, and Informant's Tips and Search Warrants are sold back for intel. */
 /* Version 121: Main Hand / Off Hand. A main-only weapon in the off hand (or off-only in the main hand) moves over if that hand is free, else goes back to the armory */
@@ -937,6 +963,13 @@ const VEVENTS={
       {l:'Pick the lock',h:'Costs 1 tech. Roll 14+ for 2 clues, else a hero takes 2',ok:()=>S.tech>=1,run:i=>{S.tech--;const r=invRoll();if(r>=14){i.clues+=2;return `Rolled ${r}. Inside is a hand-drawn map of the warehouse floor, ruled into lanes. +2 clues.`}return `Rolled ${r}. The van was wired to a beam emitter. ${hurtRandom(2)} takes 2 damage.`}},
       {l:'Watch the van',h:'+1 clue',run:i=>{i.clues++;return 'At dusk a man in a hard hat carries a crate of mirrors inside. +1 clue.'}}]}],
 };
+const BOARD_LEADS={gallows:['A maintenance access plan','cover'],quarry:['The quarry service road','route'],cantor:['A frightened getaway driver','evac'],architect:['Stolen construction drawings','route'],helios:['A fire crew on standby','cover'],serpent:['A subway evacuation map','evac'],lode:['A scrapyard crane operator','route'],noct:['The night watch route','evac'],swarm:['A drone delivery manifest','thin'],bomber:['A sapper supply run','thin'],grid:['An emitter maintenance schedule','cover']};
+const BOARD_PREP_TEXT={cover:'Two barricades start near your entry line.',route:'Clear a two-hex-wide approach through rubble, walls, pits and molten floor.',evac:'Civilians start near the south exits instead of deep in the lair.',thin:'Remove one regular starting henchman (never an elite).'};
+for(const [k,[title,kind]] of Object.entries(BOARD_LEADS))VEVENTS[k].push({id:k+'_board',title,txt:()=>`You find a way to change the battlefield before confronting ${VILLAINS[k].name}.`,opts:[
+ {l:'Prepare the battlefield',h:BOARD_PREP_TEXT[kind]+' No clue gained.',run:i=>{i.boardPrep=kind;return BOARD_PREP_TEXT[kind];}},
+ {l:'Trade the plan for evidence',h:'+2 clues; no board change.',run:i=>{i.clues+=2;return 'The plan yields two clues. The battlefield stays unchanged.'}},
+ {l:'Prepare and investigate',h:'Spend 1 intel: board change and +1 clue.',ok:()=>S.intel>=1,run:i=>{S.intel--;i.clues++;i.boardPrep=kind;return BOARD_PREP_TEXT[kind]+' +1 clue.'}}
+]});
 function evOf(id){return EVENTS.find(e=>e.id===id)||Object.values(VEVENTS).flat().find(e=>e.id===id)}
 function invQuality(c){const amb=S.ethos.b==='public'?2:1;return c<=amb?'ambush':c>=4?'prepared':'normal'}
 const QUAL={ambush:{n:'Ambush',txt:'The villain acts first, with an extra henchman, and your heroes start scattered.'},
@@ -946,7 +979,7 @@ function invEvents(k){const g=shuffle(EVENTS.filter(e=>!e.cond||e.cond()).map(e=
 /* Version 82 (Tyler): clues at the start come from the Comms Array, one clue gear in the party (extra copies don't stack) and a hero field */
 /* Version 87 (Tyler): each starting-clue source only comes through 70% of the time */
 const START_CLUE_P=.7;
-function startInv(k){const notes=[];let c0=0;
+function startInv(k){selectEncounterDeck(vState(k));const notes=[];let c0=0;
   if(S.facilities.includes('comms')){if(Math.random()<START_CLUE_P){c0++;notes.push('Comms Array: +1 clue')}else notes.push('Comms Array: nothing')}
   {const fg=fieldGear('clue')[0];if(fg){if(Math.random()<START_CLUE_P){c0++;notes.push(`${GEAR[fg.g].name}: +1 clue`)}else notes.push(`${GEAR[fg.g].name}: nothing`)}}
   if(partyHas('senses'))notes.push('Keen Senses: +2 to rolls');fieldGear('roll').forEach(({g})=>notes.push(`${GEAR[g].name}: +2 to rolls`));
@@ -992,7 +1025,7 @@ function slotPickView(){if(!slotPick)return '';const h=S.heroes.find(x=>x.id===s
     <div class="small muted">Long-press an item for full details.</div><button class="btn" data-a="slotpick:close">Cancel</button></div></div>`}
 document.addEventListener('click',e=>{if(slotPick&&e.target.id==='slotpick'){slotPick=null;render()}});
 document.addEventListener('keydown',e=>{if(slotPick&&e.key==='Escape'){slotPick=null;render()}});
-function render(){tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
+function render(){bossObserve();tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
 function flip(){const b=document.querySelector('.board');if(!b){lastPos={};return}const c=(b.getBoundingClientRect().width-5)/BW(),now={};
   b.querySelectorAll('[data-tid]').forEach(e=>{const id=e.dataset.tid,x=+e.dataset.cx,y=+e.dataset.cy;now[id]=[x,y];const p=lastPos[id];
     if(p&&(p[0]!==x||p[1]!==y)&&!noFlip.has(id)&&!RM){const d=Math.hypot(p[0]-x,p[1]-y);
@@ -1334,7 +1367,7 @@ function invView(){
     content=`<div class="inv-lead-frame inv-finale">
       <div class="inv-lead-top"><span class="inv-stamp">LAIR LOCATED</span><span class="inv-lead-count">${i.clues} clues secured</span></div>
       <h3>${QUAL[q].n}!</h3>
-      <p class="inv-story">${QUAL[q].txt}</p>
+      <p class="inv-story">${QUAL[q].txt}</p>${i.boardPrep?`<div class="cap">Battlefield preparation: ${BOARD_PREP_TEXT[i.boardPrep]}</div>`:''}
       ${q==='prepared'?coll('gearup',`<div><div class="eyebrow" data-tip="kw:gearup">Surprise advantage</div><h3>Adjust gear before the showdown</h3></div>`,
         `<p class="small">You caught the villain off guard. Swap gear between the party and armory before entering.</p>
           <div class="grid2">${party().map(h=>heroCard(h,'prep')).join('')}</div>`,true):''}
@@ -1489,9 +1522,9 @@ const inSd=()=>S.phase==='sd'&&S.sd&&!S.sd.result&&!S.sd.busy&&!S.sd.intro,sdV=f
 const atHQ=()=>S.phase==='hq'&&S.view!=='create'&&!S.guide;
 const TIPS=[
   {id:'inv',when:()=>S.phase==='inv'&&S.inv&&S.inv.intro,t:'Investigation',b:()=>`Each issue, your party tracks one villain through 3 leads. <b>Every clue opens one unseen page</b> of the villain's playbook or one of their hit reactions, and the clue total decides how the fight starts: 0–1 an ambush, 2–3 a standoff, 4 or more prepared. The street hints tell you how this villain fights, so read them before you go.`},
-  {id:'lead',when:()=>S.phase==='inv'&&S.inv&&!S.inv.intro&&S.inv.step<3&&!S.inv.res,t:'Working a lead',b:()=>`Pick how to work each lead. Options that roll use <b>a d20 plus bonuses</b> from field abilities and gear, and show the number you need. Risky options can hurt a hero or cost trust. The third lead is always the villain's own trail, built around how they operate.`},
+  {id:'lead',when:()=>S.phase==='inv'&&S.inv&&!S.inv.intro&&S.inv.step<3&&!S.inv.res,t:'Working a lead',b:()=>`Pick how to work each lead. Options that roll use <b>a d20 plus bonuses</b> from field abilities and gear, and show the number you need. Risky options can hurt a hero or cost trust. The third lead is always the villain's own trail. Some offer battlefield preparation: entry cover, a clear approach, safer civilian positions, or fewer starting henchmen.`},
   {id:'lair',when:()=>S.phase==='inv'&&S.inv&&S.inv.step>=3,t:'Finding the lair',b:()=>`Your clues set the showdown. <b>Ambush:</b> the villain acts first with an extra henchman and your heroes start scattered. <b>Standoff:</b> you enter from the south edge and act first. <b>Prepared:</b> change gear now, act first, and the villain starts with 1 page torn out.`},
-  {id:'sd',when:()=>inSd(),t:'The showdown',b:()=>`Tap a hero to select them. Each round, every hero can <b>move once and take one action</b>. Then press End round and the villain plays the top page of its playbook. <b>The playbook is also its health:</b> every wound tears out a page, and when none are left it's beaten. There is no time limit: when it runs out of pages to play, its untorn pages are shuffled back in. <b>Escort</b> civilians to a green exit hex for trust, because harmed civilians cost trust. Civilians left alone panic and run on the villain's turn, and henchmen drag them off.`},
+  {id:'sd',when:()=>inSd(),t:'The showdown',b:()=>`Tap a hero to select them. Each round, every hero can <b>move once and take one action</b>. Then press End round and the villain resolves the page in its charging slot. <b>The playbook is also its health:</b> every wound tears out a page, and when none are left it's beaten. There is no time limit: when it runs out of pages to play, its untorn pages are shuffled back in. <b>Escort</b> civilians to a green exit hex for trust, because harmed civilians cost trust. Civilians left alone panic and run on the villain's turn, and henchmen drag them off.`},
   {id:'combatmenus',when:()=>inSd()&&S.sd.sel!=null,t:'Combat menus and action icons',b:()=>`<b>Abilities</b> contains primary and equipped powers. <b>Other Actions</b> contains Escort, Hack, Rally Spirit and Avoid Damage. The icon beside each option marks whether it uses an action, a move, or is free. <b>Choosing a menu item only previews its details below the controls</b>; tap Activate to commit or Cancel to back out.`},
   {id:'rallytip',when:()=>inSd()&&S.sd.sel!=null,t:'Rally Spirit',b:()=>`Choose <b>Other Actions → Rally Spirit → Activate</b>, then target yourself or an ally within your <b>total discipline levels</b> in hexes. Restore up to <b>3 Composure</b> without exceeding the maximum. This spends the hero's action.`},
   {id:'avoidt',when:()=>inSd()&&S.sd.sel!=null,t:'Avoid Damage',b:()=>`Choose <b>Other Actions → Avoid Damage → Activate</b> to spend an action for <b>+3 Evasion</b>, or <b>+5</b> beside cover such as walls, debris, another hero, a civilian or a terminal. On a miss, a valid cover target in the attack path may take the hit instead. Dangerous hazard tiles do not count as cover.`},
@@ -1499,8 +1532,8 @@ const TIPS=[
   {id:'arcs',when:()=>!!selH(),t:'Facing and blind spots',b:()=>`The yellow arrow shows where the villain faces. The tinted hexes in front are its <b>front arc</b>. The shaded hexes behind are its <b>blind spot</b>, and attacks from there get +1 die. It turns toward whatever it moves to or attacks. Some signature hit reactions only trigger from certain sides, so read the playbook to learn which angle is safe.`},
   {id:'engines',when:()=>{const h=selH();return !!h&&!!(pwrMax(h)||arcMax(h)||potOf(h))},t:'Power, Arcana and Innate rank',b:()=>`Gear abilities and signature powers run on a hero's disciplines. <b>Tech</b> abilities spend Power, which slowly recharges. <b>Magic</b> spells spend Arcana: one pool per fight that doesn't refill on its own, so save it for big moments. <b>Innate</b> abilities spend nothing but require enough Innate rank, and each hero can fire one per round. The bars under the action buttons show what this hero has.`},
   {id:'multi',when:()=>inSd()&&S.sd.vl.length>1,t:'Two villains',b:()=>`More than one villain is on the board, and they act one after the other each round. Use the <b>Target</b> buttons, or tap a villain, to choose whose playbook you're tearing.`},
-  {id:'sig',when:()=>sdV(o=>o.v.warn&&o.v.deck[0]&&o.v.deck[0].uid===o.v.warn),t:'Signature Move!',b:()=>`The villain just shouted a warning: its next page is a <b>Signature Move</b>, one of its most dangerous attacks. Every wound tears the <b>top</b> page, so land a wound before you end the round to rip it out before it fires.`},
-  {id:'charge',when:()=>sdV(o=>o.v.charge),t:'Charged attack',b:()=>`The villain is winding up. On its next turn the <b>striped hexes</b> get hit instead of it playing a new page. Move out of them, or tear pages equal to the villain's level + 1 before then to stagger it.`},
+  {id:'sig',when:()=>sdV(o=>o.v.planned&&o.v.planned.sig),t:'Signature Move!',b:()=>`The villain just shouted a warning: its next page is a <b>Signature Move</b>, one of its most dangerous attacks. Its planned page is in the <b>charging slot</b>. Wounds normally tear the draw pile. Deal wounds equal to its level in one hero round: the threshold wound tears the planned signature instead.`},
+  {id:'charge',when:()=>sdV(o=>o.v.charge),t:'Charged attack',b:()=>`The villain is winding up. On its next turn the <b>striped hexes</b> get hit instead of it playing a new page. Move out of them, or tear pages equal to the villain's level in one hero round to tear its charging page instead.`},
   {id:'haz',when:()=>inSd()&&S.sd.haz&&S.sd.haz.length,t:'Hazard hexes',b:()=>`Orange hexes are a hazard. <b>Any hero standing on one when the villain's turn starts takes damage</b>, so step off before you end the round.`},
   {id:'walls',when:()=>inSd()&&S.sd.walls&&S.sd.walls.length,t:'Walls',b:()=>`Walls block movement and beams like rubble. Walls built into the lair stay all fight; walls the villain raises crumble after a few rounds. <b>Villains bigger than one hex smash straight through walls and rubble</b>, so cover won't stop them.`},
   {id:'pit',when:()=>inSd()&&S.sd.pits&&S.sd.pits.length,t:'Pits',b:()=>`Dark hexes are pits. <b>Nobody can walk into one, but shots and beams pass over.</b> A jumping hero can clear one pit hex for 2 movement, and villains bigger than one hex stride across.`},
@@ -1561,7 +1594,7 @@ function tipFor(key){const[t,k,id]=key.split(':');
 function cellTip(x,y){const sd=S.sd;if(!sd||S.phase!=='sd')return null;const k=x+','+y,G=(id,pre)=>({title:GLOSS[id][0],body:(pre||'')+GLOSS[id][1]});
   const su=sd.sel!=null?sd.units[sd.sel]:null,sh=su&&!su.ko?heroOf(su):null,need=n=>Math.min(20,Math.max(2,n)),pct=n=>Math.round(5*(21-need(n)));
   const o=sd.vl.find(o=>!o.v.down&&inV(o.v,x,y));
-  if(o){const v=o.v,d=VILLAINS[o.key],L=v.level-1,eva=d.eva+L-hexA(v.hex),tough=d.tough+L,acc=d.acc+vLvB('acc',v.level)-(v.blind?4:0),pg=v.deck.length+v.discard.length;
+  if(o){const v=o.v,d=VILLAINS[o.key],L=v.level-1,eva=d.eva+L-hexA(v.hex),tough=d.tough+L,acc=d.acc+vLvB('acc',v.level)-(v.blind?3:0),pg=remainingPages(v);
     let b=`Evasion ${eva}: an attack die plus accuracy must reach it to hit. Toughness ${tough}: a wound roll plus Strength must reach it to tear a page. Accuracy +${acc} against your heroes' evasion. ${pg} page${pg===1?'':'s'} left.`;
     if(sh){const hn=eva-stat(sh,'acc'),wn=tough-stat(sh,'str');b+=` ${sh.name} hits on ${need(hn)}+ (${pct(hn)}% per die) and wounds on ${need(wn)}+ (${pct(wn)}%), before hit cards and bonuses.`}
     b+=v.hide?' Its facing is hidden until you land a hit.':v.sw?' Each body has its own facing: attack from a side or behind for bonus dice.':' The yellow arrow is its facing. Attacks from the shaded blind spot behind it get +1 die.';
@@ -1607,7 +1640,7 @@ function markSeen(k,n){S.seen=S.seen||{};const a=S.seen[k]=S.seen[k]||[];if(!a.i
 let PB=null;
 function openPlaybook(k){const def=VILLAINS[k],vs=vState(k),sd=(S.sd&&S.sd.vl&&S.sd.vl.find(o=>o.key===k))||null,lvl=sd?sd.v.level:vs.level,seen=(S.seen&&S.seen[k])||[];
   const known=c=>seen.includes(c.id);
-  const remain=sd?[...sd.v.deck,...sd.v.discard]:vs.deck.map(e=>buildCard(k,e,vs.level));
+  const remain=sd?[...sd.v.deck,...sd.v.discard,...(sd.v.planned?[sd.v.planned]:[])]:vs.deck.map(e=>buildCard(k,e,vs.level));
   const sorted=remain.slice().sort((a,b)=>(known(b)-known(a))||a.n.localeCompare(b.n));
   const torn=sd?sd.v.wounds:[];
   const all=remain.concat(torn);
@@ -1825,7 +1858,7 @@ const TUT=[
   /* Mole Boy, round 1 */
   {id:'b-splash',only:['sdgo'],lit:()=>'[data-a="sdgo"]',done:()=>!S.sd.intro,t:'Every fight opens with the villain\'s splash page. <b>Fight!</b>'},
   {id:'b-pages',next:1,only:[],lit:()=>'#app .pips',t:'Villains have no health bar. Their <b>playbook is their health</b>: every wound tears out a page. Mole Boy has 4 pages, so 4 wounds beat him.'},
-  {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Wounds always tear out the <b>top</b> page, and his top page is a Signature Move, Big Dig. Wound him this round and it never happens.'},
+  {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Big Dig is in the <b>charging slot</b>. Mole Boy is level 1, so one wound this round tears his planned Signature Move instead of the draw pile.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
   {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=3&&!S.sd.busy},
@@ -1841,7 +1874,7 @@ const TUT=[
     t:'From the blind spot Lynx rolls 3 dice instead of 2. <b>Tap Attack, then Mole Boy.</b>'},
   {id:'b-lres',only:[],done:()=>!S.sd.busy,t:'<b>Soft Belly</b> only triggers from the blind spot, so that wound landed for free. A hit doesn\'t always wound, though: the Clean Hit rolled 4 + 2 = 6, short of his toughness of 8.'},
   {id:'b-end',dq:[13],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=2,t:'Both heroes have acted. <b>End the round.</b>'},
-  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:'Every round the villain plays the top page of its playbook. <b>Tunnel Ambush:</b> he dug under the floor and burst up next to the hero farthest away, leaving rubble where he went down.'},
+  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:'Every round the villain resolves the page in its charging slot. <b>Tunnel Ambush:</b> he dug under the floor and burst up next to the hero farthest away, leaving rubble where he went down.'},
   {id:'b-actions',next:1,only:[],t:'<b>Combat menus:</b> Abilities holds your hero\'s primary power and equipment abilities. Other Actions holds Escort, Hack, Rally Spirit, and Avoid Damage. Icons show whether a choice uses your action, movement, or is free. <b>Selecting an entry only shows its details below the controls.</b> Tap Activate to use it; Cancel backs out without spending anything.'},
   {id:'b-rally',next:1,only:[],t:'<b>Rally Spirit:</b> In Other Actions, select Rally Spirit and tap Activate, then target yourself or an ally within a number of hexes equal to your <b>total discipline ranks</b>. Restore up to <b>3 Composure</b>, never above the target\'s maximum. Rally Spirit costs your action, so plan before ending the round.'},
   {id:'b-avoid',next:1,only:[],t:'<b>Avoid Damage:</b> In Other Actions, select Avoid Damage and tap Activate to spend your action for <b>+3 Evasion</b> against incoming attacks, or <b>+5</b> if next to valid cover such as walls, rubble, allies, civilians, or a terminal. A missed attack can strike cover in its path if that cover is a valid target. Hazards do not count as safe cover.'},

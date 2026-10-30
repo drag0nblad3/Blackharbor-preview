@@ -20,13 +20,13 @@ const assert=require('node:assert/strict');
    render();
   });
   const balance=await page.evaluate(()=>({
-    runic:GEAR.runeblade.ab.fx.str,stun:GEAR.baton.ab.fx.str,trinity:GEAR.crown.ab.fx.str,
+    runic:GEAR.runeblade.ab.fx.str,stun:GEAR.baton.ab.fx.str,trinity:GEAR.crown.ab.fx,
     kinetic:GEAR.bracer.ab.fx,slug:GEAR.shotgun.ab.fx.str,
     overclock:POWERS.overclock.txt,berserk:POWERS.berserk.txt,
     kineticDescription:abTxt(GEAR.bracer.ab)
   }));
   assert.deepEqual({runic:balance.runic,stun:balance.stun,trinity:balance.trinity,kinetic:balance.kinetic,slug:balance.slug},
-    {runic:3,stun:3,trinity:5,kinetic:{dice:1,str:-1},slug:5},'Seven-ability balance numbers');
+    {runic:3,stun:3,trinity:{foresee:1,reactionPeek:1},kinetic:{dice:1,str:-1,reactionWard:1},slug:5},'Seven-ability balance numbers');
   assert.match(balance.overclock,/\+1 accuracy and −1 Strength/);
   assert.match(balance.berserk,/\+3 Strength and −1 accuracy/);
   assert.match(balance.kineticDescription,/−1 Strength/);

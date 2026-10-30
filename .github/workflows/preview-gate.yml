@@ -5,7 +5,7 @@ name: Preview gate
 # keep their own workflows.
 on:
   push:
-    branches: [main]
+    branches: [main, mechanics-rework]
     paths:
       - '*.html'
       - '*.js'
@@ -34,7 +34,7 @@ jobs:
         run: for f in *.js; do node --check "$f"; done
       - name: Rules, data and text
         run: |
-          for t in balance cantor-rework payload-bombs villain-rebalance gameplay-text comic-ui investigation-ui villain-portraits; do
+          for t in mechanics-rework boss-options balance cantor-rework payload-bombs villain-rebalance gameplay-text comic-ui investigation-ui villain-portraits; do
             echo "::group::$t"; node tests/$t.cjs; echo "::endgroup::"
           done
       - name: One seeded campaign with abilities
@@ -51,7 +51,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser play-through
         run: |
-          for t in tactical-actions avoid-damage bridge-perks combat-menus save-load simulated-battle battle-graphics villain-covers layout-smoke; do
+          for t in mechanics-browser boss-options-browser tactical-actions avoid-damage bridge-perks combat-menus save-load simulated-battle battle-graphics villain-covers layout-smoke; do
             echo "::group::$t"; node tests/$t.cjs; echo "::endgroup::"
           done
       - name: Upload layout screenshots

@@ -13,7 +13,7 @@ const assert=require('node:assert/strict');
       startShowdown();const sd=S.sd;
       sd.intro=false;sd.busy=false;sd.quality='normal';sd.sel=0;sd.mode=null;
       sd.obs=[];sd.walls=[];sd.pits=[];sd.haz=[];sd.bombs=[];sd.beams=[];sd.hench=[];sd.civs=[];sd.term=null;
-      const u=sd.units[0],other=sd.units[1];u.x=4;u.y=4;other.x=0;other.y=8;
+      const u=sd.units[0],other=sd.units[1];u.x=4;u.y=4;other.x=0;other.y=8;sd.units.slice(2).forEach((a,i)=>{a.x=0;a.y=i});
       sd.v.x=6;sd.v.y=4;sd.v.shape='one';delete sd.v.body;delete sd.v.sw;
       render();
       return {button:!!document.querySelector('.other-actions-menu [data-a="combatPick:other:avoidDamage"]')};
