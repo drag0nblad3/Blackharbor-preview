@@ -52,6 +52,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: preview-gate-screenshots
+          name: blackharbor-layout-screenshots
           path: layout-shots/
           if-no-files-found: ignore
