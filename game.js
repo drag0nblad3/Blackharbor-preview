@@ -472,11 +472,11 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   return L.join(' ')}
 /* rank perks: ranks 2-3 (or a first rank outside the origin) give the old perk; ranks 4 and 5 are masteries */
 /* Version 22: ranks give no stats on their own; only rank 5 grants a capstone */
-/* Capstones carry no stats (Tyler, 2026-10-30): Tech recharge, Innate unshakable + last stand, Magic Arcana from torn pages */
-const RANK_PERK={tech:{5:{pwrRegen:1}},innate:{5:{unshake:1,lastStand:1}},magic:{5:{arcWound:1}}};
+/* Capstones carry no stats (Tyler, 2026-10-30): Tech recharge, Innate unshakable + last stand, Magic tears stagger charges */
+const RANK_PERK={tech:{5:{pwrRegen:1}},innate:{5:{unshake:1,lastStand:1}},magic:{5:{sigBreak:1}}};
 const perkAt=(t,n)=>RANK_PERK[t][n]||{};
 function rankMod(h,t,k){const own=t===BASE(h).track;let v=0;for(let n=own?2:1;n<=Math.min(h.ranks[t],RANK_MAX);n++)v+=perkAt(t,n)[k]||0;return v}
-function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='unshake')s.push("can't be Shaken");else if(k==='lastStand')s.push('once per fight, survive a blow that would knock you out with 1 health');else if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
+function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='sigBreak')s.push('any page you tear staggers a charging Signature Move at once');else if(k==='unshake')s.push("can't be Shaken");else if(k==='lastStand')s.push('once per fight, survive a blow that would knock you out with 1 health');else if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
 
 /* Version 22: signature powers run on the discipline engines instead of cooldowns */
 const POW_ENG={arc:{d:'tech',c:2},patch:{d:'tech',c:3},barricade:{d:'tech',c:2},overclock:{d:'tech',c:3},drone:{d:'tech',c:2},emp:{d:'tech',c:3},

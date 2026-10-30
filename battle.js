@@ -785,7 +785,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(bombAt&&!sd.result&&!u.ko&&dropBomb(u.x,u.y,1,dmgScale(bombAt))){fxU(u,'TSSS!','vhit');log('vill',`${VILLAINS[sd.vkey].short} leaves a lit bomb at ${h.name}'s feet.`);render()}
     if(flee&&!sd.result){const was=JSON.stringify(vCells(v));await vMove(()=>vAway(u,2,{strict:true}));if(JSON.stringify(vCells(v))!==was){fxV('HA HA!','say');log('vill','The villain slips out of reach.')}else{fxV('CORNERED!','good');log('vill','The villain tries to slip away, but there is nowhere to go.')}}
     if(wounds&&!u.ko){if(reap){const n=reap*wounds;h.hp=Math.min(stat(h,'maxHp'),h.hp+n);fxU(u,`+${n} HP`,'good');log('hero',`${h.name} reaps ${n} health.`)}
-      const aw=h.ranks.magic?stat(h,'arcWound'):0;if(aw&&u.res){const was=u.res.magic||0;u.res.magic=Math.min(arcMax(h),was+aw);if(u.res.magic>was)log('hero',`${h.name} draws ${u.res.magic-was} Arcana from the torn page.`)}}
+      sigBreak(h,v);const aw=h.ranks.magic?stat(h,'arcWound'):0;if(aw&&u.res){const was=u.res.magic||0;u.res.magic=Math.min(arcMax(h),was+aw);if(u.res.magic>was)log('hero',`${h.name} draws ${u.res.magic-was} Arcana from the torn page.`)}}
     if(fuseTick&&!sd.result&&sd.bombs&&sd.bombs.length){fxV('FZZT!','say');log('vill','Short Fuse! Every bomb on the board ticks down 1.');await bombTick()}
     if(reflect&&!sd.result&&!u.ko&&!v.down){fxV('PTCHOO!','say');log('vill',`Reflector Visor! The attack bounces back at ${h.name} as a beam.`);await fireBeams([aimLine(v,u)],dmgScale(reflect),'Reflector Visor')}
     if(flash&&!sd.result){const lm=litMap(),on=live().filter(o=>lm[o.x+','+o.y]);fxV('FLASH!','say');
@@ -954,6 +954,8 @@ async function fireBeams(lines,dmg,label,o={}){const sd=S.sd,v=sd.v,hitSet=o.hit
   const nk=new Set(lit.flatMap(e=>e.r.ks)).size;
   log('vill',hits.length||civs.length?`${nk} hexes stay lit until ${VILLAINS[sd.vkey].short}'s next turn.`:`${label}: ${lit.length} beam${lit.length===1?'':'s'} light up ${nk} hexes, but nobody is caught.`);
   checkLoss();return hits.map(e=>e.r.hit)}
+/* Magic capstone: a page torn by this hero staggers the villain's charge at once */
+function sigBreak(h,v){if(!v||!v.charge||v.down||!rankMod(h,'magic','sigBreak'))return;const n=v.charge.n;v.charge=null;fxV('STAGGERED!','good');log('hero',`Magic capstone: ${h.name} tears the page and ${n} fizzles out!`)}
 async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null;
   if(v.wounds.length-ch.w0>=(ch.need||2)){fxV('STAGGERED!','good');log('hero',`The heroes tore ${v.wounds.length-ch.w0} pages. ${ch.n} fizzles out!`);render();await sleep(400);return}
   const cells=ch.zone.map(k=>{const[x,y]=k.split(',').map(Number);return {...HC(x,y),x,y}});
@@ -1335,7 +1337,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
     hm.forEach(m=>{m.hp-=d;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',hm.length?`${a.n} hits ${hm.length} henchm${hm.length===1?'an':'en'}.`:`${a.n} hits nobody.`)}
   if(f.stasis){const zs=live().filter(o=>cheb(o,u)<=1);await A.ring(ctrU(u),col,3.4,{count:3});zs.forEach(o=>{o.stasis=true;fxU(o,'FROZEN IN TIME','good')});log('hero',`${h.name} stops time: ${zs.map(o=>heroOf(o).name).join(', ')} can't be hurt until ${h.name}'s next turn.`)}
   if(f.skip){sd.v.skip=true;await A.sigil(ctrV(),col,3);fxV('TIME STOPS!','good');log('hero',`${VILLAINS[sd.vkey].short} will lose its next turn.`)}
-  if(f.tear){await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`)}
+  if(f.tear){await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`);sigBreak(h,sd.v)}
   if(f.boost){const n=v(f.boost);u.boost=(u.boost||0)+n;if(f.jump)u.boostJump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');log('hero',`${h.name}: +${n} to the next move${f.jump?', and it is a jump':''}.`);if(!u.moved)sd.thenMode='move'}
   if(f.move){u.moved=false;if(JUMP_AB.includes(g.ab.id))u.jump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');sd.thenMode='move'}
   if(f.again){u.acted=false;await A.ring(ctrU(u),col,3,{count:2});fxU(u,'UNLEASHED!','good')}

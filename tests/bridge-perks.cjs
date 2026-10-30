@@ -46,6 +46,8 @@ const assert=require('node:assert/strict');
       h.hp=3;u.ko=false;u.lastSt=false;u.dr=0;u.absorb=0;u.res.tech=0;damageHero(u,9);check('Innate capstone: survives with 1 HP',h.hp===1&&!u.ko);
       damageHero(u,9);check('Innate capstone: only once per fight',u.ko);
       setR(5,0,0);check('Tech capstone: no accuracy',stat(h,'acc')===stat({...h,ranks:{tech:4,innate:0,magic:0}},'acc'));
+      setR(0,0,5);const v=sd.v;v.down=false;v.charge={n:'Test Blast',dmg:3,zone:[],w0:v.wounds.length,need:9};sigBreak(h,v);check('Magic capstone: tear staggers a charge at once',!v.charge);
+      setR(0,0,4);v.charge={n:'Test Blast',dmg:3,zone:[],w0:v.wounds.length,need:9};sigBreak(h,v);check('below rank 5 the charge holds',!!v.charge);v.charge=null;
       setR(0,0,5);check('Magic capstone: no composure',stat(h,'maxComp')===stat({...h,ranks:{tech:0,innate:0,magic:4}},'maxComp'));
       return out;
     });
