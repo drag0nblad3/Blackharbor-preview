@@ -5,7 +5,7 @@ The mechanical rework and the eight replacement boss actions are approved. This 
 ## Implemented rules
 
 - The next boss page leaves the draw pile and occupies a charging slot. It remains part of boss health. A previously revealed page shows its full name and rules. Unknown pages remain concealed; signatures retain their shout.
-- Each successful wound contributes one damage toward the boss's per-hero-round interruption threshold. Wounds normally tear the draw pile. The wound reaching boss level tears the planned signature instead, without an extra tear. The boss does not immediately replace an interrupted action. Damage counts reset for the next hero round, independently for each boss.
+- Each successful wound contributes one damage toward the boss's per-hero-round interruption threshold. Wounds normally tear the draw pile. The wound reaching half the boss level plus 1, rounded up (2 at level 1-2, 5 at level 7-8), tears the planned signature instead, without an extra tear. The boss does not immediately replace an interrupted action. Damage counts reset for the next hero round, independently for each boss.
 - Existing two-stage area attacks keep their windup and marked hexes. Their page remains in the charging slot through windup, then enters discard after firing. Tearing the charging page cancels the marked attack.
 - When only the planned page remains, it becomes woundable to finish the fight, even if it is a signature: the next successful wound tears it (Tyler, 2026-10-30).
 - Scry chooses between the planned page and following pages. It cannot replace an already winding-up area attack or restore an action already interrupted this round. Bury can replace a planned page; both preserve card counts and the round's accumulated damage.
