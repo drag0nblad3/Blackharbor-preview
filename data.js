@@ -11,7 +11,7 @@ const HERO_BASE = {
   hexen:{name:'Hexen',role:'Witch',track:'magic',col:'#3F51B5',fx:'bolt',glow:'#8C9EFF',maxHp:9,move:4,speed:2,acc:2,str:2,eva:8,range:3,maxComp:5,power:'curse',succ:'Malison'},
 };
 const POWERS = {
-  brace:{name:'Brace',cd:2,free:true,txt:'Free action. Until the villain acts, its attacks on allies within 2 hit this hero instead, for 1 less damage (never below 1).'},
+  brace:{name:'Brace',cd:2,free:true,txt:'Free action. Until the next hero turn, villain attacks on adjacent allies hit this hero instead, for 1 less damage (never below 1).'},
   arc:{name:'Arc Burst',cd:2,txt:'Attack with +1 die. Every henchman next to the target takes 1 damage.'},
   blur:{name:'Blur',cd:2,free:true,txt:'Free action. +2 evasion until the round ends, and your next escort this round costs no action.'},
   patch:{name:'Patch Up',cd:3,free:true,txt:'Free action. An ally within 3 (or yourself) heals 3 and regains 2 composure.'},
@@ -537,7 +537,7 @@ const GLOSS={
   guard:['Guard','All damage-reduction effects combined (Ground Out, Brace Field, Load-Bearing, Shield Wall and other Guard effects) can reduce each hit by at most 1 at total discipline levels 1–2, 2 at levels 3–4, and 3 at level 5+. Guard never reduces a positive hit below 1 damage. Absorption shields and Wards are separate from this limit.'],
   absorb:['Absorb shield','From Arcane Aegis or Carapace. Absorbs the listed amount of damage from incoming hits, after any guard reduction, then fades. It lasts until used up or the fight ends.'],
   warded:['Warded','The next hit against this hero is turned aside completely.'],
-  braced:['Braced','Until the villain acts, its attacks on allies within 2 hexes hit this hero instead, for 1 less damage (never below 1).'],
+  braced:['Braced','Until the next hero turn, villain attacks on adjacent allies hit this hero instead, for 1 less damage (never below 1).'],
   hexed:['Hexed','The villain has −4 evasion until the end of the round.'],
   boost:['Bonus movement','This hero\'s next move goes farther. If it says jump, that move can also clear one lit beam hex. It lasts until the hero moves, even into the next round.'],
   jumps:['All moves are jumps','Every move this hero makes is a jump, so it can clear one lit beam hex for 2 movement.'],

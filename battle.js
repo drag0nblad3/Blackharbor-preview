@@ -525,7 +525,7 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
     case 'strike':{let t=pickTarget(c.tgt,(VILLAINS[sd.vkey].rooted?0:c.mv||0)+(c.rng||1));if(!t)break;await vMove(()=>vToward(t,c.mv,c.rng),c.crush||0,c.n);
       if(dV(t,v)>c.rng){log('vill',`${vn} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
       if(shotVB(t,v)){log('vill',`A girder is in the way: ${vn}'s ${c.n} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
-      let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=2);
+      let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=1);
       if(g){log('hero',`${heroOf(g).name} braces and takes the blow.`);A.lunge('h'+g.hid,ctrU(t));await A.shield(ctrU(g),COL.yel,true);t=g;if(dmg>0)dmg=Math.max(1,dmg-1)}
       {const hit=await vHit(t,dmg,c.n,vStyle(c));if(hit&&c.comp&&!t.ko){const th=heroOf(t);th.comp=Math.max(0,th.comp-c.comp);fxU(t,'RATTLED!','vhit');log('vill',`${th.name} loses ${c.comp} composure.`);render()}
         if(hit&&c.dupeLow&&!t.ko&&!sd.mimic){const th=heroOf(t);if(th.comp*2<=stat(th,'maxComp')){const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(p)leaveDupe(v,p)}}}
