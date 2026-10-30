@@ -350,7 +350,7 @@ const plannedKnown=(k,v)=>!!v.planned&&((S.seen&&S.seen[k])||[]).includes(v.plan
 function refillPages(v){if(!v.deck.length&&v.discard.length){v.deck=shuffle(v.discard);v.discard=[]}}
 function planPage(o){const v=o.v;if(v.down||v.planned||v.planningDone||v.charge)return;
   refillPages(v);v.planned=v.deck.shift()||null;v.planningDone=true;v.turnDamage=v.turnDamage||0;}
-function vWarn(){const sd=S.sd;if(!sd||sd.result)return;sd.vl.forEach(o=>{planPage(o);const v=o.v,c=v.planned;
+function vWarn(){const sd=S.sd;if(!sd||sd.result)return;sd.vl.forEach(o=>{planPage(o);const v=o.v,c=v.planned;planDupes(v);
   if(v.down||!c||!c.sig){v.warn=null;return}if(v.warn===c.uid)return;
   v.warn=c.uid;log('vill',`${VILLAINS[o.key].short} shouts: “${c.shout}”`);})}
 function plannedView(o){const v=o.v,c=v.planned;if(v.down)return '';
@@ -593,7 +593,8 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       else if(c.pat==='sweep'){faceTo(near);const hit=new Set(),f=v.face;
         for(let i=0;i<(c.cnt||4)&&!sd.result;i++){const d=(f+i)%6;v.face=d;render();await sleep(FAST?0:160);await fireBeams([{from:emitCell(v,d),d}],dmgScale(c.dmg),c.n,{hit,ttl:c.ttl})}break}
       fxV('WHIRR!','say');render();await sleep(FAST?0:220);await fireBeams(lines,dmgScale(c.dmg),c.n,{ttl:c.ttl});break}
-    case 'charge':{if(sd.mimic&&v.charge){const t=pickTarget('nearest');if(!t)break;const add=hexesWithin(t,1).filter(p=>inB(p.x,p.y)&&!inV(v,p.x,p.y)).map(p=>p.x+','+p.y);
+    case 'charge':{if(sd.mimic&&!v.charge){log('vill',`Without Nocturne charging beside it, the double's ${c.n} fizzles.`);break}
+      if(sd.mimic&&v.charge){const t=pickTarget('nearest');if(!t)break;const add=hexesWithin(t,1).filter(p=>inB(p.x,p.y)&&!inV(v,p.x,p.y)).map(p=>p.x+','+p.y);
         v.charge.zone=[...new Set([...v.charge.zone,...add])];if(v.charge.track&&!v.charge.track.includes(t.hid))v.charge.track.push(t.hid);log('vill',`The double marks ${heroOf(t).name} for ${c.n} too.`);render();break}
       const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};
       if(c.follow&&c.zone==='mark')sd.v.charge.track=live().slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp).slice(0,2).map(u=>u.hid);render();
@@ -1101,7 +1102,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
   sd.hench.forEach(m=>{const h=HC(m.x,m.y),[b,a]=VART[m.owner]||VART.mole,art=(MINI.HF[m.owner]||MINI.HF.swarm)(b,a),el=m.elite;
     VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" title="${m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':hName(m)}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,m.infested?'#aaff00':m.shadow?'#bb88ff':el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
   (sd.dupes||[]).forEach(m=>{const h=HC(m.x,m.y),[b,a]=VART[m.owner]||VART.mole,art=(MINI.HF[m.owner]||MINI.HF.swarm)(b,a);
-    VT.push([m.y,`<div class="tok hmt dupe" data-tid="d${m.id}" title="Shadow double · cannot be harmed · mimics her next action" ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,'#bb88ff',.86,miniNum('∞'),'erim'))}</div>`])});
+    VT.push([m.y,`<div class="tok hmt dupe" data-tid="d${m.id}" title="Shadow double · cannot be harmed · repeats her planned page" ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,'#bb88ff',.86,miniNum('∞'),'erim'))}</div>`])});
   /* standees overlap the hex above, so heroes and villains are drawn top rows first (villains by their lowest row) */
   sd.units.forEach((o,i)=>{const hh=heroOf(o),b=BASE(hh);const done=o.moved&&o.acted;
     VT.push([o.y+.1,`<div class="tok hst ${o.ko?'ko':''} ${sd.sel===i?'sel':''} ${done?'done':''} ${hurt(o)}" data-tid="h${o.hid}" data-hero="${hh.cls}" ${D(o.x,o.y)} style="${P(o.x,o.y)}"><span class="st" title="${esc(hh.name)}">${standee(hh,o)}${o.guard?'<span class="gd"></span>':''}${hh.comp<=0&&!o.ko?'<span class="sh">!</span>':''}</span></div>`])});

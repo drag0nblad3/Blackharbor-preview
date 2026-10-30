@@ -32,7 +32,7 @@ function bossStatusView(){const sd=S.sd,lines=[];
     if(v.satellites)lines.push(`${n}: ${v.satellites}/2 scrap satellites. Adjacent heroes can pull one down using Other Actions.`);
     if(v.shadowMark)lines.push(`${n}: Stolen Shadow marks ${heroOf(sd.units.find(u=>u.hid===v.shadowMark.hid)).name}. Their next movement leaves a copy.`);
     if(v.shadowId&&sd.hench.some(m=>m.id===v.shadowId))lines.push(`${n}: destroy the 1-HP purple-ringed shadow before the next action to prevent the swap.`);
-    {const d=(v.dupes||[]).filter(id=>(sd.dupes||[]).some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will mimic her next action, then dissipate. Doubles cannot be harmed; stay out of their reach.`)}
+    {const d=(v.dupes||[]).filter(id=>(sd.dupes||[]).some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will repeat the page she has planned${(sd.dupes||[]).some(m=>v.dupes.includes(m.id)&&m.plan)?' (locked in: tearing or skipping her page does not stop them)':''}, then dissipate. Doubles cannot be harmed; stay out of their reach.`)}
     if(v.charge&&v.charge.track)lines.push(`${n}: ${v.charge.n} follows its targets: ${v.charge.track.map(id=>sd.units.find(u=>u.hid===id)).filter(u=>u&&!u.ko).map(u=>heroOf(u).name).join(' and ')}.`);
     if(v.borrowed)lines.push(`${n}: ${v.borrowed.filter(b=>sd.hench.some(m=>m.id===b.id)).length}/${v.borrowed.length} infested carriers survive. Green rings mark next-action origins.`);
   }
@@ -134,9 +134,11 @@ function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const
 /* the hex beside the least composed hero within rng (any hero if none), where a double steps out */
 function doubleSpot(v,rng){const L=live();if(!L.length)return null;const inR=L.filter(u=>dV(u,v)<=rng),t=(inR.length?inR:L).sort((a,b)=>heroOf(a).comp-heroOf(b).comp||dV(a,v)-dV(b,v))[0];
   const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(!p){log('vill','Her shadow finds no room beside its prey.');return null}return {t,p}}
+/* each double locks in its own copy of the page she has planned; tearing or skipping her page later does not touch it */
+function planDupes(v){const sd=S.sd;if(!v.planned||!v.dupes)return;for(const m of sd.dupes||[])if(v.dupes.includes(m.id)&&!m.plan)m.plan=JSON.parse(JSON.stringify(v.planned))}
 function takeDupes(v){const d=v.dupes||[];delete v.dupes;return d}
-async function dupeTurn(v,c,ids){const sd=S.sd;
-  for(const id of ids){const m=(sd.dupes||[]).find(o=>o.id===id);if(!m)continue;sd.dupes=sd.dupes.filter(o=>o!==m);
+async function dupeTurn(v,c0,ids){const sd=S.sd;
+  for(const id of ids){const m=(sd.dupes||[]).find(o=>o.id===id);if(!m)continue;sd.dupes=sd.dupes.filter(o=>o!==m);const c=m.plan||c0;
     if(c&&!sd.result&&!v.down&&live().length){const keep={x:v.x,y:v.y,face:v.face,hide:v.hide};v.x=m.x;v.y=m.y;sd.mimic=true;
       log('vill',`Her shadow double mimics ${c.n}.`);fxV('MIMIC!','say');
       try{await execCard(c)}finally{sd.mimic=false;v.x=keep.x;v.y=keep.y;v.face=keep.face;v.hide=keep.hide}checkLoss()}

@@ -17,6 +17,10 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Doubles copy every page, not only attacks.
  run('S.sd.hench=[]');await play('fade');await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('shades')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),2);assert(!get('S.sd.dupes.length'));
  assert.equal(get('S.sd.hench.length'),4);
+ // Doubles lock in her planned page and play it even if her own page is torn.
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=3+i%2;u.y=6})');await play('fade');
+ run(`S.sd.v.planned=${card('stars')};S.sd.vl.forEach(o=>planDupes(o.v))`);assert.equal(get('S.sd.dupes[0].plan.id'),'stars');
+ run('S.sd.v.planned=null');await run('(async()=>{const v=S.sd.v,d=takeDupes(v);await dupeTurn(v,null,d)})()');assert.equal(logs(/mimics Throwing Stars/),1);assert(!get('S.sd.dupes.length'));
  // A copied charge adds marks around the hero nearest the double.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.dupes[0].x=8;S.sd.dupes[0].y=7');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('deathm')};await execCard(c);await dupeTurn(v,c,d)})()`);assert(get('S.sd.v.charge.zone.includes("6,8")'));
