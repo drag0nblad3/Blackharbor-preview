@@ -5,6 +5,7 @@ function bossObserve(){
   const sd=S.sd;if(S.phase!=='sd'||!sd||sd.result)return;
   for(const {v} of sd.vl){
     if(v.down){delete v.circuit;delete v.shadowMark;delete v.setup;delete v.solarHeat;continue}
+    if(v.charge&&v.charge.track){const ks=new Set();for(const id of v.charge.track){const u=sd.units.find(o=>o.hid===id&&!o.ko);if(u)hexesWithin(u,1).forEach(p=>{if(inB(p.x,p.y)&&!inV(v,p.x,p.y))ks.add(bossKey(p))})}v.charge.zone=[...ks]}
     if(v.circuit){const [a,b]=v.circuit.map(id=>sd.units.find(u=>u.hid===id));if(!a||!b||a.ko||b.ko||cheb(a,b)>=4){delete v.circuit;log('hero','Closed Circuit breaks.')}}
     const m=v.shadowMark;if(m){const u=sd.units.find(u=>u.hid===m.hid);if(!u||u.ko){delete v.shadowMark;continue}
       if(u.x!==m.x||u.y!==m.y){delete v.shadowMark;
@@ -31,6 +32,8 @@ function bossStatusView(){const sd=S.sd,lines=[];
     if(v.satellites)lines.push(`${n}: ${v.satellites}/2 scrap satellites. Adjacent heroes can pull one down using Other Actions.`);
     if(v.shadowMark)lines.push(`${n}: Stolen Shadow marks ${heroOf(sd.units.find(u=>u.hid===v.shadowMark.hid)).name}. Their next movement leaves a copy.`);
     if(v.shadowId&&sd.hench.some(m=>m.id===v.shadowId))lines.push(`${n}: destroy the 1-HP purple-ringed shadow before the next action to prevent the swap.`);
+    {const d=(v.dupes||[]).filter(id=>sd.hench.some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will mimic her next action, then dissipate. Destroy ${d>1?'them':'it'} (1 HP) to stop the copy.`)}
+    if(v.charge&&v.charge.track)lines.push(`${n}: ${v.charge.n} follows its targets: ${v.charge.track.map(id=>sd.units.find(u=>u.hid===id)).filter(u=>u&&!u.ko).map(u=>heroOf(u).name).join(' and ')}.`);
     if(v.borrowed)lines.push(`${n}: ${v.borrowed.filter(b=>sd.hench.some(m=>m.id===b.id)).length}/${v.borrowed.length} infested carriers survive. Green rings mark next-action origins.`);
   }
   return lines.length?`<div class="boss-effects" role="status">${lines.map(t=>`<div class="cap">${esc(t)}</div>`).join('')}</div>`:'';
@@ -50,6 +53,10 @@ async function specialBossCard(c){const sd=S.sd,v=sd.v;
     case 'shadow':{sd.hench=sd.hench.filter(m=>m.id!==v.shadowId);delete v.shadowId;const t=pickTarget('nearest');if(t)v.shadowMark={hid:t.hid,x:t.x,y:t.y};break}
     case 'borrow':{const bodies=swBodies(v).slice(1);v.borrowed=sd.hench.filter(m=>m.owner==='swarm'&&!m.elite&&!m.shadow).slice(0,Math.min(2,bodies.length)).map((m,i)=>{m.infested=true;return {id:m.id,k:bodies[i].k}});break}
     case 'collection':await collection();break;
+    case 'double':{const L=live();if(!L.length)break;const inR=L.filter(u=>dV(u,v)<=c.rng),t=(inR.length?inR:L).sort((a,b)=>heroOf(a).comp-heroOf(b).comp||dV(a,v)-dV(b,v))[0];
+      const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(!p){log('vill','Her shadow finds no room beside its prey.');break}
+      const keep={x:v.x,y:v.y,face:v.face};v.x=p.x;v.y=p.y;render();await vHit(t,dmgScale(c.dmg),c.n,'slash');v.x=keep.x;v.y=keep.y;v.face=keep.face;
+      leaveDupe(v,p);break}
     default:return false;
   }
   log('vill',c.txt||cardText(c,sd.vkey));render();return true;
@@ -119,3 +126,18 @@ function restoreBorrowedBodies(v){
   for(const m of S.sd.hench)if(bindings.some(x=>x.id===m.id)&&!v.borrowed?.some(x=>x.id===m.id))delete m.infested;
   if(!v.down)swSync(v);
 }
+
+/* Nocturne's shadow doubles (Tyler, 2026-10-30): a 1-HP copy that repeats her next action from its own hex, then dissipates. */
+const DUPE_MIMIC=['strike','multi','sweep','taunt','endanger'];
+function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const id='dupe-'+sd.round+'-'+Math.random().toString(36).slice(2,6);
+  sd.hench.push({id,owner:sd.vkey,x:p.x,y:p.y,hp:1,shadow:true,dupe:true});(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
+function takeDupes(v){const d=v.dupes||[];delete v.dupes;return d}
+async function dupeTurn(v,c,ids){const sd=S.sd;
+  for(const id of ids){const m=sd.hench.find(o=>o.id===id);if(!m)continue;sd.hench=sd.hench.filter(o=>o!==m);
+    if(c&&DUPE_MIMIC.includes(c.t)&&!sd.result&&!v.down&&live().length){const keep={x:v.x,y:v.y,face:v.face,hide:v.hide};v.x=m.x;v.y=m.y;sd.mimic=true;
+      log('vill',`Her shadow double mimics ${c.n}.`);fxV('MIMIC!','say');
+      try{await execCard(c)}finally{sd.mimic=false;v.x=keep.x;v.y=keep.y;v.face=keep.face;v.hide=keep.hide}checkLoss()}
+    log('vill','The shadow double dissipates.');render()}}
+/* Nocturne: heroes left Shaken (no composure) by some of her actions take extra damage. */
+function shakenSting(c,L){if(!c.shakenDmg)return;for(const u of L){const h=heroOf(u);if(u.ko||h.comp>0||rankMod(h,'innate','unshake'))continue;
+  fxU(u,'SHAKEN!','vhit');log('vill',`${c.n}: ${h.name} is Shaken and takes ${c.shakenDmg}.`);damageHero(u,c.shakenDmg)}}

@@ -132,7 +132,7 @@ const RXSRC={gallows:{cap:['field','You overloaded his capacitor bank!'],bdrone:
   grid:{mirror:['red','You smashed his reflector visor!'],lens:['sight','You cracked his lens array!'],flash:['lattice','You burned out his afterimage capacitors!']}};
 for(const k in RXSRC)for(const id in RXSRC[k]){const r=rxOf(k,id);[r.src,r.brk]=RXSRC[k][id]}
 const ROMAN=['','II','III','IV','V','VI','VII'];
-const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest'};
+const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'least composed'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
 const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
 const chargeNeed=v=>Math.max(1,v.level); // Successful wounds in one hero round.
@@ -149,6 +149,7 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'renovate':return 'Marks the nearest hero and the surrounding six hexes. Before the next boss action, rubble and temporary walls inside disappear; empty perimeter hexes become walls for 2 hero rounds. Occupants leave doorways.';
     case 'solar':return 'Until the next boss action, abilities used within 2 hexes add 1 Heat (maximum 4). Then heroes within 2 take damage equal to Heat. At 3 or 4 Heat, Helios also tears one draw-pile page.';
     case 'satellites':return 'Turns up to two rubble hexes within 3 into satellites (maximum two). Each absorbs one successful attack wound, then falls beside Lodestone toward the attacker. An adjacent hero may spend an action to pull one down reliably.';
+    case 'double':return `A shadow double steps out beside the hero with the least composure within ${c.rng} and strikes them for ${c.dmg}. The 1-HP double stays, mimics her next action from where it stands, then dissipates. Destroy it first to stop the copy.`;
     case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.';
     case 'borrow':return 'Infests up to two regular mites, replacing up to two secondary swarm-body origins for the next action. Destroying a carrier removes that origin for that action. No extra attacks; infestation expires after that action.';
     case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${c.dmg}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${c.dmg}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'');
@@ -158,20 +159,20 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'rampage':return `Moves ${c.mv} toward the nearest hero, then everything adjacent takes ${c.dmg}.`;
     case 'summon':return `${c.k} ${hn}s join the fight.`;
     case 'endanger':return `Moves 2 toward the nearest civilian and harms them from up to 3 away. A hero next to them ${c.comp?`loses ${c.comp} Composure`:`takes ${c.dmg} damage`} instead.`;
-    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`;
+    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`+(c.shakenDmg?` Shaken heroes (no composure left) also take ${c.shakenDmg} damage.`:'');
     case 'henchvolley':return 'Every hired gun already within range 2 of a hero immediately fires one extra shot without moving. Elite henchmen do not join the volley.';
     case 'vanish':return 'Disappears and reappears far from the heroes.';
     case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`}
-    case 'puppet':return `The hero with the least composure loses ${c.amt||1} more and cannot move next round.`;
+    case 'puppet':return `The hero with the least composure loses ${c.amt||1} more${c.pull?`, is dragged up to ${c.pull} hexes toward it,`:''} and cannot move next round.`;
     case 'walls':return `${c.retreat?`Backs ${c.retreat} hexes away from the nearest hero, then r`:'R'}aises ${c.lines>1?`${c.lines} walls`:'a wall'} of ${c.len} hexes between itself and the heroes. Walls crumble after ${c.ttl} rounds.`;
     case 'hazard':if(c.grow){const who=c.cnt>1?`each of the ${c.cnt} nearest heroes`:'the nearest hero';return `${c.r?'The floor caves in under':'A one-hex sinkhole opens under'} ${who}${c.r?` and every hex within ${c.r} of them`:''} for ${c.ttl} villain turns. Anyone standing in one when the villain acts takes ${c.dmg}.`}return `The floor around ${c.cnt>1?`the ${c.cnt} nearest heroes`:'the nearest hero'} turns molten for ${c.ttl} villain turns. Anyone standing on it when the villain acts takes ${c.dmg}.`;
     case 'cage':return `Fills every open hex around the nearest hero with walls for ${c.ttl} rounds.`;
     case 'shrapnel':return `Detonates every wall and rubble pile within ${c.r}. Heroes next to one take ${c.dmg}. Walls are destroyed.`;
     case 'fortify':return `Rings itself with walls for ${c.ttl} rounds and recovers 1 torn page.`;
-    case 'swallow':return `Slithers ${c.mv} toward the nearest civilian or ${hn} and swallows ${c.cnt>1?`up to ${c.cnt}`:'one'} whole, growing one hex longer for the rest of the fight. A hero next to a civilian takes ${c.dmg} instead. With nothing to eat, it bites the nearest hero for ${c.dmg}.`;
+    case 'swallow':return `Slithers up to ${c.mv} after prey${c.cnt>1?`, ${c.cnt} times`:''}: a civilian first, then a hero, then the weakest ${hn}. A swallowed civilian or ${hn} makes it one hex longer for the rest of the fight. A hero is bitten for ${c.dmg}, and a hero next to the civilian takes the bite instead.`;
     case 'pull':return `Drags every hero within ${c.r} up to ${c.mv} hexes toward itself, then everything adjacent takes ${c.dmg}.`;
     case 'repel':return `Flings every hero within ${c.r} up to ${c.mv} hexes away. A hero who slams into a wall, rubble, the edge or another hero before flying the full distance takes ${c.dmg}.`;
-    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.amt?` The lights die and every hero loses ${c.amt} composure.`:''}`;
+    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.amt?` The lights die and every hero loses ${c.amt} composure${c.shakenDmg?`; Shaken heroes also take ${c.shakenDmg} damage`:''}.`:''} A 1-HP shadow double stays where she stood, mimics her next action, then dissipates.`;
     case 'converge':return `Every body of the swarm flies up to ${c.mv} hexes toward the nearest hero. That hero takes ${c.dmg} for each body next to them.`;
     case 'scatter':return `The swarm bursts apart. Each body reappears next to a different hero and strikes them for ${c.dmg}.`;
     case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${c.dmg} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
@@ -194,7 +195,7 @@ function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(b
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';
   if(c.bombx)c.txt+=' Heroes standing within 1 of a bomb lose 1 more.';
-  if(c.zone==='mark')c.txt+=' Her facing is revealed while she lines up the kill.';
+  if(c.zone==='mark')c.txt+=' Her facing is revealed while she lines up the kill.'+(c.follow?' The marks follow their targets as they move.':'');
   if((c.t==='strike'||c.t==='rampage')&&c.mv&&(VILLAINS[vk].shape==='serpent'||(SHAPES[VILLAINS[vk].shape]||[0]).length>1))c.txt+=c.crush?` Heroes in its path are shoved aside and take ${c.crush}.`:' Heroes in its path are shoved aside.';
   c.uid=Math.random().toString(36).slice(2,9);return c}
 const VCAP=8;

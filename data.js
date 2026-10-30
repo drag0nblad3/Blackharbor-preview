@@ -297,7 +297,7 @@ const VILLAINS = {
   wind:{n:'Solar Wind',t:'sweep',r:2,dmg:2},
   odl:{n:'Overdrive Lance',t:'charge',zone:'line',dmg:6,sig:true,shout:'Overdrive! OVERDRIVE!',brk:'You blew out his overdrive coil!'}
  },shape:'diamond'},
- serpent:{name:'Ouroboros',short:'Ouro',tag:'Serpent under the city',salvage:'Scales',rstyle:'shot',eva:11,tough:15,acc:6,hench:{name:'Cultist',rng:1,style:'slash'},elite:{name:'The High Priest',short:'Priest',rng:3,style:'bolt',priest:1},base:['gulp','bite','coil','hiss','faith','spit'],adv:['viper','devour','shedp','roll','eyes','squeeze'],cards:{
+ serpent:{name:'Ouroboros',short:'Ouro',tag:'Serpent under the city',salvage:'Scales',rstyle:'shot',eva:12,tough:15,acc:6,hench:{name:'Cultist',rng:1,style:'slash'},elite:{name:'The High Priest',short:'Priest',rng:3,style:'bolt',priest:1},base:['gulp','bite','coil','hiss','faith','spit'],adv:['viper','devour','shedp','roll','eyes','squeeze'],cards:{
   gulp:{n:'Swallow Whole',t:'swallow',mv:3,cnt:1,dmg:3,sig:true,shout:'Sssso many little snacks…',brk:'You pried its jaws apart!'},
   bite:{n:'Lunging Bite',t:'strike',tgt:'nearest',mv:3,rng:1,dmg:3},
   coil:{n:'Crushing Coils',t:'sweep',r:1,dmg:3},
@@ -308,7 +308,7 @@ const VILLAINS = {
   devour:{n:'Devour',t:'swallow',mv:5,cnt:2,dmg:4,sig:true,shout:'The feast begins!',brk:'You knotted its throat shut!'},
   shedp:{n:'Shed Skin',t:'reanimate'},
   roll:{n:'Death Roll',t:'rampage',mv:3,dmg:3,crush:2},
-  eyes:{n:'Serpent Eyes',t:'puppet',amt:2},
+  eyes:{n:'Serpent Eyes',t:'puppet',amt:2,pull:2},
   squeeze:{n:'Tightening Coils',t:'sweep',r:1,dmg:4}
  },shape:'serpent'},
  lode:{name:'Lodestone',short:'Lode',tag:'Magnetic tyrant',salvage:'Lodestones',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Scrap drone',rng:3,style:'shot'},base:['attract','spike','shrap','field','scrap','crush'],adv:['repel','rail','polar','storm','vortex','compact'],cards:{
@@ -326,18 +326,18 @@ const VILLAINS = {
   compact:{n:'Compactor',t:'sweep',r:1,dmg:4}
  },shape:'diamond'},
  noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
-  knife:{n:'Knife in the Dark',t:'strike',tgt:'weakest',mv:4,rng:1,dmg:3},
+  knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',mv:4,rng:1,dmg:3},
   fade:{n:'Fade',t:'fade',sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   shades:{n:'Shades',t:'summon',k:2},
-  dread:{n:'Whispers in the Dark',t:'taunt',amt:2,r:4},
+  dread:{n:'Whispers in the Dark',t:'taunt',amt:2,r:4,shakenDmg:1},
   snuff:{n:'Snuff the Lights',t:'endanger',dmg:2},
   spot:{n:'Spotlight',t:'charge',zone:'mark',dmg:6,sig:true,shout:'There you are…',brk:'You smashed her spotlight!'},
-  garrote:{n:'Garrote',t:'strike',tgt:'weakest',mv:5,rng:1,dmg:4},
-  eclipse:{n:'Total Eclipse',t:'fade',amt:2,sig:true,shout:'Lights out.',brk:'You lit up the whole room!'},
+  garrote:{n:'Garrote',t:'strike',tgt:'lowcomp',mv:5,rng:1,dmg:4},
+  eclipse:{n:'Total Eclipse',t:'fade',amt:2,shakenDmg:1,sig:true,shout:'Lights out.',brk:'You lit up the whole room!'},
   mirror:{n:'Mirror Images',t:'reanimate'},
   flurry:{n:'Blade Flurry',t:'multi',cnt:3,rng:2,dmg:2},
-  deathm:{n:'Death Mark',t:'charge',zone:'mark',dmg:8,sig:true,shout:'Your name is on my list.',brk:'You burned her list of names!'}
+  deathm:{n:'Death Mark',t:'charge',zone:'mark',follow:1,dmg:8,sig:true,shout:'Your name is on my list.',brk:'You burned her list of names!'}
  },shape:'one'},
  swarm:{name:'Murmur',short:'Murmur',tag:'A living swarm',salvage:'Chitin',rstyle:'shot',eva:14,tough:11,acc:4,hench:{name:'Mite',rng:1,style:'slash'},base:['converge','sting','hum','brood','bite','cloud'],adv:['scatter','venom','regrow','hail','hivest','engulf'],cards:{
   converge:{n:'Converge',t:'converge',mv:4,dmg:2,sig:true,shout:'WE COME TOGETHER.',brk:'You broke the swarm\'s formation!'},
@@ -418,7 +418,7 @@ const VINTEL = {
       {id:'glare',n:'Searing Glare',sfx:'GLARE!',arc:['front'],comp:1,dmg:2,txt:'Front arc. Reaction: the attacker takes 2 damage and loses 1 composure.'},
       {id:'shell',n:'Plasma Vents',sfx:'HSSS!',arc:['rear'],tough:5,txt:'Rear arc. Venting plasma gives +5 toughness for this wound.'}]},
   serpent:{intro:'Something has been eating the night shift on the subway lines. It is very old, very hungry, and the cult that feeds it wants the whole city on the menu.',
-    hints:['Swallows civilians and its own cultists to grow longer. Stand next to civilians and clear out henchmen to starve it.','Its coils hit everything next to any part of its body. The longer it gets, the less room you have.','The tail is its blind spot, but the tail lashes back. Strike its sides.'],
+    hints:['Swallows civilians first, then bites heroes, and eats its weakest cultists when nothing else is in reach. Stand next to civilians to take the bite for them.','Its coils hit everything next to any part of its body. The longer it gets, the less room you have.','The tail is its blind spot, but the tail lashes back. Strike its sides.'],
     react:[{id:'venom',n:'Venom Fangs',sfx:'HSSSS!',arc:['front'],dmg:2,comp:1,txt:'Front arc. Reaction: the fangs find you. The attacker takes 2 damage and loses 1 composure.'},
       {id:'tail',n:'Tail Lash',sfx:'THWIP!',arc:['rear'],adj:1,dmg:3,push:1,txt:'Rear arc. Reaction: if the attacker is adjacent, the tail lashes them for 3 damage and shoves them 1 hex away.'},
       {id:'gorged',n:'Gorged Coils',sfx:'GULP…',tough:2,gorge:1,txt:'+2 toughness for this wound, plus 2 more for each meal it has swallowed this fight (up to 3 meals).'}]},
@@ -428,7 +428,7 @@ const VINTEL = {
       {id:'plate',n:'Ferrous Plating',sfx:'CLANNG!',arc:['front'],tough:4,txt:'Front arc. +4 toughness for this wound.'},
       {id:'repulse',n:'Repulsor Field',sfx:'VWOMM!',arc:['rear'],dmg:1,push:2,txt:'Rear arc. Reaction: the attacker takes 1 damage and is flung 2 hexes away.'}]},
   noct:{intro:'Nobody has seen her face and lived to describe it. She hunts the wounded, and she is gone before they hit the floor.',
-    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Goes after the most injured hero. Keep your wounded close to help.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
+    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Her knives go for the hero with the least composure, and a Shaken hero bleeds from her whispers. Every fade leaves a shadow double that copies her next move: destroy it first.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
     react:[{id:'riposte',n:'Riposte',sfx:'SHHK!',arc:['front'],dmg:3,txt:'Front arc. Reaction: a knife comes straight back. The attacker takes 3 damage, at any range.'},
       {id:'veil',n:'Shadow Veil',sfx:'FSSSH…',arc:['flank'],escape:1,hide:1,txt:'Side arcs. Reaction: she slips 2 hexes away and her facing is hidden again.'},
       {id:'feint',n:'Feint',sfx:'TOO SLOW!',tough:3,txt:'+3 toughness for this wound.'}]},
@@ -617,9 +617,9 @@ const EXTRA_PAGES={
  cantor:{orders:{n:'The Collection',t:'collection'},nerve:{n:'Protection Racket',t:'endanger',comp:3}},
  architect:{partition:{n:'Partition',t:'walls',len:3,ttl:2,lines:2},foundry:{n:'Renovation Notice',t:'renovate'}},
  helios:{sunspot:{n:'Solar Debt',t:'solar'},dawn:{n:'Dawn Sweep',t:'multi',cnt:3,rng:3,dmg:2}},
- serpent:{mesmer:{n:'Mesmerizing Sway',t:'puppet',amt:1},lashout:{n:'Wide Coils',t:'sweep',r:2,dmg:2}},
+ serpent:{mesmer:{n:'Mesmerizing Sway',t:'puppet',amt:1,pull:2},lashout:{n:'Wide Coils',t:'sweep',r:2,dmg:2}},
  lode:{scrapfall:{n:'Scrap Satellites',t:'satellites'},magpulse:{n:'Magnetic Pulse',t:'repel',r:2,mv:2,dmg:2}},
- noct:{decoy:{n:'Stolen Shadow',t:'shadow'},terror:{n:'Isolated Prey',t:'strike',tgt:'farthest',mv:3,rng:1,dmg:3}},
+ noct:{decoy:{n:'Stolen Shadow',t:'shadow'},double:{n:'Shadow Double',t:'double',rng:5,dmg:3},terror:{n:'Isolated Prey',t:'strike',tgt:'farthest',mv:3,rng:1,dmg:3}},
  swarm:{needle:{n:'Borrowed Bodies',t:'borrow'},gather:{n:'Gather the Brood',t:'converge',mv:3,dmg:2}},
  bomber:{satchel:{n:'Satchel Toss',t:'bomb',tgt:'nearest',cnt:1,rng:3,fuse:1,dmg:4},spring:{n:'Springboard',t:'leap',cnt:1,mv:6,fuse:1,dmg:2}},
  grid:{cross:{n:'Cross Traffic',t:'beam',pat:'fan',dmg:2,ttl:2},sidelight:{n:'Side Lights',t:'beam',pat:'aim',tgt:'farthest',cnt:2,dmg:2}}

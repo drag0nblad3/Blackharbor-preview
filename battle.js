@@ -499,6 +499,7 @@ async function vHit(u,dmg,label,style){const h=heroOf(u);if(S.sd.v.cursed&&dmg>0
 function pickTarget(mode,reach){const sd=S.sd;let L=live();if(!L.length)return null;
   if(reach!=null&&mode!=='nearest'){const inR=L.filter(u=>dV(u,sd.v)<=reach);if(inR.length)L=inR;else mode='nearest'}
   if(mode==='weakest')return L.slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0];
+  if(mode==='lowcomp')return L.slice().sort((a,b)=>heroOf(a).comp-heroOf(b).comp||heroOf(a).hp-heroOf(b).hp)[0];
   const byD=L.slice().sort((a,b)=>dV(a,sd.v)-dV(b,sd.v));return mode==='farthest'?byD[byD.length-1]:byD[0]}
 function dmgScale(d){return d+Math.floor(S.sd.v.level/2)} /* Version 83 (Tyler): +1 damage at every even level */
 function vStyle(c){if(c.fx)return c.fx;return (c.rng||0)>1||c.t==='endanger'?VILLAINS[S.sd.vkey].rstyle:'slash'}
@@ -551,7 +552,7 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       break}
     case 'taunt':{await A.ring(ctrV(),COL.yel,c.r*2+2,{dashed:true,fill:false,count:3});
       const hit=live().filter(u=>dV(u,v)<=c.r);const lm=litMap(),ex=u=>(c.bombx&&(sd.bombs||[]).some(b=>cheb(bombP(b),u)<=1)?1:0)+(c.litx&&lm[u.x+','+u.y]?1:0);hit.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt-ex(u));fxU(u,'GRR!','miss')});
-      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);break}
+      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);shakenSting(c,hit);break}
     case 'vanish':{let best=null,bs=-1;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const s=Math.min(...live().map(u=>dV(u,{x,y})))+Math.random();if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),9);fxV('POOF!','miss');{const t=pickTarget('nearest');if(t)faceTo(t)}log('vill',`${vn} vanishes and reappears across the room.`);break}
     case 'multi':{const ts=live().filter(u=>dV(u,v)<=c.rng).sort((a,b)=>dV(a,v)-dV(b,v)).slice(0,c.cnt);
@@ -590,11 +591,18 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       else if(c.pat==='sweep'){faceTo(near);const hit=new Set(),f=v.face;
         for(let i=0;i<(c.cnt||4)&&!sd.result;i++){const d=(f+i)%6;v.face=d;render();await sleep(FAST?0:160);await fireBeams([{from:emitCell(v,d),d}],dmgScale(c.dmg),c.n,{hit,ttl:c.ttl})}break}
       fxV('WHIRR!','say');render();await sleep(FAST?0:220);await fireBeams(lines,dmgScale(c.dmg),c.n,{ttl:c.ttl});break}
-    case 'charge':{const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};render();
+    case 'charge':{const z=chargeZone(c.zone);sd.v.charge={n:c.n,dmg:dmgScale(c.dmg),zone:z,w0:v.wounds.length,need:chargeNeed(v)};
+      if(c.follow&&c.zone==='mark')sd.v.charge.track=live().slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp).slice(0,2).map(u=>u.hid);render();
       await A.ring(ctrV(),COL.yel,4,{inward:true,count:3});fxV('CHARGING…','say');log('vill',`${vn} begins charging ${c.n}! ${z.length} hexes are marked. Tear ${chargeNeed(v)} pages or get clear before it fires.`);break}
     case 'reanimate':{await A.ring(ctrV(),COL.mag,3,{inward:true,count:2});let n=0;for(let i=0;i<(c.heal||1)&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('ZZZAP!','vhit');log('vill',`${vn} recovers ${n} torn page${n>1?'s':''}.`)}else log('vill',`${vn} has nothing to recover.`);break}
-    case 'swallow':{const hn=VILLAINS[sd.vkey].hench.name.toLowerCase(),food=()=>[...sd.civs.map(o=>({o,k:'c'})),...sd.hench.map(o=>({o,k:'m'}))].sort((a,b)=>cheb(a.o,v)-cheb(b.o,v));let ate=0;
-      for(let n=0;n<(c.cnt||1)&&!sd.result;n++){const F=food()[0];if(!F)break;faceTo(F.o);await vMove(()=>vToward(F.o,n?2:c.mv,1),0,c.n);
+    case 'swallow':{const hn=VILLAINS[sd.vkey].hench.name.toLowerCase(),byC=(a,b)=>cheb(a,v)-cheb(b,v);let ate=0;
+      /* Tyler (2026-10-30): prey in reach in this order: civilians, heroes, then the weakest regular henchmen. Nothing in reach: chase a civilian, else the nearest hero. */
+      const prey=n=>{const R=(n?2:c.mv)+1,cv=sd.civs.filter(o=>cheb(o,v)<=R).sort(byC)[0];if(cv)return {o:cv,k:'c'};
+        const hs=live().filter(u=>dV(u,v)<=R).sort((a,b)=>dV(a,v)-dV(b,v))[0];if(hs)return {o:hs,k:'h'};
+        const m=sd.hench.filter(m=>(m.owner||sd.vkey)===sd.vkey&&!m.elite&&!m.shadow&&cheb(m,v)<=R).sort((a,b)=>a.hp-b.hp||byC(a,b))[0];if(m)return {o:m,k:'m'};
+        const far=sd.civs.slice().sort(byC)[0];if(far)return {o:far,k:'c'};const t=pickTarget('nearest');return t?{o:t,k:'h'}:null};
+      for(let n=0;n<(c.cnt||1)&&!sd.result;n++){const F=prey(n);if(!F)break;faceTo(F.o);await vMove(()=>vToward(F.o,n?2:c.mv,1),0,c.n);
+        if(F.k==='h'){if(dV(F.o,v)<=1)await vHit(F.o,dmgScale(c.dmg),c.n,'slash');else{log('vill',`${vn} lunges at ${heroOf(F.o).name} but can't reach.`);fxV('HSSS!','say');break}continue}
         const what=F.k==='c'?'a civilian':`a ${hn}`;
         if(cheb(F.o,v)>1){log('vill',`${vn} slithers after ${what} but can't reach.`);fxP(F.o.x,F.o.y,'EEK!','miss');break}
         faceTo(F.o);const prot=F.k==='c'&&live().find(u=>cheb(u,F.o)<=1);
@@ -604,8 +612,7 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
         if(F.k==='c'){sd.civs=sd.civs.filter(o=>o!==F.o);sd.harmed++}else sd.hench=sd.hench.filter(o=>o!==F.o);
         ate++;v.ate=(v.ate||0)+1;const grew=serpGrow(v);render();
         log('vill',`${vn} swallows ${what} whole! ${grew?`It grows to ${vCells(v).length+(v.grow||0)} hexes long.`:'It is too long to grow any more, so it recovers a torn page instead.'}`)}
-      if(!ate&&!food().length){const t=pickTarget('nearest');if(!t)break;log('vill',`Nothing left to eat. ${vn} turns on the heroes.`);await vMove(()=>vToward(t,c.mv,1),0,c.n);
-        if(dV(t,v)<=1)await vHit(t,dmgScale(c.dmg),c.n,'slash');else fxV('HSSS!','say')}break}
+      break}
     case 'pull':{const t0=pickTarget('nearest');if(t0)faceTo(t0);await A.ring(ctrV(),COL.cyan,c.r*2+2,{inward:true,count:3});const ts=live().filter(u=>!u.anchor&&dV(u,v)<=c.r).sort((a,b)=>dV(a,v)-dV(b,v));let moved=0;
       for(const u of ts){let n=0;for(let i=0;i<c.mv;i++){const fr=p=>sideOf(p,v)==='front'?0:1,t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(a,v)-dV(b,v)||fr(a)-fr(b))[0];if(!t||dV(t,v)>=dV(u,v))break;u.x=t.x;u.y=t.y;n++}if(n){moved++;fxU(u,'CLANK!','vhit')}}
       render();await sleep(FAST?0:320);log('vill',`${c.n}: ${moved?`${moved} hero${moved>1?'es are':' is'} dragged toward ${vn}.`:'nobody is close enough to feel it.'}`);
@@ -617,10 +624,10 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
         if(slam){if(await wardBlocks(u))continue;fxU(u,'SLAM!','vhit');damageHero(u,dm);log('vill',`${hn} is flung ${n} hex${n===1?'':'es'} and slams into something for ${dm}.`)}
         else{fxU(u,'WHOOSH!','miss');log('vill',`${hn} is flung ${n} hexes away.`)}}
       render();break}
-    case 'fade':{const L=live();let best=null,bs=-1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const d=L.length?Math.min(...L.map(u=>cheb(u,{x,y}))):3,s=-Math.abs(d-3)+Math.random()*.9;if(s>bs){bs=s;best=[x,y]}}
+    case 'fade':{const L=live(),from={x:v.x,y:v.y};let best=null,bs=-1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const d=L.length?Math.min(...L.map(u=>cheb(u,{x,y}))):3,s=-Math.abs(d-3)+Math.random()*.9;if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}v.face=rnd(6)-1;v.hide=true;noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),6);
-      if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} composure.`)}
-      fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);break}
+      if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} composure.`);shakenSting(c,L)}
+      fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);leaveDupe(v,from);render();break}
     case 'converge':{const t=pickTarget('nearest');if(!t)break;if(!v.sw){await vMove(()=>vToward(t,c.mv,1));if(dV(t,v)<=1)await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
       const os=JSON.stringify([v.x,v.y,v.sw]);swBodies(v).forEach(b=>swStep(v,b.i,t,c.mv,1,-1));faceTo(t);if(JSON.stringify([v.x,v.y,v.sw])!==os){render();await sleep(FAST?0:420)}
       const adj=swBodies(v).filter(b=>cheb(b,t)===1).length;
@@ -634,7 +641,10 @@ async function execCard(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       for(const [i,t] of pairs){if(sd.result||t.ko)continue;const b=swBodies(v)[i];if(!b||cheb(b,t)>1)continue;await vHit(t,dmgScale(c.dmg),`${c.n} (${SWN[b.k]})`,'slash')}break}
     case 'puppet':{const L=live();if(!L.length)break;const u=L.sort((a,b)=>heroOf(a).comp-heroOf(b).comp)[0],h=heroOf(u);
       await Promise.all([A.bolt(ctrV(),ctrU(u),COL.magic,true),A.bolt(ctrV(),ctrU(u),COL.magic,true)]);h.comp=Math.max(0,h.comp-(c.amt||1));u.dazed=true;fxU(u,'?!','vhit');
-      log('vill',`${h.name}'s limbs stop obeying. They can't move next round.`);break}
+      log('vill',`${h.name}'s limbs stop obeying. They can't move next round.`);
+      if(c.pull){if(u.anchor)log('hero',`${h.name} is anchored and isn't dragged.`);else{let n=0;for(let i=0;i<c.pull;i++){const t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(a,v)-dV(b,v))[0];if(!t||dV(t,v)>=dV(u,v))break;u.x=t.x;u.y=t.y;n++}
+        if(n){fxU(u,'DRAGGED!','vhit');log('vill',`${h.name} walks ${n} hex${n>1?'es':''} toward ${vn} against their will.`);render();await sleep(FAST?0:320)}}}
+      break}
     case 'leap':{let n=0;const done=[];
       for(let i=0;i<(c.cnt||1)&&!sd.result;i++){const L=live().filter(u=>!done.includes(u)&&dV(u,v)<=c.mv).sort((a,b)=>dV(a,v)-dV(b,v));let t=null,sp=null;
         for(const u of L){const s=leapSpot(u);if(s){t=u;sp=s;break}}
@@ -686,7 +696,7 @@ async function sweep(r,dmg,label){const sd=S.sd,v=sd.v;A.lunge('v'+sd.vi,ctrV())
    +4 to hit, damage 1 + half the level (twice as fast as normal henchmen). Taking one down is worth 1 of that villain's salvage.
    The Cantor's Made Man is a bodyguard: while he stands next to her he takes the first hit of every hero attack on her. */
 const eliteOf=k=>VILLAINS[k].elite||null;
-const hName=hm=>hm.shadow?'stolen shadow':hm.infested?'infested mite':hm.elite?eliteOf(hm.owner||S.sd.vkey).name:'the '+VILLAINS[hm.owner||S.sd.vkey].hench.name.toLowerCase();
+const hName=hm=>hm.dupe?'shadow double':hm.shadow?'stolen shadow':hm.infested?'infested mite':hm.elite?eliteOf(hm.owner||S.sd.vkey).name:'the '+VILLAINS[hm.owner||S.sd.vkey].hench.name.toLowerCase();
 function mkElite(o,t){const L=o.v.level;return {id:'e_'+o.key,owner:o.key,x:t.x,y:t.y,hp:henchHp(2+L),elite:1}}
 /* Version 107 (Tyler): Hive Jammer takes 1 health off every henchman, down to 1 */
 const henchHp=n=>S.facilities.includes('jammer')?Math.max(1,n-1):n;
@@ -837,14 +847,15 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sd
   beamTick();await hazardTick();checkLoss();await bombTick();checkLoss();
   for(let i=0;i<sd.vl.length&&!sd.result;i++){if(sd.vl[i].v.down)continue;focusV(i);const v=sd.v,vn=VILLAINS[sd.vkey].name;
     await resolveBossSetup(v);if(sd.result||v.down)continue;
-    const finishBorrow=beginBorrowedAction(v);try{
+    const finishBorrow=beginBorrowedAction(v),dup=takeDupes(v);let acted=null;try{
     if(v.skip){v.skip=false;cancelPlan(v);log('hero',`${vn} loses its planned action.`);}
     else if(v.charge){await fireCharge();if(v.planned){v.discard.push(v.planned);v.planned=null;}checkLoss();}
     else if(v.planned){const c=v.planned;await reveal(villainCardView(c));markSeen(sd.vkey,c.id);
       v.last=c;v.foresee=false;log('vill',`${vn} plays ${c.n}.`);fxV(c.n.toUpperCase()+'!','say');render();await sleep(300);
-      await execCard(c);if(!v.charge){v.planned=null;v.discard.push(c);}
+      await execCard(c);acted=c;if(!v.charge){v.planned=null;v.discard.push(c);}
       if(v.sw){const r=swSync(v);r.grew.forEach(k=>log('vill',`The ${SWN[k].toLowerCase()} body re-forms.`));}}
     else log('hero',`${vn}'s planned action was torn out.`);
+    await dupeTurn(v,acted,dup);
     }finally{finishBorrow()}
     checkLoss();render();await sleep(300)}
   for(const hm of sd.hench.slice()){if(sd.result)break;if(!sd.hench.includes(hm))continue;await henchAct(hm);checkLoss();render();await sleep(120)}
@@ -1084,7 +1095,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
     const ring=fu?BASE(heroOf(fu)).col:held?'#C92463':null,art=MINI.civArt(eyeHash(c.id),{panic:pz||held||pn});
     VT.push([c.y,`<div class="tok civt ${pn?'panic':''}" data-tid="c${c.id}" ${D(c.x,c.y)} style="${P(c.x,c.y)}" title="Civilian">${miniSvg(c.x,c.y,miniStand(h.cx,h.cy,art,'#F3CB4B',ring,.8,pz?miniBang:null,'crim'))}</div>`])});
   sd.hench.forEach(m=>{const h=HC(m.x,m.y),[b,a]=VART[m.owner]||VART.mole,art=(MINI.HF[m.owner]||MINI.HF.swarm)(b,a),el=m.elite;
-    VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" title="${m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':hName(m)}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,m.infested?'#aaff00':m.shadow?'#bb88ff':el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
+    VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" title="${m.dupe?'Shadow double · 1 HP · mimics her next action':m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':hName(m)}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,m.infested?'#aaff00':m.shadow?'#bb88ff':el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
   /* standees overlap the hex above, so heroes and villains are drawn top rows first (villains by their lowest row) */
   sd.units.forEach((o,i)=>{const hh=heroOf(o),b=BASE(hh);const done=o.moved&&o.acted;
     VT.push([o.y+.1,`<div class="tok hst ${o.ko?'ko':''} ${sd.sel===i?'sel':''} ${done?'done':''} ${hurt(o)}" data-tid="h${o.hid}" data-hero="${hh.cls}" ${D(o.x,o.y)} style="${P(o.x,o.y)}"><span class="st" title="${esc(hh.name)}">${standee(hh,o)}${o.guard?'<span class="gd"></span>':''}${hh.comp<=0&&!o.ko?'<span class="sh">!</span>':''}</span></div>`])});
