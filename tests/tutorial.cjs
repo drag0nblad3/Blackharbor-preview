@@ -21,9 +21,9 @@ const assert=require('node:assert/strict');
         await page.waitForTimeout(150);
         const s=await state();
         if(s.id==='free')break;
-        if(s.b!==last){seen[s.id]=s;last=s.b;stuck=0}
+        if(s.b!==last){seen[s.id]=s;last=s.b;stuck=0}else if(++stuck>25)assert.fail(`tutorial stuck on beat ${s.id} at ${size.width}px`);
         if(s.id==='b-pages'&&!seen.book){seen.book=true;await page.click('[data-a="book:mole"]');await page.waitForSelector('#comic');
-          seen.bookText=await page.textContent('#comic');await page.click('#comic [data-pb^="close"]');await page.waitForSelector('#comic',{state:'detached'});continue}else if(++stuck>25)assert.fail(`tutorial stuck on beat ${s.id} at ${size.width}px`);
+          seen.bookText=await page.textContent('#comic');await page.click('#comic [data-pb^="close"]');await page.waitForSelector('#comic',{state:'detached'});continue}
         const overlay=await page.$('#atk button, #cards button, #brk');
         if(overlay){await overlay.click().catch(()=>{});continue}
         if(s.busy)continue;
