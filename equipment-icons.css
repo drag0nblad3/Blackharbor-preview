@@ -1,0 +1,8 @@
+/* Equipment sprites keep their own ink and materials, independent of text color. */
+.equipment-icon{display:inline-block;flex:none;vertical-align:middle;overflow:visible;pointer-events:none;fill:none;max-width:100%}
+.gear-title{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.gear-title h3{margin:0;overflow-wrap:anywhere}
+.slot .equipment-icon{width:44px;height:44px}
+.equipment-label{display:inline-flex;align-items:center;gap:7px;min-width:0}
+.gear-sprite-link{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:480px){.gear-title{gap:7px}.gear-title .equipment-icon{width:44px;height:44px}}

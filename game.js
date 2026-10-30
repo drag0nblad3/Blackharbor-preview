@@ -1191,6 +1191,7 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
   <section class="panel">${coll('hq-ws',`<div><div class="eyebrow">Workshop</div><h2>Gear from salvage</h2></div>`,
     `${ws?'':'<p class="small muted" style="margin:0">Build the Workshop to craft gear. Consumables can be bought without it.</p>'}
     <p class="small muted" style="margin:0">Each item fills one body slot and needs the listed discipline ranks to equip. Gear costs only salvage, and higher-rank gear costs more. Tech abilities spend Power, Magic spells spend Arcana, and Innate abilities require Innate rank. Hybrid gear needs ranks in more than one discipline. "Any salvage" can be paid from any villain's salvage.</p>
+    <a class="btn sm gear-sprite-link" href="equipment-gallery.html" target="_blank" rel="noopener">Browse equipment gallery ↗</a>
     ${wsFind(canMake,craftCard)}
     ${coll('ws-browse',`<span class="eyebrow">Browse the armory and every blueprint</span>`,`${S.armory.length?coll('ws-arm',`<span class="eyebrow">In the armory · ${S.armory.length}</span>`,armG,true,'nested'):''}
     ${wsTabs}${gear||'<p class="small muted" style="margin:0">Nothing you can afford to craft right now.</p>'}${cant}
@@ -1213,7 +1214,7 @@ function gearExtra(g){const o=[];if(g.two)o.push('<b>Two-handed:</b> fills both 
   if(g.riposte)o.push('<b>Riposte:</b> once per round, when the villain misses you and is within your range, strike back with a free 1-die attack.');
   if(g.rescue)o.push('<b>Lifeline:</b> each civilian you get out through an exit restores 1 Power or 1 Arcana, or 2 health if neither is missing.');
   if(g.aura)o.push(`<b>Aura:</b> you and allies within ${AURA_R} hexes get ${modsTxt(g.aura)}.`);if(g.auraFx)o.push(`<b>Aura, ${AURA_FX[g.auraFx].n}:</b> you and allies within ${AURA_R} hexes ${AURA_FX[g.auraFx].txt}.`);return o}
-function gearInfo(k){const g=GEAR[k];return `${g.set?`<span class="settag" data-tip="kw:set">${esc(VILLAINS[g.set].name)} set</span>`:''}<div class="row between"><h3>${g.name}</h3><span class="row" style="gap:4px">${reqChips(g)}</span></div>
+function gearInfo(k){const g=GEAR[k];return `${g.set?`<span class="settag" data-tip="kw:set">${esc(VILLAINS[g.set].name)} set</span>`:''}<div class="row between"><div class="gear-title">${equipmentIcon(k,56)}<h3>${g.name}</h3></div><span class="row" style="gap:4px">${reqChips(g)}</span></div>
   <div class="small"><span class="eyebrow">${gearSlotN(g)}${g.pair?' · paired':''}</span> · ${g.cons?'Consumable · one use, then it is gone':(modsTxt(g.mods)||'No passive bonus')+(gearPoolTxt(g)?' · '+gearPoolTxt(g):'')}</div>
   ${g.ab?`<div class="small t-${g.type}"><b style="color:var(--tc)">${g.ab.n} · ${abCost(g)}.</b> ${abTxt(g.ab)}</div>`:''}
   ${g.jumps?'<div class="small" data-tip="kw:jumps"><b>All your moves are jumps.</b></div>':''}${gearExtra(g).map(t=>`<div class="small">${t}</div>`).join('')}
@@ -1229,7 +1230,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
   const ranks=Object.keys(TRACKS).map(t=>`<span class="disc t-${t} ${h.ranks[t]?'fill':''}" data-tip="kw:${t}">${TRACKS[t].name} ${h.ranks[t]}</span>`).join('');
   const res=poolTxt(h);if(h.pendingUp>0&&!h.trackPick&&Object.keys(TRACKS).every(t=>h.ranks[t]>=RANK_MAX))h.trackPick='none';
   const atHQ=S.phase==='hq',gearOK=atHQ||prepGear();
-  const slots=Object.keys(SLOTS).map(s=>{const g=h.gear[s],tw=s==='arms2'&&h.gear.arms&&GEAR[h.gear.arms].two;if(tw)return `<div class="slot has t-${GEAR[h.gear.arms].type}" data-tip="gear:${h.gear.arms}"><span class="sl">${SLOTS[s]}</span><span class="muted">${GEAR[h.gear.arms].name} (two hands)</span></div>`;return g?`<div class="slot has t-${GEAR[g].type}" data-tip="gear:${g}"><span class="sl">${SLOTS[s]}</span><span>${GEAR[g].name}</span>${gearOK?`<button class="btn sm" data-a="unequip:${h.id}:${s}">Remove</button>`:''}</div>`
+  const slots=Object.keys(SLOTS).map(s=>{const g=h.gear[s],tw=s==='arms2'&&h.gear.arms&&GEAR[h.gear.arms].two;if(tw)return `<div class="slot has t-${GEAR[h.gear.arms].type}" data-tip="gear:${h.gear.arms}"><span class="sl">${SLOTS[s]}</span><span class="muted">${GEAR[h.gear.arms].name} (two hands)</span></div>`;return g?`<div class="slot has t-${GEAR[g].type}" data-tip="gear:${g}"><span class="sl">${SLOTS[s]}</span><span class="equipment-label">${equipmentIcon(g,44)}${GEAR[g].name}</span>${gearOK?`<button class="btn sm" data-a="unequip:${h.id}:${s}">Remove</button>`:''}</div>`
     :gearOK?(()=>{const n=slotFits(h,s).filter(g=>wearOK(h,g)).length;return `<button type="button" class="slot pick" data-a="slotpick:${h.id}:${s}"><span class="sl">${SLOTS[s]}</span><span class="muted">Empty · ${n?`tap to equip (${n} fit${n===1?'s':''})`:'nothing fits yet'}</span></button>`})()
     :`<div class="slot"><span class="sl">${SLOTS[s]}</span><span class="muted">Empty</span></div>`}).join('');
   const efr=gearOK&&S.armory.length?eqFilter(h):null,avail=efr?efr.ks:[];
@@ -1251,7 +1252,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
   ${h.injuries.length?`<div class="row">${h.injuries.map(i=>`<span class="tag" data-tip="inj:${i}">${INJ[i].name}</span>`).join('')}</div>`:''}
   <div class="eyebrow" data-tip="kw:slot">Gear</div><div class="slots">${slots}</div>${pairOf(h)?`<div class="small" data-tip="kw:paired"><b>Paired ${GEAR[pairOf(h)].name}s:</b> ${GEAR[pairOf(h)].pair.txt}. Both weapons' own stats count in full.</div>`:''}${setRows(h)}
   <div class="row small"><span class="eyebrow" data-tip="kw:pouch">Pouch ${pouchOf(h).length}/${POUCH_MAX}</span>${pouchOf(h).map((g,i)=>`<span class="tag g" data-tip="gear:${g}">${GEAR[g].name}</span>${gearOK?`<button class="btn sm" data-a="unpouch:${h.id}:${i}">Remove</button>`:''}`).join('')||'<span class="muted">Empty. Consumables from the armory go here.</span>'}</div>
-  ${efr?`<div class="eyebrow">Equip from the armory</div>${efr.bar}`:''}${avail.length?`<div class="row">${avail.map(g=>{const ok=wearOK(h,g),G=GEAR[g];return `<button class="btn sm" data-a="equip:${h.id}:${g}" data-tip="gear:${g}" ${ok?'':'disabled'} title="${ok?'':`Needs ${reqTxt(G)}`}">+ ${G.name} <span class="muted">(${G.cons?`pouch ${pouchOf(h).length}/${POUCH_MAX}`:gearSlotN(G)}${ok?'':G.cons?', full':`, needs ${reqTxt(G)}`})</span></button>`}).join('')}</div>`:''}
+  ${efr?`<div class="eyebrow">Equip from the armory</div>${efr.bar}`:''}${avail.length?`<div class="row">${avail.map(g=>{const ok=wearOK(h,g),G=GEAR[g];return `<button class="btn sm" data-a="equip:${h.id}:${g}" data-tip="gear:${g}" ${ok?'':'disabled'} title="${ok?'':`Needs ${reqTxt(G)}`}">${equipmentIcon(g,28)} + ${G.name} <span class="muted">(${G.cons?`pouch ${pouchOf(h).length}/${POUCH_MAX}`:gearSlotN(G)}${ok?'':G.cons?', full':`, needs ${reqTxt(G)}`})</span></button>`}).join('')}</div>`:''}
   ${lvlUp}
   </div></details></div>`}
 

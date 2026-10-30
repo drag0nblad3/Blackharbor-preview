@@ -6,6 +6,7 @@ on:
     paths:
       - 'index.html'
       - 'portrait-gallery.html'
+      - 'equipment-gallery.html'
       - 'combat-art-lab.html'
       - 'miniature-gallery.html'
       - '*.js'
@@ -13,6 +14,7 @@ on:
       - '*.svg'
       - '*.avif'
       - 'assets/villain-covers/**'
+      - 'assets/equipment/**'
       - 'PREVIEW_STATUS.md'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
@@ -38,7 +40,7 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html *.css *.js *.avif *.svg site/
+          cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html equipment-gallery.html *.css *.js *.avif *.svg site/
           cp -R assets site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
