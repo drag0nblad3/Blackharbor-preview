@@ -252,11 +252,25 @@ return F})();
 const VPR_SHEET={gallows:[0,0],quarry:[1,0],cantor:[2,0],architect:[3,0],
   helios:[0,1],serpent:[1,1],lode:[2,1],noct:[3,1],
   swarm:[0,2],bomber:[1,2],grid:[2,2],mole:[3,2]};
+/* Comic-cover crops (VILLAIN_COVERS, villain-covers.js): face centre in 320x480 thumb space.
+   Small plates crop tight on the face from the thumb; dossier and investigation
+   plates take a wider upper-body crop from the full cover. */
+const VPR_FACE={gallows:[149,128],quarry:[194,116],cantor:[135,160],architect:[140,155],
+  helios:[160,128],serpent:[142,152],lode:[187,135],noct:[174,209],
+  swarm:[175,122],bomber:[165,135],grid:[165,145],mole:[150,210]};
+function vprCover(k,variant){
+  const art=typeof VILLAIN_COVERS!=='undefined'&&VILLAIN_COVERS[k],f=VPR_FACE[k];
+  if(!art||!f)return null;
+  const big=variant==='card'||variant==='investigation',w=big?170:110,h=w*116/160,dy=big?12:0;
+  const x=Math.min(Math.max(f[0]-w/2,0),320-w),y=Math.min(Math.max(f[1]+dy-h/2,0),480-h);
+  return {src:big?art.cover:art.thumb,box:[x,y,w,h].map(n=>+n.toFixed(1)).join(' ')};
+}
 let VPR_SEQ=0;
 function vPortrait(k,variant='card'){
   const d=VILLAINS[k];
   if(!d)return '';
   const key=vKey(k),colors=VART[k]||VART.mole,base=colors[0],accent=colors[1];
+  const cover=vprCover(k,variant);
   const n=++VPR_SEQ,id='vpr'+n,gid=id+'g',bgid=id+'b',dotid=id+'d',faceid=id+'f';
   const pieces=(VFIG[key]||VFIG.mole)(accent)
     .replace(/url\(#eyeglow\)/g,'url(#'+gid+')')
@@ -291,7 +305,11 @@ function vPortrait(k,variant='card'){
     <path d="M0 0L95 0L10 116H0Z" fill="#fff5be" opacity=".12"/>
     ${motif}
     <svg x="22" y="-4" width="116" height="125" viewBox="0 0 100 104" overflow="hidden">${pieces}</svg>
-    ${VPR_SHEET[k]?`<svg class="vportrait-crop" x="0" y="0" width="160" height="116"
+    ${cover?`<svg class="vportrait-crop vportrait-cover" x="0" y="0" width="160" height="116"
+      viewBox="${cover.box}" preserveAspectRatio="xMidYMid slice" overflow="hidden">
+        <image href="${cover.src}" x="0" y="0" width="320" height="480"
+          preserveAspectRatio="none" aria-hidden="true" decoding="async"/>
+      </svg>`:VPR_SHEET[k]?`<svg class="vportrait-crop" x="0" y="0" width="160" height="116"
       viewBox="${VPR_SHEET[k][0]*176+3} ${VPR_SHEET[k][1]*148+3} 169 140"
       preserveAspectRatio="none" overflow="hidden">
         <image href="villain-portraits.avif" x="0" y="0" width="704" height="444"
