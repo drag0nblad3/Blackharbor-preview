@@ -135,7 +135,7 @@ const ROMAN=['','II','III','IV','V','VI','VII'];
 const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'least composed'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
 const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
-const chargeNeed=v=>S.tut?Math.max(1,v.level):Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up; the scripted tutorial keeps 1 wound so Big Dig can be torn).
+const chargeNeed=v=>tutOn()?Math.max(1,v.level):Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up; the scripted tutorial keeps 1 wound so Big Dig can be torn).
 function applyMk(c,mk){c={...c};if(!mk)return c;
   if(c.dmg!=null)c.dmg+=mk;if(c.amt!=null)c.amt+=mk;if(c.k!=null)c.k+=Math.ceil(mk/2);if(c.mv)c.mv+=mk;if(c.rng>1)c.rng+=mk;
   if(c.r!=null&&(c.t!=='hazard'||c.grow))c.r+=Math.floor(mk/2);if(c.len)c.len+=mk;if(c.ttl)c.ttl+=Math.floor(mk/2);if(c.cnt)c.cnt+=Math.floor(mk/2);
