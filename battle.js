@@ -525,7 +525,7 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
     case 'strike':{let t=pickTarget(c.tgt,(VILLAINS[sd.vkey].rooted?0:c.mv||0)+(c.rng||1));if(!t)break;await vMove(()=>vToward(t,c.mv,c.rng),c.crush||0,c.n);
       if(dV(t,v)>c.rng){log('vill',`${vn} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
       if(shotVB(t,v)){log('vill',`A girder is in the way: ${vn}'s ${c.n} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
-      let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=2);
+      let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=1);
       if(g){log('hero',`${heroOf(g).name} braces and takes the blow.`);A.lunge('h'+g.hid,ctrU(t));await A.shield(ctrU(g),COL.yel,true);t=g;if(dmg>0)dmg=Math.max(1,dmg-1)}
       {const hit=await vHit(t,dmg,c.n,vStyle(c));if(hit&&c.comp&&!t.ko){const th=heroOf(t);th.comp=Math.max(0,th.comp-c.comp);fxU(t,'RATTLED!','vhit');log('vill',`${th.name} loses ${c.comp} composure.`);render()}
         if(hit&&c.dupeLow&&!t.ko&&!sd.mimic){const th=heroOf(t);if(th.comp*2<=stat(th,'maxComp')){const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(p)leaveDupe(v,p)}}}
@@ -804,7 +804,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     const ranged=dV(u,v)>1,close=body&&swBodies(v).some(o=>o.i!==body.i&&cheb(o,body)===1);
     if(body)log('hero',`${h.name} strikes the ${SWN[body.k].toLowerCase()} body from its ${ARCN[side]} arc.${close?' Another body is right beside it: +2 toughness.':''}`);
     let spin=false,powerDrain=0,counter=0,flee=false,drain=0,summon=0,push=0,wall=false,pull=0,hide=false,bombAt=0,fuseTick=false,reflect=0,flash=false;const rows=[],q={splash:[]};
-    for(let i=0;i<hits&&!sd.result;i++){let tc=drawTactic();if(tc.sig)tc={...tc,...rxOf(tc.sig,tc.id)};if(v.repress){v.repress=false;log('hero',`${tc.n} is revealed and repressed.`);tc={id:'glance',n:tc.n+' (repressed)',txt:'Repressed: this reaction has no effect. Roll to wound normally.'};}const okArc=!tc.arc||tc.arc.includes(side),okRng=!tc.ranged||ranged,okPart=!tc.part||(body&&body.k===tc.part),inArc=okArc&&okRng&&okPart;
+    for(let i=0;i<hits&&!sd.result;i++){let tc=drawTactic();if(tc.sig)tc={...tc,...rxOf(tc.sig,tc.id)};if(v.repress){v.repress=false;log('hero',`${tc.n} is revealed and repressed.`);if(v.repressComp){v.repressComp=false;h.comp=Math.min(stat(h,'maxComp'),h.comp+2);fxU(u,'+2 COMPOSURE','good');log('hero',`${h.name} restores 2 composure.`)}tc={id:'glance',n:tc.n+' (repressed)',txt:'Repressed: this reaction has no effect. Roll to wound normally.'};}const okArc=!tc.arc||tc.arc.includes(side),okRng=!tc.ranged||ranged,okPart=!tc.part||(body&&body.k===tc.part),inArc=okArc&&okRng&&okPart;
       const why=!tc.sig?'':!okPart?`${h.name} hit the ${body?SWN[body.k].toLowerCase():''} body, not the ${SWN[tc.part].toLowerCase()}, so it does nothing.`:!okRng?`${h.name} is adjacent, and it only answers ranged attacks.`:tc.ranged&&okArc?`${h.name} attacked from range: it triggers!`:'';
       const note=why||(tc.arc&&side?`${h.name} struck from the ${ARCN[side]} arc: ${inArc?'it triggers!':'wrong side, it does nothing.'}`:'');
       if(tc.sig&&!inArc){log('hero',why||`${tc.n} only works in the ${arcTxt(tc.arc)}. ${h.name} is in the ${ARCN[side]} arc, so it does nothing.`);fxU(u,!okPart?'WRONG BODY!':!okRng?'TOO CLOSE!':'WRONG SIDE!','good')}
@@ -905,6 +905,7 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
     {let n=0;for(const {h} of fieldGear('strip'))n+=Math.floor((sd.woundsBy[h.id]||0)/3);if(n){S.salvage[sd.vkey]+=n;L.push(`Scrapper's Hooks: +${n} ${def.salvage} stripped from the pages torn out.`)}}
     vs.beaten=(vs.beaten||0)+1;
     if(S.ethos.a==='restraint'){S.salvage[sd.vkey]++;L.push(`Restraint: +1 ${def.salvage}.`)}
+    if(sd.omenSalvage){S.salvage[sd.vkey]++;L.push(`Omen: +1 ${def.salvage}.`)}
     {const un=unlock(DEFEAT_UNLOCK[sd.vkey]);if(un.length)L.push(`Seized blueprints: ${un.join(', ')}.`)}
     {const was=vs.level;levelUpVillain(vs);vs.scheme=0;headline='Victory!';L.push(`${def.name} escapes in the chaos${vs.level>was?` and returns at level ${vs.level}`:''}.`)}}
   else if(res==='loss'){S.trust-=2;const was=vs.level,add=levelUpVillain(vs);vs.scheme=0;headline='Defeat';L.push(`The team is carried out of the lair. −2 trust.${vs.level>was?` ${def.name} grows bolder (level ${vs.level}).`:''}`)}
@@ -1348,15 +1349,15 @@ function usePower(){const sd=S.sd,u=sd.units[sd.sel],h=heroOf(u),pw=BASE(h).powe
       if(w&&!u.ko){h.hp=Math.min(stat(h,'maxHp'),h.hp+w);await A.heal(ctrU(u),COL.magic);fxU(u,`+${w} HP`,'good');log('hero',`${h.name} drains ${w} health.`)}})}
   if(pw==='serene')return act(async()=>{payPow(u,h);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().forEach(o=>{const t=heroOf(o);t.comp=Math.min(stat(t,'maxComp'),t.comp+2)});fxU(u,'BREATHE…','say');log('hero',`${h.name} steadies the team: +2 composure each.`)});
   if(pw==='brace')return act(async()=>{u.guard=true;payPow(u,h);await A.shield(ctrU(u),COL.yel,true);fxU(u,'BRACE!','good');log('hero',`${h.name} braces to protect nearby allies.`)});
-  if(pw==='blur')return act(async()=>{await A.sparkle(ctrU(u),BASE(h).glow);u.buffEva=(u.buffEva||0)+2;u.freeEvac=true;payPow(u,h);fxU(u,'ZOOM!','good');log('hero',`${h.name} blurs: +2 evasion this round.`)});
+  if(pw==='blur')return act(async()=>{await A.sparkle(ctrU(u),BASE(h).glow);u.buffEva=(u.buffEva||0)+2;u.freeEvac=true;payPow(u,h);fxU(u,'ZOOM!','good');log('hero',`${h.name} blurs: +2 evasion until the next hero turn.`)});
   if(pw==='mark')return act(async()=>{sd.v.marked=true;u.markUsed=true;payPow(u,h);await A.reticle(ctrV(),BASE(h).glow);fxV('MARKED!','good');log('hero',`${h.name} marks ${VILLAINS[sd.vkey].name}: +1 die on every attack against it from a side or the rear this round.`)});
-  if(pw==='omen')return act(async()=>{payPow(u,h);await A.sigil(ctrV(),BASE(h).glow,2);sd.v.foresee=true;if(sd.v.planned)markSeen(sd.vkey,sd.v.planned.id);live().forEach(o=>{const t=heroOf(o);t.comp=Math.min(stat(t,'maxComp'),t.comp+1)});fxU(u,'I FORESEE…','say');log('hero',`${h.name} reads the omens.`)});
+  if(pw==='omen')return act(async()=>{payPow(u,h);await A.sigil(ctrV(),BASE(h).glow,2);sd.v.foresee=true;if(sd.v.planned)markSeen(sd.vkey,sd.v.planned.id);fxU(u,'I FORESEE…','say');log('hero',`${h.name} reads the omens.${sd.omenSalvage?'':' Win this fight for +1 salvage.'}`);sd.omenSalvage=true});
   if(pw==='quake')return act(async()=>{payPow(u,h);A.lunge('h'+u.hid,ctrU(u));await A.ring(ctrU(u),BASE(h).glow,3.2,{count:2});
     const hm=sd.hench.filter(m=>cheb(m,u)<=1),qd=Math.max(1,potOf(h)),qh=Math.max(1,Math.ceil(qd/2));hm.forEach(m=>{m.hp-=qh;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'THOOM!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);
     const keep=sd.vi;for(let i=0;i<sd.vl.length;i++){if(sd.vl[i].v.down||dV(u,sd.vl[i].v)>1)continue;focusV(i);if(VILLAINS[sd.vkey].rooted){fxV('BOLTED DOWN!','miss');log('hero',`${VILLAINS[sd.vkey].short} is bolted to the floor and can't be shoved.`);continue}const vz=VSIZE[sd.v.shape]||1;if(vz>qd){fxV('UNMOVED!','miss');log('hero',`${VILLAINS[sd.vkey].short} is size ${vz}, too big to shove at Innate rank ${qd}.`);continue}await vMove(()=>vAway(u,1,{strict:true}));fxV('SHOVED!','hit')}focusV(keep);
     log('hero',`${h.name} quakes the ground${hm.length?`, flattening ${hm.length} henchm${hm.length===1?'an':'en'}`:''}.`)});
-  if(pw==='curse'){if(sd.v.repress)return;if(dV(u,sd.v)>4){fxU(u,'TOO FAR','miss');render();return}
-    return act(async()=>{payPow(u,h);await A.bolt(ctrU(u),ctrV(),BASE(h).glow,true);await A.sigil(ctrV(),BASE(h).glow,2.6);sd.v.repress=true;fxV('REPRESSED!','good');log('hero',`${h.name} represses the next reaction revealed from ${VILLAINS[sd.vkey].name}.`)})}
+  if(pw==='curse'){if(sd.v.repress)return;
+    return act(async()=>{payPow(u,h);await A.bolt(ctrU(u),ctrV(),BASE(h).glow,true);await A.sigil(ctrV(),BASE(h).glow,2.6);sd.v.repress=true;sd.v.repressComp=true;fxV('REPRESSED!','good');log('hero',`${h.name} represses the next reaction revealed from ${VILLAINS[sd.vkey].name}.`)})}
   sd.mode=sd.mode===pw?null:pw;render()}
 /* hybrid bridge perks (BRIDGE in game.js): Technomancer trades, Primal's Blood Price switch */
 function bridgeRow(u,h){if(u.ko)return '';const b=[];

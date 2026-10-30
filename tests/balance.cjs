@@ -41,7 +41,7 @@ const cases=[
   ['claws','lynx',false,true,1.320],
   ['claws','lynx',true,true,1.750],
   ['lance','volt',false,false,1.980],
-  ['soulreaver','hexen',false,false,1.690]
+  ['soulreaver','hexen',false,false,1.960]
 ];
 let matchupCount=0;
 for(const [id,hero,pair,flank,target] of cases){

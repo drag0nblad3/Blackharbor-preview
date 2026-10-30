@@ -383,13 +383,53 @@ async function botAbs(u,h,phase,will){const sd=S.sd;for(const k of abList(h)){if
       else if(kind==='gain')await useAbK(u,h,k)}
     else if(phase==='post'){if(kind==='def'&&dV(u,sd.v)<=3)await useAbK(u,h,k);
       else if(kind==='shock'&&sd.hench.some(m=>cheb(m,u)<=f.shock[0]))await useAbK(u,h,k)}}}
+/* Signature powers. 'move' runs before moving, 'pre' after moving and before attacking, 'post' after attacking.
+   Every power has a rule (2026-10-30, Tyler: the bot used to skip Brace, Quake, Patch Up, Barricade, Blur, Omen and others). */
+/* Movement and board gear (2026-10-30, Tyler: every gear ability should get used). Boosts and Solar Dive before/after the move,
+   teleports and leaps when the villain is still out of attack range, cover walls, Jackhammer next to the villain, Time Stop to save allies. */
+const atkScore=(u,v,rng)=>(x,y)=>{const p={x,y},d=dV(p,v);if(d<=rng){const s=sideOf(p,v);return 100+(s==='rear'?10:s==='flank'?5:0)+(rng>1?Math.min(d,rng)*1.5:0)}return -d*2};
+async function botMoveGear(u,h,phase){const sd=S.sd,v=sd.v,rng=stat(h,'range');if(!v||sd.result||u.ko)return;
+  for(const k of abList(h)){if(sd.result||u.ko)return;const g=GEAR[k],a=g.ab,f=a.fx||{};sd.sel=sd.units.indexOf(u);if(!abOk(u,h,k))continue;
+    if(phase==='move'&&f.boost&&!u.moved&&dV(u,v)>stat(h,'move')+rng){await useAbK(u,h,k);await idle();sd.mode=null;continue}
+    if(phase==='pre'&&dV(u,v)>rng&&f.move&&u.moved){if(await useAbK(u,h,k)){await idle();sd.mode=null;u.moved=false;await moveTo(u,atkScore(u,v,rng))}continue}
+    if(phase==='pre'&&dV(u,v)>rng&&a.mode==='tele'){const r=abV(a.r,potOf(h)),sc=atkScore(u,v,rng);let best=null,bs=sc(u.x,u.y);
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(cheb({x,y},u)>r||blocked(x,y))continue;const q=sc(x,y)-danger(x+','+y);if(q>bs){bs=q;best={x,y}}}
+      if(best){sd.mode='abtele';sd.abKey=k;await onCell(best.x,best.y);await idle();sd.mode=null}continue}
+    if(phase==='pre'&&f.breach&&dV(u,v)<=1){await useAbK(u,h,k);await idle();continue}
+    if(phase==='post'&&f.stasis&&dV(u,v)<=4&&(live().some(o=>o!==u&&cheb(o,u)<=1&&heroOf(o).hp*2<=stat(heroOf(o),'maxHp'))||h.hp*2<=stat(h,'maxHp'))){await useAbK(u,h,k);await idle();continue}
+    if(phase==='post'&&a.mode==='cover'&&dV(u,v)<=5){const r=abV(a.r,potOf(h));let best=null,bd=dV(u,v);
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){const p={x,y};if(cheb(p,u)>r||cheb(p,u)<1||blocked(x,y)||cheb(p,u)!==1)continue;const d=dV(p,v);if(d<bd){bd=d;best=p}}
+      if(best){sd.mode='abcover';sd.abKey=k;await onCell(best.x,best.y);await idle();sd.mode=null}}}}
+/* Hybrid bridge perks that need a button (2026-10-30, Tyler). Augmented and Paragon are passive.
+   Primal: Blood Price on while composure is above half. Technomancer: once per round, refill whichever pool is lower. */
+function botBridge(u,h){const sd=S.sd;sd.sel=sd.units.indexOf(u);
+  if(bridgeOn(h,'primal')){const want=h.comp*2>stat(h,'maxComp');if(!!u.bloodPay!==want)bridgeAct('blood')}
+  if(bridgeOn(h,'techno')&&!u.convRd){const p=(u.res.tech||0)/Math.max(1,pwrMax(h)),a=(u.res.magic||0)/Math.max(1,arcMax(h));
+    if(a<0.34&&p>0.5&&(u.res.tech||0)>=3)bridgeAct('toArc');else if(p<0.34&&a>0.5&&(u.res.magic||0)>=2)bridgeAct('toPwr')}}
 async function botPower(u,h,phase){const sd=S.sd,pw=BASE(h).power;sd.sel=sd.units.indexOf(u);if(!powOk(u,h))return;
-  if(phase==='pre'&&(pw==='berserk'||pw==='overclock'||pw==='mark'))return usePower();
-  if(phase==='pre'&&pw==='curse'&&dV(u,sd.v)<=4)return usePower();
-  if(phase==='pre'&&pw==='regen'&&stat(h,'maxHp')-h.hp>=2)return usePower()}
+  const v=sd.v,hurt=o=>stat(heroOf(o),'maxHp')-heroOf(o).hp,low=o=>heroOf(o).comp<=Math.ceil(stat(heroOf(o),'maxComp')/2);
+  if(phase==='move'){if(pw==='leap'&&!u.moved&&dV(u,v)>stat(h,'move')+stat(h,'range'))return usePower();return}
+  if(phase==='pre'){
+    if(pw==='berserk'||pw==='overclock'||pw==='mark'||pw==='curse')return usePower();
+    if(pw==='regen'&&hurt(u)>=2)return usePower();
+    if(pw==='omen'&&!sd.omenSalvage)return usePower();
+    if(pw==='emp'&&dV(u,v)<=Math.min(3,stat(h,'range')))return usePower();
+    if(pw==='drone'&&sd.hench.some(m=>cheb(m,u)<=3))return usePower();
+    if(pw==='quake'&&(sd.hench.some(m=>cheb(m,u)<=1)||dV(u,v)<=1))return usePower();
+    if(pw==='serene'&&live().filter(low).length>=2)return usePower();
+    if(pw==='patch'){const t=live().filter(o=>cheb(o,u)<=3&&(hurt(o)>=3||low(o))).sort((a,b)=>hurt(b)-hurt(a))[0];if(t){usePower();if(sd.mode==='patch')await onCell(t.x,t.y);sd.mode=null}}
+    return}
+  if(phase==='post'){
+    if(pw==='brace'&&dV(u,v)<=4&&live().some(o=>o!==u&&cheb(o,u)<=1))return usePower();
+    if(pw==='blur'&&dV(u,v)<=4)return usePower();
+    if(pw==='aegis'&&dV(u,v)<=4)return usePower();
+    if(pw==='barricade'&&dV(u,v)<=5){const al=live().filter(o=>o!==u).sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0]||u;let best=null,bd=1e9;
+      for(let y=0;y<N;y++)for(let x=0;x<N;x++){const p={x,y};if(cheb(p,u)>2||blocked(x,y)||cheb(p,al)!==1)continue;const d=dV(p,v);if(d<bd){bd=d;best=p}}
+      if(best&&bd<dV(al,v)){usePower();if(sd.mode==='barricade')await onCell(best.x,best.y);sd.mode=null}}}}
 async function attack(u){if(ABIL){const sd=S.sd,h=heroOf(u);if(!u.acted&&!u.ko&&!sd.result){const vi=bestV(u);if(vi>=0){focusV(vi);const v=sd.v;
     const st=abList(h).find(k=>GEAR[k].ab.mode==='strike'&&abOk(u,h,k)&&(!GEAR[k].ab.rng||dV(u,v)<=GEAR[k].ab.rng));sd.sel=sd.units.indexOf(u);
     if(st){sd.mode='abstrike';sd.abKey=st;const c=vCells(v)[0];await onCell(c.x,c.y);await idle();return}
+    if(dV(u,v)<=4&&BASE(h).power==='drain'&&powOk(u,h)){sd.sel=sd.units.indexOf(u);usePower();await idle();return}
     if(dV(u,v)<=stat(h,'range')&&BASE(h).power==='arc'&&powOk(u,h)){const c=vCells(v).find(c=>cheb(u,c)<=stat(h,'range'));sd.mode='arc';await onCell(c.x,c.y);await idle();return}}}}
   return attack0(u)}
 async function attack0(u){const sd=S.sd,h=heroOf(u);if(u.acted||u.ko||sd.result)return;const rng=stat(h,'range');sd.sel=sd.units.indexOf(u);
@@ -430,13 +470,15 @@ async function heroTurn(u,resc){const sd=S.sd,h=heroOf(u);if(u.ko||sd.result)ret
       const tgt=followers(u).length&&!free.some(c=>cheb(c,u)<=4)?sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}}):free.length?free:sd.exits.map(e=>{const[x,y]=e.split(',').map(Number);return {x,y}});
       await moveTo(u,(x,y)=>-Math.min(...tgt.map(t=>cheb(t,{x,y}))));await esc();await attack(u);await avoid(u);return}}
   const vi=bestV(u);if(vi<0)return;focusV(vi);const v=sd.vl[vi].v,rng=stat(h,'range');
+  if(ABIL){botBridge(u,h);await botPower(u,h,'move');await botMoveGear(u,h,'move');await idle()}
   await moveTo(u,(x,y)=>{const p={x,y},d=dV(p,v);if(d<=rng){const sd2=sideOf(p,v);return 100+(sd2==='rear'?10:sd2==='flank'?5:0)+(rng>1?Math.min(d,rng)*1.5:0)}return -d*2-(sd.hench.some(m=>cheb(m,p)<=1)?1:0)});
-  if(sigThreat(u)&&(heroOf(u).hp*2<=stat(h,'maxHp')||(dV(u,v)>rng&&!sd.hench.some(m=>cheb(m,u)<=rng)))){if(ABIL){await botAbs(u,h,'post',false);await idle()}await avoid(u);if(u.acted||sd.result||u.ko)return}
+  if(sigThreat(u)&&(heroOf(u).hp*2<=stat(h,'maxHp')||(dV(u,v)>rng&&!sd.hench.some(m=>cheb(m,u)<=rng)))){if(ABIL){await botAbs(u,h,'pre',false);await botAbs(u,h,'post',false);await botPower(u,h,'post');await botMoveGear(u,h,'post');await idle()}await avoid(u);if(u.acted||sd.result||u.ko)return}
   if(await pullSat(u)){if(ABIL&&!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}return}
+  if(ABIL){await botMoveGear(u,h,'pre');await idle();if(sd.result||u.ko)return}
   if(ABIL){const inR=dV(u,v)<=rng;await botAbs(u,h,'pre',inR);await botPower(u,h,'pre');await idle();if(sd.result||u.ko)return}
   await attack(u);
   if(ABIL&&!sd.result&&!u.ko){for(const k of abList(h))if(abKind(GEAR[k])==='again'&&abOk(u,h,k)&&!sd.result&&!u.ko){await useAbK(u,h,k);await idle();await attack(u)}
-    if(!sd.result&&!u.ko){await botAbs(u,h,'post',false);await idle()}}
+    if(!sd.result&&!u.ko){await botAbs(u,h,'post',false);await botPower(u,h,'post');await botMoveGear(u,h,'post');await idle()}}
   await avoid(u)}
 const REC=[];let ABN=0,PWN=0;{const _pa=payAb,_pp=payPow;payAb=function(u,k){ABN++;return _pa(u,k)};payPow=function(u,h){PWN++;return _pp(u,h)}}
 async function fight(){const sd=S.sd;ABN=0;PWN=0;AVN=0;SATN=0;CAPN=0;SATUP=0;

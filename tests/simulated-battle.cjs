@@ -135,8 +135,8 @@ const assert=require('node:assert/strict');
   });
   assert.equal(gearBalance.stackedEvasion,16,'Tier-1 Evasion stacking reduced');
   assert.deepEqual(gearBalance.passives,{
-    suit:1,cloak:1,shroud:2,hood:1,moonslip:1,sunamulet:0,owlpend:0,charm:0,
-    nmask:1,shed:2,faraday:2,wings:2,robes:3,moonshade:2
+    suit:2,cloak:1,shroud:2,hood:1,moonslip:1,sunamulet:0,owlpend:0,charm:0,
+    nmask:2,shed:2,faraday:2,wings:3,robes:3,moonshade:2
   },'All fourteen passive Evasion changes');
   assert.equal(gearBalance.values.groundOut,1);
   assert.match(gearBalance.values.aegisText,/next 2 damage/);
@@ -144,8 +144,8 @@ const assert=require('node:assert/strict');
   assert.deepEqual(gearBalance.values.sunstone,{maxComp:2});
   assert.deepEqual(gearBalance.values.owl,{maxHp:2,maxComp:1});
   assert.deepEqual(gearBalance.values.circuit,{maxComp:2});
-  assert.deepEqual(gearBalance.values.compeyes,{acc:3,eva:1,maxComp:2});
-  assert.deepEqual(gearBalance.values.mutagen,{move:1,eva:1,maxHp:3});
+  assert.deepEqual(gearBalance.values.compeyes,{acc:4,eva:1,maxComp:2});
+  assert.deepEqual(gearBalance.values.mutagen,{move:1,eva:1,maxHp:2});
   assert.deepEqual(gearBalance.values.reqs,[3,3]);
   assert.equal(gearBalance.values.tierTwoHas,false);
   assert.equal(gearBalance.values.midHas,true);
