@@ -355,12 +355,12 @@ function vWarn(){const sd=S.sd;if(!sd||sd.result)return;sd.vl.forEach(o=>{planPa
 function plannedView(o){const v=o.v,c=v.planned;if(v.down)return '';
   if(!c)return v.planningDone?`<div class="cap warn"><b>${VILLAINS[o.key].short} · Charging slot empty.</b> Planned action interrupted.</div>`:'';
   const known=plannedKnown(o.key,v);
-  return `<div class="cap ${c.sig?'warn':'charge'}" data-planned="${o.key}"><b>${VILLAINS[o.key].short} · Charging: ${known?esc(c.n):'Unrevealed action'}</b><p>${known?esc(c.txt):'Reveal this page to see its full rules.'}</p>${c.sig?`<small>Signature: ${v.turnDamage||0}/${chargeNeed(v)} wounds this hero round. The threshold wound tears this card instead of the draw pile.</small>`:'<small>Normal wounds tear from the draw pile.</small>'}</div>`;
+  return `<div class="cap ${c.sig?'warn':'charge'}" data-planned="${o.key}"><b>${VILLAINS[o.key].short} · Charging: ${known?esc(c.n):'Unrevealed action'}</b><p>${known?esc(c.txt):'Reveal this page to see its full rules.'}</p>${c.sig?`<small>${remainingPages(v)>1?`Signature: ${v.turnDamage||0}/${chargeNeed(v)} wounds this hero round. The threshold wound tears this card instead of the draw pile.`:'Last page: the next wound tears it.'}</small>`:'<small>Normal wounds tear from the draw pile.</small>'}</div>`;
 }
 function woundTarget(v){refillPages(v);
   if(v.planned&&v.planned.sig&&(v.turnDamage||0)+1>=chargeNeed(v))return v.planned;
-  // A final ordinary page is exposed; a final signature still needs the threshold.
-  return v.deck[0]||((v.planned&&!v.planned.sig)?v.planned:null);
+  // Tyler (2026-10-30): the last page always tears, even a signature in the charging slot.
+  return v.deck[0]||v.planned||null;
 }
 function cancelPlan(v){if(v.planned)v.discard.push(v.planned);v.planned=null;v.charge=null;v.warn=null;v.planningDone=true;}
 // Old saves put an active charged page in discard. Move that exact page once.
