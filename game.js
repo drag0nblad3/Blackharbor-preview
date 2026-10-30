@@ -203,7 +203,8 @@ function makeVillain(k,level){const vs={key:k,level:1,scheme:0,status:'active',d
 /* playbook size a villain should own at its level */
 const deckSize=vs=>VILLAINS[vs.key].base.length+3+(VILLAINS[vs.key].deckBonus||0)+3*(Math.min(vs.level,VCAP)-1); /* Version 123 (Tyler): +3 pages per level again */
 function addAdv(vs,n){const adv=VILLAINS[vs.key].adv,out=[];for(let i=0;i<n;i++){const id=adv[vs.advIdx%adv.length],mk=Math.floor(vs.advIdx/adv.length);vs.deck.push({id,mk});vs.advIdx++;out.push(buildCard(vs.key,{id,mk}).n)}return out}
-function levelUpVillain(vs){if(vs.level>=VCAP)return [];vs.level++;return addAdv(vs,3)}
+/* Tyler, 2026-10-30: no villain level-ups from the last Arc 3 issue, so the finale meets them as Arc 3 ended. */
+function levelUpVillain(vs){if(vs.level>=VCAP||S.issue>=MAX_ISSUE)return [];vs.level++;return addAdv(vs,3)}
 function upgradeVillain(vs,n=3){const idx=vs.deck.map((e,i)=>i).sort((a,b)=>vs.deck[a].mk-vs.deck[b].mk||a-b).slice(0,n);
   return idx.map(i=>{const before=buildCard(vs.key,vs.deck[i]).n;vs.deck[i].mk++;return `${before} → ${buildCard(vs.key,vs.deck[i]).n}`})}
 // Preserve deck size and upgrade budget; sample once when an investigation begins.
@@ -600,7 +601,7 @@ function arcTransition(newArc){const L=[];
   return {arc:newArc,lines:L}}
 function finishIssue(L,{hunted,headline,vkey}){
   for(const o of S.villains){if(o.key===hunted||o.status!=='active')continue;o.scheme++;
-    if(o.scheme>=schemeMax()){o.scheme=0;levelUpVillain(o);S.trust-=2;L.push(`${VILLAINS[o.key].name}'s scheme hits the city while you were busy. −2 trust, and they rise to level ${o.level}.`)}}
+    if(o.scheme>=schemeMax()){o.scheme=0;const was=o.level;levelUpVillain(o);S.trust-=2;L.push(`${VILLAINS[o.key].name}'s scheme hits the city while you were busy. −2 trust${o.level>was?`, and they rise to level ${o.level}`:''}.`)}}
   if(S.facilities.includes('press')){S.trust++;L.push('Press Office: +1 trust.')}
   if(S.ethos.b==='public'){S.trust++;L.push('Public Faces: +1 trust.')}
   {const n=fieldCount('scrap');if(n){S.tech+=n;L.push(`Scavenger's Satchel: +${n} tech.`)}}
