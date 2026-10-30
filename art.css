@@ -92,7 +92,7 @@
 .vtok .vs.hid{opacity:.5}
 .tok.hst{z-index:2}
 .board .zones{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:0}
-.zones .zf{fill:var(--zf,rgba(201,36,99,.16))}.zones .zr{fill:var(--zr,rgba(11,134,174,.15))}.zones .z2{opacity:.5}
+.zones .zf{fill:var(--zf,rgba(201,36,99,.16))}.zones .zr{fill:var(--zr,rgba(11,134,174,.15))}.zones .z2{opacity:.5}.board .zones{opacity:.8}
 .board.L-gallows{--zf:rgba(255,96,64,.2);--zr:rgba(170,225,255,.15)}
 .board.L-quarry{--zf:rgba(255,120,60,.22);--zr:rgba(175,225,255,.17)}
 .board.L-cantor{--zf:rgba(255,84,84,.2);--zr:rgba(205,240,255,.15)}
@@ -134,7 +134,7 @@
 .wl b{position:absolute;left:19%;top:23.15%;width:62%;height:53.7%;border-radius:50%;background:var(--wallc)}
 .board.lair{background:var(--bgap);--line:var(--edge);--ci:2px;
   --pit:radial-gradient(circle,#000 0 40%,#0b0b0e 46%,rgba(0,0,0,.6) 58%,transparent 70%),var(--fl);
-  --haz:radial-gradient(circle at 40% 40%,#FFF3B0,#FF8A2A 45%,#B5300C);--rc:rgba(61,182,221,.5)}
+  --haz:radial-gradient(circle at 40% 40%,#FFF3B0,#FF8A2A 45%,#B5300C);--rc:rgba(61,182,221,.31)}
 .board.lair .cell::after{background:var(--cf,var(--fl));z-index:0}
 .board.lair .cell:nth-child(3n)::after{filter:brightness(.92)}
 .board.lair .cell:nth-child(7n+2)::after{filter:brightness(1.08)}
@@ -150,12 +150,12 @@
 .board.lair .cell.pit::before{background:var(--pitfx,none);animation:var(--pitanim,none)}
 .board.lair .cell.haz{--cf:var(--haz)}
 .board.lair .cell.haz::before{background:var(--hazfx,none);animation:var(--hazanim,none)}
-.board.lair .cell.tele{--cf:repeating-linear-gradient(45deg,rgba(243,203,75,.75) 0 5px,transparent 5px 10px),var(--fl)}
+.board.lair .cell.tele{--cf:repeating-linear-gradient(45deg,rgba(243,203,75,.5) 0 5px,transparent 5px 10px),var(--fl)}
 .board.lair .cell.firing{--cf:linear-gradient(rgba(255,243,176,.8),rgba(255,243,176,.8)),var(--fl)}
-.board.lair .cell.beam{--cf:linear-gradient(rgba(255,45,85,.32),rgba(255,45,85,.32)),var(--fl)}
-.board.lair .cell.beam.reach{--cf:repeating-linear-gradient(135deg,rgba(255,45,85,.4) 0 4px,var(--rc) 4px 8px),var(--fl)}
-.board.lair .cell.blast{--cf:repeating-linear-gradient(-45deg,rgba(201,36,99,.6) 0 4px,transparent 4px 9px),var(--fl)}
-.board.lair .cell.blast2{--cf:repeating-linear-gradient(-45deg,rgba(201,36,99,.28) 0 4px,transparent 4px 9px),var(--fl)}
+.board.lair .cell.beam{--cf:linear-gradient(rgba(255,45,85,.24),rgba(255,45,85,.24)),var(--fl)}
+.board.lair .cell.beam.reach{--cf:repeating-linear-gradient(135deg,rgba(255,45,85,.3) 0 4px,var(--rc) 4px 8px),var(--fl)}
+.board.lair .cell.blast{--cf:repeating-linear-gradient(-45deg,rgba(201,36,99,.4) 0 4px,transparent 4px 9px),var(--fl)}
+.board.lair .cell.blast2{--cf:repeating-linear-gradient(-45deg,rgba(201,36,99,.18) 0 4px,transparent 4px 9px),var(--fl)}
 .board.lair .cell.obs{--cf:var(--rub) center/86% 86% no-repeat,var(--fl)}
 .board.lair .tok,.board.lair .vtok:not(.charging){filter:drop-shadow(0 3px 1.5px rgba(0,0,0,.55))}
 @keyframes lflick{0%{opacity:1}40%{opacity:.3}60%{opacity:1}80%{opacity:.6}}
@@ -177,12 +177,12 @@
   --pit:radial-gradient(ellipse at 50% 50%,#000 0 38%,#0d0604 44%,#2a1408 54%,#4a3a2c 64%,#5b4a3b 74%);
   --pitfx:radial-gradient(circle,rgba(255,110,30,.4) 0 8%,transparent 24%);
   --amb:radial-gradient(circle at 50% 14%,rgba(255,150,60,.2),transparent 40%)}
-.board.L-cantor{--bgap:#1a0b22;--edge:#2a1414;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 20l3-9h9l-2 9' fill='none' stroke='%23151821' stroke-width='2.2'/%3E%3Cpath d='M8 11V4.5Q12.5 2 17 4.5V11z' fill='%23a8234f' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M6 11h13' stroke='%23e8c45a' stroke-width='2.4'/%3E%3C/svg%3E");--rc:rgba(241,192,44,.5);
+.board.L-cantor{--bgap:#1a0b22;--edge:#2a1414;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 20l3-9h9l-2 9' fill='none' stroke='%23151821' stroke-width='2.2'/%3E%3Cpath d='M8 11V4.5Q12.5 2 17 4.5V11z' fill='%23a8234f' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M6 11h13' stroke='%23e8c45a' stroke-width='2.4'/%3E%3C/svg%3E");--rc:rgba(241,192,44,.31);
   --fl:repeating-linear-gradient(90deg,rgba(0,0,0,.35) 0 1.5px,transparent 1.5px 25%),linear-gradient(#6b3b26,#4a2718);
   --wall:repeating-linear-gradient(90deg,#4b1530 0 7px,#7a2350 7px 11px,#5a1a3a 11px 17px);--wallc:#5a1a3a;
   --pit:linear-gradient(#000,#000) center/64% 58% no-repeat,repeating-linear-gradient(45deg,#c79b3a 0 3px,#6a4e14 3px 6px) center/80% 74% no-repeat,linear-gradient(#6b3b26,#4a2718);
   --amb:radial-gradient(ellipse 22% 30% at 50% 14%,rgba(255,236,170,.4),transparent 70%),radial-gradient(ellipse at 50% 50%,transparent 50%,rgba(26,6,34,.6))}
-.board.L-architect{--bgap:#0e2547;--edge:#9FD3FF;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23151821' stroke-width='1.1'%3E%3Cpath d='M3 15h9v5H3z' fill='%23c45a3a'/%3E%3Cpath d='M12 15h9v5h-9z' fill='%23a84a2e'/%3E%3Cpath d='M7 10h9v5H7z' fill='%23c45a3a'/%3E%3Cpath d='M10 5h7l1 5h-7z' fill='%23d9d4c8'/%3E%3C/g%3E%3C/svg%3E");--rc:rgba(220,240,255,.42);
+.board.L-architect{--bgap:#0e2547;--edge:#9FD3FF;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg stroke='%23151821' stroke-width='1.1'%3E%3Cpath d='M3 15h9v5H3z' fill='%23c45a3a'/%3E%3Cpath d='M12 15h9v5h-9z' fill='%23a84a2e'/%3E%3Cpath d='M7 10h9v5H7z' fill='%23c45a3a'/%3E%3Cpath d='M10 5h7l1 5h-7z' fill='%23d9d4c8'/%3E%3C/g%3E%3C/svg%3E");--rc:rgba(220,240,255,.26);
   --fl:repeating-linear-gradient(0deg,rgba(159,211,255,.28) 0 1px,transparent 1px 8px),repeating-linear-gradient(90deg,rgba(159,211,255,.28) 0 1px,transparent 1px 8px),#1d4a85;
   --wall:linear-gradient(#b8c2cc 0 14%,#7d8a96 14% 30%,#9aa6b2 30% 70%,#5b6672 70% 86%,#3f4852 86%);--wallc:#8a96a2;
   --pit:repeating-linear-gradient(90deg,transparent 0 22%,#C0561C 22% 26%),repeating-linear-gradient(0deg,transparent 0 22%,#C0561C 22% 26%),radial-gradient(circle,#000 0 44%,#0a1426 52%,#6b7785 58%,#4f5a66 70%);
@@ -195,7 +195,7 @@
   --haz:radial-gradient(circle at 40% 40%,#FFF3B0,#FFB347 40%,#a02c0a 80%);
   --hazfx:radial-gradient(circle,rgba(255,255,255,.5),transparent 40%);--hazanim:lpulse 1s ease-in-out infinite alternate;
   --amb:radial-gradient(circle at 50% 14%,rgba(255,243,176,.4),transparent 40%);--ambanim:lpulse 2.4s ease-in-out infinite alternate}
-.board.L-serpent{--bgap:#061614;--edge:#061614;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 14h11v5H2z' fill='%236d7f7a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M13 12.5h2.5v8H13z' fill='%234e5e5a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M15 9l7 3-2 4.5-7-3z' fill='%236d7f7a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M4 19c0 2 1 3 1 3M8 19v2' stroke='%233FD6BE' stroke-width='1.2'/%3E%3C/svg%3E");--rc:rgba(243,203,75,.45);
+.board.L-serpent{--bgap:#061614;--edge:#061614;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 14h11v5H2z' fill='%236d7f7a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M13 12.5h2.5v8H13z' fill='%234e5e5a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M15 9l7 3-2 4.5-7-3z' fill='%236d7f7a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M4 19c0 2 1 3 1 3M8 19v2' stroke='%233FD6BE' stroke-width='1.2'/%3E%3C/svg%3E");--rc:rgba(243,203,75,.28);
   --fl:radial-gradient(circle at 50% 100%,transparent 0 40%,rgba(0,0,0,.25) 41% 46%,transparent 47%) 0 0/10px 8px,linear-gradient(#2d6157,#1a3f38);
   --wall:repeating-linear-gradient(90deg,#0e2a25 0 2px,transparent 2px 14px),linear-gradient(#3d6b62,#24463f);--wallc:#2d5750;
   --pit:repeating-radial-gradient(circle at 50% 50%,#0f5e63 0 3px,#0b4a4f 3px 7px);
@@ -206,7 +206,7 @@
   --wall:repeating-linear-gradient(0deg,#2d333b 0 3px,#88939f 3px 5px,#5d6773 5px 12px);--wallc:#5d6773;
   --pit:radial-gradient(circle,#000 0 40%,#111418 48%,#2d333b 56%,#4b5562 70%);
   --amb:repeating-radial-gradient(circle at 50% 14%,transparent 0 22px,rgba(226,59,59,.2) 22px 24px);--ambanim:lpulse 1.8s ease-in-out infinite alternate}
-.board.L-noct{--bgap:#05060d;--edge:#0a0c18;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 8h16v13H4z' fill='%233a3f63' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M4 8l8-5 8 5' fill='%234a4f72' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M4 8l16 13M20 8L4 21' stroke='%23262a45' stroke-width='1.4'/%3E%3C/svg%3E");--rc:rgba(140,240,255,.4);
+.board.L-noct{--bgap:#05060d;--edge:#0a0c18;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 8h16v13H4z' fill='%233a3f63' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M4 8l8-5 8 5' fill='%234a4f72' stroke='%23151821' stroke-width='1.3'/%3E%3Cpath d='M4 8l16 13M20 8L4 21' stroke='%23262a45' stroke-width='1.4'/%3E%3C/svg%3E");--rc:rgba(140,240,255,.25);
   --fl:linear-gradient(#262a45,#191c33);
   --wall:repeating-linear-gradient(90deg,#1a1d33 0 2px,transparent 2px 12px),linear-gradient(#4a4f72,#2a2e4a);--wallc:#3a3f63;
   --pit:radial-gradient(circle,#000 0 42%,#05060d 50%,#191c33 64%);
@@ -222,7 +222,7 @@
   --wall:linear-gradient(#9aa1ad 0 20%,#6b6b72 20% 80%,#45454c 80%);--wallc:#6b6b72;
   --pit:radial-gradient(ellipse at 50% 50%,#000 0 44%,#1a0a04 50%,#5a2a12 56%,#7a3a1a 60%,transparent 66%),linear-gradient(#36363d,#36363d);
   --amb:radial-gradient(ellipse at 50% 120%,rgba(201,64,42,.22),transparent 60%)}
-.board.L-grid{--bgap:#03080c;--edge:#06202a;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cellipse cx='12' cy='17' rx='9' ry='4' fill='%232a333a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M5 9h14v8H5z' fill='%231590B2'/%3E%3Cpath d='M5 11h14M5 13h14M5 15h14' stroke='%230b5e75' stroke-width='.9'/%3E%3Cellipse cx='12' cy='9' rx='9' ry='4' fill='%233a444c' stroke='%23151821' stroke-width='1.2'/%3E%3C/svg%3E");--rc:rgba(53,212,255,.42);
+.board.L-grid{--bgap:#03080c;--edge:#06202a;--rub:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cellipse cx='12' cy='17' rx='9' ry='4' fill='%232a333a' stroke='%23151821' stroke-width='1.2'/%3E%3Cpath d='M5 9h14v8H5z' fill='%231590B2'/%3E%3Cpath d='M5 11h14M5 13h14M5 15h14' stroke='%230b5e75' stroke-width='.9'/%3E%3Cellipse cx='12' cy='9' rx='9' ry='4' fill='%233a444c' stroke='%23151821' stroke-width='1.2'/%3E%3C/svg%3E");--rc:rgba(53,212,255,.26);
   --fl:linear-gradient(90deg,transparent 46%,rgba(21,144,178,.55) 46% 50%,transparent 50%),linear-gradient(transparent 62%,rgba(21,144,178,.55) 62% 65%,transparent 65%),radial-gradient(circle at 48% 63%,#35d4ff 0 4%,transparent 5%),#0a1820;
   --wall:radial-gradient(circle,#35d4ff 0 1.5px,transparent 2px) 0 0/9px 50%,repeating-linear-gradient(90deg,#0d1114 0 2px,transparent 2px 18px),linear-gradient(#2a333a,#0d1114);--wallc:#1d252b;
   --pit:radial-gradient(circle,#000 0 40%,rgba(0,0,0,.6) 50%,transparent 58%),repeating-linear-gradient(110deg,#0b0b0b 0 4px,#1d5c3a 4px 5px,#0b0b0b 5px 9px,#7a1c2e 9px 10px);

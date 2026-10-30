@@ -78,7 +78,7 @@
   opacity:1;
 }
 .wrap.v-sd .board .cell.reach:not(:is(.tele,.blast,.blast2,.tgt)) {
-  --cb:#39bdeb;
+  --cb:rgba(57,189,235,.6);
 }
 /* Imminent explosion and charge telegraphs use a real warning glyph.
    Later bomb-radius forecasts remain softer than the imminent blast. */
@@ -86,16 +86,19 @@
   background-image:url("arena-danger.svg");
   background-repeat:no-repeat;
   background-position:center;
-  background-size:56% 56%;
-  opacity:.92;
+  background-size:52% 52%;
+  opacity:.62;
   animation:bhDangerBeat 1.2s ease-in-out infinite alternate;
 }
 .wrap.v-sd .board .cell.blast {
-  --cb:#ff5e7e;
-  --ci:3.6px;
+  --cb:rgba(255,94,126,.7);
+  --ci:2.8px;
+}
+.wrap.v-sd .board .cell.tele {
+  --cb:rgba(243,203,75,.7);
 }
 .wrap.v-sd .board .cell.blast2 {
-  --cb:#bc678b;
+  --cb:rgba(188,103,139,.55);
   --ci:2.2px;
 }
 .wrap.v-sd .board .cell.tgt {
@@ -107,8 +110,8 @@
   --ci:3.5px;
 }
 @keyframes bhDangerBeat {
-  from {opacity:.7;filter:drop-shadow(0 0 0 #ff6a82)}
-  to {opacity:1;filter:drop-shadow(0 0 4px #ff6a82)}
+  from {opacity:.45;filter:drop-shadow(0 0 0 #ff6a82)}
+  to {opacity:.72;filter:drop-shadow(0 0 3px #ff6a82)}
 }
 /* Board chassis: physical border, inset bezel and four brass fiducials.
    The overlay is pointer-events:none, so every original cell remains a button. */
