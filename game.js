@@ -189,8 +189,11 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
   }return ''}
 /* the villain's own movement runs one hex further than the table says (Tyler, V76); pull/repel distances are how far heroes are dragged, so they stay */
 const MV_UP=['strike','rampage','swallow','converge','leap'];
+const compBonus=level=>Math.floor(Math.min(level||1,VCAP)/3);
 function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');
   if(vk==='bomber'&&['leap','bomb','swapbomb'].includes(c.t)){c.fuse=c.fuse?1:0;c.radius=c.bigAt&&level>=c.bigAt?2:1}
+  /* Tyler (2026-10-30): composure loss grows by 1 at villain levels 3 and 6 */
+  {const b=compBonus(level);if(b){if(c.amt!=null&&['taunt','fade','puppet'].includes(c.t))c.amt+=b;if(c.comp)c.comp+=b}}
   if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk);
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';

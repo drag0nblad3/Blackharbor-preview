@@ -64,5 +64,8 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Puppet pages drag their target toward the serpent.
  setup('serpent');run('S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8});S.heroes[2].comp=1');const d0=get('dV(S.sd.units[2],S.sd.v)');await play('eyes');
  assert.equal(get('dV(S.sd.units[2],S.sd.v)'),d0-2);assert(get('S.sd.units[2].dazed'));
+ // Composure loss: +1 at villain level 3, +2 at level 6 (pages, reactions and Closed Circuit).
+ assert.equal(get("buildCard('noct',{id:'dread',mk:0},2).amt"),2);assert.equal(get("buildCard('noct',{id:'dread',mk:0},3).amt"),3);assert.equal(get("buildCard('cantor',{id:'nerve',mk:0},6).comp"),5);
+ assert.equal(get("buildCard('noct',{id:'knife',mk:0},8).dmg"),get("buildCard('noct',{id:'knife',mk:0},1).dmg"));assert.equal(get('compBonus(8)'),2);
  console.log('PASS: Nocturne shadow doubles, Shadow Double, least-composure knives, Shaken damage, tracking Death Mark; Ouroboros prey order, puppet pull and Evasion 12.');
 })().catch(e=>{console.error(e);process.exit(1)});

@@ -18,7 +18,7 @@ function bossObserve(){
 function bossAbility(u,usesPower){
   bossObserve();const sd=S.sd;if(!sd||sd.result)return;
   for(const {v} of sd.vl){if(v.down)continue;
-    if(usesPower&&v.circuit&&v.circuit.includes(u.hid)){const other=sd.units.find(o=>o.hid!==u.hid&&v.circuit.includes(o.hid));if(other&&!other.ko){const h=heroOf(other);h.comp=Math.max(0,h.comp-1);log('vill',`Closed Circuit: ${h.name} loses 1 Composure.`)}}
+    if(usesPower&&v.circuit&&v.circuit.includes(u.hid)){const other=sd.units.find(o=>o.hid!==u.hid&&v.circuit.includes(o.hid));if(other&&!other.ko){const h=heroOf(other),n=1+compBonus(v.level);h.comp=Math.max(0,h.comp-n);log('vill',`Closed Circuit: ${h.name} loses ${n} Composure.`)}}
     if(v.solarHeat!=null&&dV(u,v)<=2){v.solarHeat=Math.min(4,v.solarHeat+1);log('vill',`Solar Debt: ${v.solarHeat}/4 Heat.`)}
   }
 }
