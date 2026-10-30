@@ -1904,7 +1904,7 @@ const TUT=[
     t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +3 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
-  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 7 = 13 against 12. Without it, 6 + 4 = 10 would have bounced. And there goes Big Dig!'},
+  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 8 = 14 against 12. Without it, 6 + 5 = 11 would have bounced. And there goes Big Dig!'},
   {id:'b-lynx',only:()=>[tutCell(tutU('lynx'))],ring:()=>{const u=tutU('lynx');return [u.x,u.y,'Tap Lynx']},done:()=>S.sd.sel===tutIdx('lynx'),t:'Now Lynx. <b>Tap Lynx.</b>'},
   {id:'b-lmove',enter:()=>{const v=tutMole();tutAimDest('lynx',ps=>{const near=ps.filter(p=>dV(p,v)===1),u=tutU('lynx');return (near.filter(p=>sideOf(p,v)==='rear')[0]&&near.filter(p=>sideOf(p,v)==='rear').sort((a,b)=>cheb(a,u)-cheb(b,u))[0])||near.sort((a,b)=>cheb(a,u)-cheb(b,u))[0]})},
     only:()=>S.tut.dest?[`cell:${S.tut.dest.join(',')}`]:[],ring:()=>S.tut.dest?[...S.tut.dest,'Blind spot']:null,done:()=>tutU('lynx').moved,

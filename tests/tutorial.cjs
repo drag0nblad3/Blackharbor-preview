@@ -42,7 +42,7 @@ const assert=require('node:assert/strict');
       assert.match(seen['b-free'].log,/Big Dig is torn from the playbook/,'Volt\'s wound tears Big Dig');
       assert.match(seen['b-free'].log,/planned action was torn out/,'Mole Boy loses round 1, as the caption says');
       assert.match(seen['p-atk2'].log,/Digger attacks Lynx: 9\+2 vs 10\. Hit for 1\.[\s\S]*1\+2 vs 10\. Miss/,'patrol rolls match the captions');
-      assert.match(seen['b-free'].log,/Wound roll 6 \+ 7 vs toughness 12\. Wound!/,'Stun Charge wound matches the caption');
+      assert.match(seen['b-free'].log,/Wound roll 6 \+ 8 vs toughness 12\. Wound!/,'Stun Charge wound matches the caption');
       assert.match(seen['b-free'].log,/Clean Hit: Wound roll 4 \+ 2 vs toughness 8\. No wound\./,'Clean Hit miss matches the caption');
       assert.match(seen['b-plan'].plan,/Charging: Tunnel Ambush/,'round 2 shows Tunnel Ambush charging');
       assert.match(seen['b-free'].log,/Volt avoids damage: \+3 evasion/,'Volt uses Avoid Damage');
