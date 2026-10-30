@@ -67,5 +67,8 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  // Composure loss: +1 at villain level 3, +2 at level 6 (pages, reactions and Closed Circuit).
  assert.equal(get("buildCard('noct',{id:'dread',mk:0},2).amt"),2);assert.equal(get("buildCard('noct',{id:'dread',mk:0},3).amt"),3);assert.equal(get("buildCard('cantor',{id:'nerve',mk:0},6).comp"),5);
  assert.equal(get("buildCard('noct',{id:'knife',mk:0},8).dmg"),get("buildCard('noct',{id:'knife',mk:0},1).dmg"));assert.equal(get('compBonus(8)'),2);
+ // Shaken is -3 Strength/accuracy/evasion, and ending a fight at 0 composure no longer leaves Rattled.
+ setup('noct');run('S.heroes[0].comp=0');assert.equal(get("stat(S.heroes[0],'acc')+3"),get("(S.heroes[0].comp=1,stat(S.heroes[0],'acc'))"));
+ run("S.heroes[0].comp=0;S.sd.result='win';debrief()");assert(!get("S.heroes[0].injuries.includes('rattled')"));
  console.log('PASS: Nocturne shadow doubles, Shadow Double, least-composure knives, Shaken damage, tracking Death Mark; Ouroboros prey order, puppet pull and Evasion 12.');
 })().catch(e=>{console.error(e);process.exit(1)});

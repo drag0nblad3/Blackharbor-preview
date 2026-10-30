@@ -908,7 +908,6 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
     else h.hp=Math.max(h.hp,Math.ceil(stat(h,'maxHp')*.6));
     /* Med Bay: half of the health still missing after normal recovery */
     if(med)h.hp+=Math.ceil((stat(h,'maxHp')-h.hp)/2);
-    if(h.comp<=0&&!h.injuries.includes('rattled')){h.injuries.push('rattled');L.push(`${h.name} ended the fight with no composure and is Rattled (−1 max composure).`)}
     h.comp=stat(h,'maxComp');h.cd=0;clampHero(h)}
   if(xpL.length)L.splice(xpAt,0,`XP earned: ${xpL.join(', ')}.`);
   const mk=fieldCount('medkit');if(mk){party().forEach(h=>{h.hp=Math.min(stat(h,'maxHp'),h.hp+3*mk)});L.push(`Field Medic Kit: the party recovers ${3*mk} extra health.`)}
@@ -1118,7 +1117,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
   else if(sd.busy){ctrl=`<div class="cap">${sd.vturn?`${def.name} is acting…`:'Resolving…'}</div>`}
   else if(u&&h){const p=POWERS[BASE(h).power];const canAct=!u.acted&&!u.ko;const adjCiv=sd.civs.some(c=>c.f!==u.hid&&!civHeld(c)&&cheb(c,u)<=1),nFol=followers(u).length;
     const freeP=!!p.free;
-    ctrl=`<div class="row between hrow"><div class="hwho">${eyesArt(h)}<div><h3>${esc(h.name)}</h3><div class="small muted hline"><span data-tip="kw:hp">${UI('hp')}${h.hp}/${stat(h,'maxHp')}</span> · <span data-tip="kw:comp">${UI('comp')}${h.comp}/${stat(h,'maxComp')}</span>${h.comp<=0?' · <b style="color:var(--magenta)" class="kwd" data-tip="kw:shaken">Shaken (−2 STR/ACC/EVA, −1 MOV)</b>':''}${u.dazed?' · <span class="kwd" data-tip="kw:dazed">Dazed</span>':''}</div></div></div>
+    ctrl=`<div class="row between hrow"><div class="hwho">${eyesArt(h)}<div><h3>${esc(h.name)}</h3><div class="small muted hline"><span data-tip="kw:hp">${UI('hp')}${h.hp}/${stat(h,'maxHp')}</span> · <span data-tip="kw:comp">${UI('comp')}${h.comp}/${stat(h,'maxComp')}</span>${h.comp<=0?' · <b style="color:var(--magenta)" class="kwd" data-tip="kw:shaken">Shaken (−3 STR/ACC/EVA, −1 MOV)</b>':''}${u.dazed?' · <span class="kwd" data-tip="kw:dazed">Dazed</span>':''}</div></div></div>
       <span class="hst"><span class="${u.moved?'used':''}" title="${u.moved?'Moved':'Can move'}" aria-label="${u.moved?'Moved':'Can move'}">${UI('move')}</span><span class="${u.acted?'used':''}" title="${u.acted?'Acted':'Can act'}" aria-label="${u.acted?'Acted':'Can act'}">${UI('atk')}</span></span></div>
       <div class="row">
         <button class="btn sm sub ${sd.mode==='move'?'on':''}" data-a="mode:move" data-tip="act:move" ${u.moved?'disabled':''}>${UI('move')}Move<small>${stat(h,'move')+(u.boost||0)} hex${stat(h,'move')+(u.boost||0)===1?'':'es'}</small></button>
