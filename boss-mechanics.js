@@ -112,8 +112,9 @@ async function resolveBossSetup(v){
 function beginBorrowedAction(v){
   if(!v.borrowed||!v.sw)return ()=>{};
   const sd=S.sd,bindings=v.borrowed;delete v.borrowed;
-  const original=swBodies(v),parts=original.flatMap(b=>{const link=bindings.find(x=>x.k===b.k);if(!link)return [b];const m=sd.hench.find(m=>m.id===link.id&&m.hp>0);return m?[{...b,x:m.x,y:m.y}]:[]});
-  // The lead body is never replaced, so even two destroyed carriers leave a valid origin.
+  const original=swBodies(v),parts=original.flatMap((b,i)=>{const link=bindings.find(x=>x.k===b.k);if(!link)return [b];const m=sd.hench.find(m=>m.id===link.id&&m.hp>0);return m?[{...b,x:m.x,y:m.y}]:i?[]:[b]});
+  // The lead body is never dropped, so even destroyed carriers leave a valid origin. A bound body can become the lead
+  // when Murmur sheds the bodies in front of it; if its carrier is dead it stays where it is.
   const put=bs=>{v.x=bs[0].x;v.y=bs[0].y;v.face=bs[0].f;v.pk=bs.map(b=>b.k);v.sw=bs.slice(1).map(b=>({x:b.x,y:b.y,f:b.f}))};
   v.borrowRestore={original,bindings};put(parts);
   return ()=>restoreBorrowedBodies(v);
