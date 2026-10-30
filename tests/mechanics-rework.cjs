@@ -30,6 +30,9 @@ function plan(id,ids=['lash','snipe','drones','ray','mono','galv']){run(`S.sd.v.
  setup();plan('field');run("S.sd.v.level=8;S.sd.tdk.gallows=[{id:'counter',n:'Counterstrike',txt:'Reaction: 2 damage.'}];S.sd.units[0].x=4;S.sd.units[0].y=3;S.sd.v.face=5;S.tut={dq:Array(100).fill(20)};");await run('abApply(S.sd.units[0],S.heroes[0],GEAR.wardtome,S.sd.units[0])');await run("heroAttack(S.sd.units[0],'v',0,1)");assert.equal(get('S.heroes[0].hp'),50);run('damageHero(S.sd.units[0],2)');assert.equal(get('S.heroes[0].hp'),48);assert.equal(get('S.sd.reactionContext'),false);
  // Hexen uses the real resource-paying activation and cannot stack Repress.
  setup();run('S.sd.units[0].x=4;S.sd.units[0].y=4');const arc=get('S.sd.units[0].res.magic');await run('usePower()');assert.equal(get('S.sd.v.repress'),true);assert.equal(get('S.sd.units[0].res.magic'),arc-2);assert.equal(get('powOk(S.sd.units[0],S.heroes[0])'),false);
+ // Repress has no range, and the hero who triggers the repressed reaction restores 2 composure (Tyler, 2026-10-30).
+ setup();plan('field');run("S.sd.units[0].x=0;S.sd.units[0].y=8;S.sd.v.level=8;S.sd.tdk.gallows=[{id:'counter',n:'Counterstrike',txt:'Reaction: 2 damage.'}];S.sd.v.face=5;S.tut={dq:Array(100).fill(20)};S.heroes[1].comp=1");await run('usePower()');assert.equal(get('S.sd.v.repress'),true);
+ run('S.sd.units[1].x=4;S.sd.units[1].y=3;S.sd.sel=1');await run("heroAttack(S.sd.units[1],'v',0,1)");assert.equal(get('S.heroes[1].comp'),3);assert.equal(get('S.heroes[1].hp'),50);assert.equal(get('!!S.sd.v.repressComp'),false);
  // Actual movement powers Wind Ward; activation snapshots movement, not future moves.
  setup();run("S.sd.mode='move';onCell(0,6)");assert.equal(get('S.sd.units[0].hexesMoved'),2);await run('abApply(S.sd.units[0],S.heroes[0],GEAR.cloak,S.sd.units[0])');assert.equal(get('S.sd.units[0].buffEva'),2);
  run('S.sd.units[0].hexesMoved=4');assert.equal(get('S.sd.units[0].buffEva'),2);

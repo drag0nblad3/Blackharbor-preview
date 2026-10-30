@@ -385,7 +385,7 @@ async function botAbs(u,h,phase,will){const sd=S.sd;for(const k of abList(h)){if
       else if(kind==='shock'&&sd.hench.some(m=>cheb(m,u)<=f.shock[0]))await useAbK(u,h,k)}}}
 async function botPower(u,h,phase){const sd=S.sd,pw=BASE(h).power;sd.sel=sd.units.indexOf(u);if(!powOk(u,h))return;
   if(phase==='pre'&&(pw==='berserk'||pw==='overclock'||pw==='mark'))return usePower();
-  if(phase==='pre'&&pw==='curse'&&dV(u,sd.v)<=4)return usePower();
+  if(phase==='pre'&&pw==='curse')return usePower();
   if(phase==='pre'&&pw==='regen'&&stat(h,'maxHp')-h.hp>=2)return usePower()}
 async function attack(u){if(ABIL){const sd=S.sd,h=heroOf(u);if(!u.acted&&!u.ko&&!sd.result){const vi=bestV(u);if(vi>=0){focusV(vi);const v=sd.v;
     const st=abList(h).find(k=>GEAR[k].ab.mode==='strike'&&abOk(u,h,k)&&(!GEAR[k].ab.rng||dV(u,v)<=GEAR[k].ab.rng));sd.sel=sd.units.indexOf(u);
