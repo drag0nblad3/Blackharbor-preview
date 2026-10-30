@@ -32,7 +32,7 @@ function bossStatusView(){const sd=S.sd,lines=[];
     if(v.satellites)lines.push(`${n}: ${v.satellites}/2 scrap satellites. Adjacent heroes can pull one down using Other Actions.`);
     if(v.shadowMark)lines.push(`${n}: Stolen Shadow marks ${heroOf(sd.units.find(u=>u.hid===v.shadowMark.hid)).name}. Their next movement leaves a copy.`);
     if(v.shadowId&&sd.hench.some(m=>m.id===v.shadowId))lines.push(`${n}: destroy the 1-HP purple-ringed shadow before the next action to prevent the swap.`);
-    {const d=(v.dupes||[]).filter(id=>sd.hench.some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will mimic her next action, then dissipate. Destroy ${d>1?'them':'it'} (1 HP) to stop the copy.`)}
+    {const d=(v.dupes||[]).filter(id=>(sd.dupes||[]).some(m=>m.id===id)).length;if(d)lines.push(`${n}: ${d} shadow double${d>1?'s':''} will mimic her next action, then dissipate. Doubles cannot be harmed; stay out of their reach.`)}
     if(v.charge&&v.charge.track)lines.push(`${n}: ${v.charge.n} follows its targets: ${v.charge.track.map(id=>sd.units.find(u=>u.hid===id)).filter(u=>u&&!u.ko).map(u=>heroOf(u).name).join(' and ')}.`);
     if(v.borrowed)lines.push(`${n}: ${v.borrowed.filter(b=>sd.hench.some(m=>m.id===b.id)).length}/${v.borrowed.length} infested carriers survive. Green rings mark next-action origins.`);
   }
@@ -127,15 +127,16 @@ function restoreBorrowedBodies(v){
   if(!v.down)swSync(v);
 }
 
-/* Nocturne's shadow doubles (Tyler, 2026-10-30): a 1-HP copy that repeats her next action from its own hex, then dissipates. */
+/* Nocturne's shadow doubles (Tyler, 2026-10-30): an untouchable copy that repeats her next action from its own hex, then dissipates.
+   They live in sd.dupes, not sd.hench, so no attack, blast or aura can reach them; they still occupy their hex. */
 function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const id='dupe-'+sd.round+'-'+Math.random().toString(36).slice(2,6);
-  sd.hench.push({id,owner:sd.vkey,x:p.x,y:p.y,hp:1,shadow:true,dupe:true});(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
+  (sd.dupes=sd.dupes||[]).push({id,owner:sd.vkey,x:p.x,y:p.y});(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
 /* the hex beside the least composed hero within rng (any hero if none), where a double steps out */
 function doubleSpot(v,rng){const L=live();if(!L.length)return null;const inR=L.filter(u=>dV(u,v)<=rng),t=(inR.length?inR:L).sort((a,b)=>heroOf(a).comp-heroOf(b).comp||dV(a,v)-dV(b,v))[0];
   const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(!p){log('vill','Her shadow finds no room beside its prey.');return null}return {t,p}}
 function takeDupes(v){const d=v.dupes||[];delete v.dupes;return d}
 async function dupeTurn(v,c,ids){const sd=S.sd;
-  for(const id of ids){const m=sd.hench.find(o=>o.id===id);if(!m)continue;sd.hench=sd.hench.filter(o=>o!==m);
+  for(const id of ids){const m=(sd.dupes||[]).find(o=>o.id===id);if(!m)continue;sd.dupes=sd.dupes.filter(o=>o!==m);
     if(c&&!sd.result&&!v.down&&live().length){const keep={x:v.x,y:v.y,face:v.face,hide:v.hide};v.x=m.x;v.y=m.y;sd.mimic=true;
       log('vill',`Her shadow double mimics ${c.n}.`);fxV('MIMIC!','say');
       try{await execCard(c)}finally{sd.mimic=false;v.x=keep.x;v.y=keep.y;v.face=keep.face;v.hide=keep.hide}checkLoss()}

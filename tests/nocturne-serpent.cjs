@@ -6,28 +6,27 @@ function setup(k){run(`newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.he
 const card=id=>`buildCard(S.sd.vkey,{id:'${id}',mk:0})`,play=id=>run(`execCard(${card(id)})`);
 const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
 (async()=>{
- // Fade leaves a 1-HP shadow double that mimics her next action, then dissipates.
+ // Fade leaves an untouchable shadow double that mimics her next action, then dissipates.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4');await play('fade');
- assert.equal(get('S.sd.v.dupes.length'),1);assert(get('S.sd.hench.some(m=>m.dupe&&m.hp===1&&m.x===4&&m.y===4)'));assert.match(get('bossStatusView()'),/shadow double/);
+ assert.equal(get('S.sd.v.dupes.length'),1);assert(get('S.sd.dupes.some(m=>m.x===4&&m.y===4)'));assert(!get('S.sd.hench.length'));assert(get('blocked(4,4)'));assert.match(get('bossStatusView()'),/shadow double/);
  run('S.sd.units[0].x=4;S.sd.units[0].y=5');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('stars')};await execCard(c);await dupeTurn(v,c,d)})()`);
- assert.equal(logs(/mimics Throwing Stars/),1);assert(!get('S.sd.hench.some(m=>m.dupe)'));assert(!get('(S.sd.v.dupes||[]).length'));
- // Destroying the double first stops the copy; a non-attack page is not copied.
- await play('fade');run('S.sd.hench=S.sd.hench.filter(m=>!m.dupe)');
- await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('stars')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),1);
+ assert.equal(logs(/mimics Throwing Stars/),1);assert(!get('S.sd.dupes.length'));assert(!get('(S.sd.v.dupes||[]).length'));
+ // Doubles cannot be harmed: blasts and auras only reach henchmen.
+ await play('fade');await run("gearBlast(S.sd.dupes[0],[2,5],'Test blast')");assert.equal(get('S.sd.dupes.length'),1);run('S.sd.dupes=[];delete S.sd.v.dupes');
  // Doubles copy every page, not only attacks.
- run('S.sd.hench=[]');await play('fade');await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('shades')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),2);assert(!get('S.sd.hench.some(m=>m.dupe)'));
+ run('S.sd.hench=[]');await play('fade');await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('shades')};await execCard(c);await dupeTurn(v,c,d)})()`);assert.equal(logs(/mimics/),2);assert(!get('S.sd.dupes.length'));
  assert.equal(get('S.sd.hench.length'),4);
  // A copied charge adds marks around the hero nearest the double.
- setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.hench.find(m=>m.dupe).x=8;S.sd.hench.find(m=>m.dupe).y=7');
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=1;S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})');await play('fade');run('S.sd.dupes[0].x=8;S.sd.dupes[0].y=7');
  await run(`(async()=>{const v=S.sd.v,d=takeDupes(v),c=${card('deathm')};await execCard(c);await dupeTurn(v,c,d)})()`);assert(get('S.sd.v.charge.zone.includes("6,8")'));
  // Knife in the Dark leaves a double beside a hero at half composure or less.
- setup('noct');run('S.sd.v.x=4;S.sd.v.y=5;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=7});S.heroes.forEach(h=>h.comp=1);globalThis.vStat0=vStat;vStat=()=>99');await play('knife');run('vStat=vStat0');assert.equal(get('S.sd.hench.filter(m=>m.dupe).length'),1);
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=5;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=7});S.heroes.forEach(h=>h.comp=1);globalThis.vStat0=vStat;vStat=()=>99');await play('knife');run('vStat=vStat0');assert.equal(get('S.sd.dupes.length'),1);
  // Shadow Double appears beside the least composed hero in range and strikes.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.heroes[2].comp=1');await play('double');
- assert(get('S.sd.hench.some(m=>m.dupe&&cheb(m,S.sd.units[2])===1)'));assert.equal(logs(new RegExp('Shadow Double at '+get('S.heroes[2].name'))),1);
+ assert(get('S.sd.dupes.some(m=>cheb(m,S.sd.units[2])===1)'));assert.equal(logs(new RegExp('Shadow Double at '+get('S.heroes[2].name'))),1);
  // Mirror Images leaves a double; Stolen Shadow throws a knife and costs composure.
- setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.sd.v.wounds=[S.sd.v.deck.pop()]');await play('mirror');assert.equal(get('S.sd.hench.filter(m=>m.dupe).length'),1);
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=3;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6});S.sd.v.wounds=[S.sd.v.deck.pop()]');await play('mirror');assert.equal(get('S.sd.dupes.length'),1);
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=1+2*i;u.y=6})');await play('decoy');assert(get('!!S.sd.v.shadowMark'));
  assert.equal(logs(/Stolen Shadow at/),1);assert.equal(get('S.heroes.filter(h=>h.comp===9).length'),1);
  // Knife in the Dark targets the lowest composure in reach.

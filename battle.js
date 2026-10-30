@@ -55,6 +55,7 @@ function blocked(x,y,o={}){const sd=S.sd;if(x<0||y<0||x>=N||y>=N)return true;
   for(const o2 of (sd.vl||[{v:sd.v}])){if(o2.v.down)continue;if(o.ignoreV&&o2.v===sd.v)continue;if(inV(o2.v,x,y))return true}
   if(sd.units.some(u=>!u.ko&&u!==o.self&&u.x===x&&u.y===y))return true;
   if(sd.hench.some(h=>h!==o.self&&h.x===x&&h.y===y))return true;
+  if((sd.dupes||[]).some(d=>d.x===x&&d.y===y))return true;
   if(sd.civs.some(c=>c.x===x&&c.y===y&&!(c.f&&o.self&&o.self.hid===c.f)))return true;return false}
 function reach(s,mv,self){const dist={[s.x+','+s.y]:0},q=[[s.x,s.y]];
   while(q.length){const[x,y]=q.shift(),d=dist[x+','+y];if(d>=mv)continue;
@@ -699,7 +700,7 @@ async function sweep(r,dmg,label){const sd=S.sd,v=sd.v;A.lunge('v'+sd.vi,ctrV())
    +4 to hit, damage 1 + half the level (twice as fast as normal henchmen). Taking one down is worth 1 of that villain's salvage.
    The Cantor's Made Man is a bodyguard: while he stands next to her he takes the first hit of every hero attack on her. */
 const eliteOf=k=>VILLAINS[k].elite||null;
-const hName=hm=>hm.dupe?'shadow double':hm.shadow?'stolen shadow':hm.infested?'infested mite':hm.elite?eliteOf(hm.owner||S.sd.vkey).name:'the '+VILLAINS[hm.owner||S.sd.vkey].hench.name.toLowerCase();
+const hName=hm=>hm.shadow?'stolen shadow':hm.infested?'infested mite':hm.elite?eliteOf(hm.owner||S.sd.vkey).name:'the '+VILLAINS[hm.owner||S.sd.vkey].hench.name.toLowerCase();
 function mkElite(o,t){const L=o.v.level;return {id:'e_'+o.key,owner:o.key,x:t.x,y:t.y,hp:henchHp(2+L),elite:1}}
 /* Version 107 (Tyler): Hive Jammer takes 1 health off every henchman, down to 1 */
 const henchHp=n=>S.facilities.includes('jammer')?Math.max(1,n-1):n;
@@ -1098,7 +1099,9 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
     const ring=fu?BASE(heroOf(fu)).col:held?'#C92463':null,art=MINI.civArt(eyeHash(c.id),{panic:pz||held||pn});
     VT.push([c.y,`<div class="tok civt ${pn?'panic':''}" data-tid="c${c.id}" ${D(c.x,c.y)} style="${P(c.x,c.y)}" title="Civilian">${miniSvg(c.x,c.y,miniStand(h.cx,h.cy,art,'#F3CB4B',ring,.8,pz?miniBang:null,'crim'))}</div>`])});
   sd.hench.forEach(m=>{const h=HC(m.x,m.y),[b,a]=VART[m.owner]||VART.mole,art=(MINI.HF[m.owner]||MINI.HF.swarm)(b,a),el=m.elite;
-    VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" title="${m.dupe?'Shadow double · 1 HP · mimics her next action':m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':hName(m)}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,m.infested?'#aaff00':m.shadow?'#bb88ff':el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
+    VT.push([m.y,`<div class="tok hmt ${hurt(m)}" data-tid="m${m.id}" title="${m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':hName(m)}" ${el?'data-tip="kw:elite"':''} ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,m.infested?'#aaff00':m.shadow?'#bb88ff':el?'#F3CB4B':null,el?.98:.86,miniNum(m.hp),'erim'))}</div>`])});
+  (sd.dupes||[]).forEach(m=>{const h=HC(m.x,m.y),[b,a]=VART[m.owner]||VART.mole,art=(MINI.HF[m.owner]||MINI.HF.swarm)(b,a);
+    VT.push([m.y,`<div class="tok hmt dupe" data-tid="d${m.id}" title="Shadow double · cannot be harmed · mimics her next action" ${D(m.x,m.y)} style="${P(m.x,m.y)}">${miniSvg(m.x,m.y,miniStand(h.cx,h.cy,art,b,'#bb88ff',.86,miniNum('∞'),'erim'))}</div>`])});
   /* standees overlap the hex above, so heroes and villains are drawn top rows first (villains by their lowest row) */
   sd.units.forEach((o,i)=>{const hh=heroOf(o),b=BASE(hh);const done=o.moved&&o.acted;
     VT.push([o.y+.1,`<div class="tok hst ${o.ko?'ko':''} ${sd.sel===i?'sel':''} ${done?'done':''} ${hurt(o)}" data-tid="h${o.hid}" data-hero="${hh.cls}" ${D(o.x,o.y)} style="${P(o.x,o.y)}"><span class="st" title="${esc(hh.name)}">${standee(hh,o)}${o.guard?'<span class="gd"></span>':''}${hh.comp<=0&&!o.ko?'<span class="sh">!</span>':''}</span></div>`])});

@@ -428,7 +428,7 @@ const VINTEL = {
       {id:'plate',n:'Ferrous Plating',sfx:'CLANNG!',arc:['front'],tough:4,txt:'Front arc. +4 toughness for this wound.'},
       {id:'repulse',n:'Repulsor Field',sfx:'VWOMM!',arc:['rear'],dmg:1,push:2,txt:'Rear arc. Reaction: the attacker takes 1 damage and is flung 2 hexes away.'}]},
   noct:{intro:'Nobody has seen her face and lived to describe it. She hunts the wounded, and she is gone before they hit the floor.',
-    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Her knives go for the hero with the least composure, and a Shaken hero bleeds from her whispers. Every fade leaves a shadow double that copies her next move: destroy it first.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
+    hints:['You cannot see which way she faces. Every hit you land gives her stance away, until she fades again.','Her knives go for the hero with the least composure, and a Shaken hero bleeds from her whispers. Every fade leaves an untouchable shadow double that copies her next move: get out of its reach.','Her back is the safe angle. From the front the knife comes straight back, and from the side she slips away.'],
     react:[{id:'riposte',n:'Riposte',sfx:'SHHK!',arc:['front'],dmg:3,txt:'Front arc. Reaction: a knife comes straight back. The attacker takes 3 damage, at any range.'},
       {id:'veil',n:'Shadow Veil',sfx:'FSSSH…',arc:['flank'],escape:1,hide:1,txt:'Side arcs. Reaction: she slips 2 hexes away and her facing is hidden again.'},
       {id:'feint',n:'Feint',sfx:'TOO SLOW!',tough:3,txt:'+3 toughness for this wound.'}]},
