@@ -30,6 +30,9 @@
 }
 #comic .pbook.has-art .pg:not(.pbcover) .art:not(.unk)::before{
   content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
-  background:var(--pbart) var(--pbpos,center)/150% auto no-repeat;opacity:.5;mix-blend-mode:luminosity;
+  background:var(--pbart) var(--pbpos,center)/150% auto no-repeat;opacity:.85;
 }
+/* the cover replaces the halftone/sunburst texture and the emblem watermark */
+#comic .pbook.has-art .pg:not(.pbcover) .art:not(.unk){background-image:none}
+#comic .pbook.has-art .pg .art>.ic.wm{display:none}
 #comic .pbook.has-art .pg .tx{position:relative;z-index:1;text-shadow:0 0 3px var(--panel),0 0 1px var(--panel)}
