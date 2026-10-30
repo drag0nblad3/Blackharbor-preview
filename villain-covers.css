@@ -24,3 +24,12 @@
   .cover-grid{gap:10px}
   .cover-full{max-height:65dvh}
 }
+/* Playbook pages: the villain's cover sits faded behind the paper; text stays on an opaque-enough wash. */
+#comic .pbook.has-art .pg:not(.pbcover){
+  background:linear-gradient(color-mix(in srgb,var(--panel) 84%,transparent),color-mix(in srgb,var(--panel) 84%,transparent)),var(--pbart) var(--pbpos,center)/cover no-repeat,var(--panel);
+}
+#comic .pbook.has-art .pg:not(.pbcover) .art:not(.unk)::before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:var(--pbart) var(--pbpos,center)/150% auto no-repeat;opacity:.5;mix-blend-mode:luminosity;
+}
+#comic .pbook.has-art .pg .tx{position:relative;z-index:1;text-shadow:0 0 3px var(--panel),0 0 1px var(--panel)}
