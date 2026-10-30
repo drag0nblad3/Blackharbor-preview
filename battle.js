@@ -696,7 +696,7 @@ function henchLv(hm){const sd=S.sd,o=sd.vl.find(o=>o.key===(hm.owner||sd.vkey));
 /* Version 89 (Tyler): three more special henchmen. Gallows' Failed Experiment is slow (moves 2), hits 1 harder and shrugs off the first hit
    each round. Ouroboros' High Priest attacks from range 3 and raises a fallen Cultist each round while fewer than 2 remain. The Architect's
    Foreman throws up a wall next to the hero closest to the Architect each round (it lasts 2 rounds). */
-function henchDmg(hm){if(hm.elite)return 1+Math.floor(henchLv(hm)/2)+(eliteOf(hm.owner||S.sd.vkey).brute?1:0);const sd=S.sd,ok=hm.owner||sd.vkey;if(ok==='cantor')return 1;/* Tyler, 2026-10-30: Cantor's hired guns always deal 1 */const o=sd.vl.find(o=>o.key===ok),lv=o?o.v.level:sd.v.level;return 1+Math.floor(lv/4)}
+function henchDmg(hm){if(hm.elite)return 1+Math.floor(henchLv(hm)/2)+(eliteOf(hm.owner||S.sd.vkey).brute?1:0);const sd=S.sd,ok=hm.owner||sd.vkey;/* Tyler, 2026-10-30: Cantor's hired guns gain damage at half the usual rate */const o=sd.vl.find(o=>o.key===ok),lv=o?o.v.level:sd.v.level;return 1+Math.floor(lv/(ok==='cantor'?8:4))}
 async function henchAct(hm){if(hm.shadow||hm.collectionRound===S.sd.round)return;const sd=S.sd,L=live();if(!L.length)return;const def=hm.elite?eliteOf(hm.owner||sd.vkey):VILLAINS[hm.owner||sd.vkey].hench;
   if(hm.elite&&def.guard){const o=sd.vl.find(o=>o.key===hm.owner&&!o.v.down);if(o&&dV(hm,o.v)>1){const opts=reach(hm,3,hm);let best=null,bd=1e9;
     for(const k in opts){const[x,y]=k.split(',').map(Number);if(dV({x,y},o.v)!==1)continue;const d=Math.min(...L.map(u=>cheb(u,{x,y})));if(d<bd){bd=d;best=[x,y]}}
