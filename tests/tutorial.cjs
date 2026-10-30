@@ -31,10 +31,12 @@ const assert=require('node:assert/strict');
           if(B.id==='p-lp'){const d=tutDig('tB');if(S.tut.lp!==`${d.x},${d.y}`){S.tut.lp=`${d.x},${d.y}`;render()}}
           if(B.next)return B.wait&&!B.wait()?null:'tut:next';
           const o=B.only?(typeof B.only==='function'?B.only():B.only):[];
-          for(const a of ['b-stun','b-avoid'].includes(B.id)?o.slice().reverse():o){const e=document.querySelector(`[data-a="${a}"]`);if(e&&e.offsetParent)return a}return o[0]||null});
+          /* menu steps go by game state, not by what happens to be visible, so a slow render never closes the menu again */
+          if(['b-stun','b-avoid'].includes(B.id)){const sd=S.sd;return sd.combatPick?o[2]:sd.combatMenuOpen===o[0].split(':')[1]?o[1]:o[0]}
+          for(const a of o){const e=document.querySelector(`[data-a="${a}"]`);if(e&&e.offsetParent)return a}return o[0]||null});
         if(!act)continue;
         const el=await page.$(act.startsWith('cell:')?`.board [data-cell="${act.slice(5)}"]`:`[data-a="${act}"]`);
-        if(el)await el.click({force:true}).catch(()=>{});
+        if(el){await el.waitForElementState('visible',{timeout:3000}).catch(()=>{});await el.click({force:true}).catch(()=>{});await page.waitForFunction(()=>!S.sd||!S.sd.busy||document.querySelector('#atk,#cards,#brk'),null,{timeout:5000}).catch(()=>{})}
       }
       assert.match(seen['b-sig'].plan,/Charging: Big Dig/,'the caption names Big Dig, so the charging card must show it');
       assert.match(seen['b-free'].log,/Big Dig is torn from the playbook/,'Volt\'s wound tears Big Dig');

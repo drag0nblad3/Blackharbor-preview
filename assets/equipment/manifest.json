@@ -1,0 +1,1816 @@
+{
+  "version": 1,
+  "size": 96,
+  "items": [
+    {
+      "id": "visor",
+      "name": "Targeting Visor",
+      "slot": "head",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 1,
+      "family": "visor",
+      "motif": "bolt"
+    },
+    {
+      "id": "suit",
+      "name": "Grounded Suit",
+      "slot": "body",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 1,
+      "family": "armor",
+      "motif": "bolt"
+    },
+    {
+      "id": "earpiece",
+      "name": "Comms Earpiece",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "earpiece",
+      "motif": "bolt"
+    },
+    {
+      "id": "gaunt",
+      "name": "Coil Gauntlet",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 2,
+      "family": "gauntlet",
+      "motif": "bolt"
+    },
+    {
+      "id": "boots",
+      "name": "Rocket Boots",
+      "slot": "legs",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 2,
+      "family": "boots",
+      "motif": "bolt"
+    },
+    {
+      "id": "buttress",
+      "name": "Buttress Frame",
+      "slot": "body",
+      "discipline": "tech",
+      "set": "architect",
+      "rank": 2,
+      "family": "armor",
+      "motif": "star"
+    },
+    {
+      "id": "uplink",
+      "name": "Orbital Uplink",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 3,
+      "family": "drone",
+      "motif": "bolt"
+    },
+    {
+      "id": "wings",
+      "name": "Solar Wings",
+      "slot": "legs",
+      "discipline": "tech",
+      "set": "helios",
+      "rank": 3,
+      "family": "wings",
+      "motif": "sun"
+    },
+    {
+      "id": "graft",
+      "name": "Stoneskin Graft",
+      "slot": "body",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 1,
+      "family": "armor",
+      "motif": "stone"
+    },
+    {
+      "id": "wraps",
+      "name": "Seismic Wrap",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 1,
+      "family": "bracer",
+      "motif": "stone"
+    },
+    {
+      "id": "crest",
+      "name": "Adrenal Crest",
+      "slot": "head",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 2,
+      "family": "crown",
+      "motif": "stone"
+    },
+    {
+      "id": "mutagen",
+      "name": "Runner's Mutagen",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 3,
+      "family": "bottle",
+      "motif": "smoke"
+    },
+    {
+      "id": "jackhammer",
+      "name": "Jackhammer Fist",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "architect",
+      "rank": 2,
+      "family": "gauntlet",
+      "motif": "stone"
+    },
+    {
+      "id": "serum",
+      "name": "Apex Serum",
+      "slot": "acc",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 3,
+      "family": "bottle",
+      "motif": "stone"
+    },
+    {
+      "id": "monocle",
+      "name": "Seer's Monocle",
+      "slot": "head",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 1,
+      "family": "monocle",
+      "motif": "eye"
+    },
+    {
+      "id": "cloak",
+      "name": "Warded Cloak",
+      "slot": "body",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 1,
+      "family": "cloak",
+      "motif": "star"
+    },
+    {
+      "id": "rings",
+      "name": "Hex Rings",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 2,
+      "family": "rings",
+      "motif": "rune"
+    },
+    {
+      "id": "sandals",
+      "name": "Wayfarer Sandals",
+      "slot": "legs",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 2,
+      "family": "sandals",
+      "motif": "smoke"
+    },
+    {
+      "id": "diadem",
+      "name": "Sunstone Diadem",
+      "slot": "head",
+      "discipline": "magic",
+      "set": "helios",
+      "rank": 2,
+      "family": "crown",
+      "motif": "sun"
+    },
+    {
+      "id": "sigil",
+      "name": "Banishing Sigil",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 3,
+      "family": "charm",
+      "motif": "star"
+    },
+    {
+      "id": "titan",
+      "name": "Titan Heart",
+      "slot": "body",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "heart",
+      "motif": "stone"
+    },
+    {
+      "id": "grimoire",
+      "name": "Eldritch Grimoire",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "book",
+      "motif": "rune"
+    },
+    {
+      "id": "bracer",
+      "name": "Kinetic Bracer",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "bracer",
+      "motif": "bolt"
+    },
+    {
+      "id": "vest",
+      "name": "Bio-Weave Vest",
+      "slot": "body",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "armor",
+      "motif": "paw"
+    },
+    {
+      "id": "runelens",
+      "name": "Rune Lens",
+      "slot": "head",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "monocle",
+      "motif": "eye"
+    },
+    {
+      "id": "charm",
+      "name": "Circuit Charm",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "charm",
+      "motif": "bolt"
+    },
+    {
+      "id": "totem",
+      "name": "Spirit Totem",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "charm",
+      "motif": "star"
+    },
+    {
+      "id": "wyrm",
+      "name": "Wyrmhide Boots",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "boots",
+      "motif": "snake"
+    },
+    {
+      "id": "exo",
+      "name": "Exo-Frame",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "armor",
+      "motif": "bolt"
+    },
+    {
+      "id": "greaves",
+      "name": "Piston Greaves",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "boots",
+      "motif": "stone"
+    },
+    {
+      "id": "claws",
+      "name": "Graft Claw",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "claw",
+      "motif": "paw"
+    },
+    {
+      "id": "helm",
+      "name": "Neural Helm",
+      "slot": "head",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "helmet",
+      "motif": "bolt"
+    },
+    {
+      "id": "familiar",
+      "name": "Familiar Drone",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "drone",
+      "motif": "wing"
+    },
+    {
+      "id": "faraday",
+      "name": "Faraday Coat",
+      "slot": "body",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "cloak",
+      "motif": "bolt"
+    },
+    {
+      "id": "staff",
+      "name": "Arc Staff",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "staff",
+      "motif": "bolt"
+    },
+    {
+      "id": "halo",
+      "name": "Halo Projector",
+      "slot": "head",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "halo",
+      "motif": "sun"
+    },
+    {
+      "id": "mantle",
+      "name": "Beast Mantle",
+      "slot": "body",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "cloak",
+      "motif": "paw"
+    },
+    {
+      "id": "shadowpaw",
+      "name": "Shadowpaw Treads",
+      "slot": "legs",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "boots",
+      "motif": "moon"
+    },
+    {
+      "id": "bloodstone",
+      "name": "Bloodstone",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "gem",
+      "motif": "heart"
+    },
+    {
+      "id": "hexfist",
+      "name": "Hexfist Glove",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "gauntlet",
+      "motif": "rune"
+    },
+    {
+      "id": "crown",
+      "name": "Trinity Crown",
+      "slot": "head",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "crown",
+      "motif": "rune"
+    },
+    {
+      "id": "paragon",
+      "name": "Paragon Core",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "core",
+      "motif": "star"
+    },
+    {
+      "id": "scanner",
+      "name": "Police Scanner",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "radio",
+      "motif": "eye"
+    },
+    {
+      "id": "medkit",
+      "name": "Field Medic Kit",
+      "slot": "body",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "kit",
+      "motif": "heart"
+    },
+    {
+      "id": "coin",
+      "name": "Lucky Coin",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "charm",
+      "motif": "star"
+    },
+    {
+      "id": "harness",
+      "name": "Salvage Harness",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "harness",
+      "motif": "gear"
+    },
+    {
+      "id": "mask",
+      "name": "Spokesperson Mask",
+      "slot": "head",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "mask",
+      "motif": "eye"
+    },
+    {
+      "id": "goggles",
+      "name": "Night-Vision Goggles",
+      "slot": "head",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "goggles",
+      "motif": "eye"
+    },
+    {
+      "id": "scalemail",
+      "name": "Scale Mail",
+      "slot": "body",
+      "discipline": "innate",
+      "set": "serpent",
+      "rank": 1,
+      "family": "armor",
+      "motif": "snake"
+    },
+    {
+      "id": "fangs",
+      "name": "Fang Dagger",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "serpent",
+      "rank": 2,
+      "family": "blade",
+      "motif": "snake"
+    },
+    {
+      "id": "whip",
+      "name": "Coil Whip",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "serpent",
+      "rank": 2,
+      "family": "whip",
+      "motif": "snake"
+    },
+    {
+      "id": "shed",
+      "name": "Shed-Skin Cloak",
+      "slot": "body",
+      "discipline": "magic",
+      "set": "serpent",
+      "rank": 2,
+      "family": "cloak",
+      "motif": "snake"
+    },
+    {
+      "id": "magboots",
+      "name": "Mag Boots",
+      "slot": "legs",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 1,
+      "family": "boots",
+      "motif": "magnet"
+    },
+    {
+      "id": "railglove",
+      "name": "Rail Gauntlet",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 2,
+      "family": "gauntlet",
+      "motif": "magnet"
+    },
+    {
+      "id": "polar",
+      "name": "Polarity Shield",
+      "slot": "body",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 2,
+      "family": "shield",
+      "motif": "magnet"
+    },
+    {
+      "id": "ferrohelm",
+      "name": "Ferro Helm",
+      "slot": "head",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 2,
+      "family": "helmet",
+      "motif": "magnet"
+    },
+    {
+      "id": "shroud",
+      "name": "Night Shroud",
+      "slot": "body",
+      "discipline": "magic",
+      "set": "noct",
+      "rank": 1,
+      "family": "cloak",
+      "motif": "moon"
+    },
+    {
+      "id": "blades",
+      "name": "Umbral Blade",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "noct",
+      "rank": 2,
+      "family": "blade",
+      "motif": "moon"
+    },
+    {
+      "id": "nmask",
+      "name": "Shadow Mask",
+      "slot": "head",
+      "discipline": "magic",
+      "set": "noct",
+      "rank": 2,
+      "family": "mask",
+      "motif": "moon"
+    },
+    {
+      "id": "umbrastep",
+      "name": "Umbra Step",
+      "slot": "legs",
+      "discipline": "magic",
+      "set": "noct",
+      "rank": 2,
+      "family": "boots",
+      "motif": "moon"
+    },
+    {
+      "id": "chitin",
+      "name": "Chitin Plate",
+      "slot": "body",
+      "discipline": "innate",
+      "set": "swarm",
+      "rank": 1,
+      "family": "armor",
+      "motif": "wing"
+    },
+    {
+      "id": "stinger",
+      "name": "Stinger Bracer",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "swarm",
+      "rank": 2,
+      "family": "bracer",
+      "motif": "wing"
+    },
+    {
+      "id": "hivelink",
+      "name": "Hive Link",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": "swarm",
+      "rank": 2,
+      "family": "radio",
+      "motif": "eye"
+    },
+    {
+      "id": "swings",
+      "name": "Swarm Wings",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "swarm",
+      "rank": 2,
+      "family": "wings",
+      "motif": "wing"
+    },
+    {
+      "id": "padvest",
+      "name": "Blast Padding",
+      "slot": "body",
+      "discipline": "innate",
+      "set": "bomber",
+      "rank": 1,
+      "family": "armor",
+      "motif": "fuse"
+    },
+    {
+      "id": "fusebando",
+      "name": "Fuse Bandolier",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "bomber",
+      "rank": 2,
+      "family": "bag",
+      "motif": "fuse"
+    },
+    {
+      "id": "blastgog",
+      "name": "Blast Goggles",
+      "slot": "head",
+      "discipline": "tech",
+      "set": "bomber",
+      "rank": 2,
+      "family": "goggles",
+      "motif": "fuse"
+    },
+    {
+      "id": "springboots",
+      "name": "Spring Boots",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "bomber",
+      "rank": 2,
+      "family": "boots",
+      "motif": "fuse"
+    },
+    {
+      "id": "mirrorplate",
+      "name": "Mirror Plate",
+      "slot": "body",
+      "discipline": "tech",
+      "set": "grid",
+      "rank": 1,
+      "family": "armor",
+      "motif": "prism"
+    },
+    {
+      "id": "lensvisor",
+      "name": "Lens Visor",
+      "slot": "head",
+      "discipline": "tech",
+      "set": "grid",
+      "rank": 2,
+      "family": "visor",
+      "motif": "eye"
+    },
+    {
+      "id": "prismgaunt",
+      "name": "Prism Gauntlets",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "grid",
+      "rank": 2,
+      "family": "gauntlet",
+      "motif": "prism"
+    },
+    {
+      "id": "vaultjets",
+      "name": "Vault Jets",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "grid",
+      "rank": 2,
+      "family": "boots",
+      "motif": "prism"
+    },
+    {
+      "id": "cell",
+      "name": "Power Cell",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "core",
+      "motif": "bolt"
+    },
+    {
+      "id": "fusion",
+      "name": "Fusion Core",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "armor",
+      "motif": "bolt"
+    },
+    {
+      "id": "lance",
+      "name": "Plasma Lance",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "staff",
+      "motif": "bolt"
+    },
+    {
+      "id": "gravboots",
+      "name": "Gravity Boots",
+      "slot": "legs",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "boots",
+      "motif": "magnet"
+    },
+    {
+      "id": "cmdvisor",
+      "name": "Command Visor",
+      "slot": "head",
+      "discipline": "tech",
+      "set": null,
+      "rank": 5,
+      "family": "visor",
+      "motif": "bolt"
+    },
+    {
+      "id": "arccore",
+      "name": "Arc Core",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": null,
+      "rank": 5,
+      "family": "core",
+      "motif": "bolt"
+    },
+    {
+      "id": "hide",
+      "name": "Primal Hide",
+      "slot": "body",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "armor",
+      "motif": "paw"
+    },
+    {
+      "id": "meteor",
+      "name": "Meteor Fist",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "gauntlet",
+      "motif": "star"
+    },
+    {
+      "id": "senses",
+      "name": "Stalker Senses",
+      "slot": "head",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "mask",
+      "motif": "eye"
+    },
+    {
+      "id": "apex",
+      "name": "Apex Heart",
+      "slot": "acc",
+      "discipline": "innate",
+      "set": null,
+      "rank": 5,
+      "family": "heart",
+      "motif": "heart"
+    },
+    {
+      "id": "quakelegs",
+      "name": "Earthshaker Greaves",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": null,
+      "rank": 5,
+      "family": "boots",
+      "motif": "stone"
+    },
+    {
+      "id": "runeblade",
+      "name": "Runeblade",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "blade",
+      "motif": "rune"
+    },
+    {
+      "id": "wand",
+      "name": "Hourglass Wand",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "wand",
+      "motif": "star"
+    },
+    {
+      "id": "soulreaver",
+      "name": "Soulreaver",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "blade",
+      "motif": "star"
+    },
+    {
+      "id": "starfall",
+      "name": "Starfall Staff",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 5,
+      "family": "staff",
+      "motif": "star"
+    },
+    {
+      "id": "font",
+      "name": "Mana Font",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "core",
+      "motif": "star"
+    },
+    {
+      "id": "robes",
+      "name": "Archmage Robes",
+      "slot": "body",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "cloak",
+      "motif": "star"
+    },
+    {
+      "id": "circlet",
+      "name": "Astral Circlet",
+      "slot": "head",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "crown",
+      "motif": "star"
+    },
+    {
+      "id": "stone",
+      "name": "Philosopher's Stone",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 5,
+      "family": "gem",
+      "motif": "stone"
+    },
+    {
+      "id": "grapbelt",
+      "name": "Zip-Line Belt",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "belt",
+      "motif": "gear"
+    },
+    {
+      "id": "wiretap",
+      "name": "Wiretap Rig",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "radio",
+      "motif": "gear"
+    },
+    {
+      "id": "bandolier",
+      "name": "Gadget Bandolier",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "belt",
+      "motif": "gear"
+    },
+    {
+      "id": "satchel",
+      "name": "Scavenger's Satchel",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "bag",
+      "motif": "bone"
+    },
+    {
+      "id": "trophy",
+      "name": "Trophy Belt",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "belt",
+      "motif": "paw"
+    },
+    {
+      "id": "champ",
+      "name": "Champion's Belt",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "belt",
+      "motif": "bone"
+    },
+    {
+      "id": "journal",
+      "name": "Dream Journal",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "book",
+      "motif": "rune"
+    },
+    {
+      "id": "sash",
+      "name": "Rune Sash",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "sash",
+      "motif": "rune"
+    },
+    {
+      "id": "censer",
+      "name": "Incense Censer",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "lantern",
+      "motif": "smoke"
+    },
+    {
+      "id": "c_smoke",
+      "name": "Smoke Pellets",
+      "slot": "pouch",
+      "discipline": "tech",
+      "set": null,
+      "rank": 0,
+      "family": "grenade",
+      "motif": "fuse"
+    },
+    {
+      "id": "c_flash",
+      "name": "Flashbang",
+      "slot": "pouch",
+      "discipline": "tech",
+      "set": null,
+      "rank": 0,
+      "family": "grenade",
+      "motif": "fuse"
+    },
+    {
+      "id": "c_frag",
+      "name": "Frag Grenade",
+      "slot": "pouch",
+      "discipline": "tech",
+      "set": null,
+      "rank": 0,
+      "family": "grenade",
+      "motif": "fuse"
+    },
+    {
+      "id": "c_batt",
+      "name": "Spare Battery",
+      "slot": "pouch",
+      "discipline": "tech",
+      "set": null,
+      "rank": 0,
+      "family": "battery",
+      "motif": "bolt"
+    },
+    {
+      "id": "c_stim",
+      "name": "Stim Shot",
+      "slot": "pouch",
+      "discipline": "innate",
+      "set": null,
+      "rank": 0,
+      "family": "syringe",
+      "motif": "heart"
+    },
+    {
+      "id": "c_salts",
+      "name": "Smelling Salts",
+      "slot": "pouch",
+      "discipline": "innate",
+      "set": null,
+      "rank": 0,
+      "family": "bottle",
+      "motif": "heart"
+    },
+    {
+      "id": "c_adren",
+      "name": "Adrenaline Shot",
+      "slot": "pouch",
+      "discipline": "innate",
+      "set": null,
+      "rank": 0,
+      "family": "syringe",
+      "motif": "heart"
+    },
+    {
+      "id": "c_charm",
+      "name": "Ward Charm",
+      "slot": "pouch",
+      "discipline": "magic",
+      "set": null,
+      "rank": 0,
+      "family": "charm",
+      "motif": "star"
+    },
+    {
+      "id": "c_vial",
+      "name": "Arcana Vial",
+      "slot": "pouch",
+      "discipline": "magic",
+      "set": null,
+      "rank": 0,
+      "family": "bottle",
+      "motif": "star"
+    },
+    {
+      "id": "surveyor",
+      "name": "Surveyor's Visor",
+      "slot": "head",
+      "discipline": "tech",
+      "set": "architect",
+      "rank": 2,
+      "family": "visor",
+      "motif": "eye"
+    },
+    {
+      "id": "stilts",
+      "name": "Rebar Stilts",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "architect",
+      "rank": 2,
+      "family": "boots",
+      "motif": "stone"
+    },
+    {
+      "id": "corona",
+      "name": "Corona Plate",
+      "slot": "body",
+      "discipline": "tech",
+      "set": "helios",
+      "rank": 2,
+      "family": "armor",
+      "motif": "sun"
+    },
+    {
+      "id": "flaregaunt",
+      "name": "Flare Gauntlets",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "helios",
+      "rank": 2,
+      "family": "gauntlet",
+      "motif": "sun"
+    },
+    {
+      "id": "serpeye",
+      "name": "Serpent's Eye",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "serpent",
+      "rank": 2,
+      "family": "pendant",
+      "motif": "snake"
+    },
+    {
+      "id": "rebarbelt",
+      "name": "Rebar Tool Belt",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": "architect",
+      "rank": 1,
+      "family": "belt",
+      "motif": "gear"
+    },
+    {
+      "id": "sunamulet",
+      "name": "Sunstone Amulet",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "helios",
+      "rank": 1,
+      "family": "pendant",
+      "motif": "sun"
+    },
+    {
+      "id": "magbuckle",
+      "name": "Magnet Buckle",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 1,
+      "family": "belt",
+      "motif": "magnet"
+    },
+    {
+      "id": "owlpend",
+      "name": "Owl Pendant",
+      "slot": "acc",
+      "discipline": "innate",
+      "set": "noct",
+      "rank": 1,
+      "family": "pendant",
+      "motif": "paw"
+    },
+    {
+      "id": "compeyes",
+      "name": "Compound Eyes",
+      "slot": "head",
+      "discipline": "innate",
+      "set": "swarm",
+      "rank": 3,
+      "family": "mask",
+      "motif": "eye"
+    },
+    {
+      "id": "detcord",
+      "name": "Det Cord Belt",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": "bomber",
+      "rank": 2,
+      "family": "belt",
+      "motif": "fuse"
+    },
+    {
+      "id": "focuscrystal",
+      "name": "Focus Crystal",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "grid",
+      "rank": 2,
+      "family": "gem",
+      "motif": "prism"
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle Staff",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "staff",
+      "motif": "star"
+    },
+    {
+      "id": "shotgun",
+      "name": "Breacher Shotgun",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "gun",
+      "motif": "gear"
+    },
+    {
+      "id": "maul",
+      "name": "Bone Maul",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "hammer",
+      "motif": "bone"
+    },
+    {
+      "id": "quakehammer",
+      "name": "Tectonic Hammer",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "hammer",
+      "motif": "stone"
+    },
+    {
+      "id": "martyr",
+      "name": "Martyr's Vestments",
+      "slot": "body",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "cloak",
+      "motif": "heart"
+    },
+    {
+      "id": "dynamo",
+      "name": "Dynamo Plating",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "armor",
+      "motif": "bolt"
+    },
+    {
+      "id": "bloodhound",
+      "name": "Bloodhound Mask",
+      "slot": "head",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "mask",
+      "motif": "eye"
+    },
+    {
+      "id": "locket",
+      "name": "Guardian Locket",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "pendant",
+      "motif": "heart"
+    },
+    {
+      "id": "hooks",
+      "name": "Scrapper's Hooks",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "hooks",
+      "motif": "bone"
+    },
+    {
+      "id": "c_chaff",
+      "name": "Chaff Grenade",
+      "slot": "pouch",
+      "discipline": "tech",
+      "set": null,
+      "rank": 0,
+      "family": "grenade",
+      "motif": "fuse"
+    },
+    {
+      "id": "baton",
+      "name": "Shock Baton",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "wand",
+      "motif": "bolt"
+    },
+    {
+      "id": "knuckles",
+      "name": "Iron Knuckles",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "rings",
+      "motif": "bone"
+    },
+    {
+      "id": "hood",
+      "name": "Shadow Hood",
+      "slot": "head",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "hood",
+      "motif": "moon"
+    },
+    {
+      "id": "headband",
+      "name": "Fighter's Headband",
+      "slot": "head",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "headband",
+      "motif": "bone"
+    },
+    {
+      "id": "riotshield",
+      "name": "Riot Shield",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "shield",
+      "motif": "gear"
+    },
+    {
+      "id": "kinbuckler",
+      "name": "Kinetic Buckler",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "shield",
+      "motif": "gear"
+    },
+    {
+      "id": "scramblepad",
+      "name": "Scrambler Pad",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "radio",
+      "motif": "gear"
+    },
+    {
+      "id": "aegisgen",
+      "name": "Aegis Projector",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 3,
+      "family": "radio",
+      "motif": "gear"
+    },
+    {
+      "id": "bonebuckler",
+      "name": "Bone Buckler",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "shield",
+      "motif": "bone"
+    },
+    {
+      "id": "quillguard",
+      "name": "Quill Guard",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "shield",
+      "motif": "bone"
+    },
+    {
+      "id": "ironbark",
+      "name": "Ironbark Shield",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 3,
+      "family": "shield",
+      "motif": "bone"
+    },
+    {
+      "id": "wardtome",
+      "name": "Warding Tome",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "book",
+      "motif": "rune"
+    },
+    {
+      "id": "veillantern",
+      "name": "Veil Lantern",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "lantern",
+      "motif": "smoke"
+    },
+    {
+      "id": "sanctaegis",
+      "name": "Sanctified Aegis",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 3,
+      "family": "shield",
+      "motif": "star"
+    },
+    {
+      "id": "trailrun",
+      "name": "Trail Runners",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": null,
+      "rank": 1,
+      "family": "boots",
+      "motif": "paw"
+    },
+    {
+      "id": "moonslip",
+      "name": "Moonstep Slippers",
+      "slot": "legs",
+      "discipline": "magic",
+      "set": null,
+      "rank": 1,
+      "family": "boots",
+      "motif": "moon"
+    },
+    {
+      "id": "arcpistol",
+      "name": "Arc Pistol",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 2,
+      "family": "gun",
+      "motif": "bolt"
+    },
+    {
+      "id": "boneclub",
+      "name": "Bone Club",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 2,
+      "family": "hammer",
+      "motif": "bone"
+    },
+    {
+      "id": "spellblade",
+      "name": "Spellblade",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 2,
+      "family": "blade",
+      "motif": "rune"
+    },
+    {
+      "id": "teslabelt",
+      "name": "Tesla Coil Belt",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 4,
+      "family": "belt",
+      "motif": "bolt"
+    },
+    {
+      "id": "faradaybuck",
+      "name": "Faraday Buckler",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "gallows",
+      "rank": 5,
+      "family": "shield",
+      "motif": "bolt"
+    },
+    {
+      "id": "quarrypick",
+      "name": "Quarry Pick",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 4,
+      "family": "hammer",
+      "motif": "stone"
+    },
+    {
+      "id": "bedrock",
+      "name": "Bedrock Bulwark",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": "quarry",
+      "rank": 5,
+      "family": "shield",
+      "motif": "stone"
+    },
+    {
+      "id": "debtledger",
+      "name": "Ledger of Debts",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 4,
+      "family": "book",
+      "motif": "smoke"
+    },
+    {
+      "id": "condbaton",
+      "name": "Conductor's Baton",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "cantor",
+      "rank": 5,
+      "family": "wand",
+      "motif": "smoke"
+    },
+    {
+      "id": "loadcell",
+      "name": "Load Cell",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": "architect",
+      "rank": 4,
+      "family": "core",
+      "motif": "stone"
+    },
+    {
+      "id": "piledriver",
+      "name": "Pile Driver",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "architect",
+      "rank": 5,
+      "family": "gauntlet",
+      "motif": "stone"
+    },
+    {
+      "id": "sunlantern",
+      "name": "Sunfire Lantern",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": "helios",
+      "rank": 4,
+      "family": "lantern",
+      "motif": "sun"
+    },
+    {
+      "id": "dawnstride",
+      "name": "Dawnstriders",
+      "slot": "legs",
+      "discipline": "magic",
+      "set": "helios",
+      "rank": 5,
+      "family": "boots",
+      "motif": "sun"
+    },
+    {
+      "id": "coilstride",
+      "name": "Coilstriders",
+      "slot": "legs",
+      "discipline": "innate",
+      "set": "serpent",
+      "rank": 4,
+      "family": "boots",
+      "motif": "snake"
+    },
+    {
+      "id": "ouromask",
+      "name": "Ouroboros Mask",
+      "slot": "head",
+      "discipline": "magic",
+      "set": "serpent",
+      "rank": 5,
+      "family": "mask",
+      "motif": "snake"
+    },
+    {
+      "id": "lodeorb",
+      "name": "Lodestone Orb",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "lode",
+      "rank": 4,
+      "family": "core",
+      "motif": "magnet"
+    },
+    {
+      "id": "railspike",
+      "name": "Railspike Driver",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": "lode",
+      "rank": 5,
+      "family": "gun",
+      "motif": "magnet"
+    },
+    {
+      "id": "moonshade",
+      "name": "Moonshade Charm",
+      "slot": "acc",
+      "discipline": "magic",
+      "set": "noct",
+      "rank": 4,
+      "family": "charm",
+      "motif": "moon"
+    },
+    {
+      "id": "nightcord",
+      "name": "Nightfall Cord",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": "noct",
+      "rank": 5,
+      "family": "sash",
+      "motif": "moon"
+    },
+    {
+      "id": "hivegirdle",
+      "name": "Hive Girdle",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": "swarm",
+      "rank": 4,
+      "family": "belt",
+      "motif": "wing"
+    },
+    {
+      "id": "pheromone",
+      "name": "Queen's Pheromone",
+      "slot": "acc",
+      "discipline": "innate",
+      "set": "swarm",
+      "rank": 5,
+      "family": "bottle",
+      "motif": "wing"
+    },
+    {
+      "id": "deadswitch",
+      "name": "Dead Man's Switch",
+      "slot": "acc",
+      "discipline": "tech",
+      "set": "bomber",
+      "rank": 4,
+      "family": "radio",
+      "motif": "fuse"
+    },
+    {
+      "id": "blastjump",
+      "name": "Blast Jumpers",
+      "slot": "legs",
+      "discipline": "tech",
+      "set": "bomber",
+      "rank": 5,
+      "family": "boots",
+      "motif": "fuse"
+    },
+    {
+      "id": "prismcord",
+      "name": "Prism Cord",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": "grid",
+      "rank": 4,
+      "family": "sash",
+      "motif": "rune"
+    },
+    {
+      "id": "refractor",
+      "name": "Refractor Crown",
+      "slot": "head",
+      "discipline": "magic",
+      "set": "grid",
+      "rank": 5,
+      "family": "crown",
+      "motif": "prism"
+    },
+    {
+      "id": "plasmacut",
+      "name": "Plasma Cutter",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "blade",
+      "motif": "bolt"
+    },
+    {
+      "id": "deflector",
+      "name": "Deflector Gauntlet",
+      "slot": "arms",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "gauntlet",
+      "motif": "gear"
+    },
+    {
+      "id": "utilrig",
+      "name": "Utility Rig",
+      "slot": "belt",
+      "discipline": "tech",
+      "set": null,
+      "rank": 4,
+      "family": "belt",
+      "motif": "gear"
+    },
+    {
+      "id": "talon",
+      "name": "Talon Gauntlet",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "claw",
+      "motif": "paw"
+    },
+    {
+      "id": "carapace",
+      "name": "Carapace Shield",
+      "slot": "arms",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "shield",
+      "motif": "wing"
+    },
+    {
+      "id": "ironhide",
+      "name": "Ironhide Belt",
+      "slot": "belt",
+      "discipline": "innate",
+      "set": null,
+      "rank": 4,
+      "family": "belt",
+      "motif": "bone"
+    },
+    {
+      "id": "sigilblade",
+      "name": "Sigil Blade",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "blade",
+      "motif": "rune"
+    },
+    {
+      "id": "mirrortome",
+      "name": "Mirror Tome",
+      "slot": "arms",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "book",
+      "motif": "prism"
+    },
+    {
+      "id": "starsash",
+      "name": "Starwoven Sash",
+      "slot": "belt",
+      "discipline": "magic",
+      "set": null,
+      "rank": 4,
+      "family": "sash",
+      "motif": "rune"
+    }
+  ]
+}
