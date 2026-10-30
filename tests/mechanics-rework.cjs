@@ -17,7 +17,8 @@ function plan(id,ids=['lash','snipe','drones','ray','mono','galv']){run(`S.sd.v.
  // Threshold is per hero round, not lifetime damage; final ordinary page remains defeatable.
  plan('field');run('woundV();woundV();S.sd.v.turnDamage=0;woundV()');assert.equal(get('S.sd.v.planned.id'),'field');
  plan('lash',[]);run('woundV()');assert.equal(get('S.sd.result'),'win');
- setup();plan('field',[]);run('woundV();woundV()');assert.equal(get('S.sd.result'),null);run('woundV()');assert.equal(get('S.sd.result'),'win');
+ // The last page always tears, even a signature in the charging slot (Tyler, 2026-10-30).
+ setup();plan('field',[]);run('woundV()');assert.equal(get('S.sd.result'),'win');
  // Area-charge cards remain in the slot through windup, then discard exactly once.
  setup('helios',2);plan('flare',['heat','corona','sprites']);const total=get('remainingPages(S.sd.v)');await run('villainPhase()');assert(get('!!S.sd.v.charge'));assert.equal(get('remainingPages(S.sd.v)'),total);assert.equal(get('S.sd.v.planned.id'),'flare');await run("woundAnim('1');");await run("woundAnim('2');");assert.equal(get('S.sd.v.charge'),null);assert.equal(get('S.sd.v.planned'),null);
  setup('helios',2);plan('flare',['heat','corona','sprites']);await run('villainPhase()');await run('villainPhase()');assert.equal(get('remainingPages(S.sd.v)'),4);assert.equal(get('[...S.sd.v.deck,...S.sd.v.discard,S.sd.v.planned].filter(c=>c&&c.id==="flare").length'),1);

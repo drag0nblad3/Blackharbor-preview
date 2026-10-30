@@ -132,15 +132,40 @@ const RXSRC={gallows:{cap:['field','You overloaded his capacitor bank!'],bdrone:
   grid:{mirror:['red','You smashed his reflector visor!'],lens:['sight','You cracked his lens array!'],flash:['lattice','You burned out his afterimage capacitors!']}};
 for(const k in RXSRC)for(const id in RXSRC[k]){const r=rxOf(k,id);[r.src,r.brk]=RXSRC[k][id]}
 const ROMAN=['','II','III','IV','V','VI','VII'];
-const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest'};
+const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'least composed'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
-const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
-const chargeNeed=v=>Math.max(1,v.level); // Successful wounds in one hero round.
+const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',hero:'the most injured hero',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
+const chargeNeed=v=>tutOn()?Math.max(1,v.level):Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up; the scripted tutorial keeps 1 wound so Big Dig can be torn).
+/* Tyler (2026-10-30): upgraded pages (II, III, IV) never add damage or composure loss; those come from the villain's level.
+   Each mark instead adds the next step of its page type's ladder in UPS, on top of the move, range, reach and count growth. */
+const UPFX={acc:c=>{c.accUp=(c.accUp||0)+2},daze:c=>{c.daze=1},knock:c=>{c.knock=(c.knock||0)+1},ring:c=>{c.zr=(c.zr||0)+1},
+  wide:c=>{c.r=(c.r||0)+1},bigger:c=>{c.radUp=1},more:c=>{c.cnt=(c.cnt||1)+1},longer:c=>{c.ttl=(c.ttl||1)+1},
+  beam:c=>{if(c.pat==='aim'||c.pat==='sweep')c.cnt=(c.cnt||(c.pat==='sweep'?4:1))+1;else c.ttl=(c.ttl||1)+1},
+  shakeDaze:c=>{c.shakeDaze=1},eva:c=>{c.evaUp=(c.evaUp||0)+2},twin:c=>{c.twin=1},drag:c=>{c.pull=(c.pull||0)+1},two:c=>{c.tgts=2},
+  rush:c=>{c.rush=1},reach:c=>{c.emv=(c.emv||2)+1;c.ereach=(c.ereach||3)+1}};
+const UP_HIT=['acc','daze','knock'];
+const UPS={strike:UP_HIT,multi:UP_HIT,sweep:UP_HIT,rampage:UP_HIT,swallow:UP_HIT,converge:UP_HIT,scatter:UP_HIT,double:UP_HIT,shadow:UP_HIT,burrow:UP_HIT,shrapnel:UP_HIT,
+  pull:['acc','daze','wide'],repel:['daze','wide','wide'],charge:['ring','daze','ring'],airburst:['ring','daze','ring'],
+  bomb:['bigger','daze','more'],leap:['bigger','daze','more'],swapbomb:['bigger','daze'],beam:['longer','daze','beam'],hazard:['more','wide','longer'],
+  taunt:['wide','shakeDaze','wide'],fade:['eva','twin'],puppet:['drag','two','drag'],summon:[null,'rush'],endanger:['reach','daze','reach']};
 function applyMk(c,mk){c={...c};if(!mk)return c;
-  if(c.dmg!=null)c.dmg+=mk;if(c.amt!=null)c.amt+=mk;if(c.k!=null)c.k+=Math.ceil(mk/2);if(c.mv)c.mv+=mk;if(c.rng>1)c.rng+=mk;
+  if(c.k!=null)c.k+=Math.ceil(mk/2);if(c.mv)c.mv+=mk;if(c.rng>1)c.rng+=mk;
   if(c.r!=null&&(c.t!=='hazard'||c.grow))c.r+=Math.floor(mk/2);if(c.len)c.len+=mk;if(c.ttl)c.ttl+=Math.floor(mk/2);if(c.cnt)c.cnt+=Math.floor(mk/2);
-  if(c.t==='reanimate')c.heal=1+Math.floor(mk/2);return c}
-function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
+  if(c.t==='reanimate')c.heal=1+Math.floor(mk/2);
+  (UPS[c.t]||[]).slice(0,mk).forEach(u=>{if(u)UPFX[u](c)});return c}
+/* extra lines for upgrade riders, shown on the page */
+function upText(c){const o=[],hit=c.zone==='hero'?'Marked heroes':['charge','airburst'].includes(c.t)?'Heroes caught':['bomb','leap','swapbomb'].includes(c.t)?'Heroes caught in a blast':c.t==='beam'?'Heroes a beam hits':'Heroes it hits';
+  if(c.accUp)o.push(`Its attacks get +${c.accUp} accuracy.`);
+  if(c.daze)o.push(c.t==='endanger'?'The hero who takes the blow can\'t move next round.':c.t==='repel'?'A hero who slams into something can\'t move next round.':`${hit} can't move next round.`);
+  if(c.knock)o.push(`${hit} are knocked back ${c.knock} hex${c.knock>1?'es':''}.`);
+  if(c.shakeDaze)o.push('Shaken heroes it reaches can\'t move next round.');
+  if(c.twin)o.push('A second double steps out beside the hero with the least composure.');
+  if(c.rush)o.push('They attack as soon as they arrive.');
+  if(c.zr&&c.zone!=='hero')o.push(`The marked area reaches ${c.zr} hex${c.zr>1?'es':''} further.`);
+  return o.length?' '+o.join(' '):''}
+/* hit reaction text with the level bonus to composure loss (reactions drain comp + compBonus) */
+const rxTxt=(r,lv)=>{const b=r&&r.comp?compBonus(lv):0;return b?r.txt.replace(/loses (\d+) ([Cc]omposure)/,(m,n,w)=>`loses ${+n+b} ${w}`):r.txt};
+function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase(),D=n=>(n||0)+(c.lvd||0); /* Tyler (2026-10-30): pages show damage with the level bonus (dmgScale) */
   const area=(c.radius||1)>1?`${1+3*c.radius*(c.radius+1)} hexes (radius ${c.radius})`:'7 hexes (radius 1)';
   switch(c.t){
     case 'circuit':return 'Links the two nearest heroes until the next boss action. Power-costing abilities drain 1 Composure from the other hero. Separate by 4 hexes to break the link permanently.';
@@ -149,52 +174,57 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase();
     case 'renovate':return 'Marks the nearest hero and the surrounding six hexes. Before the next boss action, rubble and temporary walls inside disappear; empty perimeter hexes become walls for 2 hero rounds. Occupants leave doorways.';
     case 'solar':return 'Until the next boss action, abilities used within 2 hexes add 1 Heat (maximum 4). Then heroes within 2 take damage equal to Heat. At 3 or 4 Heat, Helios also tears one draw-pile page.';
     case 'satellites':return 'Turns up to two rubble hexes within 3 into satellites (maximum two). Each absorbs one successful attack wound, then falls beside Lodestone toward the attacker. An adjacent hero may spend an action to pull one down reliably.';
-    case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.';
+    case 'double':return `A shadow double steps out beside the hero with the least composure within ${c.rng} and strikes them for ${D(c.dmg)}. The double cannot be harmed. It stays, locks in a copy of her next planned page and plays it from where it stands even if her own page is torn, then dissipates.`;
+    case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.'+(c.knife?` She also throws a knife at that hero from up to ${c.rng} away for ${D(c.knife)}, and they lose ${c.comp} composure.`:'');
     case 'borrow':return 'Infests up to two regular mites, replacing up to two secondary swarm-body origins for the next action. Destroying a carrier removes that origin for that action. No extra attacks; infestation expires after that action.';
-    case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${c.dmg}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${c.dmg}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'');
-    case 'burrow':return `Dives underground and bursts up next to the farthest hero, then hits them for ${c.dmg}. Leaves rubble where it went down.`;
-    case 'multi':return `Hits up to ${c.cnt} heroes within ${c.rng} for ${c.dmg} each.`;
-    case 'sweep':return `Everything within ${c.r} takes ${c.dmg}. Civilians caught are harmed.`;
-    case 'rampage':return `Moves ${c.mv} toward the nearest hero, then everything adjacent takes ${c.dmg}.`;
+    case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${D(c.dmg)}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${D(c.dmg)}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'')+(c.dupeLow?' If the target has half their composure or less, an untouchable shadow double steps out beside them; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'');
+    case 'burrow':return `Dives underground and bursts up next to the farthest hero, then hits them for ${D(c.dmg)}. Leaves rubble where it went down.`;
+    case 'multi':return `Hits up to ${c.cnt} heroes within ${c.rng} for ${D(c.dmg)} each.`;
+    case 'sweep':return `Everything within ${c.r} takes ${D(c.dmg)}. Civilians caught are harmed.`;
+    case 'rampage':return `Moves ${c.mv} toward the nearest hero, then everything adjacent takes ${D(c.dmg)}.`;
     case 'summon':return `${c.k} ${hn}s join the fight.`;
-    case 'endanger':return `Moves 2 toward the nearest civilian and harms them from up to 3 away. A hero next to them ${c.comp?`loses ${c.comp} Composure`:`takes ${c.dmg} damage`} instead.`;
-    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`;
+    case 'endanger':return `Moves ${c.emv||2} toward the nearest civilian and harms them from up to ${c.ereach||3} away. A hero next to them ${c.comp?`loses ${c.comp} Composure`:`takes ${D(c.dmg)} damage`} instead.`;
+    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`+(c.shakenDmg?` Shaken heroes (no composure left) also take ${c.shakenDmg} damage.`:'');
     case 'henchvolley':return 'Every hired gun already within range 2 of a hero immediately fires one extra shot without moving. Elite henchmen do not join the volley.';
     case 'vanish':return 'Disappears and reappears far from the heroes.';
-    case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`}
-    case 'puppet':return `The hero with the least composure loses ${c.amt||1} more and cannot move next round.`;
+    case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`+(c.dupe?' An untouchable shadow double steps out beside the hero with the least composure within 5; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'')}
+    case 'puppet':return `${(c.tgts||1)>1?`The ${c.tgts} heroes with the least composure each lose`:'The hero with the least composure loses'} ${c.amt||1} more${c.pull?`, ${(c.tgts||1)>1?'are':'is'} dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it,`:''} and cannot move next round.`;
     case 'walls':return `${c.retreat?`Backs ${c.retreat} hexes away from the nearest hero, then r`:'R'}aises ${c.lines>1?`${c.lines} walls`:'a wall'} of ${c.len} hexes between itself and the heroes. Walls crumble after ${c.ttl} rounds.`;
-    case 'hazard':if(c.grow){const who=c.cnt>1?`each of the ${c.cnt} nearest heroes`:'the nearest hero';return `${c.r?'The floor caves in under':'A one-hex sinkhole opens under'} ${who}${c.r?` and every hex within ${c.r} of them`:''} for ${c.ttl} villain turns. Anyone standing in one when the villain acts takes ${c.dmg}.`}return `The floor around ${c.cnt>1?`the ${c.cnt} nearest heroes`:'the nearest hero'} turns molten for ${c.ttl} villain turns. Anyone standing on it when the villain acts takes ${c.dmg}.`;
+    case 'hazard':if(c.grow){const who=c.cnt>1?`each of the ${c.cnt} nearest heroes`:'the nearest hero';return `${c.r?'The floor caves in under':'A one-hex sinkhole opens under'} ${who}${c.r?` and every hex within ${c.r} of them`:''} for ${c.ttl} villain turns. Anyone standing in one when the villain acts takes ${D(c.dmg)}.`}return `The floor ${c.r>1?`within ${c.r} of`:'around'} ${c.cnt>1?`the ${c.cnt} nearest heroes`:'the nearest hero'} turns molten for ${c.ttl} villain turns. Anyone standing on it when the villain acts takes ${D(c.dmg)}.`;
     case 'cage':return `Fills every open hex around the nearest hero with walls for ${c.ttl} rounds.`;
-    case 'shrapnel':return `Detonates every wall and rubble pile within ${c.r}. Heroes next to one take ${c.dmg}. Walls are destroyed.`;
+    case 'shrapnel':return `Detonates every wall and rubble pile within ${c.r}. Heroes next to one take ${D(c.dmg)}. Walls are destroyed.`;
     case 'fortify':return `Rings itself with walls for ${c.ttl} rounds and recovers 1 torn page.`;
-    case 'swallow':return `Slithers ${c.mv} toward the nearest civilian or ${hn} and swallows ${c.cnt>1?`up to ${c.cnt}`:'one'} whole, growing one hex longer for the rest of the fight. A hero next to a civilian takes ${c.dmg} instead. With nothing to eat, it bites the nearest hero for ${c.dmg}.`;
-    case 'pull':return `Drags every hero within ${c.r} up to ${c.mv} hexes toward itself, then everything adjacent takes ${c.dmg}.`;
-    case 'repel':return `Flings every hero within ${c.r} up to ${c.mv} hexes away. A hero who slams into a wall, rubble, the edge or another hero before flying the full distance takes ${c.dmg}.`;
-    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.amt?` The lights die and every hero loses ${c.amt} composure.`:''}`;
-    case 'converge':return `Every body of the swarm flies up to ${c.mv} hexes toward the nearest hero. That hero takes ${c.dmg} for each body next to them.`;
-    case 'scatter':return `The swarm bursts apart. Each body reappears next to a different hero and strikes them for ${c.dmg}.`;
-    case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${c.dmg} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
-    case 'bomb':return `Throws ${c.cnt>1?`${c.cnt} bombs, one at each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`a bomb at the ${TGN[c.tgt]} hero`} within ${c.rng}. ${c.cnt>1?'Each':'It'} explodes at the start of the next villain turn for ${c.dmg} damage across ${area}.`;
-    case 'swapbomb':return `Swaps hexes with one of her henchmen, leaving a 7-hex bomb (radius 1) where she stood. The bomb deals ${c.dmg} damage at the start of the next villain turn. No henchman, no swap.`;
-    case 'airburst':return `Leaps to the middle of the room and charges up. On her next turn she fires instead of playing a page: ${c.dmg} damage to every hero and civilian within 3 of her. Deal wounds equal to her level in one hero round to tear the charging page instead.`;
-    case 'beam':{const tail=` Each beam runs to the edge, stops at the first hero it hits and knocks them back ${c.dmg} hex${c.dmg>1?'es':''}.`+(c.ttl>1?` The beams stay lit for ${c.ttl} turns.`:'');
-      switch(c.pat){case 'star':return `Fires a beam in all 6 directions for ${c.dmg}.`+tail;
-        case 'fan':return `Turns to the nearest hero and fires 3 beams from its front for ${c.dmg}.`+tail;
-        case 'aim':return `Turns and fires a beam at ${c.cnt>1?`each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`the ${TGN[c.tgt]} hero`} for ${c.dmg}. A hero who isn't in a straight line with it may be missed.`+tail;
-        case 'sweep':return `Fires a beam ahead, then turns and fires again, ${c.cnt} times in all, for ${c.dmg} each.`+tail;
-        case 'prism':return `Every ${hn} fires a beam at its nearest hero for ${c.dmg}.`+tail}return ''}
-    case 'charge':return `Charges up and marks ${ZONEN[c.zone]}. On its next turn it fires instead of playing a page: ${c.dmg} damage to every hero and civilian in the marked hexes. Deal wounds equal to its level in one hero round to tear the charging page instead.`;
+    case 'swallow':return `Slithers up to ${c.mv} after prey${c.cnt>1?`, ${c.cnt} times`:''}: a civilian first, then a hero, then the weakest ${hn}. A swallowed civilian or ${hn} makes it one hex longer for the rest of the fight. A hero is bitten for ${D(c.dmg)}, and a hero next to the civilian takes the bite instead.`;
+    case 'pull':return `Drags every hero within ${c.r} up to ${c.mv} hexes toward itself, then everything adjacent takes ${D(c.dmg)}.`;
+    case 'repel':return `Flings every hero within ${c.r} up to ${c.mv} hexes away. A hero who slams into a wall, rubble, the edge or another hero before flying the full distance takes ${D(c.dmg)}.`;
+    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.evaUp?` She has +${c.evaUp} evasion until her next action.`:''}${c.amt?` The lights die and every hero loses ${c.amt} composure${c.shakenDmg?`; Shaken heroes also take ${c.shakenDmg} damage`:''}.`:''} An untouchable shadow double stays where she stood, locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.`;
+    case 'converge':return `Every body of the swarm flies up to ${c.mv} hexes toward the nearest hero. That hero takes ${D(c.dmg)} for each body next to them.`;
+    case 'scatter':return `The swarm bursts apart. Each body reappears next to a different hero and strikes them for ${D(c.dmg)}.`;
+    case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${D(c.dmg)} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
+    case 'bomb':return `Throws ${c.cnt>1?`${c.cnt} bombs, one at each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`a bomb at the ${TGN[c.tgt]} hero`} within ${c.rng}. ${c.cnt>1?'Each':'It'} explodes at the start of the next villain turn for ${D(c.dmg)} damage across ${area}.`;
+    case 'swapbomb':return `Swaps hexes with one of her henchmen, leaving a bomb over ${area} where she stood. The bomb deals ${D(c.dmg)} damage at the start of the next villain turn. No henchman, no swap.`;
+    case 'airburst':return `Leaps to the middle of the room and charges up. On her next turn she fires instead of playing a page: ${D(c.dmg)} damage to every hero and civilian within 3 of her. Deal wounds equal to half her level plus 1 (rounded up) in one hero round to tear the charging page instead.`;
+    case 'beam':{const tail=` Each beam runs to the edge, stops at the first hero it hits and knocks them back ${D(c.dmg)} hex${D(c.dmg)>1?'es':''}.`+(c.ttl>1?` The beams stay lit for ${c.ttl} turns.`:'');
+      switch(c.pat){case 'star':return `Fires a beam in all 6 directions for ${D(c.dmg)}.`+tail;
+        case 'fan':return `Turns to the nearest hero and fires 3 beams from its front for ${D(c.dmg)}.`+tail;
+        case 'aim':return `Turns and fires a beam at ${c.cnt>1?`each of the ${c.cnt} ${TGN[c.tgt]} heroes`:`the ${TGN[c.tgt]} hero`} for ${D(c.dmg)}. A hero who isn't in a straight line with it may be missed.`+tail;
+        case 'sweep':return `Fires a beam ahead, then turns and fires again, ${c.cnt} times in all, for ${D(c.dmg)} each.`+tail;
+        case 'prism':return `Every ${hn} fires a beam at its nearest hero for ${D(c.dmg)}.`+tail}return ''}
+    case 'charge':if(c.zone==='hero'){const n=1+(c.zr||0);return `Charges up and marks ${n>1?`the ${n} most injured heroes`:'the most injured hero'}. The mark follows ${n>1?'them':'that hero'} wherever they move. On its next turn it fires instead of playing a page: ${D(c.dmg)} damage to each marked hero, and nobody else. Deal wounds equal to half its level plus 1 (rounded up) in one hero round to tear the charging page instead.`}
+      return `Charges up and marks ${ZONEN[c.zone]}. On its next turn it fires instead of playing a page: ${D(c.dmg)} damage to every hero and civilian in the marked hexes. Deal wounds equal to half its level plus 1 (rounded up) in one hero round to tear the charging page instead.`;
   }return ''}
 /* the villain's own movement runs one hex further than the table says (Tyler, V76); pull/repel distances are how far heroes are dragged, so they stay */
 const MV_UP=['strike','rampage','swallow','converge','leap'];
-function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');
-  if(vk==='bomber'&&['leap','bomb','swapbomb'].includes(c.t)){c.fuse=c.fuse?1:0;c.radius=c.bigAt&&level>=c.bigAt?2:1}
-  if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk);
+const compBonus=level=>Math.floor(Math.min(level||1,VCAP)/3);
+function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.lvd=Math.floor((level||1)/2);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');
+  if(vk==='bomber'&&['leap','bomb','swapbomb'].includes(c.t)){c.fuse=c.fuse?1:0;c.radius=Math.min(2,(c.bigAt&&level>=c.bigAt?2:1)+(c.radUp||0))}
+  /* Tyler (2026-10-30): composure loss grows by 1 at villain levels 3 and 6 */
+  {const b=compBonus(level);if(b){if(c.amt!=null&&['taunt','fade','puppet'].includes(c.t))c.amt+=b;if(c.comp)c.comp+=b}}
+  if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk)+upText(c);
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';
   if(c.bombx)c.txt+=' Heroes standing within 1 of a bomb lose 1 more.';
-  if(c.zone==='mark')c.txt+=' Her facing is revealed while she lines up the kill.';
+  if(c.zone==='mark'||c.zone==='hero')c.txt+=' Her facing is revealed while she lines up the kill.'+(c.follow&&c.zone==='mark'?' The marks follow their targets as they move.':'');
   if((c.t==='strike'||c.t==='rampage')&&c.mv&&(VILLAINS[vk].shape==='serpent'||(SHAPES[VILLAINS[vk].shape]||[0]).length>1))c.txt+=c.crush?` Heroes in its path are shoved aside and take ${c.crush}.`:' Heroes in its path are shoved aside.';
   c.uid=Math.random().toString(36).slice(2,9);return c}
 const VCAP=8;
@@ -623,7 +653,7 @@ if(!S.v61){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
   for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);(S.villains||[]).filter(v=>v.status==='captured'||v.beaten).forEach(v=>(DEFEAT_UNLOCK[v.key]||[]).forEach(add));S.v61=true}
 /* Version 62: new blueprints follow the arcs already reached; stats moved between slots, so clamp health and composure */
 if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V62.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
-  START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();
+  START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();if(!S.noRattled){(S.heroes||[]).forEach(h=>{if(h.injuries&&h.injuries.includes('rattled')){h.injuries=h.injuries.filter(k=>k!=='rattled');clampHero(h)}});S.noRattled=true}
   /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();return true}}catch(e){}return false}
 /* Version 82: capture, interrogation, leads and the clue consumables are gone. Captured villains go free again (they keep their blueprints),
    a built Containment Cell is refunded, and Informant's Tips and Search Warrants are sold back for intel. */
@@ -680,7 +710,7 @@ function migrateSd(){const sd=S.sd;sd.walls=sd.walls||[];sd.pits=sd.pits||[];sd.
     focusV(i);if(!vFits(v.x,v.y)){let best=null,bd=1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y))continue;const d=cheb({x,y},v);if(d<bd){bd=d;best={x,y}}}if(best){v.x=best.x;v.y=best.y}}
     if(vBig(v))shoveOut(5)});focusV(sd.vi||0);sd.hexv=1}
 /* Shaken: a hero at 0 composure in a fight */
-const SHAKEN={str:2,acc:2,eva:2,move:1};
+const SHAKEN={str:3,acc:3,eva:3,move:1}; /* Tyler (2026-10-30): -3s, and no lasting Rattled injury */
 function stat(h,k,raw){const b=BASE(h);let v=b[k]??0;
   for(const u of h.upgrades)v+=UPG[u].mods[k]||0;
   for(const g of wornGear(h))v+=GEAR[g].mods[k]||0;
@@ -1534,8 +1564,8 @@ const TIPS=[
   {id:'arcs',when:()=>!!selH(),t:'Facing and blind spots',b:()=>`The yellow arrow shows where the villain faces. The tinted hexes in front are its <b>front arc</b>. The shaded hexes behind are its <b>blind spot</b>, and attacks from there get +1 die. It turns toward whatever it moves to or attacks. Some signature hit reactions only trigger from certain sides, so read the playbook to learn which angle is safe.`},
   {id:'engines',when:()=>{const h=selH();return !!h&&!!(pwrMax(h)||arcMax(h)||potOf(h))},t:'Power, Arcana and Innate rank',b:()=>`Gear abilities and signature powers run on a hero's disciplines. <b>Tech</b> abilities spend Power, which slowly recharges. <b>Magic</b> spells spend Arcana: one pool per fight that doesn't refill on its own, so save it for big moments. <b>Innate</b> abilities spend nothing but require enough Innate rank, and each hero can fire one per round. The bars under the action buttons show what this hero has.`},
   {id:'multi',when:()=>inSd()&&S.sd.vl.length>1,t:'Two villains',b:()=>`More than one villain is on the board, and they act one after the other each round. Use the <b>Target</b> buttons, or tap a villain, to choose whose playbook you're tearing.`},
-  {id:'sig',when:()=>sdV(o=>o.v.planned&&o.v.planned.sig),t:'Signature Move!',b:()=>`The villain just shouted a warning: its next page is a <b>Signature Move</b>, one of its most dangerous attacks. Its planned page is in the <b>charging slot</b>. Wounds normally tear the draw pile. Deal wounds equal to its level in one hero round: the threshold wound tears the planned signature instead.`},
-  {id:'charge',when:()=>sdV(o=>o.v.charge),t:'Charged attack',b:()=>`The villain is winding up. On its next turn the <b>striped hexes</b> get hit instead of it playing a new page. Move out of them, or tear pages equal to the villain's level in one hero round to tear its charging page instead.`},
+  {id:'sig',when:()=>sdV(o=>o.v.planned&&o.v.planned.sig),t:'Signature Move!',b:()=>`The villain just shouted a warning: its next page is a <b>Signature Move</b>, one of its most dangerous attacks. Its planned page is in the <b>charging slot</b>. Wounds normally tear the draw pile. Deal wounds equal to half its level plus 1 (rounded up) in one hero round: the threshold wound tears the planned signature instead.`},
+  {id:'charge',when:()=>sdV(o=>o.v.charge),t:'Charged attack',b:()=>`The villain is winding up. On its next turn the <b>striped hexes</b> get hit instead of it playing a new page. Move out of them, or tear pages equal to half the villain's level plus 1 (rounded up) in one hero round to tear its charging page instead.`},
   {id:'haz',when:()=>inSd()&&S.sd.haz&&S.sd.haz.length,t:'Hazard hexes',b:()=>`Orange hexes are a hazard. <b>Any hero standing on one when the villain's turn starts takes damage</b>, so step off before you end the round.`},
   {id:'walls',when:()=>inSd()&&S.sd.walls&&S.sd.walls.length,t:'Walls',b:()=>`Walls block movement and beams like rubble. Walls built into the lair stay all fight; walls the villain raises crumble after a few rounds. <b>Villains bigger than one hex smash straight through walls and rubble</b>, so cover won't stop them.`},
   {id:'pit',when:()=>inSd()&&S.sd.pits&&S.sd.pits.length,t:'Pits',b:()=>`Dark hexes are pits. <b>Nobody can walk into one, but shots and beams pass over.</b> A jumping hero can clear one pit hex for 2 movement, and villains bigger than one hex stride across.`},
@@ -1546,7 +1576,7 @@ const TIPS=[
   {id:'grid',when:()=>sdV(o=>o.key==='grid'),t:'A beam turret',b:()=>`Gridlock is <b>bolted to the floor</b>: he turns but never moves, and nothing can shove him. His beams run in straight hex lines to the edge of the board, and each one <b>stops at the first hero it hits and knocks them back</b> as many hexes as the damage. Walls and rubble block beams, so use them as cover. His Prisms split any beam that passes through them.`},
   {id:'beams',when:()=>inSd()&&S.sd.beams&&S.sd.beams.length,t:'Lit beams',b:()=>`Red lines are lit beams. They stay until the villain's next turn. <b>Stepping into a lit hex costs ${BEAM_HOT} damage and ends your move</b>, and a normal move can't cross one. Only a hero who is <b>jumping</b> (the move after Mighty Leap, Jet or Piston Leap, a Solar Dive, or any move in Gravity Boots or Earthshaker Greaves) can clear a single lit hex for 2 movement. Leaping abilities that land on a chosen hex fly over beams too. A hero who starts their turn in a beam can step out freely.`},
   {id:'hide',when:()=>sdV(o=>o.v.hide),t:'Hidden facing',b:()=>`Nocturne hides which way she faces. Her arrow shows a question mark and her arcs aren't shaded, but <b>they still count</b>. Every hit you land reveals her facing until she fades again.`},
-  {id:'shaken',when:()=>inSd()&&S.sd.units.some(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')),t:'Shaken',b:()=>`A hero's composure (the blue bar) hit 0. They're <b>Shaken: −2 Strength, −2 accuracy, −2 evasion and −1 movement</b> until it's restored. Ending a fight at 0 composure leaves a lasting Rattled injury.`},
+  {id:'shaken',when:()=>inSd()&&S.sd.units.some(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')),t:'Shaken',b:()=>`A hero's composure (the blue bar) hit 0. They're <b>Shaken: −3 Strength, −3 accuracy, −3 evasion and −1 movement</b> until it's restored. Composure refills after every fight.`},
   {id:'ko',when:()=>inSd()&&S.sd.units.some(u=>u.ko),t:'Hero down',b:()=>`A knocked-out hero is out of this fight. After the mission they're back on their feet at half health, ready for the next issue. Nobody's career ends.`},
   {id:'after',when:()=>S.phase==='after'&&S.after&&!S.after.ethos,t:'Aftermath',b:()=>`Every hero on the mission earns XP, more if they landed 2 or more wounds. A win brings salvage for crafting. Villains you beat always <b>escape and come back a level stronger</b>, and beating one unlocks their facility blueprints. Every villain you didn't hunt moved its scheme forward.`},
   {id:'arc',when:()=>S.phase==='arc',t:'A new arc',b:()=>`Every free villain gains a level, adds new pages and upgrades old ones, and a new villain arrives. Once per arc a <b>Crossover Issue</b> lets an experienced hero join from HQ.`},
@@ -1582,7 +1612,7 @@ function tipFor(key){const[t,k,id]=key.split(':');
     return {title:`${lab[0].toUpperCase()+lab.slice(1)}: ${v}`,eyebrow:'Where this stat comes from',body:parts.join('. ')+'.'}}
   if(t==='qb'&&HERO_BASE[k]){const b=HERO_BASE[k];return {title:b.name,eyebrow:`Quick build · ${TRACKS[b.track].name} · ${b.role}`,body:`Health ${b.maxHp}, movement ${b.move}, ${b.speed} attack ${b.speed===1?'die':'dice'}, accuracy +${b.acc}, strength +${b.str}, evasion ${b.eva}, range ${b.range}, composure ${b.maxComp}. ${POWERS[b.power].name}: ${POWERS[b.power].txt}${b.field?` ${b.field.n}: ${b.field.txt}`:''} Starts with ${poolTxt(newHero(k))}, including the veteran bonus of ${POOL_BONUS_TXT[b.track]}.`}}
   if(t==='vpage'&&VILLAINS[k]){const c=pageOf(k,id);return {title:c.n,eyebrow:`${VILLAINS[k].name} · Playbook page`,body:c.txt}}
-  if(t==='vrx'&&VILLAINS[k]&&rxOf(k,id)){const r=rxOf(k,id);return {title:r.n,eyebrow:`${VILLAINS[k].name} · Hit reaction`,body:r.txt}}
+  if(t==='vrx'&&VILLAINS[k]&&rxOf(k,id)){const r=rxOf(k,id);return {title:r.n,eyebrow:`${VILLAINS[k].name} · Hit reaction`,body:rxTxt(r,vState(k)?vState(k).level:1)}}
   if(t==='kw'&&GLOSS[k])return {title:GLOSS[k][0],body:GLOSS[k][1]};
   if(GLOSS[key])return {title:GLOSS[key][0],body:GLOSS[key][1]};
   if(t==='res'&&GLOSS[key])return {title:GLOSS[key][0],body:GLOSS[key][1]};
@@ -1665,7 +1695,7 @@ function pbPage(p,idx){const def=VILLAINS[PB.k],n=PB.pages.length-1;
   if(p.kind==='cover')return `<div class="pg pbcover">${villainCoverPreview(PB.k)}<small>${PB.inFight?'This fight':'Case file'} · Level ${PB.lvl}</small><b>${esc(def.name)}</b><span class="ctag">${esc(def.tag)}</span>
     <div class="cstats"><span><b>${PB.remainN}</b> pages left</span>${PB.inFight?`<span><b>${PB.tornN}</b> torn out</span>`:''}<span><b>${PB.seenN}/${PB.total}</b> seen</span><span><b>${PB.rxN}/${PB.rxT}</b> hit reactions known</span></div>
     <small>Swipe or tap Next to read</small></div>`;
-  if(p.kind==='rx'||p.kind==='rxunk'){const show=p.kind==='rx',r=p.r;return `<div class="pg"><div class="hd"><span>${vIc(PB.k)}${esc(def.name)} · Hit reaction</span><span>Hit deck</span></div><div class="sigrib r">Signature reaction</div><div class="art tac ${show?'':'unk'}"><span>${show?esc(r.sfx):'???'}</span></div><h2>${show?esc(r.n):'???'}</h2><div class="tx ${show?'':'muted'}">${show?esc(r.txt):`One of ${esc(def.short)}'s signature hit reactions. Uncover clues while investigating, or draw it in a fight, to learn it.`}</div><div class="ft">${show&&r.src?`Lost when ${esc(def.cards[r.src].n)} is torn`:show?'Shuffled into the hit deck':'Unknown reaction'}</div></div>`}
+  if(p.kind==='rx'||p.kind==='rxunk'){const show=p.kind==='rx',r=p.r;return `<div class="pg"><div class="hd"><span>${vIc(PB.k)}${esc(def.name)} · Hit reaction</span><span>Hit deck</span></div><div class="sigrib r">Signature reaction</div><div class="art tac ${show?'':'unk'}"><span>${show?esc(r.sfx):'???'}</span></div><h2>${show?esc(r.n):'???'}</h2><div class="tx ${show?'':'muted'}">${show?esc(rxTxt(r,PB.lvl)):`One of ${esc(def.short)}'s signature hit reactions. Uncover clues while investigating, or draw it in a fight, to learn it.`}</div><div class="ft">${show&&r.src?`Lost when ${esc(def.cards[r.src].n)} is torn`:show?'Shuffled into the hit deck':'Unknown reaction'}</div></div>`}
   if(p.kind==='unk')return `<div class="pg">${hd(`Page ${idx} of ${n}`)}<div class="art unk"><span>???</span></div><h2>???</h2><div class="tx muted">You haven't seen this page played yet. Uncover clues, fight ${esc(def.name)} or use Foresee to learn it.</div><div class="ft">Unknown page</div></div>`;
   const c=p.c,show=p.kind==='card'||p.known,sg=show&&c.sig;
   const body=`${hd(p.kind==='torn'?'Torn out':`Page ${idx} of ${n}`)}${sg?'<div class="sigrib">★ Signature Move ★</div>':''}<div class="art ${show?'':'unk'}">${show?vWm(PB.k):''}<span>${show?esc(TYPE_SFX[c.t]||'!'):'???'}</span></div><h2>${show?esc(c.n):'???'}</h2><div class="tx">${show?esc(c.txt):'Torn out before you could read it.'}</div><div class="ft">${p.kind==='torn'?'No longer in the playbook':`Page ${idx} of ${n}`}</div>`;
