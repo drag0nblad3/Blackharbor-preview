@@ -472,10 +472,11 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   return L.join(' ')}
 /* rank perks: ranks 2-3 (or a first rank outside the origin) give the old perk; ranks 4 and 5 are masteries */
 /* Version 22: ranks give no stats on their own; only rank 5 grants a capstone */
-const RANK_PERK={tech:{5:{acc:2,pwrRegen:1}},innate:{5:{maxHp:4,innUses:1}},magic:{5:{maxComp:2,arcWound:1}}};
+/* Capstones carry no stats (Tyler, 2026-10-30): Tech recharge, Innate unshakable + last stand, Magic Arcana from torn pages */
+const RANK_PERK={tech:{5:{pwrRegen:1}},innate:{5:{unshake:1,lastStand:1}},magic:{5:{arcWound:1}}};
 const perkAt=(t,n)=>RANK_PERK[t][n]||{};
 function rankMod(h,t,k){const own=t===BASE(h).track;let v=0;for(let n=own?2:1;n<=Math.min(h.ranks[t],RANK_MAX);n++)v+=perkAt(t,n)[k]||0;return v}
-function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
+function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='unshake')s.push("can't be Shaken");else if(k==='lastStand')s.push('once per fight, survive a blow that would knock you out with 1 health');else if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
 
 /* Version 22: signature powers run on the discipline engines instead of cooldowns */
 const POW_ENG={arc:{d:'tech',c:2},patch:{d:'tech',c:3},barricade:{d:'tech',c:2},overclock:{d:'tech',c:3},drone:{d:'tech',c:2},emp:{d:'tech',c:3},
@@ -663,7 +664,7 @@ function stat(h,k,raw){const b=BASE(h);let v=b[k]??0;
   for(const i of h.injuries)v+=INJ[i].mods[k]||0;
   if(k==='str'&&S.ethos.a==='force')v+=2;
   if(k==='maxComp'&&S.ethos.b==='secret')v+=1;
-  if(S.sd&&h.comp<=0&&SHAKEN[k])v-=SHAKEN[k];
+  if(S.sd&&h.comp<=0&&SHAKEN[k]&&!rankMod(h,'innate','unshake'))v-=SHAKEN[k];
   /* Version 108 (Tyler): Optics Bench scope rails, +1 range and +1 accuracy in showdowns for heroes with range 2+ */
   if(!raw&&S.sd&&(k==='range'||k==='acc')&&S.facilities.includes('optics')&&(k==='range'?v:stat(h,'range',1))>=2)v+=1;
   if(k==='move'||k==='maxComp'||k==='speed')v=Math.max(1,v);
@@ -1510,7 +1511,7 @@ const TIPS=[
   {id:'grid',when:()=>sdV(o=>o.key==='grid'),t:'A beam turret',b:()=>`Gridlock is <b>bolted to the floor</b>: he turns but never moves, and nothing can shove him. His beams run in straight hex lines to the edge of the board, and each one <b>stops at the first hero it hits and knocks them back</b> as many hexes as the damage. Walls and rubble block beams, so use them as cover. His Prisms split any beam that passes through them.`},
   {id:'beams',when:()=>inSd()&&S.sd.beams&&S.sd.beams.length,t:'Lit beams',b:()=>`Red lines are lit beams. They stay until the villain's next turn. <b>Stepping into a lit hex costs ${BEAM_HOT} damage and ends your move</b>, and a normal move can't cross one. Only a hero who is <b>jumping</b> (the move after Mighty Leap, Jet or Piston Leap, a Solar Dive, or any move in Gravity Boots or Earthshaker Greaves) can clear a single lit hex for 2 movement. Leaping abilities that land on a chosen hex fly over beams too. A hero who starts their turn in a beam can step out freely.`},
   {id:'hide',when:()=>sdV(o=>o.v.hide),t:'Hidden facing',b:()=>`Nocturne hides which way she faces. Her arrow shows a question mark and her arcs aren't shaded, but <b>they still count</b>. Every hit you land reveals her facing until she fades again.`},
-  {id:'shaken',when:()=>inSd()&&S.sd.units.some(u=>!u.ko&&heroOf(u).comp<=0),t:'Shaken',b:()=>`A hero's composure (the blue bar) hit 0. They're <b>Shaken: −2 Strength, −2 accuracy, −2 evasion and −1 movement</b> until it's restored. Ending a fight at 0 composure leaves a lasting Rattled injury.`},
+  {id:'shaken',when:()=>inSd()&&S.sd.units.some(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')),t:'Shaken',b:()=>`A hero's composure (the blue bar) hit 0. They're <b>Shaken: −2 Strength, −2 accuracy, −2 evasion and −1 movement</b> until it's restored. Ending a fight at 0 composure leaves a lasting Rattled injury.`},
   {id:'ko',when:()=>inSd()&&S.sd.units.some(u=>u.ko),t:'Hero down',b:()=>`A knocked-out hero is out of this fight. After the mission they're back on their feet at half health, ready for the next issue. Nobody's career ends.`},
   {id:'after',when:()=>S.phase==='after'&&S.after&&!S.after.ethos,t:'Aftermath',b:()=>`Every hero on the mission earns XP, more if they landed 2 or more wounds. A win brings salvage for crafting. Villains you beat always <b>escape and come back a level stronger</b>, and beating one unlocks their facility blueprints. Every villain you didn't hunt moved its scheme forward.`},
   {id:'arc',when:()=>S.phase==='arc',t:'A new arc',b:()=>`Every free villain gains a level, adds new pages and upgrades old ones, and a new villain arrives. Once per arc a <b>Crossover Issue</b> lets an experienced hero join from HQ.`},

@@ -39,6 +39,14 @@ const assert=require('node:assert/strict');
       setR(2,2,2);check('Paragon on with all pairs',bridgesOf(h).length===4);
       u.abUsed=[];u.res.magic=20;u.bloodPay=false;payAb(u,mk);check('Paragon allows a second use this round',abOk(u,h,mk));
       setR(2,2,1);u.abUsed=[mk];u.res.magic=20;check('without Paragon the round limit holds',!abOk(u,h,mk));
+      // Capstones (no stats)
+      h.gear={};h.injuries=[];setR(0,5,0);h.comp=0;
+      check('Innate capstone: not Shaken',stat(h,'acc')===stat({...h,comp:1},'acc'));
+      check('Innate capstone: no extra HP',stat(h,'maxHp')===stat({...h,ranks:{tech:0,innate:4,magic:0}},'maxHp'));
+      h.hp=3;u.ko=false;u.lastSt=false;u.dr=0;u.absorb=0;u.res.tech=0;damageHero(u,9);check('Innate capstone: survives with 1 HP',h.hp===1&&!u.ko);
+      damageHero(u,9);check('Innate capstone: only once per fight',u.ko);
+      setR(5,0,0);check('Tech capstone: no accuracy',stat(h,'acc')===stat({...h,ranks:{tech:4,innate:0,magic:0}},'acc'));
+      setR(0,0,5);check('Magic capstone: no composure',stat(h,'maxComp')===stat({...h,ranks:{tech:0,innate:0,magic:4}},'maxComp'));
       return out;
     });
     assert.equal(errors.length,0,errors.join('\n'));
