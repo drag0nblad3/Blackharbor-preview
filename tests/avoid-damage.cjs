@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
   try{
     await page.goto('file://'+process.cwd()+'/index.html');
     const setup=await page.evaluate(()=>{
-      newCampaign();recruitQuick(Object.keys(HERO_BASE)[0]);recruitQuick(Object.keys(HERO_BASE)[1]);
+      newCampaign();Object.keys(HERO_BASE).slice(0,4).forEach(recruitQuick);
       S.tut={dq:[],skip:true};S.tutDone=true;
       S.inv={v:S.villains[0].key,clues:2};
       startShowdown();const sd=S.sd;

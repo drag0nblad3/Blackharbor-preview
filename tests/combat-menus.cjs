@@ -8,7 +8,7 @@ const assert=require('node:assert/strict');
     await page.goto('file://'+process.cwd()+'/index.html');
     const checks=await page.evaluate(async()=>{
       const checks=[],check=(name,ok)=>{checks.push({name,pass:!!ok});if(!ok)throw Error('FAIL: '+name)};
-      newCampaign();recruitQuick('volt');recruitQuick('wisp');
+      newCampaign();['volt','wisp','bulwark','lynx'].forEach(recruitQuick);
       S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
       const volt=S.heroes.find(h=>h.cls==='volt'),wisp=S.heroes.find(h=>h.cls==='wisp');
       volt.gear.arms='baton';volt.gear.acc='uplink';volt.pouch.push('c_smoke');

@@ -1,0 +1,57 @@
+name: Preview gate
+
+# One check over the whole game on every change, so a game edit cannot break a
+# suite that only runs when its own test file changes. The long balance studies
+# keep their own workflows.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - '*.js'
+      - '*.css'
+      - '*.svg'
+      - '*.avif'
+      - 'assets/**'
+      - 'tests/**'
+      - 'tools/**'
+      - '.github/workflows/preview-gate.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax of every game script
+        run: for f in *.js; do node --check "$f"; done
+      - name: Rules, data and text
+        run: |
+          for t in balance boss-selection cantor-rework payload-bombs villain-rebalance loot-planner gameplay-text comic-ui investigation-ui villain-portraits; do
+            echo "::group::$t"; node tests/$t.cjs; echo "::endgroup::"
+          done
+      - name: One seeded campaign with abilities
+        run: node tools/sim.js --runs 1 --abil
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Browser play-through
+        run: |
+          for t in tactical-actions avoid-damage combat-menus save-load simulated-battle battle-graphics villain-covers layout-smoke; do
+            echo "::group::$t"; node tests/$t.cjs; echo "::endgroup::"
+          done
+      - name: Upload layout screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-gate-screenshots
+          path: layout-shots/
+          if-no-files-found: ignore
