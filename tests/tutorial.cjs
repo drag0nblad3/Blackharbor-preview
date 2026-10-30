@@ -1,0 +1,52 @@
+#!/usr/bin/env node
+/* Plays the whole new-player tutorial by tapping only what each beat allows, and checks the
+   captions still match what the game does: the planned Signature Move is shown, the scripted
+   rolls land as the captions say, and the keep-the-team ending lands in a working HQ. */
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict');
+(async()=>{
+  const browser=await chromium.launch({headless:true});
+  const errors=[];
+  try{
+    for(const size of [{width:390,height:844},{width:1440,height:900}]){
+      const page=await browser.newPage({viewport:size,reducedMotion:'reduce'});
+      page.on('pageerror',e=>errors.push(size.width+': '+e.message));
+      await page.goto('file://'+process.cwd()+'/index.html');
+      await page.evaluate(()=>localStorage.clear());await page.reload();
+      await page.click('[data-a="tut:start"]');
+      const state=()=>page.evaluate(()=>({b:S.tut&&S.tut.b,id:S.tut&&TUT[S.tut.b]&&TUT[S.tut.b].id,busy:!!(S.sd&&S.sd.busy),
+        log:S.sd?S.sd.log.map(l=>l.t).join('\n'):'',plan:[...document.querySelectorAll('#app .cap b')].map(e=>e.textContent).join(' | ')}));
+      const seen={};let last=-1,stuck=0;
+      for(let step=0;step<200;step++){
+        await page.waitForTimeout(150);
+        const s=await state();
+        if(s.id==='free')break;
+        if(s.b!==last){seen[s.id]=s;last=s.b;stuck=0}else if(++stuck>25)assert.fail(`tutorial stuck on beat ${s.id} at ${size.width}px`);
+        const overlay=await page.$('#atk button, #cards button, #brk');
+        if(overlay){await overlay.click().catch(()=>{});continue}
+        if(s.busy)continue;
+        const act=await page.evaluate(()=>{const B=TUT[S.tut.b];
+          if(B.id==='p-lp'){const d=tutDig('tB');if(S.tut.lp!==`${d.x},${d.y}`){S.tut.lp=`${d.x},${d.y}`;render()}}
+          if(B.next)return B.wait&&!B.wait()?null:'tut:next';
+          const o=B.only?(typeof B.only==='function'?B.only():B.only):[];
+          for(const a of B.id==='b-stun'?o.slice().reverse():o){const e=document.querySelector(`[data-a="${a}"]`);if(e&&e.offsetParent)return a}return o[0]||null});
+        if(!act)continue;
+        const el=await page.$(act.startsWith('cell:')?`.board [data-cell="${act.slice(5)}"]`:`[data-a="${act}"]`);
+        if(el)await el.click({force:true}).catch(()=>{});
+      }
+      assert.match(seen['b-sig'].plan,/Charging: Big Dig/,'the caption names Big Dig, so the charging card must show it');
+      assert.match(seen['b-actions'].log,/Big Dig is torn from the playbook/,'Volt\'s wound tears Big Dig');
+      assert.match(seen['b-actions'].log,/planned action was torn out/,'Mole Boy loses round 1, as the caption says');
+      assert.match(seen['p-atk2'].log,/Digger attacks Lynx: 9\+2 vs 10\. Hit for 1\.[\s\S]*1\+2 vs 10\. Miss/,'patrol rolls match the captions');
+      assert.match(seen['b-actions'].log,/Wound roll 6 \+ 7 vs toughness 12\. Wound!/,'Stun Charge wound matches the caption');
+      assert.match(seen['b-actions'].log,/Clean Hit: Wound roll 4 \+ 2 vs toughness 8\. No wound\./,'Clean Hit miss matches the caption');
+      const end=await page.evaluate(()=>{S.sd.result='win';tutFinish();render();
+        const keep=document.querySelector('[data-a="tut:keep"]');keep.click();
+        return {phase:S.phase,tut:S.tut,done:S.tutDone,roster:roster().map(h=>h.cls),baton:roster().some(h=>h.gear.arms==='baton'),pool:S.pool.length,mole:S.villains.some(v=>v.key==='mole')||S.pool.includes('mole')}});
+      assert.deepEqual(end,{phase:'hq',tut:null,done:true,roster:['lynx','volt'],baton:true,pool:11,mole:false},'keeping the team lands in the campaign');
+      console.log(`ok tutorial at ${size.width}px: ${Object.keys(seen).length} beats`);
+      await page.close();
+    }
+    assert.deepEqual(errors,[],'no page errors');
+  }finally{await browser.close()}
+})().catch(e=>{console.error(e);process.exit(1)});

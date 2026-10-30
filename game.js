@@ -1861,7 +1861,7 @@ const TUT=[
   {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Big Dig is in the <b>charging slot</b>. Mole Boy is level 1, so one wound this round tears his planned Signature Move instead of the draw pile.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
-  {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]' :'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=3&&!S.sd.busy},
+  {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]':S.sd.combatMenuOpen==='abilities'?'#app [data-a="combatPick:ability:baton"]':'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=3&&!S.sd.busy},
     t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +3 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
@@ -1873,8 +1873,8 @@ const TUT=[
   {id:'b-latk',dq:[12,9,1,10,4],only:tutAtkOnly('lynx',tutMole),ring:tutAtkRing('lynx',tutMole,'Attack'),lit:tutAtkLit('lynx'),done:()=>tutU('lynx').acted,
     t:'From the blind spot Lynx rolls 3 dice instead of 2. <b>Tap Attack, then Mole Boy.</b>'},
   {id:'b-lres',only:[],done:()=>!S.sd.busy,t:'<b>Soft Belly</b> only triggers from the blind spot, so that wound landed for free. A hit doesn\'t always wound, though: the Clean Hit rolled 4 + 2 = 6, short of his toughness of 8.'},
-  {id:'b-end',dq:[13],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=2,t:'Both heroes have acted. <b>End the round.</b>'},
-  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:'Every round the villain resolves the page in its charging slot. <b>Tunnel Ambush:</b> he dug under the floor and burst up next to the hero farthest away, leaving rubble where he went down.'},
+  {id:'b-end',only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=2,t:'Both heroes have acted. <b>End the round.</b>'},
+  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:'Mole Boy did nothing: Volt tore out <b>Big Dig</b> while he was charging it, so he <b>lost his turn</b>. Every round a villain plays the page in his charging slot. Wound him as many times as his level in one round and you cancel it. He is already charging his next page.'},
   {id:'b-actions',next:1,only:[],t:'<b>Combat menus:</b> Abilities holds your hero\'s primary power and equipment abilities. Other Actions holds Escort, Hack, Rally Spirit, and Avoid Damage. Icons show whether a choice uses your action, movement, or is free. <b>Selecting an entry only shows its details below the controls.</b> Tap Activate to use it; Cancel backs out without spending anything.'},
   {id:'b-rally',next:1,only:[],t:'<b>Rally Spirit:</b> In Other Actions, select Rally Spirit and tap Activate, then target yourself or an ally within a number of hexes equal to your <b>total discipline ranks</b>. Restore up to <b>3 Composure</b>, never above the target\'s maximum. Rally Spirit costs your action, so plan before ending the round.'},
   {id:'b-avoid',next:1,only:[],t:'<b>Avoid Damage:</b> In Other Actions, select Avoid Damage and tap Activate to spend your action for <b>+3 Evasion</b> against incoming attacks, or <b>+5</b> if next to valid cover such as walls, rubble, allies, civilians, or a terminal. A missed attack can strike cover in its path if that cover is a valid target. Hazards do not count as safe cover.'},
@@ -1905,7 +1905,7 @@ function tutBoss(){if(!tutH('volt'))return;const sd=tutBoard(7),vs=vState('mole'
   sd.vl.push({key:'mole',v:{x:3,y:2,shape:'one',face:5,level:vs.level,deck:['dig','claw','tunnel','kick'].map(id=>buildCard('mole',{id,mk:0})),discard:[],wounds:[],last:null}});focusV(0);
   sd.obs.push('0,2','6,3');tutHero(sd,'lynx',1,6);tutHero(sd,'volt',5,6);
   sd.tdk.mole=[{...rxOf('mole','hardhat'),sig:'mole'},{...rxOf('mole','belly'),sig:'mole'},...TACT.filter(t=>t.id==='glance')];
-  faceTo(sd.units[1]);sd.intro=!FAST;S.phase='sd';S.view='mission';vWarn();
+  faceTo(sd.units[1]);S.seen=S.seen||{};S.seen.mole=[...new Set([...(S.seen.mole||[]),'dig'])];sd.intro=!FAST;S.phase='sd';S.view='mission';vWarn();
   log('sys','Issue #1: Mole Boy\'s tunnel under the First City Bank. Standoff.');log('sys','Round 1. Tap a hero to act.')}
 function tutFinish(){const sd=S.sd,t=S.tut,win=sd.result==='win',L=[];
   if(win){S.salvage.mole+=3;L.push('Salvaged 3 Grit from the tunnel.')}else L.push('The team is dragged out of the tunnel, a little dusty. No harm done.');

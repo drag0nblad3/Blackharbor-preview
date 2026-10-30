@@ -51,7 +51,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser play-through
         run: |
-          for t in mechanics-browser boss-options-browser tactical-actions avoid-damage bridge-perks combat-menus save-load simulated-battle battle-graphics villain-covers layout-smoke; do
+          for t in mechanics-browser boss-options-browser tactical-actions avoid-damage bridge-perks combat-menus save-load simulated-battle battle-graphics villain-covers layout-smoke tutorial; do
             echo "::group::$t"; node tests/$t.cjs; echo "::endgroup::"
           done
       - name: Upload layout screenshots
