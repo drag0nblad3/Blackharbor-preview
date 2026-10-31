@@ -41,7 +41,7 @@ const BH_GUIDE=[
   {id:'fight',t:'Fights: your turn',img:'board',alt:'The lair board with heroes at the bottom, the villain, henchmen and civilians',b:`
 <p>The lair is a hex board. Your heroes start at the bottom. The villain, its henchmen, civilians and an evidence terminal are spread above.</p>
 <p>Tap a hero to act. Each round every hero can:</p>
-<ul><li><b>Move</b> once, up to their movement. The blue hexes are in reach.</li>
+<ul><li><b>Move</b> once, up to their movement. The blue hexes are in reach. The move isn't final until the hero takes their action: tap any other blue hex to change where they end up, or their starting hex to take the move back. A hero who acted first can keep adjusting until the round ends. Stepping into a beam ends the move for good.</li>
 <li>Take <b>one action</b>: Attack, use an ability, or an Other Action such as Avoid Damage (+3 evasion, +5 beside cover), Escort or Hack.</li>
 <li>Use pouch consumables, which are free.</li></ul>
 <p>When everyone is done, tap <b>End round</b> twice. Then the villain and its henchmen take their turn.</p>`},
