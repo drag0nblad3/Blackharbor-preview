@@ -54,8 +54,8 @@ assert.doesNotMatch(html,/data-cid="gearup"/,'ambush does not unlock prepared ge
 assert.match(html,/data-a="lair"/);
 
 const base=path.resolve(__dirname,'..');
-assert.match(fs.readFileSync(path.join(base,'index.html'),'utf8'),/href="investigation.css"/);
-const css=fs.readFileSync(path.join(base,'investigation.css'),'utf8');
+assert.match(fs.readFileSync(path.join(base,'index.html'),'utf8'),/href="css\/investigation.css"/);
+const css=fs.readFileSync(path.join(base,'css/investigation.css'),'utf8');
 assert.match(css,/\.inv-grid/);
 assert.match(css,/@media \(max-width:460px\)/);
 assert.match(css,/prefers-reduced-motion/);

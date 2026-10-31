@@ -18,7 +18,7 @@ const path=require('node:path');
      await img.decode();return {width:img.naturalWidth,height:img.naturalHeight};
    });
    assert.deepEqual(painting,{width:704,height:444},'professionally illustrated sprite decodes in Chromium');
-   assert.equal(await page.locator('link[href="pulp-details.css"]').count(),1,'pulp art layer is linked');
+   assert.equal(await page.locator('link[href="css/pulp-details.css"]').count(),1,'pulp art layer is linked');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
      S.tut=null;S.tutDone=true;S.guide=null;

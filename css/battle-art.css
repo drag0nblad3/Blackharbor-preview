@@ -4,24 +4,24 @@
    collision and unit target handling remain in battle.js / art.css. */
 
 .wrap.v-sd .board {
-  --bh-surface: url("arena-concrete.svg");
+  --bh-surface: url("../assets/arena/arena-concrete.svg");
   --bh-surface-opacity: .66;
   --bh-lens:#7edcff;
 }
 .wrap.v-sd .board:is(.L-gallows,.L-helios,.L-lode,.L-architect) {
-  --bh-surface:url("arena-steel.svg");
+  --bh-surface:url("../assets/arena/arena-steel.svg");
   --bh-surface-opacity:.58;
 }
 .wrap.v-sd .board:is(.L-cantor,.L-noct) {
-  --bh-surface:url("arena-wood.svg");
+  --bh-surface:url("../assets/arena/arena-wood.svg");
   --bh-surface-opacity:.65;
 }
 .wrap.v-sd .board:is(.L-grid,.L-serpent) {
-  --bh-surface:url("arena-circuit.svg");
+  --bh-surface:url("../assets/arena/arena-circuit.svg");
   --bh-surface-opacity:.65;
 }
 .wrap.v-sd .board:is(.L-quarry,.L-swarm,.L-bomber,.L-mole) {
-  --bh-surface:url("arena-concrete.svg");
+  --bh-surface:url("../assets/arena/arena-concrete.svg");
   --bh-surface-opacity:.69;
 }
 /* A lighter, scuffed-concrete training arena for the tutorial. */
@@ -69,7 +69,7 @@
    or hovered. It never replaces a target or hazard state. */
 .wrap.v-sd .board .cell.reach:not(:is(.tele,.blast,.blast2,.wall,.pit,.haz,.obs,.tgt)):is(:hover,:focus-visible)::before {
   background-image:
-    url("arena-move.svg"),
+    url("../assets/arena/arena-move.svg"),
     linear-gradient(165deg,rgba(185,249,255,.44),rgba(7,57,85,.23)),
     var(--bh-surface);
   background-size:46% 46%,100% 100%,125% 125%;
@@ -83,7 +83,7 @@
 /* Imminent explosion and charge telegraphs use a real warning glyph.
    Later bomb-radius forecasts remain softer than the imminent blast. */
 .wrap.v-sd .board .cell:is(.blast,.tele)::before {
-  background-image:url("arena-danger.svg");
+  background-image:url("../assets/arena/arena-danger.svg");
   background-repeat:no-repeat;
   background-position:center;
   background-size:52% 52%;
