@@ -288,11 +288,11 @@ function reveal(o){if(FAST)return Promise.resolve();
     const page=(cls,style='')=>`<div class="pg ${cls||''}${o.sig?' sig':''}" style="${style}"><div class="hd"><span>${o.vk?vIc(o.vk):''}${esc(o.deck)}</span><span>${esc(o.tag||'')}</span></div>${o.rib?`<div class="sigrib ${o.ribCls||''}">${esc(o.rib)}</div>`:''}
       <div class="art ${o.art||''}">${o.vk?vWm(o.vk):''}<span>${esc(o.sfx)}</span></div><h2>${esc(o.title)}</h2><div class="tx">${esc(o.text)}</div>
       ${o.foot?`<div class="tx small"><b>${esc(o.foot)}</b></div>`:''}<div class="ft">${o.mode==='tear'?'Tap to tear it out':'Tap to resolve'}</div></div>`;
-    const tear=o.mode==='tear';
-    L.innerHTML=tear?`<div class="book tearbook">${page('top',`clip-path:${tearTop}`)}${page('bot',`clip-path:${tearBot}`)}
+    const tear=o.mode==='tear',art=o.vk&&typeof pbArt==='function'?pbArt(o.vk):'',artCls=art?' has-art':'';
+    L.innerHTML=tear?`<div class="book tearbook${artCls}" style="${art}">${page('top',`clip-path:${tearTop}`)}${page('bot',`clip-path:${tearBot}`)}
         <svg class="tearline" viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points="${TEAR.map(([x,y])=>`${x},${y}`).join(' ')}" vector-effect="non-scaling-stroke"/></svg><span class="woundstamp">Wound!</span></div>
         <button class="btn pri cardgo" type="button">Tear it out</button>`
-      :`<div class="book">${page()}<div class="cover ${o.coverCls||''}"><small>${esc(o.coverTop)}</small><b>${esc(o.coverTitle)}</b><small>${esc(o.coverFoot||'')}</small></div></div>
+      :`<div class="book${artCls}" style="${art}">${page()}<div class="cover ${o.coverCls||''}"><small>${esc(o.coverTop)}</small><b>${esc(o.coverTitle)}</b><small>${esc(o.coverFoot||'')}</small></div></div>
         <button class="btn pri cardgo" type="button">Resolve</button>`;
     document.body.appendChild(L);const ready=Date.now()+(tear||RM?250:850);
     const btn=L.querySelector('.cardgo');setTimeout(()=>btn.focus({preventScroll:true}),RM?0:800);
