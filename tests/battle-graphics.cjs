@@ -17,12 +17,12 @@ const path=require('node:path');
    lode:'arena-steel.svg',noct:'arena-wood.svg',swarm:'arena-concrete.svg',
    bomber:'arena-concrete.svg',grid:'arena-circuit.svg'};
   for(const file of [...names,...miniatures]){
-    const text=fs.readFileSync(path.resolve(file),'utf8');
+    const text=fs.readFileSync(path.resolve(file.startsWith('arena-')?'assets/arena/'+file:file),'utf8');
     assert(text.startsWith('<svg '),file+' is an actual vector image');
     assert.match(text,/viewBox="/,file+' has scalable coordinates');
   }
   const index=fs.readFileSync(path.resolve('index.html'),'utf8');
-  assert.match(index,/href="battle-graphics.css"/,'Main game loads illustrated battle art');
+  assert.match(index,/href="css\/battle-art.css"/,'Main game loads illustrated battle art');
   for(const width of [390,1440]){
     const size=width===390?'phone':'desktop';
     const page=await browser.newPage({viewport:{width,height:width===390?844:900},reducedMotion:'reduce'});
@@ -36,7 +36,7 @@ const path=require('node:path');
         await i.decode();
         return {name:file,w:i.naturalWidth,h:i.naturalHeight};
       }));
-    },names);
+    },names.map(n=>"assets/arena/"+n));
     assert.equal(assetStatuses.length,6,'Six original SVG sprites load in real Chromium');
     for(const a of assetStatuses){assert(a.w>0&&a.h>0,a.name+' is rendered by Chromium');}
     assert.equal(await page.locator('#lab-villain option').count(),11,'All campaign bosses supported');

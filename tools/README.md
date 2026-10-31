@@ -38,7 +38,7 @@ node tools/sim.js --runs 8 --abil --html /mnt/project-files/blackharbor/notes/bl
 
 ## Game files (since 2026-10-31: `src/`)
 
-The game is `index.html` plus about 50 scripts under `src/` (data, core, campaign, heroes, investigation, hq, ui, tutorial, battle, art), each 1-35 KB with a one-line header saying what it holds. The file map, the button-action registry (`ACT`) and where new features go are in `CLAUDE.md` at the repo root. There is no build step: GitHub Pages serves the files as they are.
+The game is `index.html` plus about 50 scripts under `src/` (data, core, campaign, heroes, investigation, hq, ui, tutorial, battle, art), each 1-35 KB with a one-line header saying what it holds, and styles in `css/` (one file per area). The file map, the button-action registry (`ACT`) and where new features go are in `CLAUDE.md` at the repo root. There is no build step: GitHub Pages serves the files as they are.
 
 - The tools read the `<script src>` tags of `index.html` in order, so a new file only needs its tag. `q.js outline`/`where` print `src/...:line`.
 - Scripts are classic scripts sharing one global scope, loaded in page order. Code that runs while the page loads can only use names from earlier files.

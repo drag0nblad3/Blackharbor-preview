@@ -10,6 +10,7 @@ on:
       - '*.html'
       - '*.js'
       - 'src/**'
+      - 'css/**'
       - '*.css'
       - '*.svg'
       - '*.avif'
