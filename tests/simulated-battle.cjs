@@ -61,9 +61,9 @@ const assert=require('node:assert/strict');
   await page.locator('.other-actions .combat-menu-toggle').click();
   await page.locator('.other-actions-menu [data-a="combatPick:other:rallySpirit"]').click();
   assert.match(await page.locator('.combat-choice').textContent(),/Rally Spirit/);
-  assert.equal(await page.evaluate(()=>S.sd.mode),null,'Rally selection does not target');
-  await page.locator('[data-a="combatUse"]').click();
-  assert.equal(await page.evaluate(()=>S.sd.mode),'rallySpirit');
+  assert.equal(await page.evaluate(()=>S.sd.mode),'rallySpirit','Rally selection goes straight to board targeting');
+  assert.equal(await page.locator('.combat-choice [data-a="combatUse"]').count(),0,'No Use action button for board targets');
+  assert.match(await page.locator('.combat-board-prompt').textContent(),/Click the board to activate/);
   const activation=await page.evaluate(async()=>{
     const sd=S.sd,u=sd.units[0],h=heroOf(u);
     h.ranks.innate=1;h.gear.arms2='bracer';sd.sel=0;sd.mode=null;sd.combatPick=null;

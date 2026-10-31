@@ -309,7 +309,7 @@ const O_NAME=[['Night','Iron','Static','Crimson','Silver','Ghost','Storm','Ember
 const FIELD_AB={
   senses:{id:'senses',n:'Keen Senses',txt:'While in the party, every die rolled during investigations gets +2. Two heroes with it do not stack.'},
   intercept:{id:'intercept',n:'Signal Intercept',txt:'While in the party, every investigation opens with 1 unseen playbook page already revealed. Two heroes with it do not stack.'},
-  premonition:{id:'premonition',n:'Premonition',txt:"While in the party, at the start of each issue, reveal 2 unseen pages from free villains' playbooks and gain 1 intel. Two heroes with it do not stack."}};
+  premonition:{id:'premonition',n:'Premonition',txt:"While in the party, at the start of each issue, reveal 2 unseen pages from active villains' playbooks and gain 1 intel. Two heroes with it do not stack."}};
 const O_POW={tech:['arc','patch','barricade','overclock','drone','emp'],innate:['brace','mark','quake','regen','berserk','leap'],magic:['blur','omen','curse','aegis','drain','serene']};
 const O_POWFL={arc:'Lightning answers when you call it.',patch:'Your gadgets fix people as well as machines.',barricade:'Ten seconds and some scrap metal, and you have a wall.',
   brace:'You plant your feet and nothing gets past.',mark:'Once you have their scent, they cannot hide.',quake:'You hit the ground and the ground hits back.',
@@ -377,7 +377,7 @@ function oHqOpts(){const act=S.villains.filter(v=>v.status==='active').sort((a,b
   const o=[{id:'tech',n:'Their Old Lair',fl:'Crates of salvaged hardware.',txt:'+4 tech.'},
     {id:'files',n:'Their Case Files',fl:'Years of notes on this city\'s worst.',txt:'+3 intel.'},
     {id:'fans',n:'A Loyal Fanbase',fl:'The city already loves them.',txt:'+2 public trust.'}];
-  if(act.length)o.push({id:'trophy',n:'Trophy Room',fl:'Souvenirs from fights you never saw.',txt:`+2 salvage from each free villain (${act.map(v=>VILLAINS[v.key].salvage).join(', ')}).`});
+  if(act.length)o.push({id:'trophy',n:'Trophy Room',fl:'Souvenirs from fights you never saw.',txt:`+2 salvage from each active villain (${act.map(v=>VILLAINS[v.key].salvage).join(', ')}).`});
   if(ALL_ITEMS.some(it=>!isUnlocked(it)))o.push({id:'notes',n:'Lab Notebooks',fl:'Designs nobody else has seen.',txt:'Unlock 2 random missing blueprints.'});
   Object.keys(FAC).filter(k=>isUnlocked('fac:'+k)&&!S.facilities.includes(k)).sort((a,b)=>Object.values(FAC[b].cost).reduce((x,y)=>x+y,0)-Object.values(FAC[a].cost).reduce((x,y)=>x+y,0)).slice(0,2)
     .forEach(k=>o.push({id:'pat-'+k,n:`A Patron Builds the ${FAC[k].name}`,fl:'Their billionaire backer wants in.',txt:`Builds the ${FAC[k].name} for free: ${FAC[k].txt}`}));
@@ -429,7 +429,7 @@ function oFinish(){const c=S.cre;if(!c.name.trim())c.name=oRandName(oTrack(c));c
       if(id==='tech'){S.tech+=4;L.push('+4 tech')}
       else if(id==='files'){S.intel+=3;L.push('+3 intel')}
       else if(id==='fans'){S.trust+=2;L.push('+2 trust')}
-      else if(id==='trophy'){S.villains.filter(v=>v.status==='active').forEach(v=>S.salvage[v.key]+=2);L.push('+2 salvage from each free villain')}
+      else if(id==='trophy'){S.villains.filter(v=>v.status==='active').forEach(v=>S.salvage[v.key]+=2);L.push('+2 salvage from each active villain')}
       else if(id==='notes'){const a=unlockRandom(),b=unlockRandom();L.push(`new blueprints: ${[a,b].filter(Boolean).join(', ')}`)}
       else if(id.startsWith('pat-')){const k=id.slice(4);if(!S.facilities.includes(k))S.facilities.push(k);L.push(`a free ${FAC[k].name}`)}}
     if(S.cheat&&S.cheat.xover)S.cheat.xover=false;else{S.xover=S.xover||[];S.xover.push(xArc())}}
@@ -1205,7 +1205,7 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
   const rTop=!roster().length||(S.guide&&S.guide.s<=1);
   if(only==='villains')return `${guideBar()}${bhPagehead('Blackharbor intelligence','Threat board','Track their schemes, review their playbooks, and choose the next target.',[['Active threats',act.length],['Party',`${party().length}/4`],['Issue',iia]])}<div class="bh-threat-layout"><aside class="bh-threat-rail">${bhThreatOps(act,arc,iia)}</aside><section class="panel bh-threat-content">${coll('vl-cases',`<div><div class="eyebrow">Volume ${S.vol} · Arc ${arc} of ${ARCS} · Issue ${iia} of ${ISSUES_PER_ARC}</div><h2>Case files</h2></div>`,
     `<div class="steps" data-tip="kw:arc">${[...Array(ISSUES_PER_ARC)].map((_,i)=>`<span class="${i<iia-1?'f':''}"></span>`).join('')}</div>
-    <div class="cap tilt">${arc<ARCS?`When this arc ends, every free villain levels up and rewrites part of their playbook, and a new villain arrives.`:'Final arc. When it ends, two villains team up for the event comic finale.'} Villains you don't hunt keep scheming. Long-press any stat, item or keyword for details.</div>
+    <div class="cap tilt">${arc<ARCS?`When this arc ends, every active villain levels up and rewrites part of their playbook, and a new villain arrives.`:'Final arc. When it ends, two villains team up for the event comic finale.'} Villains you don't hunt keep scheming. Long-press any stat, item or keyword for details.</div>
     <div class="row small"><span class="eyebrow" data-tip="kw:party">Party</span>${party().map(h=>`<span class="tag g">${esc(h.name)}</span>`).join('')||'<span class="tag">Empty</span>'}<button class="btn sm" data-a="view:roster">Change party</button></div>
     <div class="grid2">${act.map(vcard).join('')}</div>
     ${!S.villains.length?'<p class="cap">Recruit four heroes to reveal the three opening villains. The threats will match your team’s disciplines.</p>':''}
@@ -1577,7 +1577,7 @@ const TIPS=[
   {id:'shaken',when:()=>inSd()&&S.sd.units.some(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')),t:'Shaken',b:()=>`A hero's composure (the blue bar) hit 0. They're <b>Shaken: −3 Strength, −3 accuracy, −3 evasion and −1 movement</b> until it's restored. Composure refills after every fight.`},
   {id:'ko',when:()=>inSd()&&S.sd.units.some(u=>u.ko),t:'Hero down',b:()=>`A knocked-out hero is out of this fight. After the mission they're back on their feet at half health, ready for the next issue. Nobody's career ends.`},
   {id:'after',when:()=>S.phase==='after'&&S.after&&!S.after.ethos,t:'Aftermath',b:()=>`Every hero on the mission earns XP, more if they landed 2 or more wounds. A win brings salvage for crafting. Villains you beat always <b>escape and come back a level stronger</b>, and beating one unlocks their facility blueprints. Every villain you didn't hunt moved its scheme forward.`},
-  {id:'arc',when:()=>S.phase==='arc',t:'A new arc',b:()=>`Every free villain gains a level, adds new pages and upgrades old ones, and a new villain arrives. Once per arc a <b>Crossover Issue</b> lets an experienced hero join from HQ.`},
+  {id:'arc',when:()=>S.phase==='arc',t:'A new arc',b:()=>`Every active villain gains a level, adds new pages and upgrades old ones, and a new villain arrives. Once per arc a <b>Crossover Issue</b> lets an experienced hero join from HQ.`},
   {id:'tabs',when:()=>atHQ()&&roster().length>0,t:'HQ, Roster and Villains',b:()=>`Between missions there are three tabs. <b>HQ</b> is for recruiting, building the base and crafting gear. <b>Roster</b> is for the party, equipment and level-ups. <b>Villains</b> holds the case files, where you pick who to investigate. A tab <b>glows</b> when it needs you: HQ while you have resources or options to use, Roster when there is new gear or a hero has a choice to make, and Villains once you have checked the other two this issue.`},
   {id:'levelup',when:()=>atHQ()&&roster().some(h=>h.pendingUp>0),t:'Level up',b:()=>`A hero has enough XP to level up. Open the <b>Roster</b> and find the ★: pick which discipline they grow into (up to rank 5), then choose one upgrade. Benched heroes also earn 1 XP every issue.`},
   {id:'pouch',when:()=>atHQ()&&S.armory.some(g=>GEAR[g]&&GEAR[g].cons),t:'Consumables',b:()=>`The armory has <b>consumables</b>: cheap one-use items like Stim Shots and Smoke Pellets. Each hero carries up to ${POUCH_MAX} in a pouch, separate from their gear slots. Use them in a fight as a free action, or during investigations for the ones that give clues. Buy more in the Workshop panel, even before the Workshop is built.`},
@@ -1772,7 +1772,7 @@ const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','
 function finaleMole(){const ids=VILLAINS.mole.base,vs={...moleState(),level:VCAP,deck:[]},n=deckSize(vs);
   for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
 function setupEvent(){let k=chooseVillainFromPool(),fresh=!!k;
-  if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest free villain
+  if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest active villain
   if(fresh)S.villains.push(makeVillain(k,VCAP));else{const vs=vState(k);while(vs.level<VCAP)levelUpVillain(vs,true)}
   S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole());const keys=[k,'mole'];
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
