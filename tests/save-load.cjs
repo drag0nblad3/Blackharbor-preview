@@ -52,6 +52,7 @@ const assert=require('node:assert/strict');
     // Rendering the game must not erase the export box while the modal is open.
     await page.evaluate(()=>{S.trust=91;render()});
     assert.equal(await page.locator('#bh-save-output').inputValue(),code);
+    await page.locator('[data-bh-tab="export"]').click();
     await page.locator('[data-bh-select]').click();
     const selection=await page.evaluate(()=>document.querySelector('#bh-save-output').selectionEnd);
     assert.equal(selection,code.length,'Select text should select the full export code');
@@ -93,6 +94,27 @@ const assert=require('node:assert/strict');
     await page.locator('#bh-save-dialog').waitFor({state:'detached'});
     assert.equal(await page.locator('#bh-save-dialog').count(),0,'Escape closes modal');
     console.log('PASS: Escape closes save modal');
+    // Game tab: the difficulty slider changes S.diff at once and is saved; New campaign needs two taps.
+    await page.locator('[data-save-open]').click();
+    assert.equal(await page.locator('[data-bh-panel="game"]').isVisible(),true,'Menu opens on the Game tab');
+    assert.equal(await page.locator('#bh-diff').inputValue(),'0','Older saves default to Normal');
+    await page.locator('#bh-diff').fill('2');
+    assert.match(await page.locator('#bh-diff-out').innerText(),/Brutal/);
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(KEY)).diff),2,'Difficulty is stored in the save');
+    const diffCode=await page.evaluate(()=>bhSaveEncode(S));
+    assert.match((await page.evaluate(c=>bhSaveDecode(c),diffCode)).summary,/^Brutal/);
+    const volBefore=await page.evaluate(()=>S.vol);
+    await page.locator('[data-bh-new]').click();
+    assert.equal(await page.evaluate(()=>S.vol),volBefore,'First tap only arms New campaign');
+    await page.locator('[data-bh-new]').click();
+    await page.locator('#bh-save-dialog').waitFor({state:'detached'});
+    const fresh=await page.evaluate(()=>({vol:S.vol,diff:S.diff,heroes:S.heroes.length,backup:JSON.parse(localStorage.getItem(KEY+'-before-import')).trust}));
+    assert.deepEqual(fresh,{vol:volBefore+1,diff:2,heroes:0,backup:91},'New campaign keeps difficulty and backs up the old one');
+    // A fresh campaign opens the new-player guide; restore the backup directly.
+    await page.evaluate(()=>{localStorage.setItem(KEY,localStorage.getItem(KEY+'-before-import'));location.reload()});
+    await page.waitForFunction(()=>typeof S!=='undefined'&&S.trust===91&&S.diff===2);
+    await page.evaluate(()=>{S.diff=0;render()});
+    console.log('PASS: Game tab difficulty slider and two-tap New campaign with backup');
     // The same format must preserve a mid-combat position and unit actions.
     await page.evaluate(()=>{
       const key=S.villains.find(v=>v.status==='active')?.key||S.villains[0].key;

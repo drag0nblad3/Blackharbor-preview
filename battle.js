@@ -101,7 +101,7 @@ const vAway=(p,steps,o={})=>vSlide(p,steps,0,o,1);
 const hexA=x=>x===true?4:(x||0);
 /* Version 121 (Tyler): villain accuracy grows at half speed (+1 every 2 levels). Version 122: it starts at +4 at level 1 */
 const vLvB=(k,lv)=>k==='acc'?4+Math.floor((lv-1)/2):lv-1;
-function vStat(k){const sd=S.sd;return VILLAINS[sd.vkey][k]+vLvB(k,sd.v.level)+(k==='eva'?sd.v.fadeEva||0:0)-(k==='eva'?hexA(sd.v.hex):0)-(k==='acc'&&sd.v.blind?3:0)}
+function vStat(k){const sd=S.sd;return VILLAINS[sd.vkey][k]+vLvB(k,sd.v.level)+diffStat(k)+(k==='eva'?sd.v.fadeEva||0:0)-(k==='eva'?hexA(sd.v.hex):0)-(k==='acc'&&sd.v.blind?3:0)}
 function log(k,t){S.sd.log.push({k,t});if(S.sd.log.length>60)S.sd.log.shift()}
 /* comic SFX: positions are in board units (see HC) */
 let fxTimer;
@@ -509,7 +509,7 @@ function pickTarget(mode,reach){const sd=S.sd;let L=live();if(!L.length)return n
   if(mode==='weakest')return L.slice().sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0];
   if(mode==='lowcomp')return L.slice().sort((a,b)=>heroOf(a).comp-heroOf(b).comp||heroOf(a).hp-heroOf(b).hp)[0];
   const byD=L.slice().sort((a,b)=>dV(a,sd.v)-dV(b,sd.v));return mode==='farthest'?byD[byD.length-1]:byD[0]}
-function dmgScale(d){return d+Math.floor(S.sd.v.level/2)} /* Version 83 (Tyler): +1 damage at every even level */
+function dmgScale(d){const n=d+Math.floor(S.sd.v.level/2),dd=diffOf().dmg;return dd&&n>0?Math.max(1,n+dd):n} /* Version 83 (Tyler): +1 damage at every even level */
 function vStyle(c){if(c.fx)return c.fx;return (c.rng||0)>1||c.t==='endanger'?VILLAINS[S.sd.vkey].rstyle:'slash'}
 async function vMove(fn,crush=0,label=''){const sd=S.sd,v=sd.v,ox=v.x,oy=v.y,osw=JSON.stringify(v.sw||0);const sh=fn()||[];const path=v.path;delete v.path;
   if(path&&path.length){const fin={x:v.x,y:v.y,body:v.body};for(const p of path){v.x=p.x;v.y=p.y;v.body=p.body;noFlip.add('v'+sd.vi);render();await sleep(FAST?0:RM?60:150)}v.x=fin.x;v.y=fin.y;v.body=fin.body}
@@ -901,7 +901,7 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
   S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilian${sd.evac===1?'':'s'} evacuated (+${evT} trust), ${sd.harmed} harmed (−${sd.harmed*per} trust).`);
   eliteSalvage(L);
   let headline;
-  if(res==='win'){const sal=3+(sd.quality==='prepared'?1:0)+fieldCount('salvage')+(S.facilities.includes('magnet')?1:0);S.salvage[sd.vkey]+=sal;S.tech++;L.push(`Salvaged ${sal} ${def.salvage} and 1 tech from the lair.`);
+  if(res==='win'){const sal=Math.max(1,3+diffOf().sal+(sd.quality==='prepared'?1:0)+fieldCount('salvage')+(S.facilities.includes('magnet')?1:0));S.salvage[sd.vkey]+=sal;S.tech++;L.push(`Salvaged ${sal} ${def.salvage} and 1 tech from the lair.`);
     {let n=0;for(const {h} of fieldGear('strip'))n+=Math.floor((sd.woundsBy[h.id]||0)/3);if(n){S.salvage[sd.vkey]+=n;L.push(`Scrapper's Hooks: +${n} ${def.salvage} stripped from the pages torn out.`)}}
     vs.beaten=(vs.beaten||0)+1;
     if(S.ethos.a==='restraint'){S.salvage[sd.vkey]++;L.push(`Restraint: +1 ${def.salvage}.`)}

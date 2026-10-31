@@ -120,7 +120,9 @@ function bhSaveValidate(state){
     }
   }
   const heroCount=state.heroes.filter(h=>!h.retired).length;
-  return {state:state,summary:'Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
+  if(state.diff!=null&&(!Number.isInteger(state.diff)||state.diff<-2||state.diff>2))
+    bhSaveError('The save has an unknown difficulty.');
+  return {state:state,summary:DIFFS[(state.diff||0)+2].n+' · Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
     ' active '+(heroCount===1?'hero':'heroes')+' · '+(state.phase==='sd'?'In combat':state.phase==='inv'?'Investigating':'Campaign '+state.phase)};
 }
 async function bhSaveDecode(code){
@@ -147,13 +149,44 @@ function bhSaveUIStatus(text,isError){
 }
 function bhSaveTab(tab){
   const dialog=document.getElementById('bh-save-dialog');if(!dialog)return;
-  for(const name of ['export','import']){
+  for(const name of ['game','export','import']){
     const panel=dialog.querySelector('[data-bh-panel="'+name+'"]');
     const button=dialog.querySelector('[data-bh-tab="'+name+'"]');
     panel.hidden=name!==tab;
     button.setAttribute('aria-selected',String(name===tab));
   }
   bhSaveUIStatus('',false);
+  bhMenuNewArm(false);
+}
+/* Game menu (Tyler, 2026-10-31): the masthead Menu button opens one dialog with a Game tab
+   (difficulty slider, new campaign) beside the older Save and Load tabs. */
+let bhMenuNewAt=0;
+function bhMenuDiffHtml(){
+  const d=diffOf();
+  return '<b>'+d.n+'</b><span class="small muted">'+d.h+'</span>';
+}
+function bhMenuSetDiff(v){
+  if(!S)return;
+  S.diff=diffClamp(v);
+  const out=document.getElementById('bh-diff-out');if(out)out.innerHTML=bhMenuDiffHtml();
+  render();
+}
+function bhMenuNewArm(on){
+  bhMenuNewAt=on?Date.now():0;
+  const b=document.querySelector('[data-bh-new]');
+  if(!b)return;
+  b.textContent=on?'Tap again to start over':'Start a new campaign';
+  b.classList.toggle('armed',!!on);
+}
+function bhMenuNew(){
+  if(!bhMenuNewAt||Date.now()-bhMenuNewAt>6000){bhMenuNewArm(true);
+    bhSaveUIStatus('This ends the current campaign. Tap again to confirm.',false);return}
+  if(S.sd&&S.sd.busy){bhSaveUIStatus('Finish the current combat animation first.',true);return}
+  try{const before=localStorage.getItem(KEY);if(before!==null)localStorage.setItem(KEY+BH_SAVE_BACKUP_SUFFIX,before)}catch(_){}
+  const diff=S.diff;
+  newCampaign(S);S.diff=diffClamp(diff);
+  const d=document.getElementById('bh-save-dialog');if(d)d.close();
+  scrollTo(0,0);render();
 }
 function bhSaveOpen(){
   if(document.getElementById('bh-save-dialog'))return;
@@ -164,14 +197,26 @@ function bhSaveOpen(){
   dialog.className='bh-save-dialog';
   dialog.setAttribute('aria-labelledby','bh-save-title');
   dialog.innerHTML=[
-    '<div class="bh-save-heading"><div><div class="eyebrow">Campaign archive</div><h2 id="bh-save-title">Save / Load</h2></div>',
-    '<button class="btn sm" type="button" data-bh-close aria-label="Close save menu">✕</button></div>',
-    '<div class="small muted">The game autosaves in this browser. Use a text code to back up your campaign or transfer it to another device.</div>',
-    '<div class="bh-save-tabs" role="tablist" aria-label="Save or load">',
-    '<button class="btn sm on" data-bh-tab="export" role="tab" type="button" aria-selected="true">Export</button>',
-    '<button class="btn sm" data-bh-tab="import" role="tab" type="button" aria-selected="false">Import</button>',
+    '<div class="bh-save-heading"><div><div class="eyebrow">Vol. '+S.vol+' · Issue '+Math.min(S.issue,MAX_ISSUE)+'</div><h2 id="bh-save-title">Menu</h2></div>',
+    '<button class="btn sm" type="button" data-bh-close aria-label="Close menu">✕</button></div>',
+    '<div class="bh-save-tabs" role="tablist" aria-label="Menu sections">',
+    '<button class="btn sm" data-bh-tab="game" role="tab" type="button" aria-selected="true">Game</button>',
+    '<button class="btn sm" data-bh-tab="export" role="tab" type="button" aria-selected="false">Save</button>',
+    '<button class="btn sm" data-bh-tab="import" role="tab" type="button" aria-selected="false">Load</button>',
     '</div>',
-    '<section data-bh-panel="export" role="tabpanel" class="bh-save-panel">',
+    '<section data-bh-panel="game" role="tabpanel" class="bh-save-panel">',
+    '<label class="eyebrow" for="bh-diff">Difficulty</label>',
+    '<input id="bh-diff" class="bh-diff" type="range" min="-2" max="2" step="1" value="'+diffClamp(S.diff)+'" aria-describedby="bh-diff-out">',
+    '<div class="bh-diff-ticks small" aria-hidden="true">'+DIFFS.map(d=>'<span>'+d.n+'</span>').join('')+'</div>',
+    '<div id="bh-diff-out" class="bh-diff-out" aria-live="polite">'+bhMenuDiffHtml()+'</div>',
+    '<p class="small muted">Change it any time. It takes effect at once, even mid-fight.</p>',
+    '<hr class="bh-menu-rule">',
+    '<div class="eyebrow">New campaign</div>',
+    '<button type="button" class="btn bh-menu-new" data-bh-new>Start a new campaign</button>',
+    '<p class="small muted">Starts Volume '+(S.vol+1)+' at this difficulty. Your current campaign is kept as a backup: Load, then Restore previous, brings it back.</p>',
+    '</section>',
+    '<section data-bh-panel="export" role="tabpanel" class="bh-save-panel" hidden>',
+    '<p class="small muted">The game autosaves in this browser. Copy this code to back up your campaign or move it to another device.</p>',
     '<label class="eyebrow" for="bh-save-output">Your current campaign</label>',
     '<textarea id="bh-save-output" class="bh-save-code" readonly spellcheck="false" aria-label="Portable Blackharbor save code"></textarea>',
     '<div class="row"><button type="button" class="btn pri" data-bh-copy>Copy save string</button>',
@@ -182,10 +227,10 @@ function bhSaveOpen(){
     '<label class="eyebrow" for="bh-save-input">Paste a campaign save</label>',
     '<textarea id="bh-save-input" class="bh-save-code" spellcheck="false" placeholder="BH1G. ... or BH1J. ..." aria-label="Paste Blackharbor save code"></textarea>',
     '<div class="row"><button type="button" class="btn sm" data-bh-check>Check save</button>',
-    '<button type="button" class="btn sm" data-bh-restore>Restore previous import</button></div>',
+    '<button type="button" class="btn sm" data-bh-restore>Restore previous</button></div>',
     '<div id="bh-save-preview" class="cap" hidden></div>',
     '<button type="button" class="btn pri bh-save-confirm" data-bh-import hidden>Replace current campaign</button>',
-    '<p class="small muted">Importing replaces your current campaign on this device. We preserve the previous autosave as a local backup.</p>',
+    '<p class="small muted">Loading replaces your current campaign on this device. The previous autosave is kept as a local backup.</p>',
     '</section>',
     '<p id="bh-save-status" class="bh-save-status small" role="status" aria-live="polite"></p>'
   ].join('');
@@ -196,7 +241,7 @@ function bhSaveOpen(){
   });
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
   dialog.showModal();
-  dialog.querySelector('[data-bh-tab="export"]').focus({preventScroll:true});
+  dialog.querySelector('[data-bh-tab="game"]').focus({preventScroll:true});
   const restore=dialog.querySelector('[data-bh-restore]');
   try{restore.disabled=!localStorage.getItem(KEY+BH_SAVE_BACKUP_SUFFIX)}
   catch(_){restore.disabled=true}
@@ -263,9 +308,10 @@ function bhSaveRestore(){
   }catch(e){bhSaveUIStatus('Previous backup is invalid: '+e.message,true)}
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-save-open],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
+  const b=e.target.closest('[data-save-open],[data-bh-new],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
   if(!b||b.disabled)return;
   if(b.hasAttribute('data-save-open')){bhSaveOpen();return}
+  if(b.hasAttribute('data-bh-new')){bhMenuNew();return}
   if(b.hasAttribute('data-bh-close')){const d=document.getElementById('bh-save-dialog');if(d)d.close();return}
   if(b.hasAttribute('data-bh-tab')){bhSaveTab(b.dataset.bhTab);return}
   if(b.hasAttribute('data-bh-copy')){bhSaveCopy();return}
@@ -275,6 +321,7 @@ document.addEventListener('click',e=>{
   if(b.hasAttribute('data-bh-restore')){bhSaveRestore();return}
 });
 document.addEventListener('input',e=>{
+  if(e.target.id==='bh-diff'){bhMenuSetDiff(e.target.value);return}
   if(e.target.id!=='bh-save-input')return;
   bhSavePending=null;
   const preview=document.getElementById('bh-save-preview'),confirm=document.querySelector('[data-bh-import]');
