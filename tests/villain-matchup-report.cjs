@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const dir=path.resolve('villain-matchup-results');
-const DATA=vm.runInNewContext(fs.readFileSync('data.js','utf8')+'\n({VILLAINS,VINTEL})');
+const DATA=vm.runInNewContext(require('../tools/bh.js').dataCode()+'\n({VILLAINS,VINTEL})');
 const bosses=Object.keys(DATA.VILLAINS).filter(k=>k!=='mole');
 const groups=['mixed','tech','magic','innate'];
 const all=groups.flatMap(g=>{const file=path.join(dir,g+'.json');assert(fs.existsSync(file),'missing '+file);return JSON.parse(fs.readFileSync(file,'utf8')).rows});

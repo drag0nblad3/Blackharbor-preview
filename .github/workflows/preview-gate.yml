@@ -9,6 +9,7 @@ on:
     paths:
       - '*.html'
       - '*.js'
+      - 'src/**'
       - '*.css'
       - '*.svg'
       - '*.avif'
@@ -31,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax of every game script
-        run: for f in *.js; do node --check "$f"; done
+        run: for f in src/*/*.js; do node --check "$f"; done
       - name: Rules, data and text
         run: |
           for t in hero-loadout mechanics-rework boss-options nocturne-serpent page-upgrades balance cantor-rework payload-bombs villain-rebalance gameplay-text comic-ui investigation-ui villain-portraits; do

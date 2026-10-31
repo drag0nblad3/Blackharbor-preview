@@ -5,7 +5,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
 const strategies=['balanced','assault','fortress','mobility','support','specialist','techOnly','magicOnly','innateOnly'];
 const dir=path.resolve(process.env.OUTPUT_DIR||'campaign-study-results');
-const D=vm.runInNewContext(fs.readFileSync('data.js','utf8')+'\n({GEAR,VILLAINS,SETS})');
+const D=vm.runInNewContext(require('../tools/bh.js').dataCode()+'\n({GEAR,VILLAINS,SETS})');
 const {GEAR,VILLAINS,SETS}=D;
 const mean=xs=>xs.length?xs.reduce((s,n)=>s+n,0)/xs.length:0;
 const pct=(a,b)=>b?Math.round(a/b*1000)/10:0;

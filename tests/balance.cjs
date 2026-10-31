@@ -6,7 +6,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
-const data=fs.readFileSync(path.join(__dirname,'..','data.js'),'utf8');
+const data=require('../tools/bh.js').dataCode();
 const {GEAR,HERO_BASE,VILLAINS}=vm.runInNewContext(data+'\n({GEAR,HERO_BASE,VILLAINS})',{}, {timeout:3000});
 const chance=(stat,defense)=>{
   let successes=0;
