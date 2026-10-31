@@ -120,7 +120,9 @@ function bhSaveValidate(state){
     }
   }
   const heroCount=state.heroes.filter(h=>!h.retired).length;
-  return {state:state,summary:'Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
+  if(state.diff!=null&&(!Number.isInteger(state.diff)||state.diff<-1||state.diff>1))
+    bhSaveError('The save has an unknown difficulty.');
+  return {state:state,summary:DIFFS[(state.diff||0)+1].n+' · Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
     ' active '+(heroCount===1?'hero':'heroes')+' · '+(state.phase==='sd'?'In combat':state.phase==='inv'?'Investigating':'Campaign '+state.phase)};
 }
 async function bhSaveDecode(code){
@@ -147,13 +149,72 @@ function bhSaveUIStatus(text,isError){
 }
 function bhSaveTab(tab){
   const dialog=document.getElementById('bh-save-dialog');if(!dialog)return;
-  for(const name of ['export','import']){
+  for(const name of ['game','export','import']){
     const panel=dialog.querySelector('[data-bh-panel="'+name+'"]');
     const button=dialog.querySelector('[data-bh-tab="'+name+'"]');
     panel.hidden=name!==tab;
     button.setAttribute('aria-selected',String(name===tab));
   }
   bhSaveUIStatus('',false);
+  bhMenuArm(null);
+}
+/* Game menu (Tyler, 2026-10-31): the masthead Menu button opens one dialog with a Game tab
+   (fight options in combat, difficulty, new campaign, rules guide) beside the older Save and Load tabs.
+   Restart, Abandon and New campaign need a second tap within 6 seconds. */
+const BH_FIGHT_SNAP_SUFFIX='-fight-start';
+let bhArm={key:null,at:0};
+const BH_ARM_TXT={
+  restart:['Restart fight','Tap again to restart','The fight starts over from its first round, as it was set up.'],
+  abandon:['Abandon fight','Tap again to abandon','The fight counts as lost: the team is knocked out and carried home.'],
+  newgame:['Start a new campaign','Tap again to start over','This ends the current campaign.']};
+function bhMenuInFight(){return S&&S.phase==='sd'&&S.sd&&!S.sd.result&&!(typeof tutOn==='function'&&tutOn())}
+function bhMenuSnap(){
+  try{const raw=localStorage.getItem(KEY+BH_FIGHT_SNAP_SUFFIX);if(!raw)return null;
+    const snap=JSON.parse(raw);return snap&&snap.sd&&S.sd&&snap.sd.fid&&snap.sd.fid===S.sd.fid?raw:null}
+  catch(_){return null}
+}
+function bhMenuDiffHtml(){
+  const d=diffOf();
+  return '<b>'+d.n+'</b><span class="small muted">'+d.h+'</span>';
+}
+function bhMenuSetDiff(v){
+  if(!S)return;
+  S.diff=diffClamp(v);
+  const out=document.getElementById('bh-diff-out');if(out)out.innerHTML=bhMenuDiffHtml();
+  render();
+}
+function bhMenuArm(key){
+  bhArm={key:key,at:key?Date.now():0};
+  document.querySelectorAll('[data-bh-arm]').forEach(b=>{
+    const k=b.dataset.bhArm,on=k===key;
+    b.textContent=BH_ARM_TXT[k][on?1:0];b.classList.toggle('armed',on);
+  });
+}
+function bhMenuClose(){const d=document.getElementById('bh-save-dialog');if(d)d.close()}
+function bhMenuAct(key){
+  if(bhArm.key!==key||Date.now()-bhArm.at>6000){bhMenuArm(key);
+    bhSaveUIStatus(BH_ARM_TXT[key][2]+' Tap again to confirm.',false);return}
+  bhMenuArm(null);
+  if(S.sd&&S.sd.busy){bhSaveUIStatus('Wait for the villain\'s turn to finish first.',true);return}
+  if(key==='newgame'){
+    try{const before=localStorage.getItem(KEY);if(before!==null)localStorage.setItem(KEY+BH_SAVE_BACKUP_SUFFIX,before)}catch(_){}
+    const diff=S.diff;
+    newCampaign(S);S.diff=diffClamp(diff);
+    bhMenuClose();scrollTo(0,0);render();return;
+  }
+  if(!bhMenuInFight()){bhSaveUIStatus('There is no fight in progress.',true);return}
+  if(key==='restart'){
+    const raw=bhMenuSnap();
+    if(!raw){bhSaveUIStatus('This fight began before Restart was added, so it cannot be restarted.',true);return}
+    try{localStorage.setItem(KEY,raw);window.location.reload()}
+    catch(e){bhSaveUIStatus('Could not restart: '+e.message,true)}
+    return;
+  }
+  if(key==='abandon'){
+    S.sd.units.forEach(u=>{u.ko=true;heroOf(u).hp=0});
+    log('sys','The team abandons the fight and falls back.');
+    endSd('loss');bhMenuClose();render();
+  }
 }
 function bhSaveOpen(){
   if(document.getElementById('bh-save-dialog'))return;
@@ -164,14 +225,34 @@ function bhSaveOpen(){
   dialog.className='bh-save-dialog';
   dialog.setAttribute('aria-labelledby','bh-save-title');
   dialog.innerHTML=[
-    '<div class="bh-save-heading"><div><div class="eyebrow">Campaign archive</div><h2 id="bh-save-title">Save / Load</h2></div>',
-    '<button class="btn sm" type="button" data-bh-close aria-label="Close save menu">✕</button></div>',
-    '<div class="small muted">The game autosaves in this browser. Use a text code to back up your campaign or transfer it to another device.</div>',
-    '<div class="bh-save-tabs" role="tablist" aria-label="Save or load">',
-    '<button class="btn sm on" data-bh-tab="export" role="tab" type="button" aria-selected="true">Export</button>',
-    '<button class="btn sm" data-bh-tab="import" role="tab" type="button" aria-selected="false">Import</button>',
+    '<div class="bh-save-heading"><div><div class="eyebrow">Vol. '+S.vol+' · Issue '+Math.min(S.issue,MAX_ISSUE)+'</div><h2 id="bh-save-title">Menu</h2></div>',
+    '<button class="btn sm" type="button" data-bh-close aria-label="Close menu">✕</button></div>',
+    '<div class="bh-save-tabs" role="tablist" aria-label="Menu sections">',
+    '<button class="btn sm" data-bh-tab="game" role="tab" type="button" aria-selected="true">Game</button>',
+    '<button class="btn sm" data-bh-tab="export" role="tab" type="button" aria-selected="false">Save</button>',
+    '<button class="btn sm" data-bh-tab="import" role="tab" type="button" aria-selected="false">Load</button>',
     '</div>',
-    '<section data-bh-panel="export" role="tabpanel" class="bh-save-panel">',
+    '<section data-bh-panel="game" role="tabpanel" class="bh-save-panel">',
+    bhMenuInFight()?['<div class="eyebrow">This fight</div>',
+      '<div class="row bh-menu-fight"><button type="button" class="btn" data-bh-arm="restart"'+(bhMenuSnap()?'':' disabled')+'>Restart fight</button>',
+      '<button type="button" class="btn" data-bh-arm="abandon">Abandon fight</button></div>',
+      bhMenuSnap()?'':'<p class="small muted">This fight began before Restart was added, so it cannot be restarted.</p>',
+      '<hr class="bh-menu-rule">'].join(''):'',
+    '<label class="eyebrow" for="bh-diff">Difficulty</label>',
+    '<input id="bh-diff" class="bh-diff" type="range" min="-1" max="1" step="1" value="'+diffClamp(S.diff)+'" aria-describedby="bh-diff-out">',
+    '<div class="bh-diff-ticks small" aria-hidden="true">'+DIFFS.map(d=>'<span>'+d.n+'</span>').join('')+'</div>',
+    '<div id="bh-diff-out" class="bh-diff-out" aria-live="polite">'+bhMenuDiffHtml()+'</div>',
+    '<p class="small muted">Change it any time. It takes effect at once, even mid-fight.</p>',
+    '<hr class="bh-menu-rule">',
+    '<div class="eyebrow">New campaign</div>',
+    '<button type="button" class="btn bh-menu-new" data-bh-arm="newgame">Start a new campaign</button>',
+    '<p class="small muted">Starts Volume '+(S.vol+1)+' at this difficulty. Your current campaign is kept as a backup: Load, then Restore previous, brings it back.</p>',
+    '<hr class="bh-menu-rule">',
+    '<div class="eyebrow">Rules guide</div>',
+    '<button type="button" class="btn" data-bh-guide>Open the rules guide</button>',
+    '</section>',
+    '<section data-bh-panel="export" role="tabpanel" class="bh-save-panel" hidden>',
+    '<p class="small muted">The game autosaves in this browser. Copy this code to back up your campaign or move it to another device.</p>',
     '<label class="eyebrow" for="bh-save-output">Your current campaign</label>',
     '<textarea id="bh-save-output" class="bh-save-code" readonly spellcheck="false" aria-label="Portable Blackharbor save code"></textarea>',
     '<div class="row"><button type="button" class="btn pri" data-bh-copy>Copy save string</button>',
@@ -182,10 +263,10 @@ function bhSaveOpen(){
     '<label class="eyebrow" for="bh-save-input">Paste a campaign save</label>',
     '<textarea id="bh-save-input" class="bh-save-code" spellcheck="false" placeholder="BH1G. ... or BH1J. ..." aria-label="Paste Blackharbor save code"></textarea>',
     '<div class="row"><button type="button" class="btn sm" data-bh-check>Check save</button>',
-    '<button type="button" class="btn sm" data-bh-restore>Restore previous import</button></div>',
+    '<button type="button" class="btn sm" data-bh-restore>Restore previous</button></div>',
     '<div id="bh-save-preview" class="cap" hidden></div>',
     '<button type="button" class="btn pri bh-save-confirm" data-bh-import hidden>Replace current campaign</button>',
-    '<p class="small muted">Importing replaces your current campaign on this device. We preserve the previous autosave as a local backup.</p>',
+    '<p class="small muted">Loading replaces your current campaign on this device. The previous autosave is kept as a local backup.</p>',
     '</section>',
     '<p id="bh-save-status" class="bh-save-status small" role="status" aria-live="polite"></p>'
   ].join('');
@@ -196,7 +277,7 @@ function bhSaveOpen(){
   });
   dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
   dialog.showModal();
-  dialog.querySelector('[data-bh-tab="export"]').focus({preventScroll:true});
+  dialog.querySelector('[data-bh-tab="game"]').focus({preventScroll:true});
   const restore=dialog.querySelector('[data-bh-restore]');
   try{restore.disabled=!localStorage.getItem(KEY+BH_SAVE_BACKUP_SUFFIX)}
   catch(_){restore.disabled=true}
@@ -263,9 +344,11 @@ function bhSaveRestore(){
   }catch(e){bhSaveUIStatus('Previous backup is invalid: '+e.message,true)}
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-save-open],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
+  const b=e.target.closest('[data-save-open],[data-bh-arm],[data-bh-guide],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
   if(!b||b.disabled)return;
   if(b.hasAttribute('data-save-open')){bhSaveOpen();return}
+  if(b.hasAttribute('data-bh-arm')){bhMenuAct(b.dataset.bhArm);return}
+  if(b.hasAttribute('data-bh-guide')){bhMenuClose();bhGuideOpen();return}
   if(b.hasAttribute('data-bh-close')){const d=document.getElementById('bh-save-dialog');if(d)d.close();return}
   if(b.hasAttribute('data-bh-tab')){bhSaveTab(b.dataset.bhTab);return}
   if(b.hasAttribute('data-bh-copy')){bhSaveCopy();return}
@@ -275,6 +358,7 @@ document.addEventListener('click',e=>{
   if(b.hasAttribute('data-bh-restore')){bhSaveRestore();return}
 });
 document.addEventListener('input',e=>{
+  if(e.target.id==='bh-diff'){bhMenuSetDiff(e.target.value);return}
   if(e.target.id!=='bh-save-input')return;
   bhSavePending=null;
   const preview=document.getElementById('bh-save-preview'),confirm=document.querySelector('[data-bh-import]');

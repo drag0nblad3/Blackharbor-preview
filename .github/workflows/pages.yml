@@ -16,6 +16,7 @@ on:
       - 'assets/villain-covers/**'
       - 'assets/equipment/**'
       - 'assets/hero-loadout/**'
+      - 'assets/guide/**'
       - 'PREVIEW_STATUS.md'
       - '.github/workflows/pages.yml'
   workflow_dispatch:

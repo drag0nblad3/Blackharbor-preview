@@ -52,6 +52,7 @@ const assert=require('node:assert/strict');
     // Rendering the game must not erase the export box while the modal is open.
     await page.evaluate(()=>{S.trust=91;render()});
     assert.equal(await page.locator('#bh-save-output').inputValue(),code);
+    await page.locator('[data-bh-tab="export"]').click();
     await page.locator('[data-bh-select]').click();
     const selection=await page.evaluate(()=>document.querySelector('#bh-save-output').selectionEnd);
     assert.equal(selection,code.length,'Select text should select the full export code');
@@ -93,6 +94,27 @@ const assert=require('node:assert/strict');
     await page.locator('#bh-save-dialog').waitFor({state:'detached'});
     assert.equal(await page.locator('#bh-save-dialog').count(),0,'Escape closes modal');
     console.log('PASS: Escape closes save modal');
+    // Game tab: the difficulty slider changes S.diff at once and is saved; New campaign needs two taps.
+    await page.locator('[data-save-open]').click();
+    assert.equal(await page.locator('[data-bh-panel="game"]').isVisible(),true,'Menu opens on the Game tab');
+    assert.equal(await page.locator('#bh-diff').inputValue(),'0','Older saves default to Normal');
+    await page.locator('#bh-diff').fill('1');
+    assert.match(await page.locator('#bh-diff-out').innerText(),/Hard/);
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(KEY)).diff),1,'Difficulty is stored in the save');
+    const diffCode=await page.evaluate(()=>bhSaveEncode(S));
+    assert.match((await page.evaluate(c=>bhSaveDecode(c),diffCode)).summary,/^Hard/);
+    const volBefore=await page.evaluate(()=>S.vol);
+    await page.locator('[data-bh-arm="newgame"]').click();
+    assert.equal(await page.evaluate(()=>S.vol),volBefore,'First tap only arms New campaign');
+    await page.locator('[data-bh-arm="newgame"]').click();
+    await page.locator('#bh-save-dialog').waitFor({state:'detached'});
+    const fresh=await page.evaluate(()=>({vol:S.vol,diff:S.diff,heroes:S.heroes.length,backup:JSON.parse(localStorage.getItem(KEY+'-before-import')).trust}));
+    assert.deepEqual(fresh,{vol:volBefore+1,diff:1,heroes:0,backup:91},'New campaign keeps difficulty and backs up the old one');
+    // A fresh campaign opens the new-player guide; restore the backup directly.
+    await page.evaluate(()=>{localStorage.setItem(KEY,localStorage.getItem(KEY+'-before-import'));location.reload()});
+    await page.waitForFunction(()=>typeof S!=='undefined'&&S.trust===91&&S.diff===1);
+    await page.evaluate(()=>{S.diff=0;render()});
+    console.log('PASS: Game tab difficulty slider and two-tap New campaign with backup');
     // The same format must preserve a mid-combat position and unit actions.
     await page.evaluate(()=>{
       const key=S.villains.find(v=>v.status==='active')?.key||S.villains[0].key;
@@ -108,6 +130,37 @@ const assert=require('node:assert/strict');
     assert.ok(battle.units?.length>0&&battle.units[0].acted);
     assert.ok(Array.isArray(battle.vl));
     console.log('PASS: active combat and acted state included in portable export');
+    // Fight options: only in combat, Restart first and Abandon second, each needs two taps.
+    await page.locator('[data-bh-tab="game"]').click();
+    const fightBtns=await page.locator('[data-bh-panel="game"] button').evaluateAll(bs=>bs.slice(0,2).map(b=>b.dataset.bhArm));
+    assert.deepEqual(fightBtns,['restart','abandon'],'Restart and Abandon are the first two options in a fight');
+    await page.locator('[data-bh-arm="restart"]').click();
+    assert.equal(await page.evaluate(()=>S.sd.units[0].acted),true,'First tap only arms Restart');
+    await page.locator('[data-bh-arm="restart"]').click();
+    await page.waitForFunction(()=>typeof S!=='undefined'&&S.phase==='sd'&&S.sd&&!S.sd.units[0].acted&&S.sd.round===1);
+    assert.equal(await page.evaluate(()=>S.sd.intro),true,'A restarted fight opens on its splash page again');
+    await page.evaluate(()=>{S.sd.intro=false;render()});
+    console.log('PASS: Restart fight returns to the fight as it was set up');
+    await page.locator('[data-save-open]').click();
+    await page.locator('[data-bh-arm="abandon"]').click();
+    assert.equal(await page.evaluate(()=>S.sd.result),null,'First tap only arms Abandon');
+    await page.locator('[data-bh-arm="abandon"]').click();
+    await page.waitForFunction(()=>S.sd&&S.sd.result==='loss');
+    await page.evaluate(()=>{S.sd.outro=true;render()});
+    await page.locator('[data-save-open]').click();
+    assert.equal(await page.locator('[data-bh-arm="restart"]').count(),0,'Fight options are gone once the fight is over');
+    await page.locator('[data-bh-guide]').click();
+    await page.locator('#bh-guide-dialog').waitFor({state:'visible'});
+    assert.ok(await page.locator('#bh-guide-dialog section').count()>=10,'Rules guide has its sections');
+    const broken=await page.evaluate(async()=>{const imgs=[...document.querySelectorAll('#bh-guide-dialog img')];
+      await Promise.all(imgs.map(i=>{i.loading='eager';return i.decode().catch(()=>null)}));return imgs.filter(i=>!i.naturalWidth).map(i=>i.src)});
+    assert.deepEqual(broken,[],'Every guide picture loads');
+    await page.keyboard.press('Escape');
+    await page.locator('#bh-guide-dialog').waitFor({state:'detached'});
+    console.log('PASS: Abandon fight counts as a loss, and the rules guide opens with its pictures');
+    await page.evaluate(()=>{S.inv={v:S.sd.vkey,clues:2};startShowdown();S.sd.intro=false;S.sd.busy=false;S.sd.sel=0;S.sd.units[0].acted=true;render()});
+    await page.locator('[data-save-open]').click();
+    await page.waitForFunction(()=>document.querySelector('#bh-save-output')?.value.startsWith('BH1'));
     const mobileFit=await page.locator('#bh-save-dialog').evaluate(el=>{
       const r=el.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;
     });
