@@ -1,0 +1,26 @@
+/* css/hq.css: HQ, roster, villains tab, workshop/armory, slot picker and loadout. */
+
+/* from game.css */
+.setp{border:1.5px solid var(--set);background:var(--setBg);padding:5px 8px;font-size:.82rem}
+.setp summary{cursor:pointer;list-style:none;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.setp summary::-webkit-details-marker{display:none}
+.setp summary::after{content:'▸';margin-left:auto;color:var(--set);font-weight:800;transition:transform .15s}
+.setp[open] summary::after{content:'▾'}
+.setp>div{margin-top:4px}
+.setp.on{box-shadow:0 0 0 1px var(--set),0 0 14px 2px var(--setGlow);animation:setglow 2.4s ease-in-out infinite alternate}
+@media (prefers-reduced-motion:reduce){.setp.on{animation:none}}
+.setpips{display:inline-flex;gap:2px}
+.setpips i{width:9px;height:9px;border:1.5px solid var(--set)}
+.setpips i.f{background:var(--set)}
+#slotpick{position:fixed;inset:0;z-index:72;display:grid;place-items:center;background:color-mix(in srgb,#151821 62%,transparent);padding:16px;overflow:auto;animation:fadeIn .15s}
+#slotpick .gbox{width:min(100%,480px);border:2.5px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--ink);padding:16px;display:flex;flex-direction:column;gap:10px}
+#slotpick .btn.opt{text-align:left}
+.wsf{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.wsf input,.wsf select{font:inherit;font-size:.85rem;padding:7px 8px;border:2px solid var(--ink);background:var(--panel);color:var(--ink);border-radius:0;min-width:0;width:100%}
+.wsf input{grid-column:1/-1}
+.hqcols{display:flex;flex-direction:column;gap:10px;min-width:0}
+.hqcols>div{display:flex;flex-direction:column;gap:10px;min-width:0}
+@media (min-width:600px) and (max-width:1023px){.wrap.v-hq-roster .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1024px){
+  .hqcols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+}

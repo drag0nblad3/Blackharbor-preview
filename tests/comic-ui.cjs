@@ -8,9 +8,9 @@ const g=bh.load({seed:41});
 const run=code=>g.run(code), get=code=>g.get(code);
 const root=path.resolve(__dirname,'..');
 const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
-const skin=fs.readFileSync(path.join(root,'comic-ui.css'),'utf8');
-assert.match(index,/href="investigation.css"/);
-assert.match(index,/href="comic-ui.css"/);
+const skin=fs.readFileSync(path.join(root,'css/comic-ui.css'),'utf8');
+assert.match(index,/href="css\/investigation.css"/);
+assert.match(index,/href="css\/comic-ui.css"/);
 assert(index.indexOf('investigation.css')<index.indexOf('comic-ui.css'),'shared CSS loads after Investigation');
 for(const name of ['v-hq-hq','v-hq-roster','v-hq-villains','v-sd'])assert(skin.includes(name),name+' must be themed');
 for(const sel of ['.bh-pagehead','.hqcols','.inv-','.sdl','.bcol','.bact','.brest','.card','.slot'])

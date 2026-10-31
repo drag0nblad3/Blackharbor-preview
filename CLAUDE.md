@@ -32,8 +32,13 @@ A superhero campaign game modelled on Kingdom Death: Monster. Vanilla JS, no bui
 
 Each file's first line says what it holds.
 
+## Styles (`css/`)
+Stylesheets load in this order, and later files win ties, so keep a rule in the layer it overrides from:
+`base` (in the head: page frame, fonts, buttons, panels, cards, shared art) · `battle-board` hexes, tokens, lairs, terrain · `battle-fx` splash pages, attack/page animations · `battle` fight layout · `campaign` creation, Arc/event screens · `hq` · `overlays` menus, tips, tutorial, playbook (these six hold the old game.css/art.css rules by screen) · then the later layers as they were: `investigation` · `comic-ui` (paper skin over HQ/roster/villains/fight) · `pulp-details` · `villain-portraits` · `battle-art` (illustrated board pack; the combat lab toggles it) · `equipment-icons` · `villain-covers` · `hero-loadout` · `mobile` (phone condense, last).
+To restyle a screen, grep its class across `css/` (`grep -n "bh-roster" css/*.css`): its base rules sit in the screen file, and comic-ui/pulp-details may override them.
+
 ## Where planned features go
 - Start page, story scenes: new view files (e.g. `src/ui/start.js`, `src/campaign/story.js`) + a line in `bodyMain`; story text as data in `src/data/`.
 - Extra campaigns with the same heroes and bases: campaign data in `src/data/`, flow in `src/campaign/`.
 - Sound and music: a new `src/audio/` loaded after `src/core/`, called from fight events (`fx`, `log`, splashes) and `ACT` handlers.
-- Sprite battle graphics: `src/art/` plus `src/battle/view.js` (board drawing) and `src/battle/anim.js`.
+- Sprite battle graphics: `src/art/` plus `src/battle/view.js` (board drawing) and `src/battle/anim.js`; styles in `css/battle-board.css`, or a new art pack beside `css/battle-art.css`.
