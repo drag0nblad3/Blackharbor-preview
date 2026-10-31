@@ -2065,7 +2065,7 @@ document.addEventListener('click',e=>{
     case 'escort':escort();return;
     case 'hack':hack();return;
     case 'letgo':{const u=S.sd&&S.sd.units[S.sd.sel];if(u)letGo(u,'lets the civilians go.');break}
-    case 'endround':villainPhase();return;
+    case 'endround':endRoundTap();return;
     case 'debrief':if(tutOn()){tutFinish();break}S.sd.finale?finaleDebrief():debrief();break;
     case 'tut':tutAct(p1);break;
     case 'sdgo':{const sd=S.sd;if(!sd||!sd.intro)break;sd.intro=false;if(sd.quality==='ambush'&&sd.round===0&&!sd.busy){render();setTimeout(villainPhase,500);return}break}
