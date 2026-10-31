@@ -71,6 +71,22 @@ function eyeFig(h,look,g){const [hp,tilt]=look||eyeLook(h),I=EYE_INK,r=20,cy=54,
 function standee(h,o){const ko=o.ko,[k,g]=ko?['#596173','#9AA1B2']:eyeCols(h),f=x=>Math.max(0,Math.min(1,x));
   const hpF=f(h.hp/stat(h,'maxHp')),cpF=f(h.comp/Math.max(1,stat(h,'maxComp')));
   return `<svg class="hs" viewBox="0 0 100 115" aria-hidden="true"><ellipse cx="50" cy="92" rx="44" ry="11" fill="${k}" stroke="#151821" stroke-width="4"/><ellipse cx="50" cy="89.5" rx="35" ry="6" fill="${eyeShade(k,.3)}" opacity=".5"/><svg x="6" y="-12" width="88" height="104" viewBox="6 0 88 104">${eyeFig(h,null,g)}</svg><g stroke="#151821" stroke-width="1.6"><rect x="22" y="73.5" width="56" height="5.6" fill="#EDF0F4"/><rect x="22" y="73.5" width="${56*hpF}" height="5.6" fill="#2F8A4E"/><rect x="22" y="79.1" width="56" height="4" fill="#EDF0F4"/><rect x="22" y="79.1" width="${56*cpF}" height="4" fill="#3DB6DD"/></g></svg>`}
+/* Paper doll (Tyler, 2026-10-31): a full-body figure in the middle of the hero card's gear panel. Each body part with gear
+   on it takes that gear's discipline colour; empty parts stay ink with the hero's glow outline. */
+function dollFig(h){const [k,g]=eyeCols(h),I=EYE_INK,two=h.gear.arms&&GEAR[h.gear.arms]&&GEAR[h.gear.arms].two;
+  const ty=s=>{const x=s==='arms2'&&two?h.gear.arms:h.gear[s];return x&&GEAR[x]?GEAR[x].type:null};
+  const P={legs:f=>`<path d="M43 104L39 186M57 104L61 186" style="stroke:${f}" stroke-width="12" stroke-linecap="round" fill="none"/>`,
+    arms:f=>`<path d="M31 45L19 106" style="stroke:${f}" stroke-width="10" stroke-linecap="round" fill="none"/>`,
+    arms2:f=>`<path d="M69 45L81 106" style="stroke:${f}" stroke-width="10" stroke-linecap="round" fill="none"/>`,
+    body:f=>`<path d="M29 41Q50 35 71 41L66 99H34Z" style="fill:${f}"/>`,
+    belt:f=>`<rect x="32" y="95" width="36" height="10" rx="2" style="fill:${f}"/>`,
+    head:f=>`<ellipse cx="50" cy="21" rx="12" ry="14" style="fill:${f}"/>`},
+    A={acc:[43,53],acc2:[57,53]},ks=Object.keys(P);
+  let s=`<ellipse cx="50" cy="190" rx="30" ry="6" fill="${k}" stroke="${I}" stroke-width="2.5"/>`;
+  s+=`<g transform="translate(-1.8 -1.4)">${ks.map(p=>P[p](g)).join('')}</g>`+ks.map(p=>P[p](I)+(ty(p)?`<g class="t-${ty(p)}" opacity=".92">${P[p]('var(--tc)')}</g>`:'')).join('');
+  s+=`<g fill="${g}"><path d="M41 19h7v3h-7zM52 19h7v3h-7z"/></g>`;
+  s+=Object.entries(A).map(([p,[x,y]])=>{const t=ty(p);return t?`<g class="t-${t}"><circle cx="${x}" cy="${y}" r="4.6" style="fill:var(--tc)" stroke="${I}" stroke-width="1.6"/></g>`:`<circle cx="${x}" cy="${y}" r="3.6" fill="${I}" stroke="${g}" stroke-width="1.4"/>`}).join('');
+  return `<svg class="dollsvg" viewBox="10 4 80 194" preserveAspectRatio="xMidYMid meet">${s}</svg>`}
 /* Version 134 (Tyler): lair floors. The board takes the lair look of the fight's (first) villain; the tutorial patrol keeps the plain board.
    A wall is a band across its hex with one arm per neighbouring wall hex, so wall segments bend and run on in any direction. */
 const LAIR_LOOK=['gallows','quarry','cantor','architect','helios','serpent','lode','noct','swarm','bomber','grid','mole'];
