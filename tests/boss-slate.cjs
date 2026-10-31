@@ -11,7 +11,7 @@ const SLATES={
 };
 const runs=Math.max(1,Number(process.env.RUNS||6)),seed=+(process.env.SEED||77);
 const out=path.resolve('boss-slate-results');fs.mkdirSync(out,{recursive:true});
-const GEAR=vm.runInNewContext(fs.readFileSync('data.js','utf8')+'\nGEAR');
+const GEAR=vm.runInNewContext(require('../tools/bh.js').dataCode()+'\nGEAR');
 const avg=v=>v.length?v.reduce((s,n)=>s+n,0)/v.length:0;
 const pct=v=>Math.round(v*1000)/10;
 const results=[];let errors=0;

@@ -1,0 +1,32 @@
+/* data/heroes.js: Hero archetypes (HERO_BASE) and signature powers (POWERS). Plain data. */
+const HERO_BASE = {
+  bulwark:{name:'Bulwark',role:'Guardian',track:'innate',col:'#2F6FB5',fx:'slash',glow:'#5B9BE6',maxHp:12,move:3,speed:2,acc:0,str:4,eva:10,range:1,maxComp:6,power:'brace',succ:'Ironside'},
+  volt:{name:'Volt',role:'Arc engineer',track:'tech',col:'#D08A12',fx:'bolt',glow:'#F3CB4B',maxHp:10,move:4,speed:2,acc:2,str:2,eva:8,range:4,maxComp:4,power:'arc',succ:'Spark'},
+  wisp:{name:'Wisp',role:'Phantom speedster',track:'magic',col:'#1F9C8A',fx:'slash',glow:'#3FD6BE',maxHp:8,move:6,speed:3,acc:2,str:0,eva:12,range:1,maxComp:5,power:'blur',succ:'Flicker'},
+  cipher:{name:'Cipher',role:'Gadgeteer',track:'tech',col:'#7A4FC0',fx:'shot',glow:'#3DB6DD',maxHp:10,move:4,speed:1,acc:4,str:2,eva:8,range:3,maxComp:6,power:'patch',succ:'Relay',field:{id:'intercept',n:'Signal Intercept',txt:'While in the party, every investigation opens with 1 unseen playbook page already revealed.'}},
+  rivet:{name:'Rivet',role:'Field engineer',track:'tech',col:'#8A6D3B',fx:'shot',glow:'#F0B35B',maxHp:12,move:3,speed:2,acc:2,str:2,eva:8,range:2,maxComp:5,power:'barricade',succ:'Wrench'},
+  lynx:{name:'Lynx',role:'Tracker',track:'innate',col:'#A0522D',fx:'slash',glow:'#F08A4B',maxHp:9,move:5,speed:2,acc:4,str:2,eva:10,range:1,maxComp:4,power:'mark',succ:'Scent',field:{id:'senses',n:'Keen Senses',txt:'While in the party, every die rolled during investigations gets +2.'}},
+  goliath:{name:'Goliath',role:'Brute',track:'innate',col:'#556B2F',fx:'slash',glow:'#9CCB5B',maxHp:13,move:3,speed:2,acc:0,str:6,eva:6,range:1,maxComp:5,power:'quake',succ:'Colossus'},
+  sibyl:{name:'Sibyl',role:'Seer',track:'magic',col:'#B0306A',fx:'bolt',glow:'#F07AB0',maxHp:8,move:4,speed:1,acc:4,str:0,eva:10,range:4,maxComp:7,power:'omen',succ:'Augur',field:{id:'premonition',n:'Premonition',txt:"While in the party, at the start of each issue she reveals 2 unseen pages from active villains' playbooks and the team gains 1 intel."}},
+  hexen:{name:'Hexen',role:'Witch',track:'magic',col:'#3F51B5',fx:'bolt',glow:'#8C9EFF',maxHp:9,move:4,speed:2,acc:2,str:2,eva:8,range:3,maxComp:5,power:'curse',succ:'Malison'},
+};
+const POWERS = {
+  brace:{name:'Brace',cd:2,free:true,txt:'Free action. Until the next hero turn, villain attacks on adjacent allies hit this hero instead, for 1 less damage (never below 1).'},
+  arc:{name:'Arc Burst',cd:2,txt:'Attack with +1 die. Every henchman next to the target takes 1 damage.'},
+  blur:{name:'Blur',cd:2,free:true,txt:'Free action. +2 evasion until the next hero turn, and your next escort this round costs no action.'},
+  patch:{name:'Patch Up',cd:3,free:true,txt:'Free action. An ally within 3 (or yourself) heals 3 and regains 2 composure.'},
+  barricade:{name:'Barricade',cd:2,free:true,txt:'Free action. Raise a wall on an empty hex within 2. It lasts 3 rounds.'},
+  mark:{name:'Mark Prey',cd:3,free:true,txt:'Free action, once per fight. Until the round ends, every attack on the targeted villain from a side arc or the blind spot gets +1 die.'},
+  quake:{name:'Ground Quake',cd:3,free:true,txt:'Free action. Adjacent henchmen take damage equal to half your Innate rank, rounded up. Adjacent villains are shoved 1 hex away if their size is no more than your Innate rank.'},
+  omen:{name:'Omen',cd:2,free:true,txt:"Free action. Reveal the targeted villain's next page. +1 salvage if the heroes win this fight (once per battle)."},
+  curse:{name:'Repress',cd:3,free:true,txt:'Free action. Ignore the text of the next reaction revealed. Instead the triggering hero restores 2 Composure. Lasts until triggered. Does not stack.'},
+  overclock:{name:'Overclock',cd:3,free:true,txt:'Free action. Your next attack this round gets +1 die, +1 accuracy and −1 Strength.'},
+  drone:{name:'Attack Drone',cd:3,free:true,txt:'Free action. Every henchman within 3 takes 2 damage.'},
+  emp:{name:'EMP Pulse',cd:3,free:true,txt:'Free action. A villain within 3 has −4 evasion until the round ends.'},
+  regen:{name:'Regenerate',cd:3,free:true,txt:'Free action. Regain health equal to your Innate rank.'},
+  berserk:{name:'Berserk',cd:3,free:true,txt:'Free action. Your next attack this round gets +1 die, +3 Strength and −1 accuracy.'},
+  leap:{name:'Mighty Leap',cd:2,free:true,txt:'Free action. Your next move goes 2 hexes farther, and that move is a jump.'},
+  aegis:{name:'Arcane Aegis',cd:3,free:true,txt:'Free action. You and the most injured ally within 3 each gain a shield that absorbs the next 2 damage.'},
+  drain:{name:'Soul Drain',cd:2,txt:'Uses your action. Attack a villain within 4 with your normal dice. Regain 1 health for every wound it takes.'},
+  serene:{name:'Serenity',cd:2,free:true,txt:'Free action. Every hero regains 2 composure.'},
+};

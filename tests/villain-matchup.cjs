@@ -7,7 +7,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const bh=require('../tools/bh');
 const BOT=fs.readFileSync(path.join(__dirname,'../tools/bot.js'),'utf8');
-const DATA=vm.runInNewContext(fs.readFileSync('data.js','utf8')+'\n({VILLAINS,GEAR,VINTEL})');
+const DATA=vm.runInNewContext(require('../tools/bh.js').dataCode()+'\n({VILLAINS,GEAR,VINTEL})');
 const bosses=Object.keys(DATA.VILLAINS).filter(k=>k!=='mole');
 const groups=['mixed','tech','magic','innate'];
 // Stress-test tiers use moderate, capped hero gear and slightly stronger villains;

@@ -10,6 +10,7 @@ on:
       - 'combat-art-lab.html'
       - 'miniature-gallery.html'
       - '*.js'
+      - 'src/**'
       - '*.css'
       - '*.svg'
       - '*.avif'
@@ -42,11 +43,11 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html equipment-gallery.html *.css *.js *.avif *.svg site/
-          cp -R assets site/
+          cp index.html portrait-gallery.html combat-art-lab.html miniature-gallery.html equipment-gallery.html *.css *.avif *.svg site/
+          cp -R assets src site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
-          sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/game.js
-          grep -q "^const KEY='.*-preview';" site/game.js || { echo "Save key line not found in game.js"; exit 1; }
+          sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/src/core/save.js
+          grep -q "^const KEY='.*-preview';" site/src/core/save.js || { echo "Save key line not found in src/core/save.js"; exit 1; }
           # Mark the page so it is never mistaken for the live game
           src=$(sed -n 's/^Source: //p' PREVIEW_STATUS.md | tr -d '`<>&"')
           sed -i 's|<title>Blackharbor</title>|<title>Blackharbor PREVIEW</title>|' site/index.html

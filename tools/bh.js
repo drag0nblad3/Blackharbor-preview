@@ -12,7 +12,7 @@ const scriptLines=L=>{const out=[];let inS=false;L.forEach((l,i)=>{if(l==='</scr
 const isDir=f=>fs.existsSync(f)&&fs.statSync(f).isDirectory();
 /* the game's own scripts in page order, from the <script src> tags in index.html (sprite.js only draws the SVG sprite) */
 function gameFiles(dir){const idx=fs.readFileSync(path.join(dir,'index.html'),'utf8');
-  return [...idx.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m=>m[1]).filter(f=>f!=='sprite.js')
+  return [...idx.matchAll(/<script src="([^"]+\.js)"><\/script>/g)].map(m=>m[1]).filter(f=>!/(^|\/)sprite\.js$/.test(f))
     .map(f=>({name:f,lines:fs.readFileSync(path.join(dir,f),'utf8').split('\n')}))}
 /* where a game lives, as [{name, lines, idx: script line indexes}]: one entry per file, or the one html for an old build */
 function sources(file){if(isDir(file))return gameFiles(file).map(g=>({...g,idx:g.lines.map((_,i)=>i)}));
@@ -48,4 +48,7 @@ function load(opts={}){
   for(const p of opts.patches||[])/\.js$/.test(p)&&fs.existsSync(p)?run(fs.readFileSync(p,'utf8'),p):run(p);
   return {ctx,hash:G.hash,file,run,get:expr=>run('('+expr+')','expr')}}
 
-module.exports={load,gameScript,scriptLines,sources,gameFiles,rng,DEF_HTML};
+/* the plain data tables (src/data/*.js in page order) as one script, for tests that only need GEAR, VILLAINS, ... */
+function dataCode(dir=path.join(__dirname,'..')){return gameFiles(dir).filter(g=>/^src\/data\//.test(g.name)).map(g=>g.lines.join('\n')).join('\n')}
+
+module.exports={load,dataCode,gameScript,scriptLines,sources,gameFiles,rng,DEF_HTML};
