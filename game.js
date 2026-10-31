@@ -617,17 +617,15 @@ function newCampaign(prev){
   S.party=[];
   S.guide={s:0,pop:null};if(prev&&prev.tutDone)S.tutDone=true;else S.tut={b:0,dq:[]};S.ui=Object.fromEntries(['hq-base','hq-ws','hq-back','hq-skunk','ro-bench'].map(k=>[k,false]));
 }
-/* Difficulty (Tyler, 2026-10-31): chosen in the game menu and saved as S.diff (-2..2, 0 = Normal; older saves load as Normal).
-   Each step moves villain accuracy, evasion and toughness by 1, the two ends also move villain damage by 1,
-   and easier settings pay more salvage for a won lair fight (harder ones less, never below 1). */
+/* Difficulty (Tyler, 2026-10-31): chosen in the game menu and saved as S.diff (-1 Easy, 0 Normal, 1 Hard; older saves load as Normal).
+   Easy: villains -3 accuracy, evasion and toughness, -1 damage (never below 1), 1 page torn per villain level at the start of
+   each lair fight, +1 salvage per win. Hard: villains +3 accuracy, evasion and toughness, +1 damage, -1 salvage per win (never below 1). */
 const DIFFS=[
-  {d:-2,n:'Story',stat:-2,dmg:-1,sal:2,h:'Villains −2 accuracy, evasion and toughness, −1 damage. +2 salvage per lair win.'},
-  {d:-1,n:'Easy',stat:-1,dmg:0,sal:1,h:'Villains −1 accuracy, evasion and toughness. +1 salvage per lair win.'},
-  {d:0,n:'Normal',stat:0,dmg:0,sal:0,h:'The campaign as designed.'},
-  {d:1,n:'Hard',stat:1,dmg:0,sal:-1,h:'Villains +1 accuracy, evasion and toughness. −1 salvage per lair win.'},
-  {d:2,n:'Brutal',stat:2,dmg:1,sal:-2,h:'Villains +2 accuracy, evasion and toughness, +1 damage. −2 salvage per lair win.'}];
-function diffClamp(x){x=Math.round(+x||0);return Math.max(-2,Math.min(2,x))}
-function diffOf(){return DIFFS[diffClamp(S&&S.diff)+2]}
+  {d:-1,n:'Easy',stat:-3,dmg:-1,sal:1,torn:1,h:'Villains −3 accuracy, evasion and toughness and −1 damage (never below 1). They start each fight with 1 page torn per level. +1 salvage per win.'},
+  {d:0,n:'Normal',stat:0,dmg:0,sal:0,torn:0,h:'The campaign as designed.'},
+  {d:1,n:'Hard',stat:3,dmg:1,sal:-1,torn:0,h:'Villains +3 accuracy, evasion and toughness and +1 damage. −1 salvage per win.'}];
+function diffClamp(x){x=Math.round(+x||0);return Math.max(-1,Math.min(1,x))}
+function diffOf(){return DIFFS[diffClamp(S&&S.diff)+1]}
 /* stat shift for a villain stat key at the current difficulty */
 function diffStat(k){return ['acc','eva','tough'].includes(k)?diffOf().stat:0}
 function introduceVillain(arc,L){if(!S.pool.length)return null;const k=chooseVillainFromPool();

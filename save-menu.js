@@ -120,9 +120,9 @@ function bhSaveValidate(state){
     }
   }
   const heroCount=state.heroes.filter(h=>!h.retired).length;
-  if(state.diff!=null&&(!Number.isInteger(state.diff)||state.diff<-2||state.diff>2))
+  if(state.diff!=null&&(!Number.isInteger(state.diff)||state.diff<-1||state.diff>1))
     bhSaveError('The save has an unknown difficulty.');
-  return {state:state,summary:DIFFS[(state.diff||0)+2].n+' · Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
+  return {state:state,summary:DIFFS[(state.diff||0)+1].n+' · Volume '+state.vol+' · Issue '+state.issue+' · '+heroCount+
     ' active '+(heroCount===1?'hero':'heroes')+' · '+(state.phase==='sd'?'In combat':state.phase==='inv'?'Investigating':'Campaign '+state.phase)};
 }
 async function bhSaveDecode(code){
@@ -156,11 +156,23 @@ function bhSaveTab(tab){
     button.setAttribute('aria-selected',String(name===tab));
   }
   bhSaveUIStatus('',false);
-  bhMenuNewArm(false);
+  bhMenuArm(null);
 }
 /* Game menu (Tyler, 2026-10-31): the masthead Menu button opens one dialog with a Game tab
-   (difficulty slider, new campaign) beside the older Save and Load tabs. */
-let bhMenuNewAt=0;
+   (fight options in combat, difficulty, new campaign, rules guide) beside the older Save and Load tabs.
+   Restart, Abandon and New campaign need a second tap within 6 seconds. */
+const BH_FIGHT_SNAP_SUFFIX='-fight-start';
+let bhArm={key:null,at:0};
+const BH_ARM_TXT={
+  restart:['Restart fight','Tap again to restart','The fight starts over from its first round, as it was set up.'],
+  abandon:['Abandon fight','Tap again to abandon','The fight counts as lost: the team is knocked out and carried home.'],
+  newgame:['Start a new campaign','Tap again to start over','This ends the current campaign.']};
+function bhMenuInFight(){return S&&S.phase==='sd'&&S.sd&&!S.sd.result&&!(typeof tutOn==='function'&&tutOn())}
+function bhMenuSnap(){
+  try{const raw=localStorage.getItem(KEY+BH_FIGHT_SNAP_SUFFIX);if(!raw)return null;
+    const snap=JSON.parse(raw);return snap&&snap.sd&&S.sd&&snap.sd.fid&&snap.sd.fid===S.sd.fid?raw:null}
+  catch(_){return null}
+}
 function bhMenuDiffHtml(){
   const d=diffOf();
   return '<b>'+d.n+'</b><span class="small muted">'+d.h+'</span>';
@@ -171,22 +183,38 @@ function bhMenuSetDiff(v){
   const out=document.getElementById('bh-diff-out');if(out)out.innerHTML=bhMenuDiffHtml();
   render();
 }
-function bhMenuNewArm(on){
-  bhMenuNewAt=on?Date.now():0;
-  const b=document.querySelector('[data-bh-new]');
-  if(!b)return;
-  b.textContent=on?'Tap again to start over':'Start a new campaign';
-  b.classList.toggle('armed',!!on);
+function bhMenuArm(key){
+  bhArm={key:key,at:key?Date.now():0};
+  document.querySelectorAll('[data-bh-arm]').forEach(b=>{
+    const k=b.dataset.bhArm,on=k===key;
+    b.textContent=BH_ARM_TXT[k][on?1:0];b.classList.toggle('armed',on);
+  });
 }
-function bhMenuNew(){
-  if(!bhMenuNewAt||Date.now()-bhMenuNewAt>6000){bhMenuNewArm(true);
-    bhSaveUIStatus('This ends the current campaign. Tap again to confirm.',false);return}
-  if(S.sd&&S.sd.busy){bhSaveUIStatus('Finish the current combat animation first.',true);return}
-  try{const before=localStorage.getItem(KEY);if(before!==null)localStorage.setItem(KEY+BH_SAVE_BACKUP_SUFFIX,before)}catch(_){}
-  const diff=S.diff;
-  newCampaign(S);S.diff=diffClamp(diff);
-  const d=document.getElementById('bh-save-dialog');if(d)d.close();
-  scrollTo(0,0);render();
+function bhMenuClose(){const d=document.getElementById('bh-save-dialog');if(d)d.close()}
+function bhMenuAct(key){
+  if(bhArm.key!==key||Date.now()-bhArm.at>6000){bhMenuArm(key);
+    bhSaveUIStatus(BH_ARM_TXT[key][2]+' Tap again to confirm.',false);return}
+  bhMenuArm(null);
+  if(S.sd&&S.sd.busy){bhSaveUIStatus('Wait for the villain\'s turn to finish first.',true);return}
+  if(key==='newgame'){
+    try{const before=localStorage.getItem(KEY);if(before!==null)localStorage.setItem(KEY+BH_SAVE_BACKUP_SUFFIX,before)}catch(_){}
+    const diff=S.diff;
+    newCampaign(S);S.diff=diffClamp(diff);
+    bhMenuClose();scrollTo(0,0);render();return;
+  }
+  if(!bhMenuInFight()){bhSaveUIStatus('There is no fight in progress.',true);return}
+  if(key==='restart'){
+    const raw=bhMenuSnap();
+    if(!raw){bhSaveUIStatus('This fight began before Restart was added, so it cannot be restarted.',true);return}
+    try{localStorage.setItem(KEY,raw);window.location.reload()}
+    catch(e){bhSaveUIStatus('Could not restart: '+e.message,true)}
+    return;
+  }
+  if(key==='abandon'){
+    S.sd.units.forEach(u=>{u.ko=true;heroOf(u).hp=0});
+    log('sys','The team abandons the fight and falls back.');
+    endSd('loss');bhMenuClose();render();
+  }
 }
 function bhSaveOpen(){
   if(document.getElementById('bh-save-dialog'))return;
@@ -205,15 +233,23 @@ function bhSaveOpen(){
     '<button class="btn sm" data-bh-tab="import" role="tab" type="button" aria-selected="false">Load</button>',
     '</div>',
     '<section data-bh-panel="game" role="tabpanel" class="bh-save-panel">',
+    bhMenuInFight()?['<div class="eyebrow">This fight</div>',
+      '<div class="row bh-menu-fight"><button type="button" class="btn" data-bh-arm="restart"'+(bhMenuSnap()?'':' disabled')+'>Restart fight</button>',
+      '<button type="button" class="btn" data-bh-arm="abandon">Abandon fight</button></div>',
+      bhMenuSnap()?'':'<p class="small muted">This fight began before Restart was added, so it cannot be restarted.</p>',
+      '<hr class="bh-menu-rule">'].join(''):'',
     '<label class="eyebrow" for="bh-diff">Difficulty</label>',
-    '<input id="bh-diff" class="bh-diff" type="range" min="-2" max="2" step="1" value="'+diffClamp(S.diff)+'" aria-describedby="bh-diff-out">',
+    '<input id="bh-diff" class="bh-diff" type="range" min="-1" max="1" step="1" value="'+diffClamp(S.diff)+'" aria-describedby="bh-diff-out">',
     '<div class="bh-diff-ticks small" aria-hidden="true">'+DIFFS.map(d=>'<span>'+d.n+'</span>').join('')+'</div>',
     '<div id="bh-diff-out" class="bh-diff-out" aria-live="polite">'+bhMenuDiffHtml()+'</div>',
     '<p class="small muted">Change it any time. It takes effect at once, even mid-fight.</p>',
     '<hr class="bh-menu-rule">',
     '<div class="eyebrow">New campaign</div>',
-    '<button type="button" class="btn bh-menu-new" data-bh-new>Start a new campaign</button>',
+    '<button type="button" class="btn bh-menu-new" data-bh-arm="newgame">Start a new campaign</button>',
     '<p class="small muted">Starts Volume '+(S.vol+1)+' at this difficulty. Your current campaign is kept as a backup: Load, then Restore previous, brings it back.</p>',
+    '<hr class="bh-menu-rule">',
+    '<div class="eyebrow">Rules guide</div>',
+    '<button type="button" class="btn" data-bh-guide>Open the rules guide</button>',
     '</section>',
     '<section data-bh-panel="export" role="tabpanel" class="bh-save-panel" hidden>',
     '<p class="small muted">The game autosaves in this browser. Copy this code to back up your campaign or move it to another device.</p>',
@@ -308,10 +344,11 @@ function bhSaveRestore(){
   }catch(e){bhSaveUIStatus('Previous backup is invalid: '+e.message,true)}
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-save-open],[data-bh-new],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
+  const b=e.target.closest('[data-save-open],[data-bh-arm],[data-bh-guide],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
   if(!b||b.disabled)return;
   if(b.hasAttribute('data-save-open')){bhSaveOpen();return}
-  if(b.hasAttribute('data-bh-new')){bhMenuNew();return}
+  if(b.hasAttribute('data-bh-arm')){bhMenuAct(b.dataset.bhArm);return}
+  if(b.hasAttribute('data-bh-guide')){bhMenuClose();bhGuideOpen();return}
   if(b.hasAttribute('data-bh-close')){const d=document.getElementById('bh-save-dialog');if(d)d.close();return}
   if(b.hasAttribute('data-bh-tab')){bhSaveTab(b.dataset.bhTab);return}
   if(b.hasAttribute('data-bh-copy')){bhSaveCopy();return}

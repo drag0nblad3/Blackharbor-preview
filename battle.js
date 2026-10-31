@@ -185,13 +185,20 @@ function startShowdown(opt={}){
   const nc=opt.civs||3;for(let i=0;i<nc;i++){const dry=(x,y)=>!sd.haz.some(h=>h.k===x+','+y),t=(Math.random()<.35&&pick(freeTiles((x,y)=>y<=1&&dry(x,y))))||pick(freeTiles((x,y)=>y>=2&&y<=N-3&&dry(x,y)));if(t)sd.civs.push({id:i,x:t.x,y:t.y})}
   if(!fin&&S.inv.boardPrep)applyBoardPrep(S.inv.boardPrep);
   if(q==='prepared')sd.vl.forEach(o=>o.v.wounds.push(o.v.deck.shift()));
+  /* Easy difficulty: each villain starts with 1 page torn per level (at least 2 pages stay) */
+  if(diffOf().torn)sd.vl.forEach(o=>{const n=Math.min(o.v.level*diffOf().torn,o.v.deck.length-2);for(let i=0;i<n;i++)o.v.wounds.push(o.v.deck.shift());
+    if(n>0)log('sys',`Easy: ${VILLAINS[o.key].name} starts with ${n} page${n===1?'':'s'} torn out.`)});
   sd.vl.forEach(o=>{if(o.v.sw)swSync(o.v)});
   sd.vl.forEach((o,i)=>{focusV(i);const t=live().slice().sort((a,b)=>dV(a,o.v)-dV(b,o.v))[0];if(t)faceTo(t)});focusV(0);
   sd.planVersion=1;S.phase='sd';S.view='mission';vWarn();
   log('sys',fin?`Event comic: ${keys.map(k=>VILLAINS[k].name).join(' and ')} strike together!`:`Issue #${S.issue}: the lair of ${VILLAINS[keys[0]].name}. ${QUAL[q].n}.`);
   if(q==='ambush'){log('sys','Ambush! The villain moves first.');if(!sd.intro){render();setTimeout(villainPhase,500)}}
   else log('sys',fin?'Round 1. Tap a villain to target it, and a hero to act.':'Round 1. Tap a hero to act.');
+
+  fightSnap();
 }
+/* Restart Fight (game menu): the whole campaign as it stood when this fight was set up, kept beside the autosave */
+function fightSnap(){if(FAST)return;S.sd.fid=Date.now();try{localStorage.setItem(KEY+'-fight-start',JSON.stringify(S))}catch(e){}}
 /* ---------- animation layer (persistent, outside #app so re-renders don't cut effects) ---------- */
 const COL={mag:'#EE548C',cyan:'#3DB6DD',yel:'#F3CB4B',tech:'#3DB6DD',innate:'#F08A4B',magic:'#B48CF0',heal:'#5BC27D',grey:'#9AA1B2',rock:'#8A7A66'};
 let stage=null;
