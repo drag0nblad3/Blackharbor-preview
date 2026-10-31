@@ -21,7 +21,7 @@ function guideModal(){const g=S.guide;if(!g||S.tut||S.phase!=='hq'||S.view==='cr
     <p class="small" style="margin:0">A volume is a full campaign: ${ARCS} arcs of ${ISSUES_PER_ARC} issues, then an event comic finale. Each issue goes like this:</p>
     <ol class="gflow"><li><span><b>Recruit four heroes.</b> Every mission sends a party of 4.</span></li><li><span><b>Build your base.</b> The Workshop is ready for crafting. Other facilities add healing, resources and new options.</span></li><li><span><b>Gear up.</b> Equip items from the armory, or craft new ones from villain salvage.</span></li><li><span><b>Check the roster.</b> Make sure the right four are in the party.</span></li><li><span><b>Investigate a villain</b> from the Villains tab. Clues decide how the fight starts and reveal their playbook.</span></li><li class="later"><span><b>Showdown in the lair</b>, then the aftermath: XP, salvage and injuries. Villains you leave alone keep scheming and grow stronger each arc.</span></li></ol>
     <p class="small muted" style="margin:0">Long-press any stat, item or keyword for details.</p>
-    <div class="row"><button class="btn pri" data-a="guide:go">Recruit my team</button><button class="btn" data-a="guide:skip">I know how to play</button></div></div></div>`;
+    <div class="row"><button class="btn pri" data-a="guide:go">I want a guide.</button><button class="btn" data-a="guide:skip">I know how to play</button></div></div></div>`;
   const P={base:['Team assembled!','Your four heroes are ready. Your Workshop is already up and running for crafting gear. Next, build up the rest of your base: other facilities give you resources, healing and new options.','Go to base development','hq-base'],
     gear:['Base online!','Time to gear up. The armory has a starter locker: use Equip to… to hand items straight to a hero, or craft new gear in the Workshop.','Go to the workshop','hq-ws'],
     roster:['Suited up!','Before you investigate a villain, look over your roster. Check each hero\'s stats, power and gear, and make sure the right four are in the party.','Open the roster','roster']}[g.pop];
@@ -30,7 +30,7 @@ function guideModal(){const g=S.guide;if(!g||S.tut||S.phase!=='hq'||S.view==='cr
     <p class="small" style="margin:0">${P[1]}</p><div class="row"><button class="btn pri" data-a="guide:open:${P[3]}">${P[2]}</button><button class="btn" data-a="guide:close">Not now</button></div></div></div>`}
 
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
-ACT.guide=(p1,p2)=>{const g=S.guide;if(!g)return;if(p1==='skip'){S.guide=null;return;}if(p1==='go'){g.s=1;g.pop=null;return;}if(p1==='close'){g.pop=null;return;}
+ACT.guide=(p1,p2)=>{const g=S.guide;if(!g)return;if(p1==='skip'){if(g.s===0)S.tipsOff=true;S.guide=null;return;}if(p1==='go'){S.tipsOff=false;g.s=1;g.pop=null;return;}if(p1==='close'){g.pop=null;return;}
       if(p1==='next'){if(g.s===2){g.s=3;g.pop='gear'}else if(g.s===3){g.s=4;g.pop='roster'}return;}
       if(p1==='open'){g.pop=null;S.ui=S.ui||{};if(p2==='roster'){S.view='roster';S.ui['ro-party']=S.ui['ro-bench']=true;roster().forEach(h=>S.ui['h-'+h.id]=true)}else{S.view=p2.startsWith('vl-')?'villains':'hq';S.ui[p2]=true}
         render();const t=p2==='roster'?null:document.querySelector(`[data-cid="${p2}"]`);if(t)t.scrollIntoView({block:'start',behavior:RM?'auto':'smooth'});else scrollTo(0,0);return NO_RENDER;}
