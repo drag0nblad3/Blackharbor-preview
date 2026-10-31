@@ -114,7 +114,7 @@ const assert=require('node:assert/strict');
     const reductions=[1,2,3,4,5].map(lv=>take(lv));
     const absorption=take(1,5,2),minimumDamage=take(5,1);
     h.ranks={tech:3,innate:2,magic:0};
-    h.gear={head:'surveyor',body:'buttress',legs:'stilts',belt:'rebarbelt'};
+    h.gear={head:'surveyor',body:'buttress',arms:'jackhammer',belt:'rebarbelt'};
     h.hp=100;u.dr=5;u.absorb=0;
     const architect=setOn(h,'architect'),brace=auraOn(u,'brace');
     damageHero(u,7);const combined=100-h.hp;
