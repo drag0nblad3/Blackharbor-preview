@@ -26,11 +26,11 @@ for(let seed=1;seed<=12;seed++){
  g.run('revealStartingVillains()');
  assert.deepEqual(evalAs(g,'S.villains.map(x=>x.key)'),selected,'Opening bosses should not reroll');
 
- // Later introductions choose randomly among the top three gear-fit candidates.
+ // Later introductions choose randomly among the top four gear-fit candidates.
  g.run("roster().forEach(h=>{if(h.ranks.tech)h.ranks.tech=3;if(h.ranks.magic)h.ranks.magic=2;if(h.ranks.innate)h.ranks.innate=4})");
- const top=evalAs(g,'bossSelectionScores().sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.key)');
+ const top=evalAs(g,'bossSelectionScores().sort((a,b)=>b.score-a.score).slice(0,4).map(x=>x.key)');
  const next=g.run('introduceVillain(2,[]).key');
- assert(top.includes(next),'New villain must come from the top three fit scores');
+ assert(top.includes(next),'New villain must come from the top four fit scores');
  assert(!selected.includes(next),'Introduced boss must be new');
  assert.equal(g.get('S.pool.length'),7);
  while(g.get('S.pool.length')>0)g.run('introduceVillain(3,[])');

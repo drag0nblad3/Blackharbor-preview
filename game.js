@@ -591,8 +591,8 @@ function bossSelectionScores(){
 function chooseVillainFromPool(){
   if(!S.pool.length)return null;
   // A shuffled pool provides random ordering for score ties, then we randomly
-  // select one of the three best-fit bosses instead of always taking the top.
-  const shortlist=bossSelectionScores().sort((a,b)=>b.score-a.score).slice(0,3);
+  // select one of the four best-fit bosses instead of always taking the top.
+  const shortlist=bossSelectionScores().sort((a,b)=>b.score-a.score).slice(0,4);
   const k=pick(shortlist).key;
   S.pool.splice(S.pool.indexOf(k),1);
   return k;
