@@ -1273,12 +1273,12 @@ function combatInfo(u,h){
       default:return '';
     }
   }
-  return `<section class="combat-choice" aria-label="Selected combat action">
+  return `<section class="combat-choice${c.armed?' armed':''}" aria-label="Selected combat action">
     <div class="eyebrow">${c.kind==='ability'?'Ability details':'Action details'}</div>
     <div class="row between"><strong>${esc(name)}</strong>${cost?`<span class="small mono">${esc(cost)}</span>`:''}</div>
     <p class="small" style="margin:0">${esc(description)}</p>
-    ${c.armed?`<p class="combat-board-prompt" style="margin:0"><b>Click the board to activate.</b> ${esc(combatTargetHelp(u,h).replace(/^[^:]*: /,''))}</p>`:`<p class="small muted" style="margin:0">${esc(tip)}</p>`}
-    <div class="row">
+    ${c.armed?'':`<p class="small muted combat-tip" style="margin:0">${esc(tip)}</p>`}
+    <div class="row combat-choice-actions">${c.armed?`<p class="combat-board-prompt" style="margin:0"><b>Click the board to activate.</b> ${esc(combatTargetHelp(u,h).replace(/^[^:]*: /,''))}</p>`:''}
       ${targeted?'':`<button class="btn pri combat-confirm" type="button" data-a="combatUse" ${ok?'':'disabled'}>${c.kind==='ability'?'Activate ability':'Use action'}</button>`}
       <button class="btn sm" type="button" data-a="combatClear">Cancel</button>
     </div>
