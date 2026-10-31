@@ -1,0 +1,112 @@
+/* Phone condense pass (2026-10-31). Loaded last so it can tighten the
+   comic/pulp layers on narrow screens only. Desktop and tablet are untouched.
+   Nothing is removed from the game: hidden rail blocks repeat facts that
+   are already on the same screen (mast resources, case cards, party list). */
+@media (max-width:600px){
+  /* Page edges: 16px gutters cost the board ~20% of its width on a 360 phone. */
+  body{
+    padding-left:max(6px,env(safe-area-inset-left,0px));
+    padding-right:max(6px,env(safe-area-inset-right,0px));
+    padding-block:6px 14px;
+  }
+  #app{gap:7px}
+  #app .panel{padding:7px;gap:7px}
+
+  /* Masthead: title + resources on one line, issue + save on the next. */
+  #app .mast{padding:5px 8px;gap:4px 6px;align-items:center;
+    box-shadow:3px 3px 0 #142238,4px 4px 0 #d94746}
+  #app .mast>div:first-child{order:0}
+  #app .mast>.res{order:1;gap:3px;flex-wrap:nowrap}
+  #app .mast>.mast-tools{order:2;flex-basis:100%;gap:6px;flex-wrap:nowrap}
+  #app .mast h1{font-size:.95rem;line-height:1.1}
+  #app .mast .chip{padding:1px 4px;font-size:.72rem}
+  #app .mast .issue{padding:2px 7px;font-size:.78rem;white-space:nowrap}
+  #app .mast .mast-save-btn{min-height:28px;padding:2px 8px;font-size:.72rem;margin-left:auto}
+
+  /* Tabs: icon beside the label, one short row. */
+  #app .nav{gap:4px}
+  #app .nav .btn{min-height:34px;padding:3px 6px;display:flex;align-items:center;
+    justify-content:center;gap:5px;white-space:nowrap;font-size:.8rem}
+  #app .nav .btn .ic.u{margin:0;flex:none}
+
+  /* Page banner: title and numbers; the description sentence is desktop-only. */
+  #app .bh-pagehead{padding:6px 8px;gap:5px}
+  #app .bh-pagehead p{display:none}
+  #app .bh-page-kicker{font-size:.58rem}
+  #app .bh-pagehead h2{font-size:1.08rem;margin:1px 0 0}
+  #app .bh-page-stats{gap:4px}
+  #app .bh-page-stat{flex-direction:row;align-items:baseline;justify-content:center;
+    gap:4px;padding:2px 4px;min-height:0}
+  #app .bh-page-stat b{font-size:.86rem}
+  #app .bh-page-stat span{font-size:.52rem;line-height:1.1;text-align:left}
+
+  /* Side rails become a slim strip above the main column. */
+  #app .bh-hq-rail,#app .bh-threat-rail,#app .bh-roster-rail{
+    display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:5px;
+    box-shadow:2px 2px 0 #142238}
+  #app .bh-rail-heading{padding:4px 7px;font-size:.82rem}
+  #app .bh-rail-block{padding:5px 7px;gap:4px;width:auto}
+  #app .bh-rail-title{padding-bottom:3px;font-size:.62rem}
+  #app .bh-rail-button{min-height:30px}
+  #app .bh-ops-threat,#app .bh-case-index{padding:2px 0}
+  /* HQ: Base ledger repeats the mast resource chips. */
+  #app .bh-hq-rail>.bh-rail-block:nth-child(4){display:none}
+  /* Threat board: open investigations repeat the case-file cards below. */
+  #app .bh-threat-rail>.bh-rail-block:nth-child(2){display:none}
+  #app .bh-threat-rail>.bh-rail-block:last-child{display:flex}
+  #app .bh-rail-ledger span{flex-direction:row;justify-content:space-between;
+    align-items:baseline;padding:3px 6px}
+  #app .bh-rail-ledger b{font-size:.86rem}
+  /* Roster: field squad as a 2x2 grid of quick links; empty reserves hidden. */
+  #app .bh-roster-rail>.bh-rail-block:nth-child(2){display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr))}
+  #app .bh-roster-rail>.bh-rail-block:nth-child(2)>.bh-rail-title{grid-column:1/-1}
+  #app .bh-roster-rail>.bh-rail-block:nth-child(3):not(:has(.bh-roster-pick)){display:none}
+  #app .bh-roster-pick{min-height:36px;padding:3px 5px;gap:5px}
+  #app .bh-pick-icon{flex-basis:24px;width:24px;height:24px}
+  #app .bh-pick-icon .ic{width:18px;height:18px}
+  #app .bh-pick-copy small{display:none}
+  #app .bh-pick-hp{font-size:.58rem}
+  #app .bh-roster-rail>.bh-rail-block:last-child{display:grid;
+    grid-template-columns:minmax(0,1fr) auto;align-items:center}
+  #app .bh-roster-rail>.bh-rail-block:last-child>.bh-rail-title{grid-column:1/-1}
+  #app .bh-roster-rail>.bh-rail-block:last-child .bh-rail-button{width:auto;padding:3px 8px}
+
+  /* Collapsible section bars: one line of eyebrow + title, less frame. */
+  #app .panel>details.coll>summary{padding:4px 8px;min-height:0;margin:-3px -3px 0}
+  #app .panel>details.coll>summary .eyebrow{font-size:.58rem}
+  #app .panel>details.coll>summary h2,
+  #app .panel>details.coll>summary h3{font-size:.92rem;line-height:1.15}
+  #app .panel>details.coll>.cbody{margin-top:7px;gap:7px}
+  #app .card{padding:7px}
+
+  /* Roster hero cards: name, level, HP and composure on one line. */
+  #app.v-hq-roster .card>details.coll>summary{min-height:0;padding:4px 5px}
+  #app.v-hq-roster .card>details.coll>summary>.row{flex-wrap:nowrap;gap:4px;min-width:0}
+  #app.v-hq-roster .card>details.coll>summary .vic{width:22px;height:22px;flex:none}
+  #app.v-hq-roster .card>details.coll>summary .lvl{padding:0 3px;font-size:.62rem;flex:none}
+  #app.v-hq-roster .card>details.coll>summary .mono{font-size:.62rem;white-space:nowrap}
+
+  /* Fight: smaller brief, board label folded away, tighter action bar. */
+  #app.v-sd .bh-combat-brief{padding:4px 6px;gap:4px}
+  #app.v-sd .bh-combat-title .vportrait-combat{width:34px;height:34px;flex:none}
+  #app.v-sd .bh-combat-title .vportrait-combat svg{width:32px;height:32px}
+  #app.v-sd .bh-combat-metrics>div{padding:1px 3px}
+  #app.v-sd .bh-combat-metrics small{font-size:.48rem}
+  #app.v-sd .sdp{gap:6px}
+  #app.v-sd .sdp>.bcol{padding:3px;border-width:2px}
+  #app.v-sd .bcol::before{display:none}
+  #app.v-sd .bcol .boardwrap{padding:0}
+  #app.v-sd .sdp>.bact{padding:5px;gap:5px}
+  #app.v-sd .sdp .btn{min-height:34px}
+  #app.v-sd .sdp>.bact .btn{padding-block:3px}
+
+  /* Investigation: compact header and fact tiles. */
+  #app.v-inv .inv-header{padding:6px 9px;gap:5px}
+  #app.v-inv .inv-header h2{font-size:1rem;margin:1px 0}
+  #app.v-inv .inv-start-facts span{padding:4px;font-size:.66rem}
+  #app.v-inv .inv-start-facts b{font-size:.82rem;line-height:1.15}
+  #app.v-inv .inv-start-facts span:nth-child(2) b{font:800 .72rem/1.2 var(--body)}
+  #app.v-inv .inv-story{font-size:.92rem}
+  #app.v-inv .inv-intel-rail{flex-direction:column;align-items:stretch;gap:6px}
+}
