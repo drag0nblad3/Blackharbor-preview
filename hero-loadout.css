@@ -63,3 +63,12 @@ button.loadout-slot:hover,button.loadout-slot:focus-visible{outline:3px solid #a
  .loadout-help{font-size:10px;margin:6px 8px}
 }
 @media(max-width:600px){.loadout-picker-grid{grid-template-columns:minmax(0,1fr)}.loadout-detail{border-right:0;border-bottom:1px solid #5c625c}.loadout-detail>.equipment-icon{width:96px;height:96px}.loadout-choice{min-height:64px}}
+/* Fights: the loadout folds behind one tap (state shared by all heroes, saved in S.ui). */
+.loadout-fold>summary{display:flex;justify-content:space-between;align-items:center;gap:8px;cursor:pointer;
+  padding:6px 9px;border:2px solid #142238;background:#26292a;color:#f2e7c9;
+  font:800 .72rem/1.2 var(--body);letter-spacing:.08em;text-transform:uppercase}
+.loadout-fold>summary .mono{letter-spacing:0;color:#f5cd45}
+.loadout-fold>summary::after{content:"▸";margin-left:auto;color:#f5cd45}
+.loadout-fold[open]>summary::after{content:"▾"}
+.loadout-fold>summary::-webkit-details-marker{display:none}
+.loadout-fold[open]>summary{margin-bottom:6px}
