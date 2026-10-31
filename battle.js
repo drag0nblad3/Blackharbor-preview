@@ -992,6 +992,16 @@ function reachH(u,mv){const lm=litMap(),pt=new Set(S.sd.pits||[]),jump=!!(u.jump
       if(!blocked(n.x,n.y,{self:u})&&!(k in dist&&dist[k]<=d+1)){dist[k]=d+1;lp.delete(k);q.push([n.x,n.y])}
       if(jump&&(lm[k]||pt.has(k))&&d+2<=mv){const n2=step(n,e),k2=n2.x+','+n2.y;if(inB(n2.x,n2.y)&&!lm[k2]&&!blocked(n2.x,n2.y,{self:u})&&!(k2 in dist&&dist[k2]<=d+2)){dist[k2]=d+2;lp.add(k2);q.push([n2.x,n2.y])}}}}
   delete dist[s];return dist}
+/* Free repositioning (Tyler, 2026-10-31): after moving, a hero can pick a different end hex anywhere in the
+   same move area (measured from where the move started) until they take their action. A hero who acted
+   first can keep adjusting until the round ends. Stepping into a beam, being moved by anything else,
+   or a second move granted by an ability ends the adjusting. */
+function reMoveOk(u){const m=u&&u.mv;return !!(m&&u.moved&&!u.ko&&!m.lock&&m.at===u.x+','+u.y&&(m.acted||!u.acted))}
+const mvOk=u=>!!u&&!u.ko&&(!u.moved||reMoveOk(u));
+function mvRewind(u){const m=u.mv;u.x=m.x;u.y=m.y;u.hexesMoved=m.hm;u.boost=m.boost;u.jump=m.jump;u.boostJump=m.bj}
+function heroReach(u,h){const m=reMoveOk(u)?u.mv:null;if(!m)return reachH(u,stat(h,'move')+(u.boost||0));
+  const sv={x:u.x,y:u.y,jump:u.jump,boostJump:u.boostJump};u.x=m.x;u.y=m.y;u.jump=m.jump||u.jump;u.boostJump=m.bj||u.boostJump;
+  try{return reachH(u,stat(h,'move')+m.boost+(u.boost||0))}finally{Object.assign(u,sv)}}
 /* each direction fires from the body hex that leads that way, so a 4-hex turret has several emitters */
 function emitCell(v,d){const u=FACE_DEG[d]*Math.PI/180,dx=Math.cos(u),dy=Math.sin(u);return vCells(v).map(c=>{const h=HC(c.x,c.y);return {c,s:h.cx*dx+h.cy*dy}}).sort((a,b)=>b.s-a.s)[0].c}
 function rayK(f,d,t){const A=ax(f),B=ax(t),dq=B.q-A.q,dr=B.r-A.r,[a,b]=AXD[d],k=a?dq/a:dr/b;return k>0&&Number.isInteger(k)&&dq===a*k&&dr===b*k?k:0}
@@ -1089,7 +1099,7 @@ function bhCombatBrief(sd,def,h,v){
 function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
   const u=sd.sel!=null?sd.units[sd.sel]:null,h=u?heroOf(u):null;
   let reachM={},tg=new Set(),al=new Set();
-  if(u&&!sd.busy){if(sd.mode==='move'&&!u.moved)reachM=reachH(u,stat(h,'move')+(u.boost||0));
+  if(u&&!sd.busy){if(sd.mode==='move'&&mvOk(u)){reachM=heroReach(u,h);if(reMoveOk(u)){if(!blocked(u.mv.x,u.mv.y,{self:u}))reachM[u.mv.x+','+u.mv.y]=0;delete reachM[u.x+','+u.y]}}
     const rng=stat(h,'range');
     const vt=o=>vCells(o.v).forEach(({x,y})=>tg.add(x+','+y));
     if(sd.mode==='attack'||sd.mode==='arc'){sd.vl.forEach(o=>{if(!o.v.down&&dV(u,o.v)<=rng&&!shotVB(u,o.v))vt(o)});sd.hench.forEach(m=>{if(cheb(m,u)<=rng&&!shotBlocked(u,m))tg.add(m.x+','+m.y)})}
@@ -1142,7 +1152,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
     ctrl=`<div class="row between hrow"><div class="hwho">${eyesArt(h)}<div><h3>${esc(h.name)}</h3><div class="small muted hline"><span data-tip="kw:hp">${UI('hp')}${h.hp}/${stat(h,'maxHp')}</span> · <span data-tip="kw:comp">${UI('comp')}${h.comp}/${stat(h,'maxComp')}</span>${h.comp<=0?' · <b style="color:var(--magenta)" class="kwd" data-tip="kw:shaken">Shaken (−3 STR/ACC/EVA, −1 MOV)</b>':''}${u.dazed?' · <span class="kwd" data-tip="kw:dazed">Dazed</span>':''}</div></div></div>
       <span class="hst"><span class="${u.moved?'used':''}" title="${u.moved?'Moved':'Can move'}" aria-label="${u.moved?'Moved':'Can move'}">${UI('move')}</span><span class="${u.acted?'used':''}" title="${u.acted?'Acted':'Can act'}" aria-label="${u.acted?'Acted':'Can act'}">${UI('atk')}</span></span></div>
       <div class="row">
-        <button class="btn sm sub ${sd.mode==='move'?'on':''}" data-a="mode:move" data-tip="act:move" ${u.moved?'disabled':''}>${UI('move')}Move<small>${stat(h,'move')+(u.boost||0)} hex${stat(h,'move')+(u.boost||0)===1?'':'es'}</small></button>
+        <button class="btn sm sub ${sd.mode==='move'?'on':''}" data-a="mode:move" data-tip="act:move" ${mvOk(u)?'':'disabled'}>${UI('move')}Move<small>${reMoveOk(u)?'Adjust':`${stat(h,'move')+(u.boost||0)} hex${stat(h,'move')+(u.boost||0)===1?'':'es'}`}</small></button>
         <button class="btn sm sub ${sd.mode==='attack'?'on':''}" data-a="mode:attack" data-tip="act:attack" ${canAct?'':'disabled'}>${UI('atk')}Attack<small>Range ${stat(h,'range')}</small></button>
         ${endRoundBtn()}
         ${combatMenus(u,h)}
@@ -1158,7 +1168,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
       ${sd.mode==='rallySpirit'&&canAct?`<div class="cap">Rally Spirit: tap yourself or an ally within ${lvlOf(h)} hexes to restore 3 composure. Uses your action.</div>`:''}
       ${(sd.mode==='attack'||sd.mode==='arc')&&canAct&&!tg.size?`<div class="cap">Nothing in range. ${esc(h.name)} reaches ${stat(h,'range')} hex${stat(h,'range')===1?'':'es'}${stat(h,'range')===1?', so they must stand next to the target':''}, and walls, rubble and other units block shots. Move first, then attack.</div>`:''}
       <div class="eyebrow">Character sheet</div>${heroCard(h,'fight')}`}
-  else ctrl=`<div class="small muted">Tap a hero to select them. Each hero can move once and take one action per round. Long-press any hex to see what is on it, or any button, stat or keyword for details.</div>`;
+  else ctrl=`<div class="small muted">Tap a hero to select them. Each hero can move once and take one action per round. Until a hero acts, tap another blue hex to change where they end their move. Long-press any hex to see what is on it, or any button, stat or keyword for details.</div>`;
   const last=(v.last?`<div class="cap"><b>${esc(v.last.n)}.</b> ${esc(v.last.txt)}</div>`:'')+
     sd.vl.map(plannedView).join('')+
     sd.vl.filter(o=>o.v.charge&&!o.v.down).map(o=>`<div class="cap charge"><b>${VILLAINS[o.key].short}: ${esc(o.v.charge.n)}</b> Fires for ${o.v.charge.dmg} in the marked hexes next villain turn.</div>`).join('')+
@@ -1449,7 +1459,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.skip){sd.v.skip=true;await A.sigil(ctrV(),col,3);fxV('TIME STOPS!','good');log('hero',`${VILLAINS[sd.vkey].short} will lose its next turn.`)}
   if(f.tear){const tornBefore=sd.v.wounds.length;await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`);if(sd.v.wounds.length>tornBefore)sigBreak(h,sd.v)}
   if(f.boost){const n=v(f.boost);u.boost=(u.boost||0)+n;if(f.jump)u.boostJump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');log('hero',`${h.name}: +${n} to the next move${f.jump?', and it is a jump':''}.`);if(!u.moved)sd.thenMode='move'}
-  if(f.move){u.moved=false;if(JUMP_AB.includes(g.ab.id))u.jump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');sd.thenMode='move'}
+  if(f.move){u.moved=false;u.mv=null;if(JUMP_AB.includes(g.ab.id))u.jump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');sd.thenMode='move'}
   if(f.again){u.acted=false;await A.ring(ctrU(u),col,3,{count:2});fxU(u,'UNLEASHED!','good')}
   if(f.blind){await A.sigil(ctrV(),col,2.6);sd.v.blind=true;fxV('BLINDED!','good');log('hero',`${VILLAINS[sd.vkey].short} is blinded: −3 accuracy this round.`)}
   if(f.vsplash)await splashV(v(f.vsplash));
@@ -1500,7 +1510,10 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
   const u=sd.sel!=null?sd.units[sd.sel]:null,h=u&&heroOf(u);
   const unitIdx=sd.units.findIndex(o=>!o.ko&&o.x===x&&o.y===y);
   if(u){
-    if(sd.mode==='move'&&!u.moved){const r=reachH(u,stat(h,'move')+(u.boost||0));if(k in r){const lp=reachH.leaps.has(k),sw=sd.civs.find(c=>c.x===x&&c.y===y);if(sw){sw.x=u.x;sw.y=u.y}u.hexesMoved=(u.hexesMoved||0)+r[k];u.x=x;u.y=y;u.moved=true;u.jump=false;u.boost=0;u.boostJump=false;sd.mode=null;if(lp){fxU(u,'HUP!','good');log('hero',`${h.name} jumps clear over a beam.`)}beamStep(u);civFollow(u);render();return}}
+    if(sd.mode==='move'&&mvOk(u)){const m=reMoveOk(u)?u.mv:null,r=heroReach(u,h);
+      if(m&&x===m.x&&y===m.y&&!blocked(x,y,{self:u})){mvRewind(u);u.moved=false;u.mv=null;civFollow(u);log('hero',`${h.name} steps back to where they started.`);render();return}
+      if(k in r&&!(x===u.x&&y===u.y)){const lp=reachH.leaps.has(k),sw=sd.civs.find(c=>c.x===x&&c.y===y);if(m){m.boost+=u.boost||0;m.jump=m.jump||u.jump;m.bj=m.bj||u.boostJump;mvRewind(u)}else u.mv={x:u.x,y:u.y,hm:u.hexesMoved||0,boost:u.boost||0,jump:!!u.jump,bj:!!u.boostJump,acted:!!u.acted};
+        if(sw){sw.x=u.x;sw.y=u.y}u.hexesMoved=(u.hexesMoved||0)+r[k];u.x=x;u.y=y;u.moved=true;u.jump=false;u.boost=0;u.boostJump=false;u.mv.at=k;if(litMap()[k])u.mv.lock=true;sd.mode=reMoveOk(u)?'move':null;if(lp){fxU(u,'HUP!','good');log('hero',`${h.name} jumps clear over a beam.`)}beamStep(u);if(u.ko)u.mv.lock=true;civFollow(u);render();return}}
     if(sd.mode==='attack'||sd.mode==='arc'){const rng=stat(h,'range');let t=null;
       if(vAt>=0&&dV(u,sd.vl[vAt].v)<=rng&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);t='v';sd.aim={x,y}}else{const m=sd.hench.find(m=>m.x===x&&m.y===y&&cheb(m,u)<=rng&&!shotBlocked(u,m));if(m)t=m}
       if(t){const arc=sd.mode==='arc';return act(async()=>{u.acted=true;if(arc)payPow(u,h);await heroAttack(u,t,arc?1:0);if(arc&&!sd.result)await splash(t)})}}
@@ -1520,7 +1533,7 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
       if((!a.rng||dV(u,sd.vl[vAt].v)<=a.rng)&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);sd.aim={x,y};
         return act(async()=>{payAb(u,key);u.acted=true;log('hero',`${h.name} unleashes ${a.n} (${abCost(g)})!`);if(a.str)u.buffStr+=a.str;await heroAttack(u,'v',a.plus||0,a.dice||0,'beam');if(a.splash&&!sd.result)await splashV(a.splash)})}}}
   if(vAt>=0&&sd.vl.length>1&&unitIdx<0){focusV(vAt);render();return}
-  if(unitIdx>=0){if(sd.sel!==unitIdx){sd.combatPick=null;sd.combatMenuOpen=null}sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=o.moved?null:'move'}
+  if(unitIdx>=0){if(sd.sel!==unitIdx){sd.combatPick=null;sd.combatMenuOpen=null}sd.sel=unitIdx;const o=sd.units[unitIdx];sd.mode=mvOk(o)?'move':null}
   else{sd.sel=null;sd.mode=null;sd.combatPick=null;sd.combatMenuOpen=null}
   render()}
 
