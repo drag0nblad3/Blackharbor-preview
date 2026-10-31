@@ -1140,7 +1140,7 @@ function sdView(){const sd=S.sd,def=VILLAINS[sd.vkey],v=sd.v;
         ${combatMenus(u,h)}
       </div>
       ${combatInfo(u,h)}
-      ${combatTargetHelp(u,h)?`<div class="cap combat-target-help">${esc(combatTargetHelp(u,h))}</div>`:''}`;
+      ${combatTargetHelp(u,h)&&!(sd.combatPick&&sd.combatPick.armed&&sd.combatPick.hid===u.hid)?`<div class="cap combat-target-help">${esc(combatTargetHelp(u,h))}</div>`:''}`;
     ctrlRest=`
       <div class="resrow"><span class="r" style="--tc:var(--cyan)" data-tip="kw:comp">${UI('comp')} ${[...Array(stat(h,'maxComp'))].map((_,i)=>`<i class="${i<h.comp?'f':''}"></i>`).join('')} <b class="mono">${h.comp}/${stat(h,'maxComp')}</b></span></div>
       ${pwrMax(h)||arcMax(h)||potOf(h)?`<div class="resrow">${pwrMax(h)?`<span class="r t-tech" data-tip="res:tech">PWR ${[...Array(pwrMax(h))].map((_,i)=>`<i class="${i<u.res.tech?'f':''}"></i>`).join('')} <b class="mono">${u.res.tech}/${pwrMax(h)} · +${pwrRegen(h)}/rd</b></span>`:''}${arcMax(h)?`<span class="r t-magic" data-tip="res:magic">ARC ${[...Array(arcMax(h))].map((_,i)=>`<i class="${i<u.res.magic?'f':''}"></i>`).join('')} <b class="mono">${u.res.magic}/${arcMax(h)}</b></span>`:''}${potOf(h)?`<span class="r t-innate" data-tip="res:innate">POT <b class="mono">${potOf(h)}</b> · ${Math.max(0,innUses(h)-(u.innUsed||0))?'Innate ready':'Innate used'}</span>`:''}</div>`:''}
@@ -1204,10 +1204,28 @@ function combatPick(kind,key){
   sd.combatPick={hid:u.hid,kind,key};
   sd.combatMenuOpen=null;
   sd.mode=null;
+  /* Board-targeted picks skip the confirm button: they arm targeting at once. */
+  const tm=combatTargetMode(u,h,sd.combatPick);
+  if(tm&&combatPickOk(u,h,sd.combatPick)){
+    sd.combatPick.armed=tm;
+    if(kind==='other')return rallySpirit();
+    if(key==='power')return usePower();
+    return useAb(key);
+  }
   render();
 }
+/* The board mode a pick arms, or null when it resolves without a board tap. */
+function combatTargetMode(u,h,c){
+  if(c.kind==='other')return c.key==='rallySpirit'?'rallySpirit':null;
+  if(c.key==='power'){const pw=BASE(h).power;return ['arc','patch','barricade'].includes(pw)?pw:null}
+  const a=GEAR[c.key]&&GEAR[c.key].ab;return a&&a.mode?'ab'+a.mode:null;
+}
+function combatPickOk(u,h,c){
+  if(c.kind==='other')return c.key==='rallySpirit'&&!u.acted&&!u.ko;
+  return c.key==='power'?powOk(u,h):abOk(u,h,c.key);
+}
 function combatClear(){
-  const sd=S.sd;if(!sd||sd.busy)return;sd.combatPick=null;sd.combatMenuOpen=null;render();
+  const sd=S.sd;if(!sd||sd.busy)return;if(sd.combatPick&&sd.combatPick.armed&&sd.mode===sd.combatPick.armed)sd.mode=null;sd.combatPick=null;sd.combatMenuOpen=null;render();
 }
 /* Icons show what using the action consumes, not what its resource cost is.
    A future move-cost ability can mark itself with moveAct. */
@@ -1215,19 +1233,21 @@ const combatCostIcon=kind=>kind==='action'?UI('atk'):kind==='move'?UI('move'):'�
 function combatInfo(u,h){
   const sd=S.sd,c=sd.combatPick;
   if(!c||c.hid!==u.hid)return '';
+  if(c.armed&&sd.mode!==c.armed)return '';
+  const targeted=!!combatTargetMode(u,h,c);
   let name='',description='',cost='',ok=false,tip='';
   if(c.kind==='ability'){
     if(c.key==='power'){
       const pw=BASE(h).power,p=POWERS[pw];if(!p)return '';
       name=p.name;description=p.txt;cost=powCost(pw);ok=powOk(u,h);
-      tip=['arc','patch','barricade'].includes(pw)?'Confirm, then choose a target on the board.':'Confirm to activate.';
+      tip=['arc','patch','barricade'].includes(pw)?'Targets the board.':'Confirm to activate.';
     }else{
       const keys=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))];
       if(!keys.includes(c.key)||!GEAR[c.key]||!GEAR[c.key].ab)return '';
       const g=GEAR[c.key],a=g.ab;
       name=a.n;cost=abCost(g);description='From '+g.name+'. '+abTxt(a,g.type==='innate'?potOf(h):null);
       ok=abOk(u,h,c.key);
-      tip=a.mode?'Confirm, then select a target on the board.':'Confirm to activate.';
+      tip=a.mode?'Targets the board.':'Confirm to activate.';
     }
   }else{
     switch(c.key){
@@ -1246,7 +1266,7 @@ function combatInfo(u,h){
         tip='Current cover provides +'+(avoidCover(u).length?5:3)+' Evasion.';break;
       case 'rallySpirit':
         name='Rally Spirit';description='Spend an action to restore up to 3 Composure to yourself or a conscious ally within '+lvlOf(h)+' hexes.';
-        ok=!u.acted&&!u.ko;tip='Confirm, then tap yourself or an ally.';break;
+        ok=!u.acted&&!u.ko;tip='Targets yourself or an ally on the board.';break;
       case 'letgo':
         name='Let Go';description='Release the civilians currently following this hero. Does not use an action.';
         ok=followers(u).length>0;tip=followers(u).length+' civilians currently following.';break;
@@ -1257,9 +1277,9 @@ function combatInfo(u,h){
     <div class="eyebrow">${c.kind==='ability'?'Ability details':'Action details'}</div>
     <div class="row between"><strong>${esc(name)}</strong>${cost?`<span class="small mono">${esc(cost)}</span>`:''}</div>
     <p class="small" style="margin:0">${esc(description)}</p>
-    <p class="small muted" style="margin:0">${esc(tip)}</p>
+    ${c.armed?`<p class="combat-board-prompt" style="margin:0"><b>Click the board to activate.</b> ${esc(combatTargetHelp(u,h).replace(/^[^:]*: /,''))}</p>`:`<p class="small muted" style="margin:0">${esc(tip)}</p>`}
     <div class="row">
-      <button class="btn pri combat-confirm" type="button" data-a="combatUse" ${ok?'':'disabled'}>${c.kind==='ability'?'Activate ability':'Use action'}</button>
+      ${targeted?'':`<button class="btn pri combat-confirm" type="button" data-a="combatUse" ${ok?'':'disabled'}>${c.kind==='ability'?'Activate ability':'Use action'}</button>`}
       <button class="btn sm" type="button" data-a="combatClear">Cancel</button>
     </div>
     ${ok?'':'<span class="small muted">Unavailable right now.</span>'}

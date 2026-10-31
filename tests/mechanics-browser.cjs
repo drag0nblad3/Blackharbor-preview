@@ -22,7 +22,7 @@ const assert=require('node:assert/strict');
   await page.locator('[data-a="combatPick:ability:cloak"]').click();assert.match(await page.locator('.combat-choice').innerText(),/each hex/);
   assert.equal(await page.evaluate(()=>S.sd.units[0].res.magic),30);
   await page.locator('[data-a="combatUse"]').click();await page.waitForFunction(()=>!S.sd.busy);assert.equal(await page.evaluate(()=>S.sd.units[0].buffEva),3);assert.equal(await page.evaluate(()=>S.sd.units[0].res.magic),29);
-  await page.evaluate(()=>{combatPick('ability','shadowpaw')});await page.locator('[data-a="combatUse"]').click();
+  await page.evaluate(()=>{combatPick('ability','shadowpaw')});assert.equal(await page.locator('.combat-choice [data-a="combatUse"]').count(),0,'Board-targeted gear has no activate button');
   assert.equal(await page.evaluate(()=>S.sd.mode),'abally');
   await page.locator('[data-cell="3,6"]').click();await page.waitForFunction(()=>!S.sd.busy);
   assert.deepEqual(await page.evaluate(()=>S.sd.units.slice(0,2).map(u=>[u.x,u.y])),[[3,6],[2,6]]);
