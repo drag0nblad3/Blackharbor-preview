@@ -110,3 +110,25 @@
   #app.v-inv .inv-story{font-size:.92rem}
   #app.v-inv .inv-intel-rail{flex-direction:column;align-items:stretch;gap:6px}
 }
+
+/* Fights (all sizes): Trust is the only campaign resource that matters in a
+   fight, so the mast keeps just that chip, beside the game name. */
+#app.v-sd .mast .res{flex:0 1 auto !important;width:auto;margin-left:auto;order:1}
+#app.v-sd .mast .res .chip:not(.trust){display:none}
+#app.v-sd .mast>.mast-tools{order:2}
+
+/* Sticky fight bar (below 1024px): keep ability details short so the board
+   stays visible and tappable while a choice is open. */
+@media (max-width:1023px){
+  #app.v-sd .combat-choice{padding:6px 8px;gap:4px;margin-top:4px}
+  #app.v-sd .combat-choice>.eyebrow{display:none}
+  #app.v-sd .combat-choice>p.small{font-size:.76rem;line-height:1.3;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  #app.v-sd .combat-choice>p.combat-tip{display:none}
+  #app.v-sd .combat-choice.armed>p.small{display:none}
+  #app.v-sd .combat-choice-actions{flex-wrap:nowrap;gap:6px}
+  #app.v-sd .combat-choice-actions>*{flex:1 1 auto}
+  #app.v-sd .combat-choice-actions>.btn.sm{flex:0 0 auto}
+  #app.v-sd .combat-choice .combat-confirm{min-height:34px}
+  #app.v-sd .combat-choice .combat-board-prompt{font-size:.74rem;padding:3px 6px}
+}
