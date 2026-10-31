@@ -1703,7 +1703,7 @@ function pbPage(p,idx){const def=VILLAINS[PB.k],n=PB.pages.length-1;
 function pbArt(k){const a=typeof VILLAIN_COVERS!=='undefined'&&VILLAIN_COVERS[k],f=typeof VPR_FACE!=='undefined'&&VPR_FACE[k]||[160,160];
   return a?`;--pbart:url('${a.cover}');--pbpos:${(f[0]/3.2).toFixed(1)}% ${(f[1]/4.8).toFixed(1)}%`:''}
 function drawPB(d){const L=document.getElementById('comic');if(!L||!PB)return;const def=VILLAINS[PB.k],p=PB.pages[PB.i];
-  L.innerHTML=`<div class="cbar"><div><div class="eyebrow">Villain playbook</div><h3>${esc(def.name)}</h3></div><button class="btn sm" data-pb="gallery" type="button">Comic covers · 12</button><button class="btn sm" data-pb="close" type="button">Close</button></div>
+  L.innerHTML=`<div class="cbar"><div><div class="eyebrow">Villain playbook</div><h3>${esc(def.name)}</h3></div><button class="btn sm" data-pb="close" type="button">Close</button></div>
     <div class="cstage"><div class="book pbook vth ${p.kind==='cover'?'has-cover':''}${pbArt(PB.k)?' has-art':''}" style="${vSty(PB.k)}${pbArt(PB.k)}">${pbPage(p,PB.i)}</div></div>
     <div class="cnav"><button class="btn sm" data-pb="prev" type="button" ${PB.i?'':'disabled'}>Prev</button><span class="mono small">${PB.i?`${PB.i} / ${PB.pages.length-1}`:'Cover'}</span><button class="btn sm" data-pb="next" type="button" ${PB.i<PB.pages.length-1?'':'disabled'}>Next</button></div>
     <div class="cstrip">${PB.pages.map((q,i)=>`<button type="button" class="tile ${q.kind} ${q.kind==='card'&&q.c.sig?'sig':''} ${i===PB.i?'cur':''}" data-pb="go:${i}" aria-label="${q.kind==='cover'?'Cover':q.kind==='unk'?'Unknown page':q.kind==='torn'?'Torn page':q.kind==='rx'?esc(q.r.n):q.kind==='rxunk'?'Unknown hit reaction':esc(q.c.n)}"></button>`).join('')}</div>`;

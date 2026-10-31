@@ -54,13 +54,18 @@ if(process.argv.includes('--integrity-only')){
       }
       assert.equal(fullRequests.length,0,'Browsing playbooks downloads only thumbnails');
       await page.evaluate(()=>openPlaybook('bomber'));
-      await page.locator('[data-pb="gallery"]').click();
+      // The playbook no longer has its own gallery button: the cover opens the viewer, which links to all covers.
+      await page.locator('[data-pb="art"]').click();
+      await page.locator('#cover-browser .cover-full').evaluate(img=>img.decode());
+      const fullBeforeGallery=fullRequests.length;
+      await page.locator('[data-cover="gallery"]').click();
+      assert.equal(await page.locator('#comic [data-pb="gallery"]').count(),0,'Playbook bar has no covers button');
       assert.equal(await page.locator('#cover-browser .cover-card').count(),12);
       for(const image of await page.locator('#cover-browser .cover-card img').all()){
         await image.scrollIntoViewIfNeeded();await image.evaluate(img=>img.decode());
         assert.equal(await image.evaluate(img=>getComputedStyle(img).objectFit),'contain');
       }
-      assert.equal(fullRequests.length,0,'Gallery loads thumbnails, not full-size covers');
+      assert.equal(fullRequests.length,fullBeforeGallery,'Gallery loads thumbnails, not full-size covers');
       await page.locator('#cover-browser').evaluate(d=>d.scrollTop=0);
       await page.screenshot({path:path.join(screenshots,size.name+'-comic-gallery.png')});
       for(const e of entries){
@@ -88,7 +93,7 @@ if(process.argv.includes('--integrity-only')){
       await page.locator('[data-cover="close"]').click();
       await page.locator('#cover-browser').waitFor({state:'detached'});
       assert.equal(await page.locator('#cover-browser').count(),0);
-      assert.equal(await page.locator('[data-pb="gallery"]').evaluate(e=>e===document.activeElement),true);
+      assert.equal(await page.locator('[data-pb="art"]').evaluate(e=>e===document.activeElement),true);
       await page.locator('[data-pb="art"]').click();
       assert.equal(await page.locator('#cover-browser').getAttribute('data-key'),'bomber');
       await page.keyboard.press('ArrowRight');
