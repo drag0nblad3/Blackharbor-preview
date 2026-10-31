@@ -45,3 +45,12 @@
   font-size:clamp(2rem,10vw,2.8rem);margin:0 0 6px 4px;transform:rotate(-5deg)}
 /* Cover page of the Read Playbook pop-up: cap the cover so the case-file details stay on screen. */
 #comic .pbcover .cover-preview{width:min(100%,240px,calc(30dvh * 2 / 3))}
+/* Cover page: cover on the left, the playbook counts beside it, title and tag below. */
+#comic .pbook .pbcover{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:12px;row-gap:5px;align-content:start;justify-content:stretch}
+#comic .pbook .pbcover>*{grid-column:1/-1}
+#comic .pbook .pbcover>.cover-preview{grid-column:1;grid-row:1;width:min(150px,calc(34dvh * 2 / 3));align-self:start}
+#comic .pbook .pbcover>.cover-preview span{font-size:10px;padding:4px}
+#comic .pbook .pbcover>.cstats{grid-column:2;grid-row:1;align-self:center;border-top:0;border-left:2px solid #fff;padding:0 0 0 10px;gap:9px;font-size:.78rem;line-height:1.15}
+#comic .pbook .pbcover>.cstats span{display:flex;flex-direction:column}
+#comic .pbook .pbcover>.cstats b{font-size:1.25rem}
+#comic .pbook .pbcover>b{margin-top:4px}
