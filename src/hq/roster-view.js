@@ -71,3 +71,23 @@ function equipHero(h,g,pref){const i=S.armory.indexOf(g),G=GEAR[g];if(i<0||!wear
 function eqTo(g,craft){const G=GEAR[g],hs=[...party(),...bench()];if(!hs.length)return '<button class="btn sm" disabled title="Recruit a hero first">Equip to…</button>';
   return `<details class="eqto"><summary class="btn sm">${craft?'Craft &amp; equip to…':'Equip to…'}</summary><div class="eqmenu">${hs.map(h=>{const ok=wearOK(h,g),pl=G.cons?null:eqPlan(h,g);
     return `<button class="btn sm" data-a="${craft?`crafteq:${g}:${h.id}`:`equip:${h.id}:${g}`}" ${ok?'':'disabled'}>${esc(h.name)}${S.party.includes(h.id)?'':' <span class="muted">(bench)</span>'} <span class="muted">${ok?(pl&&pl.out.length?`swaps out ${[...new Set(pl.out)].map(o=>GEAR[o].name).join(' and ')}`:G.cons?`pouch ${pouchOf(h).length}/${POUCH_MAX}`:`${SLOTS[pl.s]} empty`):G.cons?'pouch full':`needs ${reqTxt(G)}`}</span></button>`}).join('')}</div></details>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.rofocus=(p1)=>{
+      const h=roster().find(h=>h.id===p1);if(!h)return;
+      S.view='roster';S.ui=S.ui||{};S.ui['ro-party']=true;S.ui['ro-bench']=true;
+      S.ui['h-'+h.id]=true;render();
+      if(!FAST){const sheet=document.querySelector('[data-cid="h-'+h.id+'"]');
+        if(sheet)sheet.scrollIntoView({block:'start',behavior:RM?'auto':'smooth'});}
+      return NO_RENDER;
+    };
+ACT.equip=(p1,p2,p3)=>{const h=S.heroes.find(x=>x.id===p1);slotPick=null;if(!h||!(S.phase==='hq'||prepGear()))return;equipHero(h,p2,p3)};
+ACT.gearinspect=(p1)=>{if(slotPick&&slotFits(heroById(slotPick.h),slotPick.s).includes(p1))slotPick.g=p1};
+ACT.slotpick=(p1,p2)=>{slotPick=p1==='close'?null:{h:p1,s:p2}};
+ACT.unequip=(p1,p2)=>{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))return;const g=h.gear[p2];if(g){delete h.gear[p2];S.armory.push(g);clampHero(h)}};
+ACT.track=(p1,p2)=>{const h=S.heroes.find(x=>x.id===p1);if(!h||h.trackPick||!TRACKS[p2]||h.ranks[p2]>=RANK_MAX)return;const mh=stat(h,'maxHp'),mc=stat(h,'maxComp');h.ranks[p2]++;h.trackPick=p2;h.hp+=Math.max(0,stat(h,'maxHp')-mh);h.comp+=Math.max(0,stat(h,'maxComp')-mc)};
+ACT.up=(p1,p2)=>{const h=S.heroes.find(x=>x.id===p1);h.upgrades.push(p2);h.pendingUp--;h.upChoices=null;h.trackPick=null;if(p2==='hp')h.hp+=3;if(p2==='comp')h.comp+=2};
+ACT.unpouch=(p1,p2)=>{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))return;const p=pouchOf(h),g=p[+p2];if(g){p.splice(+p2,1);S.armory.push(g)}};
+ACT.bench=(p1)=>{S.party=S.party.filter(id=>id!==p1)};
+ACT.join=(p1)=>{if(S.party.length<4&&!S.party.includes(p1))S.party.push(p1)};
+ACT.swap=(p1,p2)=>{const i=S.party.indexOf(p2);if(i>=0&&!S.party.includes(p1))S.party[i]=p1};

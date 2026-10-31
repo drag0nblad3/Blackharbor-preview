@@ -84,3 +84,6 @@ function tutPaint(){let c=document.getElementById('tutc');const B=tutBeat();docu
 
 /* while an attack panel, playbook page or break splash is up, the caption moves to the top and lets taps through to it */
 if(!FAST&&typeof MutationObserver!=='undefined')new MutationObserver(()=>{const c=document.getElementById('tutc');if(c)c.classList.toggle('top',!!document.querySelector('#atk,#cards,#brk'))}).observe(document.body,{childList:true});
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.tut=(p1)=>{tutAct(p1)};

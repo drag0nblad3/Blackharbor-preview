@@ -141,3 +141,7 @@ function recruitPanel(){const n=roster().length,full=n>=ROSTER_MAX,arc=xArc(),xo
     <div class="grid2"><div class="card orec"><h3>Origin Story</h3><div class="small">Create a basic hero over six comic pages. Every choice shows what it does to them. Free: level 1, no gear, no HQ changes.</div><button class="btn pri" data-a="ostart:basic" data-tip="kw:origin" ${full?'disabled':''}>Write an origin</button></div>
       <div class="card orec xo"><h3>Crossover Issue</h3><div class="small">Recruit an Established Character from their own series. They arrive at level ${Math.max(2,arc)+1} or higher, with gear and HQ bonuses you choose. One per arc, from Arc 2.</div><button class="btn ${xo?'pri':''}" data-a="ostart:xover" data-tip="kw:crossover" ${xo&&!full?'':'disabled'}>${xl}</button></div></div>
     ${qb.length?coll('hq-qb',`<span class="eyebrow" data-tip="kw:quickbuild">Quick builds · ${qb.length}</span>`,`<p class="small muted" style="margin:0">The classic Guardians lineup, ready to go. Same rules as a basic hero: level 1 and no gear.</p><div class="grid2">${qb.map(qbCard).join('')}</div>`,!n,'nested'):''}`)}</section>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.build=(p1)=>{if(facOpen(p1)&&afford(FAC[p1].cost)){pay(FAC[p1].cost);S.facilities.push(p1)}};
+ACT.qb=(p1)=>{recruitQuick(p1)};

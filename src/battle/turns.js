@@ -70,3 +70,6 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
   if(xpL.length)L.splice(xpAt,0,`XP earned: ${xpL.join(', ')}.`);
   const mk=fieldCount('medkit');if(mk){party().forEach(h=>{h.hp=Math.min(stat(h,'maxHp'),h.hp+3*mk)});L.push(`Field Medic Kit: the party recovers ${3*mk} extra health.`)}
   finishIssue(L,{hunted:sd.vkey,headline,vkey:sd.vkey})}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.debrief=()=>{if(tutOn()){tutFinish();return;}S.sd.finale?finaleDebrief():debrief()};

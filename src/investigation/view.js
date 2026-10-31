@@ -140,3 +140,12 @@ function invView(){
   }
   return invCaseShell(i,content);
 }
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.inv=(p1)=>{startInv(p1)};
+ACT.invopt=(p1)=>{const i=S.inv,ev=evOf(i.events[i.step]),o=ev.opts[+p1];lastInvRoll=null;i.res=o.run(i);
+      {const r=lastInvRoll,m=/Roll (\d+)\+/.exec(o.h);if(r&&i.res.startsWith(`Rolled ${r.t}.`))i.res=`Rolled ${r.t}${r.b?` (d20 ${r.d} + ${r.b})`:''}${m?`, needed ${m[1]}+`:''}.`+i.res.slice(`Rolled ${r.t}.`.length)}
+      intelSync();return;};
+ACT.invnext=()=>{S.inv.step++;S.inv.res=null;S.inv.fresh=0};
+ACT.invgo=()=>{S.inv.intro=false};
+ACT.lair=()=>{startShowdown()};

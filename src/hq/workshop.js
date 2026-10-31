@@ -49,3 +49,11 @@ function skunkPanel(){if(!S.facilities.includes('skunk'))return '';const rd=S.rd
     <div class="row"><button class="btn pri" data-a="rd:free" ${rd.free||!left?'disabled':''}>${rd.free?'Free research used':'Research (free)'}</button>
     <button class="btn" data-a="rd:rush" ${afford(c)&&left?'':'disabled'}>Rush research · ${costStr(c)}</button></div>
     ${rd.last?`<div class="cap">${esc(rd.last)}</div>`:''}`)}</section>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.wsby=(p1)=>{S.ui=S.ui||{};S.ui.wsBy=p1};
+ACT.craft=ACT.crafteq=(p1,p2,p3,a)=>{if(GEAR[p1]&&afford(GEAR[p1].cost)&&anyAsk(GEAR[p1].cost)){pickAny(GEAR[p1]).then(pk=>{if(pk)doCraft(a,p1,p2,pk);render()});return NO_RENDER;}doCraft(a,p1,p2)};
+ACT.anyauto=(p1)=>{S.anyAuto=p1==='1'};
+ACT.wsfreset=()=>{S.ui=S.ui||{};S.ui.wsf={}};
+ACT.effreset=(p1)=>{S.ui=S.ui||{};if(S.ui.ef)delete S.ui.ef[p1]};
+ACT.rd=(p1)=>{research(p1==='free')};

@@ -184,3 +184,23 @@ function combatTargetHelp(u,h){
 function abButtons(u,h){const ks=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))].filter(g=>GEAR[g].ab);if(!ks.length)return '';const P=potOf(h);
   return `<div class="row">${ks.map(k=>{const g=GEAR[k],a=g.ab,ok=abOk(u,h,k),low=g.type==='innate'&&P<a.min,on=S.sd.abKey===k&&S.sd.mode&&S.sd.mode.startsWith('ab');
     return `<button class="btn sm abtn t-${g.type} ${on?'on':''}" data-a="ab:${k}" data-tip="gear:${k}" ${ok?'':'disabled'} title="${esc(low?`Requires Innate rank ${a.min}. ${abTxt(a)}`:abTxt(a,g.type==='innate'?P:null))}">${a.n}<small>${abCost(g,true)}</small></button>`}).join('')}</div>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.combatMenu=(p1)=>{combatMenu(p1);return NO_RENDER;};
+ACT.combatPick=(p1,p2)=>{combatPick(p1,p2);return NO_RENDER;};
+ACT.combatClear=()=>{combatClear();return NO_RENDER;};
+ACT.combatUse=()=>{combatUse();return NO_RENDER;};
+ACT.ab=(p1)=>{useAb(p1)};
+ACT.bridge=(p1)=>{bridgeAct(p1)};
+ACT.mode=(p1)=>{S.sd.mode=S.sd.mode===p1?null:p1;S.sd.combatPick=null};
+ACT.power=()=>{usePower()};
+ACT.avoidDamage=()=>{avoidDamage();return NO_RENDER;};
+ACT.rallySpirit=()=>{rallySpirit();return NO_RENDER;};
+ACT.escort=()=>{escort();return NO_RENDER;};
+ACT.hack=()=>{hack();return NO_RENDER;};
+ACT.letgo=()=>{const u=S.sd&&S.sd.units[S.sd.sel];if(u)letGo(u,'lets the civilians go.')};
+ACT.endround=()=>{endRoundTap();return NO_RENDER;};
+ACT.sdgo=()=>{const sd=S.sd;if(!sd||!sd.intro)return;sd.intro=false;if(sd.quality==='ambush'&&sd.round===0&&!sd.busy){render();setTimeout(villainPhase,500);return NO_RENDER;}};
+ACT.sdlook=()=>{if(S.sd)S.sd.outro=true};
+ACT.focus=(p1)=>{focusV(+p1)};
+ACT.hush=(p1)=>{const o=S.sd&&S.sd.vl[+p1];if(o)o.v.hush=o.v.warn};

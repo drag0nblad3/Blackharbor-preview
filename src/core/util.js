@@ -7,3 +7,6 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* FAST: running headless (sims), RM: player asked for reduced motion. Both are read while the page loads, so they live here, not in battle.js. */
 const FAST=typeof window==='undefined';
 const RM=!FAST&&window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* Button actions: a button with data-a="name:p1:p2:p3" runs ACT.name(p1,p2,p3,name,el,event) from src/ui/input.js, which then
+   calls render(). A handler returns NO_RENDER when it rendered itself or must not re-render. Each area registers its own handlers. */
+const ACT=Object.create(null),NO_RENDER=1;

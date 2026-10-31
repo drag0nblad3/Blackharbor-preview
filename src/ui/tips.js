@@ -43,3 +43,6 @@ function tipNow(){if(S.tipsOff||FAST)return null;if(S.tut&&!(TUT[S.tut.b]&&TUT[S
 function tipModal(){const t=tipNow();if(!t)return '';
   return `<div id="guide" class="tip1" role="dialog" aria-modal="true" aria-labelledby="gtitle"><div class="gbox"><div class="eyebrow">New mechanic</div><div><span class="sfxhead" id="gtitle">${t.t}</span></div>
     <p class="small" style="margin:0">${t.b()}</p><div class="row"><button class="btn pri" data-a="tip:ok:${t.id}">Got it</button><button class="btn" data-a="tip:off">Turn off tips</button></div></div></div>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.tip=(p1,p2)=>{S.tips=S.tips||[];if(p1==='off')S.tipsOff=true;else if(p2&&!S.tips.includes(p2))S.tips.push(p2);S.tipAt=Date.now()};

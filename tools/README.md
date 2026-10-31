@@ -1,6 +1,6 @@
 # Blackharbor tools (start here)
 
-Shared headless tooling for the game at the repo root, added 2026-10-26 and moved into the repo on 2026-10-28. Run it from the repo root (`node tools/q.js ...`). It reads the game files directly every time, so it always matches the checkout you are on (a branch, or `main` = the live build). There is nothing to copy or rebuild. Use it instead of reading the 536 KB html or writing new one-off harnesses.
+Shared headless tooling for the game at the repo root, added 2026-10-26 and moved into the repo on 2026-10-28. Run it from the repo root (`node tools/q.js ...`). It reads the game files directly every time, so it always matches the checkout you are on (a branch, or `main` = the live build). There is nothing to copy or rebuild. Use it instead of reading whole game files or writing new one-off harnesses.
 
 Since Version 127 the data tables (GEAR, VILLAINS, SETS and the unlock lists) hold their final values where they are declared; the old patch blocks were folded in. Edit them in place. The pre-fold build is kept in the Claude project files at `/mnt/project-files/blackharbor/notes/blackharbor-pre-v127.html` for before/after comparisons.
 
@@ -36,26 +36,16 @@ node tools/sim.js --runs 8 --abil --html /mnt/project-files/blackharbor/notes/bl
 - A `--patch` runs after the game loads and can change objects and reassign functions. It cannot reassign a `const` such as `SET_N`; use `--sub` for that.
 - The bot ignores set bonuses when picking gear, so the "sets" column stays near 0.
 
-## Game files (since 2026-10-27)
+## Game files (since 2026-10-31: `src/`)
 
-The game is the files at the repo root, edited directly on a branch. There is no single game file and no build step: GitHub Pages serves these files as they are.
+The game is `index.html` plus about 50 scripts under `src/` (data, core, campaign, heroes, investigation, hq, ui, tutorial, battle, art), each 1-35 KB with a one-line header saying what it holds. The file map, the button-action registry (`ACT`) and where new features go are in `CLAUDE.md` at the repo root. There is no build step: GitHub Pages serves the files as they are.
 
-| File | Lines | What it holds |
-| --- | --- | --- |
-| `index.html` | 17 | Head, `#app`, the script/link tags in load order, and the 2-line boot script |
-| `game.css` | ~550 | Layout and UI styles |
-| `data.js` | ~610 | Plain data tables: HERO_BASE, POWERS, GEAR, SETS, VILLAINS, VINTEL, VLINES, VSFX, ALL_ITEMS, START/ARC/DEFEAT_UNLOCK, FAC, GLOSS |
-| `game.js` | ~1750 | Campaign rules, HQ, investigations, origin stories, tutorial, saves and every non-battle view (tables with code such as ORIGIN, VEVENTS, TIPS, TUT stay here) |
-| `battle.js` | ~1110 | Showdowns: hex board and movement, villain and henchman turns, hazards (charge zones, bombs, beams), hero attacks, powers and gear abilities, fight views (splash pages, sdView, ability buttons) and board taps (onCell) |
-| `art.css` | ~270 | Splash looks, standee/mini/lair-floor/playbook CSS |
-| `sprite.js` | ~75 | The `#nwsprite` SVG symbols, as a template string written into the page where its tag sits |
-| `art.js` | ~360 | Drawing code: eyes panels and hero standees, VFIG/vStandee, LAIR_LOOK/wallArms, MINI/civArt/bombs/terminal/exits |
-
-- Rules and balance work: `data.js`, plus `battle.js` for fights and `game.js` for the campaign. New drawings: `art.js`/`art.css`. New icons: `sprite.js`.
-- Top-level `const`s are shared across the files (classic scripts), and they load in the order of `index.html`: data.js, game.js, battle.js, then sprite.js and art.js. Code that runs while the page loads (not inside a function) can only use what earlier files define, which is why FAST and RM sit in game.js. Data tables must stay plain literals (no functions); a table that needs code belongs in game.js.
+- The tools read the `<script src>` tags of `index.html` in order, so a new file only needs its tag. `q.js outline`/`where` print `src/...:line`.
+- Scripts are classic scripts sharing one global scope, loaded in page order. Code that runs while the page loads can only use names from earlier files.
+- Data tables (`src/data/`) must stay plain literals; tests read them with `require('./tools/bh.js').dataCode()`.
 - `index.html` declares UTF-8 itself; without it the scripts load as Latin-1 and text like `·` breaks.
-- `join.js` rebuilds one self-contained html from the folder (`node tools/join.js out.html`) for an archive copy or a claude.ai artifact. Never edit a joined file.
-- Archive of the last single-file build: `/mnt/project-files/blackharbor/notes/blackharbor-single-v142.html` (Claude project files) (identical sims, DOM and screenshots to the split files at the switch).
+- `join.js` rebuilds one self-contained html (`node tools/join.js out.html`) for an archive copy. Never edit a joined file.
+- Before the split (2026-10-31) the code was data.js, game.js, battle.js and art.js at the root; compare against that with `--html <old checkout>`. Archive of the last single-file build: `/mnt/project-files/blackharbor/notes/blackharbor-single-v142.html`.
 
 ## Files
 

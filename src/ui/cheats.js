@@ -28,3 +28,6 @@ function cheat(a,p2){S.cheat=S.cheat||{};
     case 'win':S.sd.vl.forEach(o=>o.v.down=true);endSd('win');break;
     case 'lose':S.sd.units.forEach(u=>{u.ko=true;heroOf(u).hp=0});endSd('loss');break;
   }}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.cheat=(p1,p2)=>{cheat(p1,p2)};

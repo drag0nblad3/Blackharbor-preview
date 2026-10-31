@@ -1,4 +1,4 @@
-/* Shared headless loader for the game at the repo root (index.html plus data.js, game.js, art.js...). Reads the files straight
+/* Shared headless loader for the game at the repo root (index.html plus the src/ scripts it lists). Reads the files straight
    from disk (no copies, no build step). It also still loads an old single-file build (a .html with inline scripts).
    and runs it in a node vm context with the same DOM stand-ins as sim/stub.js.
    const bh=require('./bh');const g=bh.load({seed:1,patches:['SET_N=3']});g.get('GEAR.wings');g.run('code') */

@@ -44,3 +44,10 @@ function eventView(){const e=S.event;
     <div class="grid2">${e.keys.map(k=>{const v=vState(k),d=VILLAINS[k];return `<div class="card"><div class="row between"><h3>${d.name}</h3><span class="lvl">LVL ${v.level}</span></div><div class="small muted">${d.tag}. ${v.deck.length}-page playbook.</div><button class="btn sm" data-a="book:${k}" style="align-self:flex-start">Read playbook</button></div>`}).join('')}</div>
     <div class="eyebrow">Choose your preparation</div>
     <div class="grid2">${Object.entries(PREP).map(([k,p])=>`<button class="btn opt" data-a="finale:${k}"><span>${p.n}</span><small>${p.txt}</small></button>`).join('')}</div></section>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.ethos=(p1,p2)=>{S.ethos[p1]=p2;if(p1==='b'&&p2==='secret')roster().forEach(h=>h.comp=stat(h,'maxComp'));S.after.ethos=null};
+ACT.next=()=>{S.after=null;if(S.over)S.phase='over';else if(S.arcInfo){S.phase='arc';S.view='mission'}else if(S.finalePending)setupEvent();else{S.phase='hq';S.view='hq'}};
+ACT.finale=(p1)=>{startFinale(p1)};
+ACT.arcnext=()=>{S.arcInfo=null;S.phase='hq';S.view='hq'};
+ACT.restart=()=>{newCampaign(S)};

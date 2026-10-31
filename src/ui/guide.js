@@ -28,3 +28,10 @@ function guideModal(){const g=S.guide;if(!g||S.tut||S.phase!=='hq'||S.view==='cr
   if(!P)return '';
   return `<div id="guide" role="dialog" aria-modal="true" aria-labelledby="gtitle"><div class="gbox"><div class="eyebrow">Step ${g.s} of 4</div><div><span class="sfxhead" id="gtitle">${P[0]}</span></div>
     <p class="small" style="margin:0">${P[1]}</p><div class="row"><button class="btn pri" data-a="guide:open:${P[3]}">${P[2]}</button><button class="btn" data-a="guide:close">Not now</button></div></div></div>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.guide=(p1,p2)=>{const g=S.guide;if(!g)return;if(p1==='skip'){S.guide=null;return;}if(p1==='go'){g.s=1;g.pop=null;return;}if(p1==='close'){g.pop=null;return;}
+      if(p1==='next'){if(g.s===2){g.s=3;g.pop='gear'}else if(g.s===3){g.s=4;g.pop='roster'}return;}
+      if(p1==='open'){g.pop=null;S.ui=S.ui||{};if(p2==='roster'){S.view='roster';S.ui['ro-party']=S.ui['ro-bench']=true;roster().forEach(h=>S.ui['h-'+h.id]=true)}else{S.view=p2.startsWith('vl-')?'villains':'hq';S.ui[p2]=true}
+        render();const t=p2==='roster'?null:document.querySelector(`[data-cid="${p2}"]`);if(t)t.scrollIntoView({block:'start',behavior:RM?'auto':'smooth'});else scrollTo(0,0);return NO_RENDER;}
+      return;};

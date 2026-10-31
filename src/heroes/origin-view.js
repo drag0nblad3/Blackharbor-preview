@@ -70,3 +70,19 @@ function qbCard(k){const b=HERO_BASE[k];return `<div class="card" data-tip="qb:$
   <div class="small" data-tip="kw:engines">${poolTxt(newHero(k))} <span class="muted">(veteran: ${POOL_BONUS_TXT[b.track]})</span></div>
   <div class="small mono">HP ${b.maxHp} · MOV ${b.move} · DICE ${b.speed} · ACC +${b.acc} · STR +${b.str} · EVA ${b.eva} · RNG ${b.range}</div>${recruitXpTxt()}
   <button class="btn sm" data-a="qb:${k}" ${roster().length>=ROSTER_MAX?'disabled':''}>Recruit ${b.name}</button></div>`}
+
+/* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
+ACT.ostart=(p1)=>{if(S.cre&&S.cre.mode===p1)S.view='create';else if(p1==='basic'||xoverOpen())oStart(p1);render();scrollTo(0,0);return NO_RENDER;};
+ACT.opick=(p1,p2)=>{oPick(p1,p2)};
+ACT.oup=(p1)=>{const c=S.cre;if(c.ups.length<oLevel(c)-1&&c.ups.filter(u=>u===p1).length<2)c.ups.push(p1)};
+ACT.ounup=(p1)=>{S.cre.ups.splice(+p1,1)};
+ACT.ogear=(p1)=>{const c=S.cre,i=c.gear.indexOf(p1);if(i>=0)c.gear.splice(i,1);else if(c.gear.length<oGearMax(c)&&!c.gear.some(g=>GEAR[g].slot===GEAR[p1].slot))c.gear.push(p1)};
+ACT.ohq=(p1)=>{const c=S.cre,i=c.hq.indexOf(p1);if(i>=0)c.hq.splice(i,1);else if(c.hq.length<oHqMax(c))c.hq.push(p1)};
+ACT.ocol=(p1)=>{S.cre.col=p1};
+ACT.orand=()=>{S.cre.sugg=oSuggest(S.cre)};
+ACT.osug=(p1)=>{const c=S.cre,n=c.sugg&&c.sugg[+p1];if(n)c.name=n};
+ACT.odisc=(p1)=>{const c=S.cre,sp=oOpt('spark',c.picks.spark);c.disc=p1;if(sp&&sp.track!==p1){delete c.picks.spark;if(c.picks.gift&&!O_POW[p1].includes(c.picks.gift))delete c.picks.gift;delete c.picks.training;c.ups=[];c.gear=[]}};
+ACT.onext=()=>{const c=S.cre,st=oSteps(c);if(oValid(c,st[c.step])&&c.step<st.length-1)c.step++;render();scrollTo(0,0);return NO_RENDER;};
+ACT.oback=()=>{S.cre.step=Math.max(0,S.cre.step-1);render();scrollTo(0,0);return NO_RENDER;};
+ACT.ocancel=()=>{S.cre=null;S.view='hq'};
+ACT.ofinish=()=>{oFinish();render();scrollTo(0,0);return NO_RENDER;};
