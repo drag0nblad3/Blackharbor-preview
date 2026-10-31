@@ -1,0 +1,65 @@
+.hero-loadout{--dossier-paper:#dfd2b5;--dossier-ink:#19242b;margin:12px 0;border:2px solid #625743;border-radius:3px;background:var(--dossier-paper);color:var(--dossier-ink);box-shadow:3px 4px 0 #0003;overflow:hidden}
+.loadout-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #83755b}
+.hero-loadout .loadout-heading{background:#1b252b;color:#f3e7ce}
+.loadout-heading h4,.loadout-heading h3{margin:3px 0 0;font-family:Bangers,Impact,sans-serif;font-size:26px;letter-spacing:1px;color:inherit}
+.hero-loadout .eyebrow{color:#c7b58d;font-size:10px;letter-spacing:1.5px}
+.loadout-count{font:11px 'JetBrains Mono',monospace;white-space:nowrap}
+.loadout-help{font-size:12px;line-height:1.5;margin:10px 14px;color:#38434a}
+.loadout-doll{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(70px,1.1fr) minmax(0,1fr);gap:10px 12px;padding:4px 14px 18px;max-width:740px;margin:auto}
+.loadout-figure{grid-column:1/4;grid-row:1/5;align-self:stretch;justify-self:center;width:66%;position:relative;z-index:-1;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.loadout-figure img{display:block;width:100%;height:100%;max-height:600px;object-fit:contain;mix-blend-mode:multiply}
+.loadout-figure>span{position:absolute;bottom:0;font:9px 'JetBrains Mono',monospace;letter-spacing:2px;color:#625743}
+.loadout-slot{font:inherit;text-align:left;display:grid;grid-template-columns:56px minmax(0,1fr);align-content:center;align-items:center;gap:4px 8px;width:100%;min-width:0;min-height:112px;padding:10px;border:1px solid #736648;border-radius:3px;background:#1c272ef5;color:#f6ead2;box-shadow:2px 3px 0 #0002;position:relative;overflow-wrap:anywhere}
+button.loadout-slot{cursor:pointer;touch-action:manipulation}
+.loadout-slot-label{grid-column:1/-1;font:13px Bangers,Impact,sans-serif;letter-spacing:1.2px;color:#dfc893}
+.loadout-item-name{font-size:12px;font-weight:700;line-height:1.35}
+.loadout-slot-note{grid-column:1/-1;font:10px 'JetBrains Mono',monospace;color:#b8c5cb;line-height:1.5}
+.loadout-slot .equipment-icon{width:56px;height:56px;border:1px solid #54616a}
+.loadout-empty{width:56px;height:44px;display:grid;place-items:center;font-size:26px;color:#a2aaad;border:1px dashed #6a7375;border-radius:3px}
+.loadout-slot.is-empty{background:#243038e8;border-style:dashed}
+.loadout-slot.is-linked{border-color:#c4a86e}
+button.loadout-slot:hover,button.loadout-slot:focus-visible{outline:3px solid #af501e;outline-offset:2px;background:#303e47}
+#slotpick.loadout-modal .gbox{width:min(880px,calc(100vw - 24px));max-width:880px;padding:0;max-height:calc(100dvh - 32px);overflow:auto;background:#1c252c;color:#f6ead2;border:2px solid #b09a6d}
+.loadout-modal .loadout-heading{position:sticky;top:0;z-index:2;background:#1c252c}
+.loadout-picker-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+.loadout-detail,.loadout-armory{padding:16px;min-width:0}
+.loadout-detail{display:flex;flex-direction:column;gap:10px;border-right:1px solid #5c625c}
+.loadout-detail>.equipment-icon{align-self:center;width:160px;height:160px}
+.loadout-detail .gear-title .equipment-icon{display:none}
+.loadout-armory h4{margin:0;font-size:19px}
+.loadout-choice{display:flex;align-items:center;gap:10px;padding:10px;margin:8px 0;width:100%;font:inherit;color:#eee4cc;background:#27343d;border:1px solid #67716e;border-radius:3px;text-align:left;cursor:pointer}
+.loadout-choice>span{min-width:0;overflow-wrap:anywhere}
+.loadout-choice b{display:block;font-size:13px}
+.loadout-choice small{display:block;font-size:11px;line-height:1.5;color:#c0c9c7;margin-top:4px}
+.loadout-choice.selected{border:2px solid #e5be63;background:#39454a}
+.loadout-choice:focus-visible{outline:3px solid #e5be63;outline-offset:2px}
+.loadout-swap,.loadout-current{font-size:12px;line-height:1.5}
+.loadout-current{border-top:1px solid #66716e;padding-top:12px;display:grid;gap:8px}
+/* Respond to the actual hero card width, including narrow desktop columns. */
+.hero-loadout{container-type:inline-size;container-name:hero-equipment}
+/* Compact cards keep their complete text; rows grow for long item names. */
+.loadout-bonuses,.loadout-ability{grid-column:1/-1;font-size:11px;line-height:1.35;color:#e5e5d6}
+.loadout-ability{color:#e9ca85;border-top:1px solid #ffffff20;padding-top:3px}
+.loadout-doll{gap:7px 10px}
+.loadout-slot{padding:7px;gap:3px 7px;min-height:104px;grid-template-columns:40px minmax(0,1fr)}
+.loadout-slot .equipment-icon{width:40px;height:40px}
+@container hero-equipment (max-width:480px){
+ .loadout-doll{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:4px 6px 10px;margin:0;max-width:none}
+ .loadout-figure{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+ .loadout-figure img{width:100%;height:100%;max-height:none;object-fit:contain}
+ .loadout-figure>span{display:none}
+ .loadout-slot{position:relative;z-index:1;width:auto;max-width:none;min-height:98px;padding:6px;display:grid;grid-template-columns:30px minmax(0,1fr);align-content:start;gap:3px 5px;text-align:left;background:#1c272ee8;box-shadow:1px 2px 0 #0003}
+ .loadout-slot[style]{grid-row:auto!important;grid-column:auto!important}
+ .loadout-slot-label{font-size:12px;letter-spacing:.6px;line-height:1.2}
+ .loadout-slot .equipment-icon{width:30px;height:30px}
+ .loadout-item-name{font-size:11px;line-height:1.25}
+ .loadout-slot-note{display:block;font-size:10px;color:#c8d2d3;line-height:1.25}
+ .loadout-bonuses,.loadout-ability{font-size:10px;line-height:1.35}
+ .loadout-empty{width:30px;height:30px;font-size:22px}
+ .loadout-slot.is-empty{background:#243038b8}
+ .loadout-heading{padding:8px}
+ .loadout-heading h4{font-size:22px;margin:0}
+ .eyebrow{font-size:8px;letter-spacing:.6px}
+ .loadout-help{font-size:10px;margin:6px 8px}
+}
+@media(max-width:600px){.loadout-picker-grid{grid-template-columns:minmax(0,1fr)}.loadout-detail{border-right:0;border-bottom:1px solid #5c625c}.loadout-detail>.equipment-icon{width:96px;height:96px}.loadout-choice{min-height:64px}}

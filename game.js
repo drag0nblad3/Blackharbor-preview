@@ -761,7 +761,7 @@ function eqPlan(h,g,pref){const G=GEAR[g],ks=SLOT_KEYS[G.slot]||[G.slot];
   if(G.slot==='arms'){const a=h.gear.arms,b=h.gear.arms2,tw=a&&GEAR[a].two;
     const s=G.two||G.hand==='main'?'arms':G.hand==='off'?'arms2':pref==='arms'||pref==='arms2'?pref:!a?'arms':a===g?'arms2':b===g?'arms':!b?'arms2':'arms2';
     const clear=G.two||tw?['arms','arms2']:[s];return {s,clear,out:clear.map(x=>h.gear[x]).filter(Boolean)}}
-  const clear=[ks.find(s=>!h.gear[s])||ks[0]];
+  const clear=[ks.includes(pref)?pref:ks.find(s=>!h.gear[s])||ks[0]];
   return {s:clear[0],clear,out:clear.map(s=>h.gear[s]).filter(Boolean)}}
 function putGear(h,g,pref){const p=eqPlan(h,g,pref);p.clear.forEach(s=>delete h.gear[s]);h.gear[p.s]=g;return p.out}
 const roster=()=>S.heroes.filter(h=>!h.retired);
@@ -1049,6 +1049,7 @@ let slotPick=null;
 const handFits=(s,G)=>G.slot!=='arms'||G.two||G.hand==='either'||G.hand===(s==='arms'?'main':'off');
 const slotFits=(h,s)=>{const base=s.replace(/2$/,'');return [...new Set(S.armory)].filter(g=>GEAR[g]&&!GEAR[g].cons&&GEAR[g].slot===base&&handFits(s,GEAR[g])).sort((a,b)=>wearOK(h,b)-wearOK(h,a)||GEAR[a].req-GEAR[b].req)};
 function slotPickView(){if(!slotPick)return '';const h=S.heroes.find(x=>x.id===slotPick.h);if(!h||!(S.phase==='hq'||prepGear())){slotPick=null;return ''}
+  if(!tutOn())return loadoutPicker(h,slotPick.s);
   const ks=slotFits(h,slotPick.s);
   return `<div id="slotpick" role="dialog" aria-modal="true" aria-label="Equip ${esc(h.name)}"><div class="gbox"><div class="eyebrow">${esc(h.name)} · ${SLOTS[slotPick.s]} slot</div><h3 style="margin:0">Equip from the armory</h3>
     ${ks.length?ks.map(g=>{const G=GEAR[g],ok=wearOK(h,g),pl=eqPlan(h,g,slotPick.s),n=S.armory.filter(x=>x===g).length;return `<button class="btn opt t-${G.type}" data-a="equip:${h.id}:${g}:${slotPick.s}" data-tip="gear:${g}" ${ok?'':'disabled'}><span>${esc(G.name)}${n>1?` ×${n}`:''}</span><small>${ok?[modsTxt(G.mods),G.ab?G.ab.n:'',pl.out.length?`swaps out ${[...new Set(pl.out)].map(o=>GEAR[o].name).join(' and ')}`:'',G.two?'two hands':''].filter(Boolean).join(' · '):`Needs ${reqTxt(G)}`}</small></button>`}).join('')
@@ -1056,7 +1057,7 @@ function slotPickView(){if(!slotPick)return '';const h=S.heroes.find(x=>x.id===s
     <div class="small muted">Long-press an item for full details.</div><button class="btn" data-a="slotpick:close">Cancel</button></div></div>`}
 document.addEventListener('click',e=>{if(slotPick&&e.target.id==='slotpick'){slotPick=null;render()}});
 document.addEventListener('keydown',e=>{if(slotPick&&e.key==='Escape'){slotPick=null;render()}});
-function render(){bossObserve();tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
+function render(){const loadoutFocus=loadoutCaptureFocus();bossObserve();tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();loadoutRestoreFocus(loadoutFocus);if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
 function flip(){const b=document.querySelector('.board');if(!b){lastPos={};return}const c=(b.getBoundingClientRect().width-5)/BW(),now={};
   b.querySelectorAll('[data-tid]').forEach(e=>{const id=e.dataset.tid,x=+e.dataset.cx,y=+e.dataset.cy;now[id]=[x,y];const p=lastPos[id];
     if(p&&(p[0]!==x||p[1]!==y)&&!noFlip.has(id)&&!RM){const d=Math.hypot(p[0]-x,p[1]-y);
@@ -1260,9 +1261,6 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
   const ranks=Object.keys(TRACKS).map(t=>`<span class="disc t-${t} ${h.ranks[t]?'fill':''}" data-tip="kw:${t}">${TRACKS[t].name} ${h.ranks[t]}</span>`).join('');
   const res=poolTxt(h);if(h.pendingUp>0&&!h.trackPick&&Object.keys(TRACKS).every(t=>h.ranks[t]>=RANK_MAX))h.trackPick='none';
   const atHQ=S.phase==='hq',gearOK=atHQ||prepGear();
-  const slots=Object.keys(SLOTS).map(s=>{const g=h.gear[s],tw=s==='arms2'&&h.gear.arms&&GEAR[h.gear.arms].two;if(tw)return `<div class="slot has t-${GEAR[h.gear.arms].type}" data-tip="gear:${h.gear.arms}"><span class="sl">${SLOTS[s]}</span><span class="muted">${GEAR[h.gear.arms].name} (two hands)</span></div>`;return g?`<div class="slot has t-${GEAR[g].type}" data-tip="gear:${g}"><span class="sl">${SLOTS[s]}</span><span class="equipment-label">${equipmentIcon(g,44)}${GEAR[g].name}</span>${gearOK?`<button class="btn sm" data-a="unequip:${h.id}:${s}">Remove</button>`:''}</div>`
-    :gearOK?(()=>{const n=slotFits(h,s).filter(g=>wearOK(h,g)).length;return `<button type="button" class="slot pick" data-a="slotpick:${h.id}:${s}"><span class="sl">${SLOTS[s]}</span><span class="muted">Empty · ${n?`tap to equip (${n} fit${n===1?'s':''})`:'nothing fits yet'}</span></button>`})()
-    :`<div class="slot"><span class="sl">${SLOTS[s]}</span><span class="muted">Empty</span></div>`}).join('');
   const efr=gearOK&&S.armory.length?eqFilter(h):null,avail=efr?efr.ks:[];
   const lvlUp=h.pendingUp>0?(!h.trackPick?`<div class="cap"><b>Level up!</b> Which discipline does ${esc(h.name)} grow into?</div>
     <div class="grid2">${Object.entries(TRACKS).map(([t,d])=>{const n=h.ranks[t],mx=n>=RANK_MAX,nx=n+1,pk=nx===1&&t===b.track?'':perkTxt(t,nx),gn=gainTxt(h,t),br=bridgesOf({...h,ranks:{...h.ranks,[t]:h.ranks[t]+1}}).filter(k=>!bridgeOn(h,k)).map(k=>BRIDGE[k].n).join(' and ');return `<button class="btn opt t-${t}" data-a="track:${h.id}:${t}" data-tip="kw:${t}" style="border-color:var(--tc)" ${mx?'disabled':''}><span style="color:var(--tc)">${d.name} ${n} → ${mx?'mastered':nx}${nx===RANK_MAX?' · Capstone':''}</span><small>${mx?`Already at the rank ${RANK_MAX} cap.`:[pk&&`Capstone: ${pk}`,gn&&`Engine: ${gn}`,br&&`Unlocks the ${br} bridge perk`,`Opens ${d.name} ${nx} gear`].filter(Boolean).join('. ')+'.'}</small></button>`}).join('')}</div>`
@@ -1280,7 +1278,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=stat(h,'maxComp
   ${b.field?`<div class="small fieldab" data-tip="kw:field"><b>${b.field.n}</b> <span class="disc t-${b.track}">Field</span> ${b.field.txt}</div>`:''}
   <div class="row small"><span class="eyebrow" data-tip="kw:xp">XP</span><span class="meter">${[...Array(xpNeed(h))].map((_,i)=>`<i class="${i<h.xp?'f':''}"></i>`).join('')}</span><span class="mono">${h.xp}/${xpNeed(h)}</span></div>
   ${h.injuries.length?`<div class="row">${h.injuries.map(i=>`<span class="tag" data-tip="inj:${i}">${INJ[i].name}</span>`).join('')}</div>`:''}
-  <div class="eyebrow" data-tip="kw:slot">Gear</div><div class="slots">${slots}</div>${pairOf(h)?`<div class="small" data-tip="kw:paired"><b>Paired ${GEAR[pairOf(h)].name}s:</b> ${GEAR[pairOf(h)].pair.txt}. Both weapons' own stats count in full.</div>`:''}${setRows(h)}
+  ${heroLoadout(h,gearOK)}${pairOf(h)?`<div class="small" data-tip="kw:paired"><b>Paired ${GEAR[pairOf(h)].name}s:</b> ${GEAR[pairOf(h)].pair.txt}. Both weapons' own stats count in full.</div>`:''}${setRows(h)}
   <div class="row small"><span class="eyebrow" data-tip="kw:pouch">Pouch ${pouchOf(h).length}/${POUCH_MAX}</span>${pouchOf(h).map((g,i)=>`<span class="tag g" data-tip="gear:${g}">${GEAR[g].name}</span>${gearOK?`<button class="btn sm" data-a="unpouch:${h.id}:${i}">Remove</button>`:''}`).join('')||'<span class="muted">Empty. Consumables from the armory go here.</span>'}</div>
   ${efr?`<div class="eyebrow">Equip from the armory</div>${efr.bar}`:''}${avail.length?`<div class="row">${avail.map(g=>{const ok=wearOK(h,g),G=GEAR[g];return `<button class="btn sm" data-a="equip:${h.id}:${g}" data-tip="gear:${g}" ${ok?'':'disabled'} title="${ok?'':`Needs ${reqTxt(G)}`}">${equipmentIcon(g,28)} + ${G.name} <span class="muted">(${G.cons?`pouch ${pouchOf(h).length}/${POUCH_MAX}`:gearSlotN(G)}${ok?'':G.cons?', full':`, needs ${reqTxt(G)}`})</span></button>`}).join('')}</div>`:''}
   ${lvlUp}
@@ -2035,6 +2033,7 @@ document.addEventListener('click',e=>{
     case 'equip':{const h=S.heroes.find(x=>x.id===p1);slotPick=null;if(!h||!(S.phase==='hq'||prepGear()))break;equipHero(h,p2,p3);break}
     case 'wsfreset':{S.ui=S.ui||{};S.ui.wsf={};break}
     case 'effreset':{S.ui=S.ui||{};if(S.ui.ef)delete S.ui.ef[p1];break}
+    case 'gearinspect':{if(slotPick&&slotFits(heroById(slotPick.h),slotPick.s).includes(p1))slotPick.g=p1;break}
     case 'slotpick':{slotPick=p1==='close'?null:{h:p1,s:p2};break}
     case 'guide':{const g=S.guide;if(!g)break;if(p1==='skip'){S.guide=null;break}if(p1==='go'){g.s=1;g.pop=null;break}if(p1==='close'){g.pop=null;break}
       if(p1==='next'){if(g.s===2){g.s=3;g.pop='gear'}else if(g.s===3){g.s=4;g.pop='roster'}break}
