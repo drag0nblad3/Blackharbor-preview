@@ -32,8 +32,8 @@ function tutFinish(){const sd=S.sd,t=S.tut,win=sd.result==='win',L=[];
 function tutSkip(){const t=S.tut;S.sd=null;N=9;slotPick=null;t.skip=true;t.lines=null;S.phase='tutend';S.view='mission';tutGo(TUT.findIndex(b=>b.id==='end'))}
 function tutClose(){S.tips=[...new Set([...(S.tips||[]),...TUT_TIPS])];S.tut=null;S.tutDone=true;S.tutStash=null;S.sd=null;N=9;S.phase='hq';S.view='hq'}
 function tutKeep(){const st=S.tutStash||{};S.villains=(st.villains||S.villains).filter(v=>v.key!=='mole');S.pool=st.pool||S.pool;S.armory=[...(st.armory||[]),...S.armory];
-  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});tutClose();revealStartingVillains();S.guide={s:1,pop:null}}
-function tutFresh(){const keep={tips:S.tips,seen:S.seen,seenR:S.seenR,tipsOff:S.tipsOff};newCampaign();Object.assign(S,keep);tutClose()}
+  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});if(S.story)S.story.kept=true;tutClose();revealStartingVillains();S.guide={s:1,pop:null}}
+function tutFresh(){const keep={tips:S.tips,seen:S.seen,seenR:S.seenR,tipsOff:S.tipsOff,storyOff:S.storyOff};newCampaign();Object.assign(S,keep);tutClose()}
 function tutAct(p){switch(p){
   case 'start':tutStart();scrollTo(0,0);break;
   case 'no':S.tut=null;S.tutDone=true;break;

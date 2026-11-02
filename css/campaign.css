@@ -33,3 +33,14 @@
 .ocover .lvl{border-color:#fff}
 .odisc .oopt.sel{border-color:var(--tc);box-shadow:4px 4px 0 var(--tc)}
 @media (prefers-reduced-motion:reduce){.ocover{animation:none}}
+/* story pages (src/campaign/story.js) */
+.story-page{display:flex;flex-direction:column;gap:12px}
+.story-body{display:grid;grid-template-columns:minmax(0,200px) 1fr;gap:16px;align-items:start}
+.story-body:not(:has(.story-art)){grid-template-columns:1fr}
+.story-art svg{width:100%;height:auto;display:block;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink)}
+.story-caps{display:flex;flex-direction:column;gap:10px}
+.story-lines{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px;font-style:italic}
+.story-sfx{font-family:var(--sfx);font-size:1.6rem;color:var(--magenta);-webkit-text-stroke:1px var(--ink);display:inline-block;transform:rotate(4deg);margin-left:8px}
+.story-page>.btn.pri{align-self:flex-start}
+.story-hidden h3{letter-spacing:.2em}
+@media (max-width:600px){.story-body{grid-template-columns:1fr}.story-art{max-width:200px}}

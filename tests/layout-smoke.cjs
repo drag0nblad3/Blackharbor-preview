@@ -21,7 +21,7 @@ const path=require('node:path');
    assert.equal(await page.locator('link[href="css/pulp-details.css"]').count(),1,'pulp art layer is linked');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
-     S.tut=null;S.tutDone=true;S.guide=null;
+     S.tut=null;S.tutDone=true;S.guide=null;S.storyOff=true;
      S.villains=[makeVillain('cantor',2)];S.pool=[];S.view='hq';S.phase='hq';render();
    });
    const checkPage=async(scene,main,aside)=>{
