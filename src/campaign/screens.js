@@ -15,7 +15,7 @@ const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','
    Mole Boy's playbook is his four pages repeated up to the level-8 size, upgraded evenly from I to III. */
 function finaleMole(){const ids=VILLAINS.mole.base,vs={...moleState(),level:VCAP,deck:[]},n=deckSize(vs);
   for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
-function setupEvent(){let k=chooseVillainFromPool(),fresh=!!k;
+function setupEvent(){const mm=S.mastermind&&!S.villains.some(v=>v.key===S.mastermind)?S.mastermind:null;let k=mm||chooseVillainFromPool(),fresh=!!k;
   if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest active villain
   if(fresh)S.villains.push(makeVillain(k,VCAP));else{const vs=vState(k);while(vs.level<VCAP)levelUpVillain(vs,true)}
   S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole());const keys=[k,'mole'];
@@ -40,14 +40,14 @@ function finaleDebrief(){const sd=S.sd,L=[],names=S.event.keys.map(k=>VILLAINS[k
   S.after={headline,lines:L,vkey:S.event.keys[0],ethos:null};S.sd=null;N=9;S.phase='after';S.view='mission'}
 function eventView(){const e=S.event;
   return `<section class="panel eventsplash"><div class="eyebrow">Volume ${S.vol} · Event comic</div><div><span class="sfxhead">${esc(e.title)}!</span></div>
-    <div class="cap tilt">Two villains join forces for one last strike on Blackharbor. They act one after the other every round, on a bigger 11×11 battlefield. Beat both to end the volume in triumph.</div>
-    <div class="grid2">${e.keys.map(k=>{const v=vState(k),d=VILLAINS[k];return `<div class="card"><div class="row between"><h3>${d.name}</h3><span class="lvl">LVL ${v.level}</span></div><div class="small muted">${d.tag}. ${v.deck.length}-page playbook.</div><button class="btn sm" data-a="book:${k}" style="align-self:flex-start">Read playbook</button></div>`}).join('')}</div>
+    <div class="cap tilt">Two villains join forces for one last strike on Blackharbor. Nobody knows who they are until they show themselves. They act one after the other every round, on a bigger 11×11 battlefield. Beat both to end the volume in triumph.</div>
+    <div class="grid2">${e.keys.map(k=>{const v=vState(k);return `<div class="card story-hidden"><div class="row between"><h3>???</h3><span class="lvl">LVL ${v.level}</span></div><div class="small muted">${STORY_FINALE_CARD} ${v.deck.length}-page playbook.</div></div>`}).join('')}</div>
     <div class="eyebrow">Choose your preparation</div>
     <div class="grid2">${Object.entries(PREP).map(([k,p])=>`<button class="btn opt" data-a="finale:${k}"><span>${p.n}</span><small>${p.txt}</small></button>`).join('')}</div></section>`}
 
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
 ACT.ethos=(p1,p2)=>{S.ethos[p1]=p2;if(p1==='b'&&p2==='secret')roster().forEach(h=>h.comp=stat(h,'maxComp'));S.after.ethos=null};
-ACT.next=()=>{S.after=null;if(S.over)S.phase='over';else if(S.arcInfo){S.phase='arc';S.view='mission'}else if(S.finalePending)setupEvent();else{S.phase='hq';S.view='hq'}};
-ACT.finale=(p1)=>{startFinale(p1)};
+ACT.next=()=>{S.after=null;if(S.over){S.phase='over';storyEpilogue()}else if(S.arcInfo){S.phase='arc';S.view='mission';storyArc(S.arcInfo.arc)}else if(S.finalePending)setupEvent();else{S.phase='hq';S.view='hq'}};
+ACT.finale=(p1)=>{storyFinale(p1)};
 ACT.arcnext=()=>{S.arcInfo=null;S.phase='hq';S.view='hq'};
 ACT.restart=()=>{newCampaign(S)};

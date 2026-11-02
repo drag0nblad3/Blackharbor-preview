@@ -530,7 +530,7 @@ async function campaign(){newCampaign();S.guide=null;S.ui={};
       rec('other',b2);click('next');continue}}
     if(S.phase==='after'){if(S.after.ethos)click(`ethos:${S.after.ethos}:${S.after.ethos==='a'?'restraint':ETHB}`);click('next');continue}
     if(S.phase==='arc'){click('arcnext');continue}
-    if(S.phase==='event'){levelUps();pickParty();spend();click('finale:rally');const r=await fight();res['F'+r]=1;click('debrief');snaps.push(snap('Finale'));click('next');break}
+    if(S.phase==='event'){levelUps();pickParty();spend();click('finale:rally');while(S.phase==='event'&&S.story&&S.story.q.length)click('storynext');const r=await fight();res['F'+r]=1;click('debrief');snaps.push(snap('Finale'));click('next');break}
     break}
   return {strategy:STRATEGY,rec:REC.splice(0),IN:JSON.parse(JSON.stringify(IN)),CR:CR.slice(),snaps,res,trust:S.trust,over:S.over,issue:S.issue,blockF:{...ST.blockF},blockG:{...ST.blockG},stalls:ST.stalls,loot:{mode:LOOT_MODE,setCrafts:ST.setCrafts,bigCrafts:ST.bigCrafts,reserveSkips:ST.reserveSkips,goalCompleted:ST.goalCompleted}}}
 /* run N campaigns and return their records (sim.js calls this) */

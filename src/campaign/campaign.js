@@ -84,6 +84,7 @@ function revealStartingVillains(){
     if(k)S.villains.push(makeVillain(k,1));
   }
   if(S.villains.length)pick(S.villains).scheme=1;
+  pickMastermind();storyRumors();
 }
 function newCampaign(prev){
   const keys=shuffle(Object.keys(VILLAINS).filter(k=>!VILLAINS[k].intro));
@@ -91,7 +92,7 @@ function newCampaign(prev){
   S={vol:(prev&&prev.vol||0)+1,issue:1,trust:6,tech:3,intel:2,salvage:Object.fromEntries(Object.keys(VILLAINS).map(k=>[k,0])),facilities:['workshop'],armory:STARTER_LOCKER.slice(),ethos:{},
     heroes:[],fallen:[],xover:[],
     villains:[],pool:keys,unlocked:START_UNLOCK.slice(),
-    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true};
+    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),storyOff:!!(prev&&prev.storyOff),story:{q:[{id:'assemble'}],seen:{}},diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true};
   S.party=[];
   S.guide={s:0,pop:null};if(prev&&prev.tutDone)S.tutDone=true;else S.tut={b:0,dq:[]};S.ui=Object.fromEntries(['hq-base','hq-ws','hq-back','hq-skunk','ro-bench'].map(k=>[k,false]));
 }
@@ -118,7 +119,7 @@ function arcTransition(newArc){const L=[];
   const un=unlock(ARC_UNLOCK[newArc]||[]);if(un.length)L.push(`New blueprints: ${un.join(', ')}.`);
   L.push('Crossover Issue open: one Established Character can join from HQ this arc.');
   return {arc:newArc,lines:L}}
-function finishIssue(L,{hunted,headline,vkey}){
+function finishIssue(L,{hunted,headline,vkey}){storyAfter(L,vkey);
   for(const o of S.villains){if(o.key===hunted||o.status!=='active')continue;o.scheme++;
     if(o.scheme>=schemeMax()){o.scheme=0;const was=o.level;levelUpVillain(o);S.trust-=2;L.push(`${VILLAINS[o.key].name}'s scheme hits the city while you were busy. −2 trust${o.level>was?`, and they rise to level ${o.level}`:''}.`)}}
   if(S.facilities.includes('press')){S.trust++;L.push('Press Office: +1 trust.')}

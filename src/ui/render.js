@@ -31,7 +31,7 @@ function hqUse(){const R=roster(),full=R.length>=ROSTER_MAX;
 function navGlow(){if(S.phase!=='hq'||S.view==='create')return {};const vi=S.visit&&S.visit.issue===S.issue?S.visit:{};
   return {hq:S.view!=='hq'&&hqUse(),roster:S.view!=='roster'&&(newArmory()||roster().some(h=>h.pendingUp>0)),villains:S.view!=='villains'&&!!vi.hq&&!!vi.roster&&!vi.villains}}
 function body(){return bodyMain()+fsplashView()+cheatPanel()+guideModal()+tipModal()+tutModal()}
-function bodyMain(){if(S.phase==='tutend')return tutEndView();if(S.over&&S.phase!=='after')return overView();if(S.view==='create'&&S.cre&&S.phase==='hq')return createView();if(S.view==='roster')return rosterView();if(S.phase==='event')return eventView();if(S.phase==='arc')return arcView();
+function bodyMain(){if(S.phase==='tutend')return tutEndView();if(storyShowing())return storyView();if(S.over&&S.phase!=='after')return overView();if(S.view==='create'&&S.cre&&S.phase==='hq')return createView();if(S.view==='roster')return rosterView();if(S.phase==='event')return eventView();if(S.phase==='arc')return arcView();
   if(S.phase==='hq')return hqView(S.view==='villains'?'villains':null);if(S.phase==='inv')return invView();if(S.phase==='sd')return sdView();if(S.phase==='after')return afterView();return ''}
 
 /* Shared screen framing for the preview comic-noir UI. Values come from current state. */

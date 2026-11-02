@@ -21,7 +21,11 @@ for(let seed=1;seed<=12;seed++){
  const selected=evalAs(g,'S.villains.map(x=>x.key)');
  assert.equal(selected.length,3,'Fourth recruit should reveal exactly three villains');
  assert.equal(new Set(selected).size,3,'Duplicate opening boss');
- assert.equal(g.get('S.pool.length'),8);
+ // Story (2026-11-02): the worst-fit boss left is reserved as the finale mastermind and leaves the pool.
+ const mm=g.get('S.mastermind');
+ assert(mm&&!selected.includes(mm),'A mastermind outside the opening three is reserved');
+ assert.equal(g.get('S.pool.length'),7);
+ assert(!g.get('S.pool').includes(mm),'The mastermind must not join before the finale');
  assert.equal(g.get("S.villains.filter(v=>v.scheme===1).length"),1,'Exactly one opening boss should start scheming');
  g.run('revealStartingVillains()');
  assert.deepEqual(evalAs(g,'S.villains.map(x=>x.key)'),selected,'Opening bosses should not reroll');
@@ -32,11 +36,11 @@ for(let seed=1;seed<=12;seed++){
  const next=g.run('introduceVillain(2,[]).key');
  assert(top.includes(next),'New villain must come from the top four fit scores');
  assert(!selected.includes(next),'Introduced boss must be new');
- assert.equal(g.get('S.pool.length'),7);
+ assert.equal(g.get('S.pool.length'),6);
  while(g.get('S.pool.length')>0)g.run('introduceVillain(3,[])');
  const all=evalAs(g,'S.villains.map(x=>x.key)');
- assert.equal(all.length,11);
- assert.equal(new Set(all).size,11);
+ assert.equal(all.length,10);
+ assert.equal(new Set([...all,mm]).size,11);
 }
 
 // Pure discipline teams should favor bosses with matching gear.
