@@ -1,0 +1,95 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blackharbor — Full Cast Sprite Gallery</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Bangers&family=Archivo:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="css/base.css">
+
+<div class="wrap" id="app"></div>
+
+<script src="src/data/heroes.js"></script>
+<script src="src/data/gear.js"></script>
+<script src="src/data/villains.js"></script>
+<script src="src/data/villain-intel.js"></script>
+<script src="src/data/campaign.js"></script>
+<script src="src/data/story.js"></script>
+<script src="src/data/glossary.js"></script>
+<script src="src/core/util.js"></script>
+<script src="src/core/rules.js"></script>
+<script src="src/core/villain-deck.js"></script>
+<script src="src/campaign/campaign.js"></script>
+<script src="src/core/save.js"></script>
+<script src="src/heroes/origin.js"></script>
+<script src="src/heroes/stats.js"></script>
+<script src="src/heroes/abilities.js"></script>
+<script src="src/investigation/events.js"></script>
+<script src="src/investigation/villain-events.js"></script>
+<script src="src/investigation/investigation.js"></script>
+<script src="src/ui/icons.js"></script>
+<script src="src/ui/render.js"></script>
+<script src="src/hq/roster-view.js"></script>
+<script src="src/hq/hq-view.js"></script>
+<script src="src/investigation/view.js"></script>
+<script src="src/campaign/screens.js"></script>
+<script src="src/campaign/story.js"></script>
+<script src="src/heroes/origin-view.js"></script>
+<script src="src/ui/guide.js"></script>
+<script src="src/ui/tips.js"></script>
+<script src="src/ui/tooltips.js"></script>
+<script src="src/ui/playbook.js"></script>
+<script src="src/hq/workshop.js"></script>
+<script src="src/ui/cheats.js"></script>
+<script src="src/tutorial/script.js"></script>
+<script src="src/tutorial/tutorial.js"></script>
+<script src="src/ui/input.js"></script>
+<script src="src/battle/hex.js"></script>
+<script src="src/battle/setup.js"></script>
+<script src="src/battle/anim.js"></script>
+<script src="src/battle/pages.js"></script>
+<script src="src/battle/defense.js"></script>
+<script src="src/battle/civilians.js"></script>
+<script src="src/battle/villain-cards.js"></script>
+<script src="src/battle/henchmen.js"></script>
+<script src="src/battle/hero-attack.js"></script>
+<script src="src/battle/turns.js"></script>
+<script src="src/battle/hazards.js"></script>
+<script src="src/battle/hero-move.js"></script>
+<script src="src/battle/view.js"></script>
+<script src="src/battle/combat-menu.js"></script>
+<script src="src/battle/powers.js"></script>
+<script src="src/battle/boss-mechanics.js"></script>
+<link rel="stylesheet" href="css/battle-board.css">
+<link rel="stylesheet" href="css/battle-fx.css">
+<link rel="stylesheet" href="css/battle.css">
+<link rel="stylesheet" href="css/campaign.css">
+<link rel="stylesheet" href="css/hq.css">
+<link rel="stylesheet" href="css/overlays.css">
+<link rel="stylesheet" href="css/investigation.css">
+<link rel="stylesheet" href="css/comic-ui.css">
+<link rel="stylesheet" href="css/pulp-details.css">
+<link rel="stylesheet" href="css/villain-portraits.css">
+<link rel="stylesheet" href="css/battle-art.css">
+<script src="src/art/sprite.js"></script>
+<script src="src/art/equipment-icons.js"></script>
+<link rel="stylesheet" href="css/equipment-icons.css">
+<script src="src/art/eyes.js"></script>
+<script src="src/art/villain-art.js"></script>
+<script src="src/art/minis.js"></script>
+<script src="src/ui/save-menu.js"></script>
+<script src="src/ui/rules-guide.js"></script>
+<link rel="stylesheet" href="css/villain-covers.css">
+<script src="src/art/villain-covers.js"></script>
+<link rel="stylesheet" href="css/hero-loadout.css">
+<script src="src/hq/hero-loadout.js"></script>
+<link rel="stylesheet" href="css/mobile.css">
+<link rel="stylesheet" href="css/isometric.css">
+<script src="src/art/isometric.js"></script>
+<script>
+document.getElementById('app').className='wrap sprite-gallery';
+const galleryGroups=[['Heroes',Object.keys(HERO_BASE)],['Villains',ISO_COVER_GROUPS.flat()],['Henchmen and swarm bodies',[...ISO_CAST_GROUPS.flat().filter(k=>k.startsWith('m-')), 'sting','shell']],['Civilians',['civilian','civilian2']]];
+const spriteName=k=>HERO_BASE[k]?.name||VILLAINS[k]?.name||({sting:'Murmur · Stinger',shell:'Murmur · Shell',civilian:'Civilian · Grey coat',civilian2:'Civilian · Yellow raincoat'})[k]||(VILLAINS[k.slice(2)]?.short||'Digger')+' henchman';
+document.getElementById('app').innerHTML='<header><h1>BLACKHARBOR · FULL CAST</h1><p>37 character sprites · Bold ink and cel-shaded superhero style</p><a href="isometric-lab.html">Play the battlefield preview</a></header>'+galleryGroups.map(([title,keys])=>`<section><h2>${title}</h2><div class="sprite-gallery-grid">${keys.map(k=>`<article class="sprite-gallery-card"><div class="sprite-gallery-art">${isoSprite(k,'',1)}</div><h3>${esc(spriteName(k))}</h3></article>`).join('')}</div></section>`).join('');
+</script>
+<style>
+body{background:#14212c;color:#edf5f5}.wrap.sprite-gallery{display:block;max-width:1250px;padding:24px}.sprite-gallery header{border-bottom:2px solid #ebbd51;padding-bottom:16px}.sprite-gallery a{color:#9de8fa}.sprite-gallery h1{font-family:var(--display);font-size:clamp(22px,4vw,40px)}.sprite-gallery h2{margin:24px 0 12px;color:#f4cf75}.sprite-gallery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.sprite-gallery-card{border:1px solid #58717f;border-radius:6px;background:radial-gradient(ellipse at center,#334954,#18262f);padding:10px}.sprite-gallery-art{position:relative;aspect-ratio:1}.sprite-gallery-art .iso-name{display:none}.sprite-gallery-card h3{color:#eff9fa;font:600 13px/1.4 var(--mono);text-align:center;margin:10px 0 0;min-height:36px}.sprite-gallery-art .iso-figure{filter:drop-shadow(0 3px 3px #0008)}
+</style>
