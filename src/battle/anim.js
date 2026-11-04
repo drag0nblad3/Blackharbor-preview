@@ -3,7 +3,7 @@
 const COL={mag:'#EE548C',cyan:'#3DB6DD',yel:'#F3CB4B',tech:'#3DB6DD',innate:'#F08A4B',magic:'#B48CF0',heal:'#5BC27D',grey:'#9AA1B2',rock:'#8A7A66'};
 let stage=null;
 function getStage(){if(!stage){stage=document.createElement('div');stage.id='stage';stage.setAttribute('aria-hidden','true');document.body.appendChild(stage)}return stage}
-function bpos(p){if(FAST||RM)return null;const b=document.querySelector('.board');if(!b)return null;const r=b.getBoundingClientRect();const c=(r.width-5)/BW();
+function bpos(p){if(FAST||RM)return null;const b=document.querySelector('.board');if(!b)return null;const r=b.getBoundingClientRect();if(b.classList.contains('iso-board')){const q=isoPoint(p.cx,p.cy),f=isoFrame();return {x:r.left+q.x*r.width/f.W,y:r.top+q.y*r.height/f.H,c:r.width/f.W,top:r.top}}const c=(r.width-5)/BW();
   return {x:r.left+2.5+p.cx*c,y:r.top+2.5+p.cy*c,c,top:r.top}}
 function mk(html){const d=document.createElement('div');d.innerHTML=html.trim();const e=d.firstElementChild;getStage().appendChild(e);return e}
 const gone=(e,ms)=>new Promise(r=>setTimeout(()=>{e.remove();r()},ms));
