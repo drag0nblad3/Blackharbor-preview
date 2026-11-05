@@ -75,14 +75,16 @@ const path=require('node:path');
      const head=document.querySelector('.bh-pagehead');
      const hq=document.querySelector('.bh-hq-rail');
      return {
-       loaded:[...document.styleSheets].some(x=>x.href&&x.href.endsWith('/pulp-details.css')),
+       loaded:[...document.styleSheets].some(x=>x.href&&x.href.endsWith('/heroic-ui.css')),
        headingShadow:getComputedStyle(head).boxShadow,
        hqTexture:getComputedStyle(hq).backgroundImage
      };
    });
-   assert(heavyArt.loaded,'heavy pulp stylesheet successfully loaded');
-   assert(/rgb\(215, (?:68, 68|71, 69)\)/.test(heavyArt.headingShadow), 'comic page header has offset red ink shadow');
-   assert(heavyArt.hqTexture.includes('repeating-linear-gradient'),'HQ blueprint line artwork rendered');
+   assert(heavyArt.loaded,'superhero surface stylesheet successfully loaded');
+   assert(heavyArt.headingShadow.includes('rgb(8, 19, 30)'), 'comic page header has a clean ink shadow');
+   assert(heavyArt.hqTexture.includes('heroic-paper.webp'),'HQ uses the generated paper surface');
+   const paper=await page.evaluate(async()=>{const img=new Image();img.src='assets/ui/heroic-paper.webp';await img.decode();return {width:img.naturalWidth,height:img.naturalHeight}});
+   assert.deepEqual(paper,{width:640,height:640},'UI paper texture decodes in the browser');
 
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
    assert(await page.locator('.bh-hq-rail svg.vportrait').count()>0,'HQ shows villain mugshots');
