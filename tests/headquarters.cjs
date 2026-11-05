@@ -82,5 +82,6 @@ for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith
  if(!html.includes('src/ui/render.js'))continue;
  assert(html.includes('css/headquarters.css'),name+' loads shared masthead sizing');
  assert(html.includes('src/hq/construction.js'),name+' loads its construction tab handler');
+ if(html.includes('src/hq/harbor-motion.js'))assert(html.indexOf('src/hq/harbor-motion.js')>html.indexOf('src/hq/construction.js'),name+' loads optional animation after its dependencies');
 }
 console.log('Headquarters: navigation, previews, costs, unlocks, duplicate guards, persistence, and 17 sprite mappings pass.');
