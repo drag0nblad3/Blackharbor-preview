@@ -52,7 +52,11 @@ run("S.facilities.push('skunk')");
 assert.match(get('hqConnections()'),/data-hq-link="workshop:skunk"/);
 assert.doesNotMatch(get('hqConnections()'),/data-hq-link="lab:medbay"/);
 run('S.facilities=Object.keys(FAC)');
-assert.equal((get('hqConnections()').match(/data-hq-link=/g)||[]).length,4);
+assert.equal((get('hqConnections()').match(/data-hq-link=/g)||[]).length,1);
+assert.match(get('hqConnections()'),/class="hq-annex"[^]*workshop-annex.webp/,'connection is an illustrated sprite');
+assert.doesNotMatch(get('hqConnections()'),/<svg|<path/,'no drawn line substitutes remain');
+assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/workshop-annex.webp')));
+run("S.facilities=['skunk']");assert.doesNotMatch(get('hqConnections()'),/data-hq-link=/,'legacy saves without the anchor cannot leave a floating annex');
 // The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
 for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
  const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');

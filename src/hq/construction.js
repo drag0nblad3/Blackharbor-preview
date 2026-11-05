@@ -19,30 +19,24 @@ const HQ_SCALE={
 function hqScaledWidth(k){const a=HQ_SCALE[k];return 512*a[1]/a[0]/HQ_WORLD_WIDTH_M*100}
 /* Site anchors [x%, foot-y%, scaled cell width%], authored around access routes and clearance. */
 const HQ_SITES={
-  skunk:[29,65,hqScaledWidth('skunk')],medbay:[61,54,hqScaledWidth('medbay')],workshop:[18,69,hqScaledWidth('workshop')],
-  comms:[88.5,91,hqScaledWidth('comms')],training:[34,87,hqScaledWidth('training')],press:[22,43,hqScaledWidth('press')],
-  lab:[48,48,hqScaledWidth('lab')],hangar:[83,74,hqScaledWidth('hangar')],reactor:[89,43,hqScaledWidth('reactor')],
-  sanctum:[36,46,hqScaledWidth('sanctum')],bunker:[8,61,hqScaledWidth('bunker')],antivenom:[73,45,hqScaledWidth('antivenom')],
-  magnet:[13,89,hqScaledWidth('magnet')],dojo:[46,91,hqScaledWidth('dojo')],bombsq:[62,90,hqScaledWidth('bombsq')],
-  optics:[74,93,hqScaledWidth('optics')],jammer:[54,72,hqScaledWidth('jammer')]
+  skunk:[31,66,hqScaledWidth('skunk')],medbay:[65,51,hqScaledWidth('medbay')],workshop:[19,66,hqScaledWidth('workshop')],
+  comms:[68,78,hqScaledWidth('comms')],training:[37,78.5,hqScaledWidth('training')],press:[23,42,hqScaledWidth('press')],
+  lab:[54,50,hqScaledWidth('lab')],hangar:[83,78,hqScaledWidth('hangar')],reactor:[90,59,hqScaledWidth('reactor')],
+  sanctum:[35,43,hqScaledWidth('sanctum')],bunker:[8,62,hqScaledWidth('bunker')],antivenom:[76,55,hqScaledWidth('antivenom')],
+  magnet:[16,80,hqScaledWidth('magnet')],dojo:[48,80.5,hqScaledWidth('dojo')],bombsq:[93,78,hqScaledWidth('bombsq')],
+  optics:[44,46,hqScaledWidth('optics')],jammer:[57,76,hqScaledWidth('jammer')]
 };
-/* Roofed passages join related wings only after both buildings exist. Points are in site percentages.
-   Their ends tuck beneath the independent sprites; costs, unlocks and saves stay facility-based. */
-const HQ_LINKS=[
-  {a:'workshop',b:'skunk',points:[[19,64],[28,60]]},
-  {a:'lab',b:'medbay',points:[[49,43],[60,49]]},
-  {a:'medbay',b:'antivenom',points:[[62,48],[72,40]]},
-  {a:'training',b:'dojo',points:[[35,82],[45,86]]}
-];
+/* An authored brick-and-glass annex, sized and drawn for this particular pair.
+   Workshop is guaranteed at campaign start. No free-floating passages between optional buildings. */
+const HQ_ANNEXES=[{a:'workshop',b:'skunk',x:26.2,y:66.3,width:6.4,depth:67,src:'workshop-annex.webp'}];
 function hqConnections(){
-  return `<svg class="hq-connections" viewBox="0 0 1200 400" aria-hidden="true" focusable="false">${HQ_LINKS.filter(l=>S.facilities.includes(l.a)&&S.facilities.includes(l.b)).map(l=>{
-    const d=l.points.map(([x,y],i)=>`${i?'L':'M'}${x*12},${y*4}`).join(' ');
-    return `<g data-hq-link="${l.a}:${l.b}"><path class="hq-link-shadow" d="${d}"/><path class="hq-link-wall" d="${d}"/><path class="hq-link-roof" d="${d}"/><path class="hq-link-ridge" d="${d}"/></g>`;
-  }).join('')}</svg>`;
+  return `<div class="hq-connections" aria-hidden="true">${HQ_ANNEXES.filter(l=>S.facilities.includes(l.a)&&S.facilities.includes(l.b)).map(l=>
+    `<img class="hq-annex" data-hq-link="${l.a}:${l.b}" src="assets/headquarters/${l.src}?v=authored-annex-3" alt="" draggable="false" style="--px:${l.x}%;--py:${l.y}%;--pw:${l.width}%;z-index:${l.depth}">`
+  ).join('')}</div>`;
 }
 function hqFacilityArt(k,cls=''){
   const a=HQ_FAC_ART[k];if(!a)return '';
-  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=compact-harbor-2');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
+  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=authored-annex-3');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
 }
 function hqGrounds(selected){
   const keys=Object.keys(HQ_FAC_ART);
