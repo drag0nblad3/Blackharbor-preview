@@ -14,10 +14,10 @@ const path=require('node:path');
    page.on('pageerror',e=>errors.push(size.name+': '+e.message));
    await page.goto('file://'+process.cwd()+'/index.html');
    const painting=await page.evaluate(async ()=>{
-     const img=new Image();img.src='villain-portraits.avif';
+     const img=new Image();img.src='assets/isometric/heroes-superhero.webp';
      await img.decode();return {width:img.naturalWidth,height:img.naturalHeight};
    });
-   assert.deepEqual(painting,{width:704,height:444},'professionally illustrated sprite decodes in Chromium');
+   assert.deepEqual(painting,{width:1261,height:1247},'professionally illustrated sprite decodes in Chromium');
    assert.equal(await page.locator('link[href="css/pulp-details.css"]').count(),1,'pulp art layer is linked');
    await page.evaluate(()=>{
      newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
@@ -172,7 +172,11 @@ const path=require('node:path');
      nodes.map(n=>n.getAttribute('viewBox')));
    assert.equal(crops.length,12,'All characters have isolated crop viewports');
    assert.equal(new Set(crops).size,12,'No two villains show the same source crop');
-   assert(crops.every(v=>v.endsWith(' 169 140')),'Crop excludes source sheet dividers');
+   assert(crops.every(v=>v.split(' ').map(Number).every(Number.isFinite)),'Portrait crop bounds are numeric');
+   assert.equal(await page.locator('#hero-gallery .hero-portrait').count(),9,'All nine hero portraits use battle art');
+   const portraitSources=await page.locator('#gallery image, #hero-gallery image').evaluateAll(nodes=>[...new Set(nodes.map(n=>n.getAttribute('href')))]);
+   assert(portraitSources.every(src=>src.startsWith('assets/isometric/')),'Every portrait references battle artwork');
+   await page.evaluate(async sources=>{await Promise.all(sources.map(src=>{const i=new Image();i.src=src;return i.decode()}))},portraitSources);
 
    const galleryWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
    assert(galleryWidth<=size.width+24,'Gallery overflows viewport');

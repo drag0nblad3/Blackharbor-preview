@@ -174,79 +174,14 @@ cantor:ac=>`
   <circle cx="42" cy="51" r="6" fill="#fff" ${ST}/><circle cx="58" cy="51" r="6" fill="#fff" ${ST}/><circle cx="43" cy="52" r="2.6" fill="${K}"/><circle cx="57" cy="52" r="2.6" fill="${K}"/>
   <path d="M42 61Q50 67 58 61" fill="none" stroke="${K}" stroke-width="1.8"/><path d="M47 62.5H53V67H47Z" fill="#fff" stroke="${K}" stroke-width="1.2"/>`};
 return F})();
-/* Villain portrait plates, based on canonical painted VFIG villain art.
-   Self-contained vector illustrations: no remote images, no extra load or save changes.
-   ID scoping keeps gradients and glows independent across simultaneous dossiers. */
-const VPR_SHEET={gallows:[0,0],quarry:[1,0],cantor:[2,0],architect:[3,0],
-  helios:[0,1],serpent:[1,1],lode:[2,1],noct:[3,1],
-  swarm:[0,2],bomber:[1,2],grid:[2,2],mole:[3,2]};
-/* Comic-cover crops (VILLAIN_COVERS, villain-covers.js): face centre in 320x480 thumb space.
-   Small plates crop tight on the face from the thumb; dossier and investigation
-   plates take a wider upper-body crop from the full cover. */
+/* Cover face centres remain for the playbook's full-cover background positioning. */
 const VPR_FACE={gallows:[149,128],quarry:[194,116],cantor:[135,160],architect:[140,155],
   helios:[160,128],serpent:[142,152],lode:[187,135],noct:[174,209],
   swarm:[175,122],bomber:[165,135],grid:[165,145],mole:[150,210]};
-function vprCover(k,variant){
-  const art=typeof VILLAIN_COVERS!=='undefined'&&VILLAIN_COVERS[k],f=VPR_FACE[k];
-  if(!art||!f)return null;
-  const big=variant==='card'||variant==='investigation',w=big?170:110,h=w*116/160,dy=big?12:0;
-  const x=Math.min(Math.max(f[0]-w/2,0),320-w),y=Math.min(Math.max(f[1]+dy-h/2,0),480-h);
-  return {src:big?art.cover:art.thumb,box:[x,y,w,h].map(n=>+n.toFixed(1)).join(' ')};
-}
-let VPR_SEQ=0;
 function vPortrait(k,variant='card'){
-  const d=VILLAINS[k];
-  if(!d)return '';
-  const key=vKey(k),colors=VART[k]||VART.mole,base=colors[0],accent=colors[1];
-  const cover=vprCover(k,variant);
-  const n=++VPR_SEQ,id='vpr'+n,gid=id+'g',bgid=id+'b',dotid=id+'d',faceid=id+'f';
-  const pieces=(VFIG[key]||VFIG.mole)(accent)
-    .replace(/url\(#eyeglow\)/g,'url(#'+gid+')')
-    .replace(/id="hlface"/g,'id="'+faceid+'"')
-    .replace(/url\(#hlface\)/g,'url(#'+faceid+')');
-  const motif={
-    gallows:'<path d="M10 99V45h7v54m130 0V24h-10v75" stroke="#b8ffd7" stroke-width="3" fill="none" opacity=".65"/><circle cx="20" cy="22" r="12" fill="none" stroke="#c3ff84" stroke-width="3"/><circle cx="139" cy="56" r="16" fill="none" stroke="#c3ff84" stroke-width="3"/>',
-    quarry:'<path d="M0 94L24 64L36 83L57 42L75 76L102 45L140 84L160 66V120H0Z" fill="#a0784b" opacity=".55"/><path d="M0 99L24 64L36 83L57 42L75 76L102 45L140 84L160 66" fill="none" stroke="#e5b775" stroke-width="2"/>',
-    cantor:'<path d="M10 20H150M19 11H141M5 96H155" fill="none" stroke="#ffe18b" stroke-width="3" opacity=".57"/><path d="M122 16Q151 42 122 69Q95 50 122 16Z" fill="none" stroke="#f5c948" stroke-width="2.5"/>',
-    architect:'<path d="M0 34H160M0 68H160M27 0V116M92 0V116M132 0V116" stroke="#b5e7ff" stroke-width="1.6" opacity=".6"/><path d="M0 98L36 58L67 85L95 42L160 89" fill="none" stroke="#ffe18b" stroke-width="3"/>',
-    helios:'<circle cx="80" cy="47" r="70" stroke="#ffe7aa" stroke-width="4" fill="none" opacity=".7"/><circle cx="80" cy="47" r="54" stroke="#ffe7aa" stroke-width="2" fill="none" opacity=".8"/>',
-    serpent:'<path d="M15 108C-4 86 12 25 46 34C70 43 84 7 150 17" fill="none" stroke="#93f9d9" stroke-width="8" opacity=".38"/><path d="M18 106C5 77 47 64 67 79S128 113 160 61" fill="none" stroke="#031e25" stroke-width="8" opacity=".5"/>',
-    lode:'<path d="M10 18H150M10 100H150" stroke="#d6f3ff" stroke-width="4" stroke-dasharray="9 5" opacity=".7"/><path d="M34 6Q8 58 30 112M126 6Q152 58 130 112" stroke="#a0d7e8" stroke-width="3" fill="none"/>',
-    noct:'<path d="M0 115L43 20L52 115M108 115L118 12L160 115" stroke="#b0a4f9" stroke-width="4" opacity=".44" fill="none"/><path d="M0 66L160 26M0 88L160 48" stroke="#ffffff" stroke-width="2" opacity=".18"/>',
-    swarm:'<g fill="#ffe580" opacity=".65"><circle cx="16" cy="22" r="7"/><circle cx="142" cy="35" r="5"/><circle cx="22" cy="93" r="8"/><circle cx="134" cy="87" r="9"/><circle cx="110" cy="11" r="4"/></g>',
-    bomber:'<path d="M18 12L36 35M142 12L124 35M0 83L32 74M160 83L128 74" fill="none" stroke="#ffe28a" stroke-width="6"/><circle cx="134" cy="22" r="16" fill="#2b292e" stroke="#ffc24c" stroke-width="4"/>',
-    grid:'<path d="M0 21H160M0 54H160M0 87H160M20 0V116M53 0V116M86 0V116M119 0V116M152 0V116" fill="none" stroke="#a6ffff" stroke-width="2" opacity=".5"/>',
-    mole:'<path d="M0 99L22 80L41 95L65 76L84 94L117 69L160 91V120H0Z" fill="#5e4930" opacity=".8"/><path d="M0 98L22 80L41 95L65 76L84 94L117 69L160 91" stroke="#f5d18b" stroke-width="3" fill="none"/>'
-  }[k]||'';
-  return `<svg class="vportrait vportrait-${variant} vportrait-${k}" viewBox="0 0 160 116"
-    role="img" aria-label="${d.name.replace(/"/g,'&quot;')} portrait" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="${bgid}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${base}" offset="0"/><stop stop-color="#172238" offset=".9"/></linearGradient>
-      <pattern id="${dotid}" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="${accent}" opacity=".42"/></pattern>
-      <filter id="${gid}" x="-60%" y="-60%" width="220%" height="220%">
-        <feGaussianBlur stdDeviation="1.6" result="halo"/><feMerge><feMergeNode in="halo"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-    <rect width="160" height="116" fill="url(#${bgid})"/>
-    <path d="M0 0H160V116H0Z" fill="url(#${dotid})" opacity=".88"/>
-    <path d="M0 116V76L14 84V41H25V69H38V49H51V77H66V25H79V67H95V44H108V77H121V55H136V40H148V73L160 62V116Z" fill="#0e2335" opacity=".65"/>
-    <path d="M0 0L95 0L10 116H0Z" fill="#fff5be" opacity=".12"/>
-    ${motif}
-    <svg x="22" y="-4" width="116" height="125" viewBox="0 0 100 104" overflow="hidden">${pieces}</svg>
-    ${cover?`<svg class="vportrait-crop vportrait-cover" x="0" y="0" width="160" height="116"
-      viewBox="${cover.box}" preserveAspectRatio="xMidYMid slice" overflow="hidden">
-        <image href="${cover.src}" x="0" y="0" width="320" height="480"
-          preserveAspectRatio="none" aria-hidden="true" decoding="async"/>
-      </svg>`:VPR_SHEET[k]?`<svg class="vportrait-crop" x="0" y="0" width="160" height="116"
-      viewBox="${VPR_SHEET[k][0]*176+3} ${VPR_SHEET[k][1]*148+3} 169 140"
-      preserveAspectRatio="none" overflow="hidden">
-        <image href="villain-portraits.avif" x="0" y="0" width="704" height="444"
-          preserveAspectRatio="none" aria-hidden="true"/>
-      </svg>`:''}
-    <path d="M0 115H160" stroke="${accent}" stroke-width="5"/>
-    <path d="M0 1H160V115H0Z" stroke="#111f30" stroke-width="3" fill="none"/>
-  </svg>`;
+ const d=VILLAINS[k];return d?spritePortrait(k,d.name,`vportrait vportrait-${variant} vportrait-${k}`,true):'';
 }
+
 const VHX=(cx,cy,k=1)=>Array.from({length:6},(_,i)=>{const a=(-90+60*i)*Math.PI/180;return (cx+Math.cos(a)*HS*k).toFixed(3)+','+(cy+Math.sin(a)*HS*k).toFixed(3)}).join(' ');
 /* The standee SVG spans the footprint's bounding box in board units, placed relative to the anchor hex (ax,ay) that the
    .vtok box sits on. One-hex villains stand a little taller than their hex like hero standees; 4-hex villains are scaled

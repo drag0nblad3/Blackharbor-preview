@@ -58,7 +58,7 @@ function bhRosterOps(p,b){
 function bhRosterPick(h,where){
   const b=BASE(h);
   return `<button type="button" class="bh-roster-pick" data-a="rofocus:${h.id}" aria-label="Open ${esc(h.name)} character sheet">
-    <span class="bh-pick-icon" style="--hc:${b.col}">${pIc(b.power)}</span>
+    <span class="bh-pick-icon" style="--hc:${b.col}">${heroPortrait(h)}</span>
     <span class="bh-pick-copy"><b>${esc(h.name)}</b><small>Lvl ${lvlOf(h)} · ${esc(b.role)}</small></span>
     <span class="bh-pick-hp">${h.hp}/${stat(h,'maxHp')} HP${h.pendingUp?' ★':''}</span>
   </button>`;
