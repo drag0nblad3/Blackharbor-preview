@@ -34,29 +34,29 @@ for(const k of get('Object.keys(HQ_FAC_ART)')){
  assert.equal(get(`HQ_SITES['${k}'].length`),3,'every sprite has an individually placed site and size');
 }
 const sites=get('Object.values(HQ_SITES)');assert(new Set(sites.map(x=>x[1])).size>10,'organic sites do not form three regular rows');
-// Every scale reference renders at the same pixels per metre, even for differently sized assets.
+// Architectural references share a world scale, then recede together with their ground depth.
 for(const k of get('Object.keys(HQ_SCALE)')){
  const [referencePixels,referenceMetres]=get(`HQ_SCALE['${k}']`),[x,y,w]=get(`HQ_SITES['${k}']`);
  const renderedReference=referencePixels*(w/100*1600)/512;
- assert(Math.abs(renderedReference/referenceMetres-1600/get('HQ_WORLD_WIDTH_M'))<1e-8,k+' shares the campus scale');
+ assert(Math.abs(renderedReference/referenceMetres-1600/get('HQ_WORLD_WIDTH_M')*get(`hqDistanceScale(${y})`))<1e-8,k+' follows the campus distance scale');
  assert(x-w/2>=0&&x+w/2<=100,k+' cell stays inside the waterfront horizontally');
  assert(y-.88*3*w>=0&&y+.12*3*w<=100,k+' cell stays inside the fixed 3:1 canvas vertically');
 }
-const mast=get("HQ_SITES.comms[2]*445/512"),clinicDoor=get("HQ_SITES.medbay[2]*77/512");
-assert(Math.abs(mast/clinicDoor-22/2.1)<1e-8,'mast and personnel door preserve their real-world height ratio');
+assert(get('hqDistanceScale(HQ_SITES.hangar[1])')<get('hqDistanceScale(HQ_SITES.training[1])'),'rear hangar recedes behind the foreground training court');
+assert(get('hqDistanceScale(42)')<get('hqDistanceScale(70)'),'rear doors render smaller with distance');
 assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/aspect-ratio:3\/1/,'grounds keep their authored projection instead of stretching');
-// Covered links follow construction state; selecting an unbuilt wing cannot create one.
-run("S.facilities=['workshop'];S.ui.hqFacility='skunk'");
-assert.doesNotMatch(get('hqGrounds("skunk")'),/data-hq-link=/);
+// The starting Workshop previews and then becomes one physically joined drawing with Skunkworks.
+run("S.facilities=['workshop']");
+assert.equal(get('hqWorkshopComplex("medbay")'),'','starting Workshop stays standalone');
+assert.match(get('hqWorkshopComplex("skunk")'),/hq-complex is-preview/,'selecting Skunkworks previews the whole integrated addition');
+assert.match(get('hqGrounds("skunk")'),/is-complex-part/,'preview replaces separate building art');
 run("S.facilities.push('skunk')");
-assert.match(get('hqConnections()'),/data-hq-link="workshop:skunk"/);
-assert.doesNotMatch(get('hqConnections()'),/data-hq-link="lab:medbay"/);
-run('S.facilities=Object.keys(FAC)');
-assert.equal((get('hqConnections()').match(/data-hq-link=/g)||[]).length,1);
-assert.match(get('hqConnections()'),/class="hq-annex"[^]*workshop-annex.webp/,'connection is an illustrated sprite');
-assert.doesNotMatch(get('hqConnections()'),/<svg|<path/,'no drawn line substitutes remain');
-assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/workshop-annex.webp')));
-run("S.facilities=['skunk']");assert.doesNotMatch(get('hqConnections()'),/data-hq-link=/,'legacy saves without the anchor cannot leave a floating annex');
+assert.match(get('hqWorkshopComplex("medbay")'),/data-hq-complex="workshop:skunk"/);
+assert.doesNotMatch(get('hqWorkshopComplex("medbay")'),/is-preview/,'built complex is solid');
+assert.match(get('hqConstructionView()'),/workshop-complex.webp/,'selected facility preview uses the integrated artwork');
+assert.doesNotMatch(get('hqGrounds("skunk")'),/workshop-annex|hq-annex|hq-link-roof/,'no pasted connector remains');
+assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/workshop-complex.webp')));
+run("S.facilities=['skunk']");assert.equal(get('hqWorkshopComplex("skunk")'),'','legacy saves without Workshop keep the standalone Skunkworks');
 // The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
 for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
  const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
