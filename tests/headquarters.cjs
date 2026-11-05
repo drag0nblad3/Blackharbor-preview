@@ -33,35 +33,55 @@ for(const k of get('Object.keys(HQ_FAC_ART)')){
  const a=get(`HQ_FAC_ART['${k}']`);assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters',`facilities-${a[0]}.webp`)));
  assert.equal(get(`HQ_SITES['${k}'].length`),3,'every sprite has an individually placed site and size');
 }
-const sites=get('Object.values(HQ_SITES)');assert(new Set(sites.map(x=>x[1])).size>10,'organic sites do not form three regular rows');
-// Architectural references share a world scale, then recede together with their ground depth.
-for(const k of get('Object.keys(HQ_SCALE)')){
- const [referencePixels,referenceMetres]=get(`HQ_SCALE['${k}']`),[x,y,w]=get(`HQ_SITES['${k}']`);
- const renderedReference=referencePixels*(w/100*1600)/512;
- assert(Math.abs(renderedReference/referenceMetres-1600/get('HQ_WORLD_WIDTH_M')*get(`hqDistanceScale(${y})`))<1e-8,k+' follows the campus distance scale');
- assert(x-w/2>=0&&x+w/2<=100,k+' cell stays inside the waterfront horizontally');
- assert(y-.88*3*w>=0&&y+.12*3*w<=100,k+' cell stays inside the fixed 3:1 canvas vertically');
+// Authored sites remain compact and every facility has a useful visible crop.
+for(const k of get('Object.keys(HQ_FAC_ART)')){
+ const [x,y,w]=get(`HQ_SITES['${k}']`),[top,height]=get(`HQ_CUTS['${k}']`);
+ assert(x>0&&x<100&&y>0&&y<100&&w>0&&w<60,k+' has an authored site');
+ assert(top>=0&&height>0&&top+height<=100,k+' uses a valid art crop');
 }
-assert(get('hqDistanceScale(HQ_SITES.hangar[1])')<get('hqDistanceScale(HQ_SITES.training[1])'),'rear hangar recedes behind the foreground training court');
-assert(get('hqDistanceScale(42)')<get('hqDistanceScale(70)'),'rear doors render smaller with distance');
-assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/aspect-ratio:3\/1/,'grounds keep their authored projection instead of stretching');
-// The starting Workshop previews and then becomes one physically joined drawing with Skunkworks.
 run("S.facilities=['workshop']");
 assert.equal(get('hqWorkshopComplex("medbay")'),'','starting Workshop stays standalone');
-assert.match(get('hqWorkshopComplex("skunk")'),/hq-complex is-preview/,'selecting Skunkworks previews the whole integrated addition');
-assert.match(get('hqGrounds("skunk")'),/is-complex-part/,'preview replaces separate building art');
+assert.match(get('hqWorkshopComplex("skunk")'),/hq-complex is-preview/);
 run("S.facilities.push('skunk')");
 assert.match(get('hqWorkshopComplex("medbay")'),/data-hq-complex="workshop:skunk"/);
-assert.doesNotMatch(get('hqWorkshopComplex("medbay")'),/is-preview/,'built complex is solid');
-assert.match(get('hqConstructionView()'),/workshop-complex.webp/,'selected facility preview uses the integrated artwork');
-assert.doesNotMatch(get('hqGrounds("skunk")'),/workshop-annex|hq-annex|hq-link-roof/,'no pasted connector remains');
-assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/workshop-complex.webp')));
-run("S.facilities=['skunk']");assert.equal(get('hqWorkshopComplex("skunk")'),'','legacy saves without Workshop keep the standalone Skunkworks');
+assert.doesNotMatch(get('hqWorkshopComplex("medbay")'),/is-preview/);
+run('S.facilities=Object.keys(FAC)');
+assert(get('hqAllBuilt()'));
+assert.match(get('hqGrounds("skunk")'),/harbor-complete.webp/,'completed campus uses the approved coordinated master');
+run("S.facilities=['workshop']");
+assert(!get('hqAllBuilt()'));
+assert.match(get('hqGrounds("medbay")'),/harbor-ground.webp/,'unbuilt facilities are not baked into the construction background');
+assert.doesNotMatch(get('hqGrounds("medbay")'),/facselect:sanctum/);
+assert.match(get('hqConstructionView()'),/class="hq-fac-picker"/,'mobile has a full-width facility selector');
+assert.equal((get('hqConstructionView()').match(/<option value=/g)||[]).length,20,'17 facility choices plus three lighting modes');
+// The lighthouse stays dark during the local daytime, independently of optional animation.
+for(const hour of [0,6,19,23])assert(get(`hqIsNight(${hour},'auto')`),'night at '+hour);
+for(const hour of [7,12,18])assert(!get(`hqIsNight(${hour},'auto')`),'day at '+hour);
+assert(!get("hqIsNight(23,'day')"));assert(get("hqIsNight(12,'night')"));
+run("hqSetPref('lighting','night')");assert.equal(get('hqLighting()'),'night');
+run("hqSetPref('lighting','invalid')");assert.equal(get('hqLighting()'),'auto');
+run("hqSetPref('lighting','day')");assert.doesNotMatch(get('hqGrounds("medbay")'),/is-night/);
+run("hqSetPref('lighting','night')");assert.match(get('hqGrounds("medbay")'),/is-night/);
+run("hqSetPref('motion','off')");assert.equal(get('hqMotionLayer()'),'');assert(!get('hqMotionEnabled()'));
+run("hqSetPref('motion','on');S.facilities=['workshop']");assert(get('hqMotionEnabled()'));
+assert.match(get('hqMotionLayer()'),/data-hq-effect="workshop"/);
+assert.doesNotMatch(get('hqMotionLayer()'),/data-hq-effect="reactor"/,'unbuilt facilities cannot animate');
+run("matchMedia=()=>({matches:true})");assert(!get('hqMotionEnabled()'),'system reduced motion wins');
+run('matchMedia=undefined');
+assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/harbor-complete.webp')));
+assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/harbor-ground.webp')));
+assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/hq-beacon-light,#app \.hq-lantern-light\{display:none/,'base CSS hides daytime beacon');
+// Removing the optional module leaves construction and steady lighting available.
+run('const motionBackup=[hqMotionLayer,hqMotionControl,hqMotionMount];hqMotionLayer=undefined;hqMotionControl=undefined;hqMotionMount=undefined');
+assert.match(get('hqConstructionView()'),/hq-lighthouse/);
+assert.doesNotMatch(get('hqConstructionView()'),/hq-motion-toggle/);
+run('[hqMotionLayer,hqMotionControl,hqMotionMount]=motionBackup');
 // The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
 for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
  const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
  if(!html.includes('src/ui/render.js'))continue;
  assert(html.includes('css/headquarters.css'),name+' loads shared masthead sizing');
  assert(html.includes('src/hq/construction.js'),name+' loads its construction tab handler');
+ if(html.includes('src/hq/harbor-motion.js'))assert(html.indexOf('src/hq/harbor-motion.js')>html.indexOf('src/hq/construction.js'),name+' loads optional animation after its dependencies');
 }
 console.log('Headquarters: navigation, previews, costs, unlocks, duplicate guards, persistence, and 17 sprite mappings pass.');

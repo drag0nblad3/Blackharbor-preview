@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1010" viewBox="0 0 1440 1010">
+<rect width="1440" height="1010" fill="#fff2d1"/>
+<style>text{font-family:DejaVu Sans,sans-serif;fill:#182936}.label{font-weight:700;font-size:12px;text-anchor:middle}.sub{font-size:11px;text-anchor:middle}.num{font-weight:800;font-size:16px;text-anchor:middle}.legend{font-size:14px}.small{font-size:13px}</style>
+<text x="50" y="43" font-size="29" font-weight="800">BLACKHARBOR · PROPOSED DENSE HARBOR PLAN</text>
+<text x="50" y="74" font-size="16">Plan the complete campus first. Export connected buildings from one coordinated master illustration.</text>
+<rect x="45" y="100" width="1350" height="650" rx="14" fill="#225a68" stroke="#182936" stroke-width="4"/>
+<text x="75" y="130" font-size="13" style="fill:#ffedb5">REAR TERRACE / FARTHER AWAY · large facilities recede in the game view</text>
+<polygon points="186,325 258,255 426,225 510,195 726,215 894,195 1134,245 1218,325 1230,525 1146,615 954,655 714,665 474,655 270,605 174,525" fill="#cfbf98" stroke="#172b35" stroke-width="18" stroke-linejoin="round"/>
+<polygon points="186,325 258,255 426,225 510,195 726,215 894,195 1134,245 1218,325 1230,525 1146,615 954,655 714,665 474,655 270,605 174,525" fill="#ddd0ae" stroke="#f3e8c8" stroke-width="9" stroke-linejoin="round"/>
+<rect x="126" y="565" width="144" height="40" fill="#c79352" stroke="#182936" stroke-width="3"/>
+<rect x="258" y="615" width="120" height="30" fill="#c79352" stroke="#182936" stroke-width="3"/>
+<path d="M258 615 L486 615 L834 615 L834 515 L1014 515 L1026 415 L1194 415" fill="none" stroke="#b7aa87" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/><path d="M258 615 L486 615 L834 615 L834 515 L1014 515 L1026 415 L1194 415" fill="none" stroke="#f6e9c9" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M486 605 L486 450.0 L570 450.0 L570 395 L702 395" fill="none" stroke="#b7aa87" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/><path d="M486 605 L486 450.0 L570 450.0 L570 395 L702 395" fill="none" stroke="#f6e9c9" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M198 575 L198 435 L258 425 L258 395 L438 395 L438 450.0 L486 450.0" fill="none" stroke="#b7aa87" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/><path d="M198 575 L198 435 L258 425 L258 395 L438 395 L438 450.0 L486 450.0" fill="none" stroke="#f6e9c9" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M714 415 L810 475 L978 475" fill="none" stroke="#b7aa87" stroke-width="28" stroke-linejoin="round" stroke-linecap="round"/><path d="M714 415 L810 475 L978 475" fill="none" stroke="#f6e9c9" stroke-width="20" stroke-linejoin="round" stroke-linecap="round"/>
+<rect x="558" y="365" width="144" height="80" rx="13" fill="#f6e9c9" stroke="#c4b58e" stroke-width="2"/>
+<text x="630" y="405" class="sub">ARRIVAL</text><text x="630" y="425" class="sub">COURT</text>
+<rect x="522" y="245" width="168" height="110" rx="12" fill="#eff2de" stroke="#182936" stroke-width="4"/>
+<text x="606" y="335" class="label">PERMANENT HQ</text>
+<circle cx="582" cy="293.0" r="23" fill="#bde7ed" stroke="#14596b" stroke-width="3"/><text x="582" y="299.0" class="num">16</text>
+<circle cx="669.5999999999999" cy="283.0" r="17" fill="#bde7ed" stroke="#14596b" stroke-width="3"/><text x="669.5999999999999" y="289.0" class="num">04</text>
+<rect x="510" y="465" width="192" height="120" rx="9" fill="#ffe3a0" stroke="#80571b" stroke-width="4"/>
+<text x="606.0" y="522.0" class="num">01</text><text x="606.0" y="541.0" class="label" style="font-size:12px">WORKSHOP</text>
+<rect x="702" y="505" width="108" height="80" rx="9" fill="#ffe3a0" stroke="#80571b" stroke-width="4"/>
+<text x="756.0" y="542.0" class="num">02</text><text x="756.0" y="561.0" class="label" style="font-size:10px">SKUNKWORKS</text>
+<rect x="714" y="305" width="120" height="80" rx="9" fill="#bde7ed" stroke="#14596b" stroke-width="4"/>
+<text x="774.0" y="342.0" class="num">03</text><text x="774.0" y="361.0" class="label" style="font-size:12px">MED BAY</text>
+<polygon points="282,415 438,415 438,515 390,515 390,465 342,465 342,515 282,515" fill="#dfccf3" stroke="#613b8c" stroke-width="4" stroke-linejoin="round"/>
+<text x="360.0" y="462.0" class="num">05</text><text x="360.0" y="481.0" class="label" style="font-size:12px">TRAINING</text>
+<rect x="462" y="345" width="84" height="90" rx="9" fill="#ffe3a0" stroke="#80571b" stroke-width="4"/>
+<text x="504.0" y="387.0" class="num">06</text><text x="504.0" y="406.0" class="label" style="font-size:10px">PRESS</text>
+<rect x="834" y="305" width="120" height="80" rx="9" fill="#bde7ed" stroke="#14596b" stroke-width="4"/>
+<text x="894.0" y="342.0" class="num">07</text><text x="894.0" y="361.0" class="label" style="font-size:12px">FORENSICS</text>
+<rect x="966" y="255" width="216" height="140" rx="9" fill="#bde7ed" stroke="#14596b" stroke-width="4"/>
+<text x="1074.0" y="322.0" class="num">08</text><text x="1074.0" y="341.0" class="label" style="font-size:12px">SKY HANGAR</text>
+<rect x="1086" y="435" width="84" height="70" rx="9" fill="#d2dfba" stroke="#49613c" stroke-width="4"/>
+<text x="1128.0" y="467.0" class="num">09</text><text x="1128.0" y="486.0" class="label" style="font-size:10px">ARC REACTOR</text>
+<rect x="294" y="295" width="132" height="110" rx="9" fill="#dfccf3" stroke="#613b8c" stroke-width="4"/>
+<text x="360.0" y="347.0" class="num">10</text><text x="360.0" y="366.0" class="label" style="font-size:12px">SANCTUM</text>
+<rect x="1038" y="565" width="132" height="60" rx="9" fill="#d2dfba" stroke="#49613c" stroke-width="4"/>
+<text x="1104.0" y="592.0" class="num">11</text><text x="1104.0" y="611.0" class="label" style="font-size:12px">BUNKER</text>
+<rect x="834" y="385" width="120" height="70" rx="9" fill="#bde7ed" stroke="#14596b" stroke-width="4"/>
+<text x="894.0" y="417.0" class="num">12</text><text x="894.0" y="436.0" class="label" style="font-size:12px">ANTIVENOM</text>
+<rect x="330" y="555" width="132" height="80" rx="9" fill="#f8c398" stroke="#914426" stroke-width="4"/>
+<text x="396.0" y="592.0" class="num">13</text><text x="396.0" y="611.0" class="label" style="font-size:12px">SCRAP MAGNET</text>
+<rect x="222" y="515" width="108" height="80" rx="9" fill="#dfccf3" stroke="#613b8c" stroke-width="4"/>
+<text x="276.0" y="552.0" class="num">14</text><text x="276.0" y="571.0" class="label" style="font-size:10px">BLACKOUT DOJO</text>
+<rect x="870" y="555" width="120" height="80" rx="9" fill="#d2dfba" stroke="#49613c" stroke-width="4"/>
+<text x="930.0" y="592.0" class="num">15</text><text x="930.0" y="611.0" class="label" style="font-size:12px">BOMB SQUAD</text>
+<rect x="1158" y="525" width="24" height="30" rx="4" fill="#d2dfba" stroke="#49613c" stroke-width="4"/>
+<text x="1170.0" y="545.0" font-size="11" font-weight="800" text-anchor="middle">17</text>
+<path d="M702 505 L702 585" stroke="#182936" stroke-width="5"/>
+<path d="M834 305 L834 385" stroke="#182936" stroke-width="5"/>
+<path d="M834 385 L954 385" stroke="#182936" stroke-width="5"/>
+<path d="M282 515 L330 515" stroke="#182936" stroke-width="5"/>
+<circle cx="234" cy="305" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="426" cy="255" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="714" cy="235" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="894" cy="225" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="1194" cy="345" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="1218" cy="515" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="930" cy="645" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="666" cy="655" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="438" cy="635" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<circle cx="198" cy="515" r="8" fill="#7e9565" stroke="#324c41" stroke-width="2"/>
+<text x="75" y="720" font-size="13" style="fill:#ffedb5">FOREGROUND QUAY · small buildings remain prominent · no isolated ornamental building plots</text>
+<text x="52" y="787" font-size="18" font-weight="800">DESIGN INTENT</text>
+<text x="52" y="815" class="legend">01 + 02: shared walls and roof junctions, authored as one fabrication complex.</text>
+<text x="52" y="841" class="legend">03 + 07 + 12: nested science wing. 05 + 14: joined training court. 04 + 16: HQ roof sockets.</text>
+<text x="52" y="867" class="legend">08 loads toward the east quay. 15 uses a separate blast court. 11 occupies the retaining wall.</text>
+<text x="52" y="893" class="legend">04 Comms Array · 16 Optics Bench / telescope pod · 17 Hive Jammer on the fixed quay.</text>
+<text x="52" y="934" class="small">Planning footprints only; final silhouettes, roof heights and sightlines are checked in the assembled game-camera view.</text>
+<text x="52" y="960" class="small">Comic ink and cel shading · sci-fi structural shells + magical stonework · restrained lights, energy and water animation.</text>
+</svg>

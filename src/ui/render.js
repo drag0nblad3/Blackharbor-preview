@@ -1,6 +1,6 @@
 /* ui/render.js: render() and the screen switch (body/bodyMain), masthead, nav tabs and their glow, page heads, collapsible panels. Add a new screen in bodyMain. */
 let lastPos={};const noFlip=new Set();
-function render(){const loadoutFocus=loadoutCaptureFocus();bossObserve();tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();loadoutRestoreFocus(loadoutFocus);if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
+function render(){const loadoutFocus=loadoutCaptureFocus();bossObserve();tutTick();guideTick();visitTick();const app=document.getElementById('app');app.className='wrap v-'+(S.phase==='hq'&&!tutOn()?'hq-'+(S.view||'hq'):S.phase);app.innerHTML=mast()+nav()+body()+slotPickView();loadoutRestoreFocus(loadoutFocus);if(typeof hqHarborMount==='function')hqHarborMount();if(!FAST){fixDisabled(app);flip();tutPaint()}save()}
 function flip(){const b=document.querySelector('.board');if(!b){lastPos={};return}const c=b.classList.contains('iso-board')?b.getBoundingClientRect().width/isoFrame().W:(b.getBoundingClientRect().width-5)/BW(),now={};
   b.querySelectorAll('[data-tid]').forEach(e=>{const id=e.dataset.tid,x=+e.dataset.cx,y=+e.dataset.cy;now[id]=[x,y];const p=lastPos[id];
     if(p&&(p[0]!==x||p[1]!==y)&&!noFlip.has(id)&&!RM){const d=Math.hypot(p[0]-x,p[1]-y);

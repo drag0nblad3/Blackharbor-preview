@@ -1,0 +1,20 @@
+/* Optional decoration only. Removing this file leaves construction and steady night lighting functional. */
+#app .hq-motion-layer{position:absolute;inset:0;z-index:151;pointer-events:none;overflow:hidden}
+#app .hq-ambient{position:absolute;display:block;transform:translate(-50%,-50%);opacity:0;border-radius:50%;pointer-events:none}
+#app .hq-motion-on .hq-ambient{animation:hq-soft-pulse 8s ease-in-out infinite}
+#app .hq-ambient-gold{background:radial-gradient(ellipse,#fff2a688,#ffbe2c22 45%,transparent 72%)}
+#app .hq-ambient-rune{background:radial-gradient(ellipse,#ffdb6766,#bd65ff22 48%,transparent 72%);animation-delay:-3s!important}
+#app .hq-ambient-cyan{background:radial-gradient(ellipse,#a4ffff88,#38d9ff22 48%,transparent 72%);animation-delay:-5s!important}
+#app .hq-ambient-beacon{background:#ffe383;box-shadow:0 0 3px #ffdd55;animation:hq-beacon-blink 7s ease-in-out infinite!important}
+#app .hq-ambient-status{background:linear-gradient(90deg,transparent,#fff2a6aa,transparent);animation-delay:-4s!important}
+#app .hq-ambient-scan{background:linear-gradient(90deg,transparent,#ffe48e99,transparent);animation:hq-window-scan 13s ease-in-out infinite!important}
+#app .hq-water-highlight{position:absolute;left:14%;top:90%;width:70%;height:2%;background:repeating-linear-gradient(0deg,transparent 0 3px,#a3e5d233 3px 4px);opacity:0}
+#app .hq-motion-on .hq-water-highlight{animation:hq-water-shimmer 11s ease-in-out infinite}
+#app .hq-motion-on.is-night .hq-beam{transform-origin:265px 92px;animation:hq-beam-drift 18s ease-in-out infinite}
+#app .hq-motion-paused *,#app .hq-motion-offscreen *{animation-play-state:paused!important}
+@keyframes hq-soft-pulse{0%,100%{opacity:.12}50%{opacity:.7}}
+@keyframes hq-beacon-blink{0%,65%,78%,100%{opacity:0}70%,73%{opacity:.9}}
+@keyframes hq-window-scan{0%,65%,100%{opacity:0;transform:translate(-60%,-50%)}75%,85%{opacity:.65;transform:translate(-40%,-50%)}}
+@keyframes hq-water-shimmer{0%,100%{opacity:.12;transform:translateX(-.6%)}50%{opacity:.6;transform:translateX(.6%)}}
+@keyframes hq-beam-drift{0%,100%{transform:rotate(-.6deg)}50%{transform:rotate(.6deg)}}
+@media(prefers-reduced-motion:reduce){#app .hq-grounds-stage *{animation:none!important}#app .hq-motion-layer{display:none}}
