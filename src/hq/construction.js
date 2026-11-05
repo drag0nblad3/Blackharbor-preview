@@ -4,15 +4,31 @@ const HQ_FAC_ART={
   lab:[2,0],hangar:[2,1],reactor:[2,2],sanctum:[2,3],bunker:[2,4],antivenom:[2,5],
   magnet:[3,0],dojo:[3,1],bombsq:[3,2],optics:[3,3],jammer:[3,4]
 };
-/* Individually authored sites follow the curved waterfront paths; no row/column placement. [x, foot-y, width] */
+/* Shared visual world scale. Reference pixels measure an upright feature in each 512px cell.
+   Personnel doors use 2.1m; loading doors, equipment and the mast use their own plausible heights.
+   Art is illustrative: these are scale anchors, not surveyed building dimensions. */
+const HQ_WORLD_WIDTH_M=160;
+const HQ_SCALE={
+  skunk:[96,2.1,'personnel door'],medbay:[77,2.1,'personnel door'],workshop:[105,4.5,'loading door'],
+  comms:[445,22,'mast'],training:[140,4,'courtyard eaves'],press:[100,2.1,'personnel door'],
+  lab:[70,2.1,'personnel door'],hangar:[124,6,'hangar opening'],reactor:[96,2.2,'transformer cabinet'],
+  sanctum:[101,2.4,'chapel door'],bunker:[121,2.2,'bunker hatch'],antivenom:[100,2.1,'greenhouse door'],
+  magnet:[70,2.1,'control hut door'],dojo:[130,3.1,'veranda eaves'],bombsq:[187,4.2,'tall bay door'],
+  optics:[89,2.1,'annex door'],jammer:[100,1.6,'equipment cabinet']
+};
+function hqScaledWidth(k){const a=HQ_SCALE[k];return 512*a[1]/a[0]/HQ_WORLD_WIDTH_M*100}
+/* Site anchors [x%, foot-y%, scaled cell width%], authored around access routes and clearance. */
 const HQ_SITES={
-  skunk:[33,58,13],medbay:[61,52,13],workshop:[16,64,19],comms:[92,28,8.5],training:[35,87,14],press:[52,85,8.5],
-  lab:[46,37,11],hangar:[84,71,17],reactor:[73,54,8.5],sanctum:[65,30,10],bunker:[25,38,11],antivenom:[80,31,13],
-  magnet:[14,83,14],dojo:[43,65,12],bombsq:[67,86,10.5],optics:[94,50,7],jammer:[64,71,13]
+  skunk:[38,64,hqScaledWidth('skunk')],medbay:[69,43,hqScaledWidth('medbay')],workshop:[22,63,hqScaledWidth('workshop')],
+  comms:[91,88,hqScaledWidth('comms')],training:[34,84,hqScaledWidth('training')],press:[28,40,hqScaledWidth('press')],
+  lab:[56,36,hqScaledWidth('lab')],hangar:[85,65,hqScaledWidth('hangar')],reactor:[93,45,hqScaledWidth('reactor')],
+  sanctum:[42,39,hqScaledWidth('sanctum')],bunker:[12,43,hqScaledWidth('bunker')],antivenom:[81,30,hqScaledWidth('antivenom')],
+  magnet:[11,87,hqScaledWidth('magnet')],dojo:[47,88,hqScaledWidth('dojo')],bombsq:[63,88,hqScaledWidth('bombsq')],
+  optics:[74,91,hqScaledWidth('optics')],jammer:[56,67,hqScaledWidth('jammer')]
 };
 function hqFacilityArt(k,cls=''){
   const a=HQ_FAC_ART[k];if(!a)return '';
-  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=drawn-1');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
+  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=world-scale-1');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
 }
 function hqGrounds(selected){
   const keys=Object.keys(HQ_FAC_ART);

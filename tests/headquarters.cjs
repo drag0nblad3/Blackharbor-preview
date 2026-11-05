@@ -34,4 +34,15 @@ for(const k of get('Object.keys(HQ_FAC_ART)')){
  assert.equal(get(`HQ_SITES['${k}'].length`),3,'every sprite has an individually placed site and size');
 }
 const sites=get('Object.values(HQ_SITES)');assert(new Set(sites.map(x=>x[1])).size>10,'organic sites do not form three regular rows');
+// Every scale reference renders at the same pixels per metre, even for differently sized assets.
+for(const k of get('Object.keys(HQ_SCALE)')){
+ const [referencePixels,referenceMetres]=get(`HQ_SCALE['${k}']`),[x,y,w]=get(`HQ_SITES['${k}']`);
+ const renderedReference=referencePixels*(w/100*1600)/512;
+ assert(Math.abs(renderedReference/referenceMetres-1600/get('HQ_WORLD_WIDTH_M'))<1e-8,k+' shares the campus scale');
+ assert(x-w/2>=0&&x+w/2<=100,k+' cell stays inside the waterfront horizontally');
+ assert(y-.88*3*w>=0&&y+.12*3*w<=100,k+' cell stays inside the fixed 3:1 canvas vertically');
+}
+const mast=get("HQ_SITES.comms[2]*445/512"),clinicDoor=get("HQ_SITES.medbay[2]*77/512");
+assert(Math.abs(mast/clinicDoor-22/2.1)<1e-8,'mast and personnel door preserve their real-world height ratio');
+assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/aspect-ratio:3\/1/,'grounds keep their authored projection instead of stretching');
 console.log('Headquarters: navigation, previews, costs, unlocks, duplicate guards, persistence, and 17 sprite mappings pass.');
