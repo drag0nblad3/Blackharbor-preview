@@ -66,6 +66,14 @@ run("hqSetPref('motion','off')");assert.equal(get('hqMotionLayer()'),'');assert(
 run("hqSetPref('motion','on');S.facilities=['workshop']");assert(get('hqMotionEnabled()'));
 assert.match(get('hqMotionLayer()'),/data-hq-effect="workshop"/);
 assert.doesNotMatch(get('hqMotionLayer()'),/data-hq-effect="reactor"/,'unbuilt facilities cannot animate');
+run("S.facilities=['medbay']");
+assert.match(get('hqMotionLayer()'),/data-hq-effect="medbay"[^]*hq-flicker-light/,'a built facility without custom animation gets a window flicker');
+assert.doesNotMatch(get('hqMotionLayer()'),/data-hq-effect="skunk"/,'unbuilt windows stay absent');
+run('S.facilities=Object.keys(FAC)');
+const animatedKeys=[...get('hqMotionLayer()').matchAll(/data-hq-effect="([^"]+)"/g)].map(x=>x[1]);
+assert.deepEqual(animatedKeys.sort(),get('Object.keys(FAC).sort()'),'every built facility gets exactly one custom or fallback effect');
+for(const k of get('Object.keys(HQ_MOTION_DRAWINGS)'))assert(!get(`Object.hasOwn(HQ_LIGHT_FLICKERS,'${k}')`),k+' keeps its existing effect');
+assert.match(get('hqMotionLayer()'),/data-hq-environment-effect="command-hq"/,'permanent HQ windows can flicker too');
 run("matchMedia=()=>({matches:true})");assert(!get('hqMotionEnabled()'),'system reduced motion wins');
 run('matchMedia=undefined');
 assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/harbor-complete.webp')));
