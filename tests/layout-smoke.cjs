@@ -88,25 +88,41 @@ const path=require('node:path');
 
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
    assert(await page.locator('.bh-hq-rail svg.vportrait').count()>0,'HQ shows villain mugshots');
-   // The compact harbor remains contained when every facility and covered link exists.
+   // Approved harbor: real construction, steady night lighting, optional motion, and a fit-width phone view.
    const originalFacilities=await page.evaluate(()=>S.facilities.slice());
    await page.locator('.nav [data-a="view:construction"]').click();
-   await page.evaluate(()=>{S.facilities=Object.keys(FAC);render()});
-   assert.equal(await page.locator('.hq-plot.is-built').count(),17,'all facilities appear on the compact island');
-   assert.equal(await page.locator('[data-hq-complex]').count(),1,'workshop and Skunkworks become one integrated sprite');
+   await page.evaluate(()=>{S.facilities=Object.keys(FAC);hqSetPref('lighting','day');hqSetPref('motion','on');render()});
+   assert.equal(await page.locator('.hq-plot.is-built').count(),17);
    const campus=await page.evaluate(async()=>{
      const stage=document.querySelector('.hq-grounds-stage'),r=stage.getBoundingClientRect();
-     const image=new Image();image.src=new URL(getComputedStyle(stage).backgroundImage.slice(5,-2),location.href).href;
-     await image.decode();
-     await document.querySelector('.hq-complex').decode();
-     return {ratio:r.width/r.height,bodyWidth:document.documentElement.scrollWidth,
-       links:getComputedStyle(document.querySelector('.hq-complex')).pointerEvents};
+     const image=new Image();image.src=getComputedStyle(stage).backgroundImage.slice(5,-2);await image.decode();
+     return {ratio:r.width/r.height,width:r.width,bodyWidth:document.documentElement.scrollWidth,
+       light:getComputedStyle(document.querySelector('.hq-beacon-light')).display};
    });
-   assert(Math.abs(campus.ratio-3)<.02,'campus preserves its illustrated projection');
-   assert(campus.bodyWidth<=size.width+24,'campus pans internally without widening the page');
-   assert.equal(await page.locator('.hq-plot.is-complex-part').count(),2,'both facilities remain independently selectable under the joined artwork');
-   assert.equal(campus.links,'none','integrated artwork cannot block facility selection');
+   assert(Math.abs(campus.ratio-1896/830)<.02,'campus preserves its approved compact framing');
+   assert(campus.width<=size.width,'entire harbor fits the viewport without horizontal panning');
+   assert(campus.bodyWidth<=size.width+2,'harbor page fits the viewport');
+   assert.equal(campus.light,'none','daytime lighthouse is off');
+   if(size.width<760){
+     assert(await page.locator('.hq-fac-picker').isVisible());
+     await page.locator('.hq-fac-picker').selectOption('reactor');
+     assert.equal(await page.locator('#hq-fac-name').innerText(),'Arc Reactor');
+   }
+   await page.locator('.hq-light-picker').selectOption('night');
+   assert.equal(await page.locator('.hq-beacon-light').evaluate(e=>getComputedStyle(e).display),'block','night beacon shines');
+   await page.locator('.hq-motion-toggle').click();
+   assert.equal(await page.locator('.hq-motion-layer').count(),0,'motion switch removes optional effects');
+   assert.equal(await page.locator('.hq-beacon-light').evaluate(e=>getComputedStyle(e).display),'block','steady night light survives motion-off');
+   await page.reload();
+   await page.locator('.hq-light-picker').waitFor();
+   assert.equal(await page.locator('.hq-light-picker').inputValue(),'night','lighting preference persists');
+   assert.equal(await page.locator('.hq-motion-toggle').getAttribute('aria-pressed'),'false','motion preference persists');
+   await page.locator('.hq-light-picker').selectOption('day');
    await page.screenshot({path:path.join(shots,size.name+'-compact-harbor.png'),animations:'disabled'});
+   await page.emulateMedia({reducedMotion:'reduce'});
+   await page.evaluate(()=>{hqSetPref('motion','on');render()});
+   assert.equal(await page.locator('.hq-motion-layer').count(),0,'reduced motion prevents effects');
+   await page.emulateMedia({reducedMotion:'no-preference'});
    await page.evaluate(facilities=>{S.facilities=facilities;S.view='hq';render()},originalFacilities);
    await page.locator('.nav [data-a="view:roster"]').click();
    await checkPage('roster','.bh-roster-content','.bh-roster-rail');

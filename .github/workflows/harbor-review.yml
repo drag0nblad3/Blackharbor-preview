@@ -1,0 +1,39 @@
+name: Review harbor UI
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/hq/**'
+      - 'src/ui/render.js'
+      - 'css/headquarters*'
+      - 'assets/headquarters/**'
+      - 'tests/headquarters.cjs'
+      - 'tests/layout-smoke.cjs'
+      - '.github/workflows/harbor-review.yml'
+permissions:
+  contents: read
+jobs:
+  harbor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check construction and surrounding UI
+        run: |
+          node tests/headquarters.cjs
+          node tests/comic-ui.cjs
+      - name: Install browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Check phone and desktop, lighting, animation switch and saves
+        run: node tests/layout-smoke.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: harbor-review-screenshots
+          path: layout-shots/
+          if-no-files-found: ignore

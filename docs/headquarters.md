@@ -1,29 +1,27 @@
-# Harbor headquarters construction
+# Approved compact harbor
 
-Open **Build HQ** beside Operations and Roster. The grounds occupy the upper page panel below the banners on a fixed 3:1 canvas. Small screens pan the grounds horizontally; facility choices and selected artwork stack below.
+Build HQ now uses the approved dense science-fiction and magic harbor, including its permanent lighthouse. The scene fits narrow screens at its authored 1896:830 aspect ratio without a minimum-width panning canvas. Desktop uses the illustrated facility list beside the selected preview. Phones use a full-width native facility picker, large preview, and stacked build controls. Selection never pays for construction.
 
-All 17 FAC keys have transparent hand-inked building sprites in `assets/headquarters/facilities-1.webp` through `facilities-3.webp`. Identity, materials and distinct silhouettes follow the approved comic style: variable brush contours, economical hatching, brick/ivory/teal/ochre colors and one bounded cel-shadow tone. The observatory retains a short Cassegrain reflector in a fork mount on a permanent pier.
+The completed base uses `harbor-complete.webp`, the coordinated approved illustration with all 17 facilities. Incomplete bases use the matching `harbor-ground.webp` plus the built facility modules in the three transparent atlases. `HQ_SITES` anchors each module to its authored terrace or permanent HQ roof socket. Workshop and Skunkworks use one continuous `workshop-complex.webp` when both exist, with a proposed-state preview when Skunkworks is selected. Art crops and silhouette masks keep atlas padding out of the scene. Costs, blueprint gates, facility effects and `S.facilities` saves remain unchanged.
 
-## Projection, depth and grounds
+The permanent command HQ, lighthouse and docks are scenery, not extra facilities. The counter and picker contain exactly the existing 17 FAC keys.
 
-Every sprite uses a near-frontal parallel architectural projection: upright verticals, horizontal front edges, shallow roof depth and parallel receding edges. Buildings do not turn toward a vanishing point at the center of the sheet or map. This permits placing them on either side of the panorama.
+## Day and night
 
-The compact island has 112m illustrative frontage, versus its original 160m. `HQ_SCALE` calibrates each new art cell against an upright architectural feature. `HQ_SITE_POINTS` supplies individually authored foot positions. `hqDistanceScale(y)` then reduces all dimensions together from 100% in the foreground to 72% on the rear terrace. The hangar, clinic, forensic lab and power plant occupy the back; the smaller training, dojo, disposal and signal facilities frame the front. Reference sizes remain illustrative rather than surveyed dimensions.
+The daytime artwork contains an unlit lighthouse with dark glass and no beam. Its light is a separate SVG overlay. Day hides both lantern and beam. Night tints the grounds and enables the steady golden light. Auto uses the browser's local clock: day is 07:00–18:59, night is 19:00–06:59. Players can explicitly select Day or Night. The view updates while open and refreshes when the tab becomes visible.
 
-The backdrop has shared working courts, a winding service lane, small docks and edge planting. Sites stay inboard of the seawall, with salvage by the docks and the hangar's loading approach clear. `docs/hq-scale-plan.svg` shows full sprite cell bounds, including transparent margins.
+Lighting and animation preferences are saved separately from campaign state, under `blackharbor-harbor-lighting` and `blackharbor-harbor-motion`. They survive reloads and new campaigns without changing the existing save key or migrations.
 
-## Workshop expansion
+## Optional animation
 
-Workshop is guaranteed at campaign start. It displays its standalone sprite until Skunkworks is selected or built. The joined state uses **one complete drawing**, `workshop-complex.webp`, containing the warehouse, engineering wing and their continuous masonry, foundation, flashing and roof junctions. There is no separate connector overlay. The rejected `workshop-annex.webp` asset is removed.
+`src/hq/harbor-motion.js` and `css/headquarters-motion.css` contain all movement. Small authored overlays add energy pulses, rune shimmer, beacon sequences, a fabrication-window scan and water highlights. Night's beam drifts gently. Unbuilt facilities have no effects. Motion pauses offscreen and in hidden tabs, and follows `prefers-reduced-motion`. The Animations button remembers Off. Reduced-motion devices show a disabled Off · system control.
 
-Selecting an unbuilt Skunkworks previews the entire complex in amber and shows the same complete drawing in the detail panel. Construction makes it solid. Two independent facility selection targets remain over the drawing; the drawing itself does not intercept clicks. Legacy saves lacking Workshop use standalone Skunkworks art. Facility effects, costs, blueprints, unlocks and save fields remain owned by FAC and `S.facilities`.
-
-## Art generation
-
-Generated with the built-in image tool and packed as WebP with alpha preserved. The integrated complex prompt specified a modest two-bay sawtooth warehouse on the left, compact red-brick/ivory engineering wing on the right, a recessed joining wing built into both volumes, continuous wall and roof junctions, clear loading access and a near-frontal parallel projection. Each of the three atlas prompts used its prior atlas for identity and the joined complex for projection/style; equal 3×2 cells, bases near 88% height, one complete building per cell and a transparent background. The last atlas contains five facilities and one empty cell.
-
-The shared lighthouse masthead remains separate from the grounds and keeps live resource chips. Combat uses its compact header.
+To remove animation entirely, remove the two motion-file tags from the game entry pages (or disable the CSS file). The construction renderer and render hook guard every optional motion call. Static buildings, facility selection, build rules, day/night controls and steady night lighting remain functional. No movement is embedded in the artwork or gameplay logic.
 
 ## Validation
 
-`node tests/headquarters.cjs` covers navigation, selection, costs, duplicate and unlock guards, saves, sprite mappings, distance scaling, joined previews and standalone/legacy states. `tests/layout-smoke.cjs` loads the complete complex and all 17 facilities at phone and desktop widths, checks canvas containment and independent targets, and captures the built campus. `node tests/comic-ui.cjs` covers surrounding page structure.
+`tests/headquarters.cjs` checks saved construction, costs, unlocks, art coverage, partial/completed scenes, local-clock boundaries, preference validation, motion state and reduced motion. `tests/layout-smoke.cjs` checks desktop and phone fit, the phone picker, live lighting changes, motion-off, reload persistence and system reduced motion, and captures screenshots. The PR harbor review workflow runs these before preview is merged; the main preview gate retains its complete campaign and browser checks.
+
+## Art production
+
+Generated with the built-in image tool using the approved lighthouse mobile screen as the visual reference. Prompts preserved its complete compact harbor composition, sci-fi fabrication/science wings, magical western terraces, permanent Art Deco HQ, Cassegrain roof telescope, and hand-inked cel shading. A clean daytime master removes only the lighthouse light. Matching empty grounds remove optional facilities. Three 3×2 transparent atlases supply the seventeen modules, and one complete transparent fabrication drawing supplies the joined Workshop/Skunkworks state. Files are packed as WebP with alpha preserved.
