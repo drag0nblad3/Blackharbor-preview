@@ -6,13 +6,13 @@ const HQ_FAC_ART={
 };
 /* Individually authored sites follow the curved waterfront paths; no row/column placement. [x, foot-y, width] */
 const HQ_SITES={
-  skunk:[30,61,12],medbay:[59,54,11],workshop:[15,70,15],comms:[89,39,9],training:[36,87,11],press:[52,91,10],
-  lab:[46,38,9],hangar:[83,77,15],reactor:[73,57,10],sanctum:[67,32,8],bunker:[23,37,9],antivenom:[79,32,8],
-  magnet:[14,92,11],dojo:[41,62,10],bombsq:[68,88,10],optics:[94,61,8],jammer:[92,92,8]
+  skunk:[33,58,13],medbay:[61,52,13],workshop:[16,64,19],comms:[92,28,8.5],training:[35,87,14],press:[52,85,8.5],
+  lab:[46,37,11],hangar:[84,71,17],reactor:[73,54,8.5],sanctum:[65,30,10],bunker:[25,38,11],antivenom:[80,31,13],
+  magnet:[14,83,14],dojo:[43,65,12],bombsq:[67,86,10.5],optics:[94,50,7],jammer:[64,71,13]
 };
 function hqFacilityArt(k,cls=''){
   const a=HQ_FAC_ART[k];if(!a)return '';
-  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
+  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=drawn-1');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
 }
 function hqGrounds(selected){
   const keys=Object.keys(HQ_FAC_ART);
