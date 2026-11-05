@@ -53,12 +53,7 @@ function eyeCols(h){const m=eyeMix(h),sd=S.sd,team=(sd&&sd.units?sd.units.map(he
   let dh=0,dl=0;if(same.length>1){const i=Math.max(0,same.indexOf(h)),n=same.length,sp=n===2?[[-8,-.04],[8,.05]]:EYE_SPREAD.slice(1,n+1).sort((a,b)=>a[0]-b[0]);[dh,dl]=sp[i]||[0,0]}
   const L=Math.max(.28,Math.min(.6,m.L+dl));
   return [hslHex(m.H+dh,m.S,L),hslHex(m.H+dh,Math.min(1,m.S+.2),m.S<.5?.82:.74)]}
-function eyesArt(h,look){const b=BASE(h),[k,g]=eyeCols(h),[hp,tilt]=look||eyeLook(h),I=EYE_INK,r=20,cy=54,w=hp==='brute'?1.3:1;
-  const sh=f=>`<path d="M${50-34*w} 104Q${50-32*w} 70 ${50-12*w} 66L50 70L${50+12*w} 66Q${50+32*w} 70 ${50+34*w} 104Z" fill="${f}"/>`,head=f=>`<ellipse rx="${r*(hp==='brute'?1.2:1)}" ry="${r*1.12}" fill="${f}"/>`,gear=eyeGear(hp,r,g);
-  let s=`<rect width="100" height="100" fill="${I}"/><path d="M0 100L0 ${58-tilt}L100 ${30-tilt}L100 100Z" fill="${k}"/>`;
-  for(let i=0;i<7;i++)s+=`<path d="M${-10+i*18} 100L${8+i*18} 0" stroke="${eyeShade(k,.25)}" stroke-width="${1+i%3}" opacity=".5"/>`;
-  s+=`<rect width="100" height="100" fill="url(#eyedots)"/>`;
-  return `<span class="eyes" aria-hidden="true"><svg viewBox="0 24 100 42" preserveAspectRatio="xMidYMid slice">${s+eyeFig(h,look,g)}</svg></span>`}
+function eyesArt(h){return `<span class="eyes">${heroPortrait(h,'combat')}</span>`}
 /* Version 137 (Tyler): the figure alone (glow outline + ink silhouette) in the eyes panel's 100x100 space, shared by the
    eyes panel and the standee board token. */
 function eyeFig(h,look,g){const [hp,tilt]=look||eyeLook(h),I=EYE_INK,r=20,cy=54,w=hp==='brute'?1.3:1;
