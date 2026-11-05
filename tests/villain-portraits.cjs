@@ -58,3 +58,6 @@ assert.match(css,/\.villain-dossier-art/);
 assert.match(css,/\.vportrait-combat/);
 assert.match(css,/@media \(max-width:540px\)/);
 console.log('PASS: all 37 sprite portraits, nine hero identities, 12 villains, crop bounds, matching UI routes and original actions.');
+
+assert(!/id="i-[vm]-/.test(fs.readFileSync(path.join(__dirname,'..','src/art/sprite.js'),'utf8')),'Old villain and henchman symbols are removed from the loaded sprite bank');
+for(const key of names)assert(get('vWm('+JSON.stringify(key)+')').includes('data-portrait="'+key+'"'),'Playbook art also uses the new portrait');

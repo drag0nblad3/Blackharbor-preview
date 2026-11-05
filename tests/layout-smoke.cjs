@@ -75,7 +75,7 @@ const path=require('node:path');
      const head=document.querySelector('.bh-pagehead');
      const hq=document.querySelector('.bh-hq-rail');
      return {
-       loaded:[...document.styleSheets].some(x=>x.href&&x.href.endsWith('/heroic-ui.css')),
+       loaded:[...document.styleSheets].some(x=>x.href&&new URL(x.href).pathname.endsWith('/heroic-ui.css')),
        headingShadow:getComputedStyle(head).boxShadow,
        hqTexture:getComputedStyle(hq).backgroundImage
      };
@@ -91,6 +91,15 @@ const path=require('node:path');
    await page.locator('.nav [data-a="view:roster"]').click();
    await checkPage('roster','.bh-roster-content','.bh-roster-rail');
    await assertStablePalette('Roster',['body','.mast','.nav .btn','.bh-roster-rail','.bh-roster-content .card']);
+   const portraits=await page.locator('.bh-pick-icon:has(>.sprite-portrait),.card summary .vic:has(>.sprite-portrait)').evaluateAll(holders=>holders.map(holder=>{
+     const outer=holder.getBoundingClientRect(),art=holder.querySelector('.sprite-portrait').getBoundingClientRect();
+     return {holder:outer.width,art:art.width};
+   }));
+   assert(portraits.length>=8,'roster selector and character sheets show new portraits');
+   assert(portraits.every(p=>p.art>=p.holder*.95),'portrait art fills its holder instead of shrinking inside a thick frame');
+   if(size.width<600)assert(portraits.every(p=>p.art>=28),'phone roster portraits remain readable');
+   assert.equal(await page.locator('use[href^="#i-v-"],use[href^="#i-m-"]').count(),0,'no old character icons are referenced');
+   assert.equal(await page.locator('symbol[id^="i-v-"],symbol[id^="i-m-"]').count(),0,'old character icons are not loaded');
    const heroId=await page.evaluate(()=>S.party[0]);
    await page.locator('.bh-roster-pick').first().click();
    assert.equal(await page.locator('[data-cid="h-'+heroId+'"]').getAttribute('open'),'','Selecting a hero opens the actual full sheet');

@@ -5,7 +5,7 @@ const IC=(id,c='')=>`<svg class="ic${c?' '+c:''}" aria-hidden="true" focusable="
 const VART={gallows:['#4E8F2A','#D7FF5C'],quarry:['#86684C','#FFB347'],cantor:['#6A2C91','#F1C02C'],architect:['#2F5D9E','#9FD3FF'],helios:['#E08A12','#FFF3B0'],serpent:['#1E7F6C','#F3CB4B'],lode:['#55606E','#E23B3B'],noct:['#2A2D52','#8CF0FF'],swarm:['#B07A0B','#FFE066'],bomber:['#C9402A','#FFD27A'],grid:['#1590B2','#FF2D55'],mole:['#7A4E2A','#F1C02C'],hive:['#B07A0B','#FFE066'],sting:['#B0306A','#FFE066'],shell:['#7A5AA8','#FFE066']};
 const vArt=k=>VART[k]||['var(--magenta)','#F3CB4B'],vSty=k=>`--vc:${vArt(k)[0]};--ac:${vArt(k)[1]}`;
 const UI=id=>IC('u-'+id,'u'),resIc=k=>k==='tech'||k==='intel'?UI(k):VART[k]?`<span class="vic" style="${vSty(k)}">${vIc(k)}</span>`:UI('salv');
-const vKey=k=>k==='swarm'?'hive':k,vIc=k=>spritePortrait(k,(VILLAINS[k]||{}).name||SWN[k]||k)||IC('v-any'),mIc=k=>spritePortrait('m-'+k,'Henchman')||IC('m-any'),pIc=p=>IC(POWERS[p]?'p-'+p:'p-any'),vWm=k=>IC(VART[k]?'v-'+vKey(k):'v-any','wm');
+const vKey=k=>k==='swarm'?'hive':k,vIc=k=>spritePortrait(k,(VILLAINS[k]||{}).name||SWN[k]||k)||IC('u-target'),mIc=k=>spritePortrait('m-'+k,'Henchman')||IC('u-target'),pIc=p=>IC(POWERS[p]?'p-'+p:'p-any'),vWm=k=>spritePortrait(k,(VILLAINS[k]||{}).name||k,'ic wm sprite-portrait',true);
 
 /* Face crops use the exact battle atlases; coordinates are in original image pixels. */
 const CHARACTER_PORTRAITS={
@@ -28,7 +28,7 @@ const CHARACTER_PORTRAITS={
 function spritePortrait(key,label,classes='ic sprite-portrait',wide=false){
  key=key==='hive'?'swarm':key;const a=CHARACTER_PORTRAITS[key];if(!a)return '';
  const [sheet,W,H,x,y,w,h]=a,ratio=wide?160/116:1,cw=w*ratio,cx=Math.max(0,Math.min(W-cw,x+(w-cw)/2)),box=[cx,y,cw,h].map(n=>+n.toFixed(2)).join(' ');
- return `<svg class="${classes}" data-portrait="${esc(key)}" viewBox="0 0 ${wide?160:116} 116" role="img" aria-label="${esc(label)} portrait" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#302c29"/><svg class="vportrait-crop sprite-portrait-crop" width="100%" height="100%" viewBox="${box}" preserveAspectRatio="xMidYMid slice" overflow="hidden"><image href="assets/isometric/${sheet}.webp" width="${W}" height="${H}" preserveAspectRatio="none"/></svg><path d="M0 115H160" stroke="#bf8f44" stroke-width="3"/></svg>`;
+ return `<svg class="${classes}" data-portrait="${esc(key)}" viewBox="0 0 ${wide?160:116} 116" role="img" aria-label="${esc(label)} portrait" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#302c29"/><svg class="vportrait-crop sprite-portrait-crop" width="100%" height="100%" viewBox="${box}" preserveAspectRatio="xMidYMid slice" overflow="hidden"><image href="assets/isometric/${sheet}.webp" width="${W}" height="${H}" preserveAspectRatio="none"/></svg><rect x=".5" y=".5" width="${wide?159:115}" height="115" fill="none" stroke="#142638" stroke-width="1" vector-effect="non-scaling-stroke"/></svg>`;
 }
 function heroPortrait(h,variant='icon'){
  const key=CHARACTER_PORTRAITS[h.cls]?h.cls:({tech:'cipher',innate:'bulwark',magic:'wisp'}[BASE(h).track]||'bulwark');
