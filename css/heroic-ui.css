@@ -123,3 +123,16 @@ body:has(#app.wrap:not(.sprite-gallery)){
 :root[data-theme="dark"] body:has(#app.wrap:not(.sprite-gallery)){background-color:#302c29}
 :root[data-theme="dark"] #app.wrap.v-sd .bcol{background-color:#39312c}
 :root[data-theme="dark"] #app.wrap.v-sd .bcol::before{color:#eed5a3}
+
+/* Phone battlefield: one thin ink edge rather than nested page/panel gutters. */
+@media(max-width:600px){
+  body:has(#app.wrap.v-sd){margin:0;padding-inline:max(2px,env(safe-area-inset-left,0px)) max(2px,env(safe-area-inset-right,0px))}
+  #app.wrap.v-sd{width:100%;max-width:none;padding-inline:0}
+  #app.wrap.v-sd .sdp{padding:0;margin:0;gap:6px}
+  #app.wrap.v-sd .sdp>.bcol{padding:0;border:1px solid #282622;box-shadow:none;gap:4px}
+  #app.wrap.v-sd .bcol .boardwrap{padding:0;border:0;box-shadow:none}
+  #app.wrap.v-sd .board{width:100%;max-width:none;border-width:1px}
+  #app.wrap.v-sd .sdp>.bact{margin:0}
+  #app.wrap.v-sd .iso-camera{margin:0 3px;gap:3px}
+  #app.wrap.v-sd .bcol>details.coll{margin:0 2px}
+}

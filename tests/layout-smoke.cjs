@@ -116,11 +116,13 @@ const path=require('node:path');
      const header=rect('.bh-combat-brief'),board=rect('.sdp .bcol'),controls=rect('.sdp .bact'),villain=rect('.sdp .bhd');
      return {header:header.y,board:board.y,controls:controls.y,villain:villain.y,
        boardWidth:board.width,frameWidth:rect('.sdl').width,
+       mapWidth:rect('.board').width,
        width:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    if(size.width<1024){
      assert(combat.header<combat.board, 'phone: live status must appear above board');
      assert(combat.board<combat.controls,'phone: actions follow board');
+     assert(combat.mapWidth>=size.width*.96,'phone: playable board uses at least 96% of viewport width');
      assert(combat.controls<combat.villain,'phone: in-depth villain status follows combat controls');
    }else{
      assert(combat.header<combat.board,'desktop: live status must appear above board');
@@ -153,6 +155,12 @@ const path=require('node:path');
    for(const lab of ['ui-style-lab.html','isometric-lab.html']){
      await page.goto('file://'+process.cwd()+'/'+lab);
      if(lab==='ui-style-lab.html')await page.locator('#lab-villain').selectOption('battle');
+     if(size.width<600){
+       const map=await page.locator('.board').boundingBox();
+       assert(map.width>=size.width*.96,lab+': board uses at least 96% of phone width');
+       console.log(lab+': phone board '+map.width+'px / '+size.width+'px viewport');
+       assert.equal(await page.locator('.art-lab-bar').evaluate(el=>getComputedStyle(el).position),'static','phone preview toolbar scrolls away');
+     }
      await page.locator('.bhd [data-a^="book:"]').click();
      await page.locator('#comic .pg.pbcover').waitFor();
      assert(await page.locator('#comic img').first().evaluate(async img=>{await img.decode();return img.naturalWidth>0}),'battle playbook cover loads in '+lab);
@@ -162,6 +170,8 @@ const path=require('node:path');
      assert.equal(await page.locator('#comic').count(),0,'playbook closes without leaving an empty overlay');
      const labWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
      assert(labWidth<=size.width+24,lab+' overflows viewport');
+     await page.locator('.board').scrollIntoViewIfNeeded();
+     await page.screenshot({path:path.join(shots,size.name+'-'+lab.replace('.html','')+'.png'),animations:'disabled'});
    }
    await page.close();
   }
