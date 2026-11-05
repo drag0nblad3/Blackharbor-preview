@@ -115,6 +115,7 @@ const path=require('node:path');
      const rect=s=>document.querySelector(s).getBoundingClientRect();
      const header=rect('.bh-combat-brief'),board=rect('.sdp .bcol'),controls=rect('.sdp .bact'),villain=rect('.sdp .bhd');
      return {header:header.y,board:board.y,controls:controls.y,villain:villain.y,
+       boardWidth:board.width,frameWidth:rect('.sdl').width,
        width:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    if(size.width<1024){
@@ -123,6 +124,7 @@ const path=require('node:path');
      assert(combat.controls<combat.villain,'phone: in-depth villain status follows combat controls');
    }else{
      assert(combat.header<combat.board,'desktop: live status must appear above board');
+     assert(combat.boardWidth>=combat.frameWidth*.65,'desktop: battlefield keeps at least 65% of the battle frame');
    }
    assert(combat.width<=size.width+24,'combat horizontal overflow '+(combat.width-size.width)+'px');
    await page.screenshot({path:path.join(shots,size.name+'-combat.png'),animations:'disabled'});
@@ -147,6 +149,20 @@ const path=require('node:path');
    const galleryWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
    assert(galleryWidth<=size.width+24,'Gallery overflows viewport');
    await page.screenshot({path:path.join(shots,size.name+'-portrait-gallery.png'),animations:'disabled',fullPage:true});
+   // Lab pages must load the same playbook dependencies as the main game.
+   for(const lab of ['ui-style-lab.html','isometric-lab.html']){
+     await page.goto('file://'+process.cwd()+'/'+lab);
+     if(lab==='ui-style-lab.html')await page.locator('#lab-villain').selectOption('battle');
+     await page.locator('.bhd [data-a^="book:"]').click();
+     await page.locator('#comic .pg.pbcover').waitFor();
+     assert(await page.locator('#comic img').first().evaluate(async img=>{await img.decode();return img.naturalWidth>0}),'battle playbook cover loads in '+lab);
+     await page.locator('#comic [data-pb="next"]').click();
+     await page.locator('#comic .pg:not(.pbcover)').waitFor();
+     await page.locator('#comic [data-pb="close"]').click();
+     assert.equal(await page.locator('#comic').count(),0,'playbook closes without leaving an empty overlay');
+     const labWidth=await page.evaluate(()=>document.documentElement.scrollWidth);
+     assert(labWidth<=size.width+24,lab+' overflows viewport');
+   }
    await page.close();
   }
   assert.deepEqual(errors,[],'Browser script errors');

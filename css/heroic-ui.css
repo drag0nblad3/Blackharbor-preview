@@ -1,4 +1,4 @@
-/* Superhero print surfaces. Presentation only: existing layouts, board geometry and actions stay in their owning layers. */
+/* Pulp print surfaces and responsive battle frame. No gameplay or board-coordinate changes. */
 #app.wrap:not(.sprite-gallery){
   --hero-ink:#132638;--hero-gold:#efbd4a;--hero-paper:#f8f2e3;--hero-edge:#819298;
   --hero-grain:url('../assets/ui/heroic-paper.webp');--hero-shadow:3px 4px 0 #08131e;
@@ -8,9 +8,10 @@
   --pulp-grain:var(--hero-grain);--bh-paper:var(--hero-grain);
 }
 body:has(#app.wrap:not(.sprite-gallery)){
-  background-color:#142839;
-  background-image:radial-gradient(circle at 8% 8%,#2f5264 0,transparent 38%),radial-gradient(circle at 98% 95%,#76603c55,transparent 37%),repeating-linear-gradient(135deg,#ffffff0b 0 1px,transparent 1px 12px);
-  background-size:auto,auto,auto;
+  background-color:#d6c5a4;
+  background-image:linear-gradient(110deg,#f8ebcc55,#74604918),url('../assets/ui/heroic-paper.webp');
+  background-size:auto,480px;
+  background-blend-mode:multiply;
 }
 #app.wrap:not(.sprite-gallery) .mast{
   background-color:#173448;background-image:linear-gradient(110deg,#ffffff09,transparent 55%),var(--hero-grain);background-blend-mode:normal,multiply;background-size:auto,480px;
@@ -84,3 +85,41 @@ body:has(#app.wrap:not(.sprite-gallery)){
 @media print{body:has(#app.wrap:not(.sprite-gallery)){background:#fff}}
 #app.wrap.v-sd .sdp{background:none;border:0;box-shadow:none}
 :root[data-theme="dark"] #app.wrap:not(.sprite-gallery) :is(.bh-page-stat span,.bh-combat-metrics small,.bh-rail-title){color:#c4d1d2}
+
+/* A warm printed cover: paper stock, restrained oxblood registration, no blue dot field. */
+#app.wrap:not(.sprite-gallery){--hero-ink:#282622;--pulp-dots:none;--pulp-dots-light:none;--bh-dots:none}
+#app.wrap:not(.sprite-gallery) :is(.mast,.bh-pagehead,.bh-combat-brief,.bh-rail-heading){background-color:#302c29;background-image:var(--hero-grain);background-blend-mode:multiply;border-color:#282622}
+#app.wrap:not(.sprite-gallery) :is(.mast,.bh-pagehead,.panel){box-shadow:3px 4px 0 #08131e,5px 6px 0 #a74636}
+#app.wrap:not(.sprite-gallery) .mast::after{background:linear-gradient(125deg,transparent 45%,#e7bd7140 45% 50%,transparent 50% 58%,#ad493c66 58% 63%,transparent 63%);opacity:.6}
+#app.wrap:not(.sprite-gallery) .bh-pagehead::before{content:none}
+#app.wrap:not(.sprite-gallery) .bh-combat-brief::after{content:none}
+#app.wrap.v-sd .bcol{padding:4px;background:#ede0c4 var(--hero-grain) repeat center/480px;border-color:#282622}
+#app.wrap.v-sd .bcol::before{background:transparent;color:#654331;border-color:#af9873;padding:3px 2px}
+#app.wrap.v-sd .boardwrap{padding:0;border-color:#5f503c}
+#app.wrap.v-sd .board{width:100%;max-width:none;background-color:#302c29;background-image:var(--hero-grain);background-size:480px;background-blend-mode:multiply}
+#app.wrap.v-sd .board.iso-board{background:#302c29 var(--hero-grain) repeat center/480px;background-blend-mode:multiply;border-radius:2px}
+#app.wrap.v-sd .bhd{background-color:#39312c}
+#app.wrap.v-sd .bact{border-top-color:#a74636}
+#app.wrap.v-sd .sdlog{border-left-color:#a74636}
+#app.wrap.v-sd .brest>.eyebrow{background:#39312c}
+#app.wrap:not(.sprite-gallery) .panel>details.coll>summary{background-color:#39312c}
+#app.wrap:not(.sprite-gallery) .inv-header{background:#39312c var(--hero-grain) repeat center/480px;background-blend-mode:multiply}
+@media(min-width:1024px){
+  #app.wrap.v-sd{max-width:1800px;padding-inline:10px}
+  #app.wrap.v-sd .sdl{display:grid;grid-template-columns:minmax(0,1fr) minmax(290px,340px);grid-template-rows:auto auto auto auto auto;gap:9px;align-items:start}
+  #app.wrap.v-sd .bh-combat-brief{grid-column:1/-1;grid-row:1}
+  #app.wrap.v-sd .sdp{display:contents}
+  #app.wrap.v-sd .sdp .bcol{grid-column:1;grid-row:2/6;min-width:0}
+  #app.wrap.v-sd .sdp .bact{grid-column:2;grid-row:2;margin:0}
+  #app.wrap.v-sd .sdp .bhd{grid-column:2;grid-row:3;padding:8px}
+  #app.wrap.v-sd .sdp .brest{grid-column:2;grid-row:4;margin:0;max-height:410px;overflow:auto}
+  #app.wrap.v-sd .sdlog{grid-column:2;grid-row:5;margin:0;min-width:0}
+  #app.wrap.v-sd .sdlog .log{max-height:180px}
+}
+@media(max-width:1023px){
+  #app.wrap.v-sd{padding-inline:6px}
+  #app.wrap.v-sd .sdp>.bcol{padding:3px}
+}
+:root[data-theme="dark"] body:has(#app.wrap:not(.sprite-gallery)){background-color:#302c29}
+:root[data-theme="dark"] #app.wrap.v-sd .bcol{background-color:#39312c}
+:root[data-theme="dark"] #app.wrap.v-sd .bcol::before{color:#eed5a3}
