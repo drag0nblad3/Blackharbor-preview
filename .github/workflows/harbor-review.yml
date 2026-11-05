@@ -9,6 +9,7 @@ on:
       - 'assets/headquarters/**'
       - 'tests/headquarters.cjs'
       - 'tests/layout-smoke.cjs'
+      - 'tests/harbor-motion-phone.cjs'
       - '.github/workflows/harbor-review.yml'
 permissions:
   contents: read
@@ -31,7 +32,9 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
       - name: Check phone and desktop, lighting, animation switch and saves
-        run: node tests/layout-smoke.cjs
+        run: |
+          node tests/harbor-motion-phone.cjs
+          node tests/layout-smoke.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

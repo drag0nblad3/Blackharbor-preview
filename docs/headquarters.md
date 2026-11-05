@@ -14,13 +14,13 @@ Lighting and animation preferences are saved separately from campaign state, und
 
 ## Optional animation
 
-`src/hq/harbor-motion.js` and `css/headquarters-motion.css` contain all movement. Small authored overlays add energy pulses, rune shimmer, beacon sequences, a fabrication-window scan and water highlights. Night's beam drifts gently. Unbuilt facilities have no effects. Motion pauses offscreen and in hidden tabs, and follows `prefers-reduced-motion`. The Animations button remembers Off. Reduced-motion devices show a disabled Off · system control.
+`src/hq/harbor-motion.js` and `css/headquarters-motion.css` contain all movement. Small authored SVG overlays add a circulating reactor spark, moving rune strokes, sequenced lights, a fabrication-window scan and moving water streaks. Non-scaling strokes stay visible at phone resolution, and the effects begin moving immediately rather than waiting through long quiet intervals. Night's beam drifts gently. Unbuilt facilities have no effects. Motion pauses offscreen and in hidden tabs, and follows `prefers-reduced-motion`. The Animations button remembers Off. Reduced-motion devices show a disabled Off · system control.
 
 To remove animation entirely, remove the two motion-file tags from the game entry pages (or disable the CSS file). The construction renderer and render hook guard every optional motion call. Static buildings, facility selection, build rules, day/night controls and steady night lighting remain functional. No movement is embedded in the artwork or gameplay logic.
 
 ## Validation
 
-`tests/headquarters.cjs` checks saved construction, costs, unlocks, art coverage, partial/completed scenes, local-clock boundaries, preference validation, motion state and reduced motion. `tests/layout-smoke.cjs` checks desktop and phone fit, the phone picker, live lighting changes, motion-off, reload persistence and system reduced motion, and captures screenshots. The PR harbor review workflow runs these before preview is merged; the main preview gate retains its complete campaign and browser checks.
+`tests/headquarters.cjs` checks saved construction, costs, unlocks, art coverage, partial/completed scenes, local-clock boundaries, preference validation, motion state and reduced motion. `tests/layout-smoke.cjs` checks desktop and phone fit, the phone picker, live lighting changes, motion-off, reload persistence and system reduced motion, and captures screenshots. `tests/harbor-motion-phone.cjs` additionally checks 320px and 390px portrait plus phone landscape, compares rendered pixels at two animation times, checks a running animation clock, and records a short 390px phone clip. The PR harbor review workflow runs these before preview is merged; the main preview gate retains its complete campaign and browser checks.
 
 ## Art production
 
