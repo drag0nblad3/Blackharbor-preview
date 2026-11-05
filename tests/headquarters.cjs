@@ -45,4 +45,11 @@ for(const k of get('Object.keys(HQ_SCALE)')){
 const mast=get("HQ_SITES.comms[2]*445/512"),clinicDoor=get("HQ_SITES.medbay[2]*77/512");
 assert(Math.abs(mast/clinicDoor-22/2.1)<1e-8,'mast and personnel door preserve their real-world height ratio');
 assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/aspect-ratio:3\/1/,'grounds keep their authored projection instead of stretching');
+// The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
+for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
+ const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
+ if(!html.includes('src/ui/render.js'))continue;
+ assert(html.includes('css/headquarters.css'),name+' loads shared masthead sizing');
+ assert(html.includes('src/hq/construction.js'),name+' loads its construction tab handler');
+}
 console.log('Headquarters: navigation, previews, costs, unlocks, duplicate guards, persistence, and 17 sprite mappings pass.');
