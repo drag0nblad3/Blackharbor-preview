@@ -222,3 +222,7 @@ body:has(#app.wrap:not(.sprite-gallery)){background-color:#ffe7a6;background-ima
   #app.wrap.v-sd .bh-combat-brief h2{font-size:1.3rem}
 }
 :root[data-theme="dark"] #app.wrap:not(.sprite-gallery){--hero-paper:#253947}
+
+/* Keep the issue badge's intrinsic width beside the comic masthead. */
+#app.wrap:not(.sprite-gallery) .mast>.mast-tools{flex-shrink:0;min-width:max-content}
+#app.wrap:not(.sprite-gallery) .mast .issue{flex-shrink:0}

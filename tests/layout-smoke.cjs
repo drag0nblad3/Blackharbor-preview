@@ -100,6 +100,11 @@ const path=require('node:path');
    if(size.width<600)assert(portraits.every(p=>p.art>=28),'phone roster portraits remain readable');
    assert.equal(await page.locator('use[href^="#i-v-"],use[href^="#i-m-"]').count(),0,'no old character icons are referenced');
    assert.equal(await page.locator('symbol[id^="i-v-"],symbol[id^="i-m-"]').count(),0,'old character icons are not loaded');
+   const mastOverlap=await page.evaluate(()=>{
+     const a=document.querySelector('.mast h1').getBoundingClientRect(),b=document.querySelector('.mast .issue').getBoundingClientRect();
+     return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+   });
+   assert(!mastOverlap,'comic masthead and issue badge do not overlap');
    const heroId=await page.evaluate(()=>S.party[0]);
    await page.locator('.bh-roster-pick').first().click();
    assert.equal(await page.locator('[data-cid="h-'+heroId+'"]').getAttribute('open'),'','Selecting a hero opens the actual full sheet');
