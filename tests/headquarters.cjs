@@ -71,6 +71,11 @@ run('matchMedia=undefined');
 assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/harbor-complete.webp')));
 assert(fs.existsSync(path.join(__dirname,'..','assets/headquarters/harbor-ground.webp')));
 assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/hq-beacon-light,#app \.hq-lantern-light\{display:none/,'base CSS hides daytime beacon');
+// Removing the optional module leaves construction and steady lighting available.
+run('const motionBackup=[hqMotionLayer,hqMotionControl,hqMotionMount];hqMotionLayer=undefined;hqMotionControl=undefined;hqMotionMount=undefined');
+assert.match(get('hqConstructionView()'),/hq-lighthouse/);
+assert.doesNotMatch(get('hqConstructionView()'),/hq-motion-toggle/);
+run('[hqMotionLayer,hqMotionControl,hqMotionMount]=motionBackup');
 // The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
 for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
  const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');

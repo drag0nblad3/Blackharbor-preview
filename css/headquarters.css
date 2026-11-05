@@ -14,6 +14,20 @@
 #app .hq-fac-art{display:block;position:relative;aspect-ratio:100/var(--cut-h);overflow:hidden;pointer-events:none}
 #app .hq-art-cell{position:absolute;left:0;top:calc(-100% * var(--cut-top)/var(--cut-h));width:100%;aspect-ratio:1;background-size:300% 200%;background-position:var(--ax) var(--ay);background-repeat:no-repeat;clip-path:var(--silhouette)}
 #app .hq-plot{position:absolute;left:var(--px);top:var(--py);width:var(--pw);height:auto;transform:translate(-50%,-100%);border:0;padding:0;background:none;box-shadow:none;cursor:pointer;color:#142638}
+#app .hq-plot[data-a="facselect:hangar"] .hq-fac-art{aspect-ratio:100/32.9}
+#app .hq-plot[data-a="facselect:hangar"] .hq-art-cell{transform:scaleY(0.7);transform-origin:top}
+#app .hq-plot[data-a="facselect:dojo"] .hq-fac-art{aspect-ratio:100/43.5}
+#app .hq-plot[data-a="facselect:dojo"] .hq-art-cell{transform:scaleY(0.75);transform-origin:top}
+#app .hq-plot[data-a="facselect:bunker"] .hq-fac-art{aspect-ratio:100/39.75}
+#app .hq-plot[data-a="facselect:bunker"] .hq-art-cell{transform:scaleY(0.75);transform-origin:top}
+#app .hq-plot[data-a="facselect:bombsq"] .hq-fac-art{aspect-ratio:100/47.25}
+#app .hq-plot[data-a="facselect:bombsq"] .hq-art-cell{transform:scaleY(0.75);transform-origin:top}
+#app .hq-plot[data-a="facselect:magnet"] .hq-fac-art{aspect-ratio:100/65.7}
+#app .hq-plot[data-a="facselect:magnet"] .hq-art-cell{transform:scaleY(0.9);transform-origin:top}
+#app .hq-plot[data-a="facselect:jammer"] .hq-fac-art{aspect-ratio:100/36.6}
+#app .hq-plot[data-a="facselect:jammer"] .hq-art-cell{transform:scaleY(0.6);transform-origin:top}
+#app .hq-plot[data-a="facselect:workshop"] .hq-fac-art{aspect-ratio:100/31.5}
+#app .hq-plot[data-a="facselect:workshop"] .hq-art-cell{transform:scaleY(0.9);transform-origin:top}
 #app .hq-plot.is-complex-part .hq-fac-art{visibility:hidden}
 #app .hq-plot.is-preview .hq-fac-art,#app .hq-complex.is-preview{opacity:.6;filter:sepia(.8) saturate(2) drop-shadow(0 0 2px #ffb800)}
 #app .hq-plot.is-selected::after{content:'';position:absolute;inset:auto 8% -2px;height:10%;min-height:4px;border:2px solid #ffbd19;border-radius:50%;pointer-events:none;box-shadow:0 0 0 1px #142638}

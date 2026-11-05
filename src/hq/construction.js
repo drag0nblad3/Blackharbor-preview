@@ -2,7 +2,7 @@
 const HQ_ART_VERSION='harbor-5';
 const HQ_FAC_ART={skunk:[1,0],medbay:[1,1],workshop:[1,2],comms:[1,3],training:[1,4],press:[1,5],lab:[2,0],hangar:[2,1],reactor:[2,2],sanctum:[2,3],bunker:[2,4],antivenom:[2,5],magnet:[3,0],dojo:[3,1],bombsq:[3,2],optics:[3,3],jammer:[3,4]};
 /* Foot anchors and art widths are authored against the approved 1896x830 master, not a square grid. */
-const HQ_SITES={skunk:[65,77,26],medbay:[63,46,13],workshop:[40,78,36],comms:[53.4,24,10],training:[30,48,12],press:[36,38,11],lab:[71,44,12],hangar:[79.5,34,27],reactor:[89,56,13],sanctum:[26.5,38,17],bunker:[79,85,18],antivenom:[78,51,12],magnet:[16.5,77,15],dojo:[20,51,17],bombsq:[83.5,69,16],optics:[59,25,12],jammer:[86,76,14]};
+const HQ_SITES={skunk:[65,77,26],medbay:[63,46,13],workshop:[40,78,36],comms:[53.4,24,14.5],training:[30,48,12],press:[36,38,11],lab:[71,44,12],hangar:[79.5,34,27],reactor:[89,56,13],sanctum:[26.5,38,17],bunker:[79,85,18],antivenom:[78,51,12],magnet:[16.5,77,15],dojo:[20,51,17],bombsq:[83.5,69,16],optics:[59,26,11],jammer:[86,76,14]};
 /* Cell crop and silhouettes remove unused atlas margins at render time; no smoky rectangular backplates. */
 const HQ_CUTS={
  skunk:[44,48,'3% 91%,3% 70%,21% 59%,21% 54%,37% 45%,58% 45%,68% 56%,82% 57%,84% 66%,98% 70%,98% 92%'],
