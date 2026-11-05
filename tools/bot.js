@@ -306,8 +306,8 @@ function plannedSpend(hs,ok){
 
 function spend(allowed){
   const ok=it=>!allowed||allowed.has(it);
-  /* facilities, greedy in priority order */
-  let built=true;while(built){built=false;for(const f of FAC_ORDER){if(S.facilities.includes(f)||!isUnlocked('fac:'+f)||!facOpen(f)||!ok('fac:'+f))continue;if(afford(FAC[f].cost)){click('build:'+f);built=true}}}
+  /* Facilities are available at HQ only; a rejected click must never keep this pass alive. */
+  let built=true;while(built&&S.phase==='hq'){built=false;for(const f of FAC_ORDER){if(S.facilities.includes(f)||!isUnlocked('fac:'+f)||!facOpen(f)||!ok('fac:'+f))continue;if(afford(FAC[f].cost)){const before=S.facilities.length;click('build:'+f);if(S.facilities.length>before)built=true}}}
   /* free research */
   if(S.facilities.includes('skunk')&&!allowed)research(true);
   const hs=party();equipBest(roster());
