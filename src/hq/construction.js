@@ -7,11 +7,11 @@ const HQ_FAC_ART={
 /* Shared visual world scale. Reference pixels measure an upright feature in each 512px cell.
    Personnel doors use 2.1m; loading doors, equipment and the mast use their own plausible heights.
    Art is illustrative: these are scale anchors, not surveyed building dimensions. */
-const HQ_WORLD_WIDTH_M=160;
+const HQ_WORLD_WIDTH_M=112;
 const HQ_SCALE={
-  skunk:[96,2.1,'personnel door'],medbay:[77,2.1,'personnel door'],workshop:[105,4.5,'loading door'],
+  skunk:[96,2.1,'personnel door'],medbay:[77,2.1,'personnel door'],workshop:[105,3.3,'loading door'],
   comms:[445,22,'mast'],training:[140,4,'courtyard eaves'],press:[100,2.1,'personnel door'],
-  lab:[70,2.1,'personnel door'],hangar:[124,6,'hangar opening'],reactor:[96,2.2,'transformer cabinet'],
+  lab:[70,2.1,'personnel door'],hangar:[124,5,'hangar opening'],reactor:[96,2.2,'transformer cabinet'],
   sanctum:[101,2.4,'chapel door'],bunker:[121,2.2,'bunker hatch'],antivenom:[100,2.1,'greenhouse door'],
   magnet:[70,2.1,'control hut door'],dojo:[130,3.1,'veranda eaves'],bombsq:[187,4.2,'tall bay door'],
   optics:[89,2.1,'annex door'],jammer:[100,1.6,'equipment cabinet']
@@ -19,23 +19,37 @@ const HQ_SCALE={
 function hqScaledWidth(k){const a=HQ_SCALE[k];return 512*a[1]/a[0]/HQ_WORLD_WIDTH_M*100}
 /* Site anchors [x%, foot-y%, scaled cell width%], authored around access routes and clearance. */
 const HQ_SITES={
-  skunk:[38,64,hqScaledWidth('skunk')],medbay:[69,43,hqScaledWidth('medbay')],workshop:[22,63,hqScaledWidth('workshop')],
-  comms:[91,88,hqScaledWidth('comms')],training:[34,84,hqScaledWidth('training')],press:[28,40,hqScaledWidth('press')],
-  lab:[56,36,hqScaledWidth('lab')],hangar:[85,65,hqScaledWidth('hangar')],reactor:[93,45,hqScaledWidth('reactor')],
-  sanctum:[42,39,hqScaledWidth('sanctum')],bunker:[12,43,hqScaledWidth('bunker')],antivenom:[81,30,hqScaledWidth('antivenom')],
-  magnet:[11,87,hqScaledWidth('magnet')],dojo:[47,88,hqScaledWidth('dojo')],bombsq:[63,88,hqScaledWidth('bombsq')],
-  optics:[74,91,hqScaledWidth('optics')],jammer:[56,67,hqScaledWidth('jammer')]
+  skunk:[29,65,hqScaledWidth('skunk')],medbay:[61,54,hqScaledWidth('medbay')],workshop:[18,69,hqScaledWidth('workshop')],
+  comms:[88.5,91,hqScaledWidth('comms')],training:[34,87,hqScaledWidth('training')],press:[22,43,hqScaledWidth('press')],
+  lab:[48,48,hqScaledWidth('lab')],hangar:[83,74,hqScaledWidth('hangar')],reactor:[89,43,hqScaledWidth('reactor')],
+  sanctum:[36,46,hqScaledWidth('sanctum')],bunker:[8,61,hqScaledWidth('bunker')],antivenom:[73,45,hqScaledWidth('antivenom')],
+  magnet:[13,89,hqScaledWidth('magnet')],dojo:[46,91,hqScaledWidth('dojo')],bombsq:[62,90,hqScaledWidth('bombsq')],
+  optics:[74,93,hqScaledWidth('optics')],jammer:[54,72,hqScaledWidth('jammer')]
 };
+/* Roofed passages join related wings only after both buildings exist. Points are in site percentages.
+   Their ends tuck beneath the independent sprites; costs, unlocks and saves stay facility-based. */
+const HQ_LINKS=[
+  {a:'workshop',b:'skunk',points:[[19,64],[28,60]]},
+  {a:'lab',b:'medbay',points:[[49,43],[60,49]]},
+  {a:'medbay',b:'antivenom',points:[[62,48],[72,40]]},
+  {a:'training',b:'dojo',points:[[35,82],[45,86]]}
+];
+function hqConnections(){
+  return `<svg class="hq-connections" viewBox="0 0 1200 400" aria-hidden="true" focusable="false">${HQ_LINKS.filter(l=>S.facilities.includes(l.a)&&S.facilities.includes(l.b)).map(l=>{
+    const d=l.points.map(([x,y],i)=>`${i?'L':'M'}${x*12},${y*4}`).join(' ');
+    return `<g data-hq-link="${l.a}:${l.b}"><path class="hq-link-shadow" d="${d}"/><path class="hq-link-wall" d="${d}"/><path class="hq-link-roof" d="${d}"/><path class="hq-link-ridge" d="${d}"/></g>`;
+  }).join('')}</svg>`;
+}
 function hqFacilityArt(k,cls=''){
   const a=HQ_FAC_ART[k];if(!a)return '';
-  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=world-scale-1');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
+  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=compact-harbor-2');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
 }
 function hqGrounds(selected){
   const keys=Object.keys(HQ_FAC_ART);
   return `<section class="hq-grounds" aria-label="Harbor headquarters grounds">
     <div class="hq-grounds-title"><h2>Harbor compound</h2><span>${S.facilities.filter(k=>HQ_FAC_ART[k]).length} / ${keys.length} built</span></div>
     <div class="hq-grounds-scroll" tabindex="0" aria-label="Headquarters grounds; scroll horizontally on narrow screens">
-      <div class="hq-grounds-stage">${keys.map((k,i)=>{
+      <div class="hq-grounds-stage">${hqConnections()}${keys.map((k,i)=>{
         const built=S.facilities.includes(k),active=k===selected,site=HQ_SITES[k],x=site[0],y=site[1];
         if(!built&&!active)return '';
         return `<button type="button" class="hq-plot ${built?'is-built':'is-preview'} ${active?'is-selected':''}" style="--px:${x}%;--py:${y}%;--pw:${site[2]}%;z-index:${Math.round(y)}" data-a="facselect:${k}" aria-label="${esc(FAC[k].name)} · ${built?'built':'proposed location'}" title="${esc(FAC[k].name)}${built?' · Built':' · Preview'}">${hqFacilityArt(k)}<span class="hq-plot-label">${esc(FAC[k].name)}</span></button>`;

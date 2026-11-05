@@ -4,7 +4,13 @@
 #app .hq-grounds-title h2{font:1.35rem Bangers,cursive;margin:0;letter-spacing:.04em}
 #app .hq-grounds-title>span{font-weight:800;font-size:.8rem}
 #app .hq-grounds-scroll{overflow-x:auto;height:auto;scrollbar-color:#d4503e #ecd398;overscroll-behavior-x:contain}
-#app .hq-grounds-stage{position:relative;min-width:1000px;width:100%;height:auto;aspect-ratio:3/1;background:url('../assets/headquarters/grounds.webp?v=world-scale-1') center/100% 100% no-repeat;isolation:isolate}
+#app .hq-grounds-stage{position:relative;min-width:1000px;width:100%;height:auto;aspect-ratio:3/1;background:url('../assets/headquarters/grounds.webp?v=compact-harbor-2') center/100% 100% no-repeat;isolation:isolate}
+#app .hq-connections{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;overflow:visible}
+#app .hq-connections path{fill:none;stroke-linecap:butt;stroke-linejoin:round}
+#app .hq-link-shadow{stroke:#233747;stroke-width:18;opacity:.22;transform:translate(3px,7px)}
+#app .hq-link-wall{stroke:#172b35;stroke-width:15;transform:translateY(4px)}
+#app .hq-link-roof{stroke:#172b35;stroke-width:15}
+#app .hq-link-ridge{stroke:#5e827e;stroke-width:10}
 #app .hq-fac-art{display:block;aspect-ratio:1;background-size:300% 200%;background-position:var(--ax) var(--ay);background-repeat:no-repeat;pointer-events:none}
 #app .hq-plot{position:absolute;left:var(--px);top:var(--py);width:var(--pw);aspect-ratio:1;transform:translate(-50%,-88%);border:0;padding:0;background:none;box-shadow:none;cursor:pointer;color:#142638}
 #app .hq-plot.is-preview .hq-fac-art{opacity:.6;filter:sepia(1) saturate(4) drop-shadow(0 0 2px #ffb800)}

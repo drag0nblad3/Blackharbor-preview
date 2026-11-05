@@ -88,6 +88,24 @@ const path=require('node:path');
 
    await checkPage('hq','.bh-hq-layout .hqcols','.bh-hq-rail');
    assert(await page.locator('.bh-hq-rail svg.vportrait').count()>0,'HQ shows villain mugshots');
+   // The compact harbor remains contained when every facility and covered link exists.
+   const originalFacilities=await page.evaluate(()=>S.facilities.slice());
+   await page.locator('.nav [data-a="view:construction"]').click();
+   await page.evaluate(()=>{S.facilities=Object.keys(FAC);render()});
+   assert.equal(await page.locator('.hq-plot.is-built').count(),17,'all facilities appear on the compact island');
+   assert.equal(await page.locator('[data-hq-link]').count(),4,'built complexes get covered passages');
+   const campus=await page.evaluate(async()=>{
+     const stage=document.querySelector('.hq-grounds-stage'),r=stage.getBoundingClientRect();
+     const image=new Image();image.src=new URL(getComputedStyle(stage).backgroundImage.slice(5,-2),location.href).href;
+     await image.decode();
+     return {ratio:r.width/r.height,bodyWidth:document.documentElement.scrollWidth,
+       links:getComputedStyle(document.querySelector('.hq-connections')).pointerEvents};
+   });
+   assert(Math.abs(campus.ratio-3)<.02,'campus preserves its illustrated projection');
+   assert(campus.bodyWidth<=size.width+24,'campus pans internally without widening the page');
+   assert.equal(campus.links,'none','passages cannot block facility selection');
+   await page.screenshot({path:path.join(shots,size.name+'-compact-harbor.png'),animations:'disabled'});
+   await page.evaluate(facilities=>{S.facilities=facilities;S.view='hq';render()},originalFacilities);
    await page.locator('.nav [data-a="view:roster"]').click();
    await checkPage('roster','.bh-roster-content','.bh-roster-rail');
    await assertStablePalette('Roster',['body','.mast','.nav .btn','.bh-roster-rail','.bh-roster-content .card']);

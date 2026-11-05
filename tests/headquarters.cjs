@@ -45,6 +45,14 @@ for(const k of get('Object.keys(HQ_SCALE)')){
 const mast=get("HQ_SITES.comms[2]*445/512"),clinicDoor=get("HQ_SITES.medbay[2]*77/512");
 assert(Math.abs(mast/clinicDoor-22/2.1)<1e-8,'mast and personnel door preserve their real-world height ratio');
 assert.match(fs.readFileSync(path.join(__dirname,'..','css/headquarters.css'),'utf8'),/aspect-ratio:3\/1/,'grounds keep their authored projection instead of stretching');
+// Covered links follow construction state; selecting an unbuilt wing cannot create one.
+run("S.facilities=['workshop'];S.ui.hqFacility='skunk'");
+assert.doesNotMatch(get('hqGrounds("skunk")'),/data-hq-link=/);
+run("S.facilities.push('skunk')");
+assert.match(get('hqConnections()'),/data-hq-link="workshop:skunk"/);
+assert.doesNotMatch(get('hqConnections()'),/data-hq-link="lab:medbay"/);
+run('S.facilities=Object.keys(FAC)');
+assert.equal((get('hqConnections()').match(/data-hq-link=/g)||[]).length,4);
 // The shared renderer emits the illustrated masthead and HQ tab on every real-game entry page.
 for(const name of fs.readdirSync(path.join(__dirname,'..')).filter(n=>n.endsWith('.html'))){
  const html=fs.readFileSync(path.join(__dirname,'..',name),'utf8');
