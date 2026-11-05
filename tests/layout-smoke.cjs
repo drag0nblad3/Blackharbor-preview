@@ -130,6 +130,32 @@ const path=require('node:path');
    }
    assert(combat.width<=size.width+24,'combat horizontal overflow '+(combat.width-size.width)+'px');
    await page.screenshot({path:path.join(shots,size.name+'-combat.png'),animations:'disabled'});
+   if(size.name==='phone'){
+     const saved=await page.evaluate(()=>JSON.stringify(S));
+     for(const viewport of [{width:844,height:390},{width:740,height:360}]){
+       await page.setViewportSize(viewport);
+       const landscape=await page.evaluate(()=>{
+         const b=document.querySelector('.board').getBoundingClientRect(),a=document.querySelector('.bact').getBoundingClientRect();
+         return {boardWidth:b.width,boardRight:b.right,actionsLeft:a.left,actionsRight:a.right,overflow:document.documentElement.scrollWidth-innerWidth};
+       });
+       assert(landscape.boardWidth>viewport.width*.65,'landscape board takes the larger left column');
+       assert(landscape.boardRight<=landscape.actionsLeft,'landscape actions sit to the right of board');
+       assert(landscape.actionsRight<=viewport.width&&landscape.overflow<=2,'landscape fits phone width');
+     }
+     await page.locator('[data-a="battleArt"]').click();
+     await page.locator('.board.iso-board').waitFor();
+     const iso=await page.locator('.board.iso-board').boundingBox(),actions=await page.locator('.bact').boundingBox();
+     assert(iso.x+iso.width<=actions.x,'isometric landscape board also stays beside actions');
+     await page.locator('.board').scrollIntoViewIfNeeded();
+     await page.screenshot({path:path.join(shots,'phone-landscape-battle.png'),animations:'disabled'});
+     await page.setViewportSize({width:390,height:844});
+     const portraitBoard=await page.locator('.board').boundingBox(),portraitActions=await page.locator('.bact').boundingBox();
+     assert(portraitActions.y>=portraitBoard.y+portraitBoard.height,'rotating back places actions below board');
+     assert(portraitBoard.width>=390*.96,'portrait board returns to full phone width');
+     assert.equal(await page.evaluate(()=>JSON.stringify(S)),saved,'rotation preserves the active battle');
+     await page.locator('[data-a="battleArt"]').click();
+   }
+
    await page.evaluate(()=>{S.phase='hq';S.view='villains';startInv('cantor');render()});
    await page.locator('.inv-ui').waitFor();
    assert(await page.locator('.inv-villain-visual svg.vportrait').count()>0,'Investigation target portrait is present');
