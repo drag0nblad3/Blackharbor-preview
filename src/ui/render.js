@@ -6,7 +6,7 @@ function flip(){const b=document.querySelector('.board');if(!b){lastPos={};retur
     if(p&&(p[0]!==x||p[1]!==y)&&!noFlip.has(id)&&!RM){const d=Math.hypot(p[0]-x,p[1]-y);
       e.animate([{transform:`translate(${(p[0]-x)*c}px,${(p[1]-y)*c}px)`},{transform:`translate(${(p[0]-x)*c*.5}px,${(p[1]-y)*c*.5-c*.18}px)`,offset:.5},{transform:'none'}],{duration:Math.min(520,180+90*d),easing:'ease-in-out'})}});
   noFlip.clear();lastPos=now}
-function mast(){return `<header class="mast"><div class="bh-comic-brand"><h1><img src="assets/ui/comic-masthead.webp" alt="Blackharbor" width="2172" height="724" fetchpriority="high"></h1></div>
+function mast(){return `<header class="mast"><div class="bh-comic-brand"><h1><img src="assets/ui/comic-masthead.webp?v=lighthouse-city-beam" alt="Blackharbor" width="2172" height="724" fetchpriority="high"></h1></div>
   <div class="row mast-tools"><span class="issue" data-tip="kw:volume">Vol. ${S.vol} · Arc ${arcOf(Math.min(S.issue,MAX_ISSUE))} · #${Math.min(S.issue,MAX_ISSUE)}</span><button type="button" class="btn sm mast-save-btn" data-save-open aria-haspopup="dialog" aria-label="Open game menu: new campaign, difficulty, save and load">☰ Menu</button></div>
   <div class="res" style="flex-basis:100%">
     <span class="chip trust" data-tip="kw:trust" aria-label="Trust" title="Trust">${UI('trust')}${S.trust}</span><span class="chip" data-tip="kw:techres" aria-label="Tech" title="Tech">${UI('tech')}${S.tech}</span><span class="chip" data-tip="kw:intel" aria-label="Intel" title="Intel">${UI('intel')}${S.intel}</span>
