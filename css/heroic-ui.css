@@ -136,3 +136,39 @@ body:has(#app.wrap:not(.sprite-gallery)){
   #app.wrap.v-sd .iso-camera{margin:0 3px;gap:3px}
   #app.wrap.v-sd .bcol>details.coll{margin:0 2px}
 }
+
+/* Rotation is handled by viewport media queries, so combat never needs a reload. */
+@media(orientation:landscape) and (max-height:600px) and (max-width:1200px){
+  body:has(#app.wrap.v-sd){margin:0;padding:2px max(3px,env(safe-area-inset-right,0px)) 6px max(3px,env(safe-area-inset-left,0px))}
+  #app.wrap.v-sd{width:100%;max-width:none;padding:0;gap:5px}
+  #app.wrap.v-sd .mast{padding:3px 6px;gap:3px 6px;align-items:center}
+  #app.wrap.v-sd .mast h1{font-size:1rem}
+  #app.wrap.v-sd .mast .issue{font-size:.7rem;padding:1px 4px}
+  #app.wrap.v-sd .nav .btn{min-height:28px;padding:2px 5px}
+  #app.wrap.v-sd .sdl{display:grid;grid-template-columns:minmax(0,1fr) clamp(210px,28vw,280px);grid-template-rows:auto auto auto auto auto;gap:5px;align-items:start}
+  #app.wrap.v-sd .bh-combat-brief{grid-column:1/-1;grid-row:1;padding:3px 5px;gap:4px}
+  #app.wrap.v-sd .bh-combat-title h2{font-size:1rem}
+  #app.wrap.v-sd .bh-combat-metrics>div{padding:1px 3px}
+  #app.wrap.v-sd .sdp{display:contents}
+  #app.wrap.v-sd .sdp>.bcol{grid-column:1;grid-row:2/6;min-width:0;padding:0;border-width:1px;box-shadow:none;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px;position:sticky;top:3px}
+  #app.wrap.v-sd .bcol::before{display:none}
+  #app.wrap.v-sd .bcol>.btn{font-size:.56rem;min-height:28px;padding:2px}
+  #app.wrap.v-sd .iso-camera{margin:0;gap:2px}
+  #app.wrap.v-sd .iso-camera .btn{min-height:28px;padding:2px 7px;font-size:.6rem}
+  #app.wrap.v-sd .bcol .boardwrap{grid-column:1/-1;grid-row:2;padding:0;border:0;box-shadow:none}
+  #app.wrap.v-sd .board{width:100%;max-width:none;border-width:1px}
+  #app.wrap.v-sd .bcol>details.coll{grid-column:1/-1;grid-row:3;margin:0}
+  #app.wrap.v-sd .bcol>details.coll>summary{padding:2px 5px;min-height:24px;font-size:.6rem}
+  #app.wrap.v-sd .sdp>.bact{grid-column:2;grid-row:2;position:static;margin:0;padding:5px;gap:4px}
+  #app.wrap.v-sd .bact .btn{min-height:34px;padding:3px 5px;font-size:.65rem}
+  #app.wrap.v-sd .combat-dropdown{min-width:0;flex:1 1 100%}
+  #app.wrap.v-sd .combat-dropdown-menu{top:calc(100% + 3px);bottom:auto;left:auto;right:0;min-width:210px;max-height:65dvh}
+  #app.wrap.v-sd .sdp>.bhd{grid-column:2;grid-row:3;padding:6px}
+  #app.wrap.v-sd .sdp>.brest{grid-column:2;grid-row:4;margin:0;max-height:none;overflow:visible;padding:5px}
+  #app.wrap.v-sd .sdlog{grid-column:2;grid-row:5;min-width:0;margin:0;padding:5px}
+  #app.wrap.v-sd .sdlog .log{max-height:130px}
+  body:has(#app.wrap.v-sd) .art-lab-bar{position:static;padding:4px;gap:4px}
+  body:has(#app.wrap.v-sd) .art-lab-title{display:none}
+  body:has(#app.wrap.v-sd) .art-lab-controls{width:100%;justify-content:flex-end;gap:5px}
+  body:has(#app.wrap.v-sd) .art-lab-bar :is(select,a,button){min-height:28px;padding:3px 6px;font-size:10px}
+}
