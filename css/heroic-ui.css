@@ -184,17 +184,41 @@ body:has(#app.wrap:not(.sprite-gallery)){
   #app .bh-pick-icon:has(>.sprite-portrait){flex-basis:30px;width:30px;height:30px}
   #app.v-hq-roster .card>details.coll>summary .vic:has(>.sprite-portrait){width:28px;height:28px}
 }
-/* Brighter cover inks against warm stock; textures stay quiet behind readable type. */
-#app.wrap:not(.sprite-gallery){--hero-paper:#fff4d7;--hero-gold:#ffd04e}
-body:has(#app.wrap:not(.sprite-gallery)){background-color:#ecd3a0}
-#app.wrap:not(.sprite-gallery) .mast{background-color:#822e39;border-bottom-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .mast h1{color:#fff0ad}
-#app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief){background-color:#19565a;border-left-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .bh-rail-heading{background-color:#a63e39;color:#fff4cd;border-left-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .bh-rail-title{color:#175c61;border-bottom-color:#d7a63e}
-#app.wrap:not(.sprite-gallery) .nav .btn.on{background-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .bh-roster-pick{background-color:#fff2cc;border-color:#22656a;box-shadow:2px 2px 0 #b8483c}
-#app.wrap:not(.sprite-gallery) .panel>details.coll>summary{background-color:#1b6268;border-left-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .btn.pri{background-color:#ffd04e}
-#app.wrap:not(.sprite-gallery) .btn.on{background-color:#20777a}
+/* Bright comic cover inks: bold captions, paper interiors and playful corner print. */
+#app.wrap:not(.sprite-gallery){--hero-paper:#fff9e8;--hero-gold:#ffd238}
+body:has(#app.wrap:not(.sprite-gallery)){background-color:#ffe7a6;background-image:linear-gradient(120deg,#fff8db66,#ffc84b22),url('../assets/ui/heroic-paper.webp')}
+#app.wrap:not(.sprite-gallery) .mast{background-color:#ffd238;border-bottom-color:#e03b48;background-blend-mode:multiply;box-shadow:3px 4px 0 #08131e,5px 6px 0 #df3948}
+#app.wrap:not(.sprite-gallery) .mast h1{font-family:var(--sfx);font-size:clamp(2.2rem,4vw,3.2rem);line-height:1;letter-spacing:.035em;color:#fffdf1;-webkit-text-stroke:1px #142638;text-shadow:2px 2px 0 #142638,4px 4px 0 #dc3546}
+#app.wrap:not(.sprite-gallery) .mast small{color:#293d48}
+#app.wrap:not(.sprite-gallery) .mast .issue{background:#d83042;color:#fff9df;transform:rotate(-1deg)}
+#app.wrap:not(.sprite-gallery) .mast::after{background:repeating-linear-gradient(120deg,transparent 0 20px,#ed674433 20px 24px);opacity:.6}
+#app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief){background-color:#c72d3b;border-left-color:#ffd238}
+#app.wrap:not(.sprite-gallery) .bh-pagehead::before{content:'';position:absolute;inset:0 0 0 auto;width:24%;height:auto;border-radius:0;background:repeating-conic-gradient(from 15deg at 100% 50%,#ffd23844 0deg 12deg,transparent 12deg 27deg);opacity:1;pointer-events:none;z-index:-1}
+#app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief) h2{font-family:var(--sfx);font-size:2.1rem;letter-spacing:.045em;line-height:1.05;text-shadow:2px 2px 0 #142638}
+#app.wrap:not(.sprite-gallery) .bh-pagehead p{color:#fff7e0}
+#app.wrap:not(.sprite-gallery) .bh-page-kicker{display:inline-block;width:fit-content;background:#ffd238;color:#172b39;border:1px solid #142638;padding:1px 5px;transform:rotate(-1deg);text-shadow:none}
+#app.wrap:not(.sprite-gallery) .bh-rail-heading{background-color:#087d86;color:#fff9dc;border-left-color:#ffd238}
+#app.wrap:not(.sprite-gallery) .bh-rail-heading :is(b,h2,h3){font-family:var(--sfx);letter-spacing:.05em;font-size:1.3rem}
+#app.wrap:not(.sprite-gallery) .bh-rail-title{color:#08616b;border-bottom:2px solid #f1b42a}
+#app.wrap:not(.sprite-gallery) .nav .btn{background-color:#fff8df}
+#app.wrap:not(.sprite-gallery) .nav .btn.on{background-color:#ffd238;box-shadow:inset 0 -3px 0 #ee9e28,2px 3px 0 #142638}
+#app.wrap:not(.sprite-gallery) .bh-roster-pick{background-color:#fff8e6;border-color:#087d86;box-shadow:2px 2px 0 #e13b48}
+#app.wrap:not(.sprite-gallery) .bh-roster-pick:nth-of-type(even){border-color:#d73748;background-color:#fff0cf}
+#app.wrap:not(.sprite-gallery) .panel>details.coll>summary{background-color:#087d86;border-left-color:#ffd238}
+#app.wrap:not(.sprite-gallery) .panel>details.coll>summary :is(h2,h3){font-family:var(--sfx);letter-spacing:.04em;font-size:1.45rem}
+#app.wrap:not(.sprite-gallery) .btn{background-color:#fff9e8}
+#app.wrap:not(.sprite-gallery) .btn.pri{background-color:#ffd238;box-shadow:inset 0 -2px 0 #ee9e2844,2px 3px 0 #142638}
+#app.wrap:not(.sprite-gallery) .btn.on{background-color:#087d86}
+#app.wrap.v-sd .bact{border-top-color:#e63b48}
+#app.wrap.v-sd .brest{border-top-color:#ffd238}
+#app.wrap.v-sd .bhd{background-color:#134e61}
+#app.wrap.v-sd .brest>.eyebrow{background:#087d86;color:#fff7da}
+@media(max-width:600px){
+  #app.wrap:not(.sprite-gallery) .mast h1{font-size:1.8rem}
+  #app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief) h2{font-size:1.55rem}
+}
+@media(orientation:landscape) and (max-height:600px) and (max-width:1200px){
+  #app.wrap.v-sd .mast h1{font-size:1.4rem}
+  #app.wrap.v-sd .bh-combat-brief h2{font-size:1.3rem}
+}
 :root[data-theme="dark"] #app.wrap:not(.sprite-gallery){--hero-paper:#253947}
