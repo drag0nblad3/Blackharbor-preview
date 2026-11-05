@@ -1,4 +1,5 @@
 /* Approved compact harbor. Main scene and construction work without the optional motion files. */
+#app.wrap.v-hq-construction{max-width:1050px}
 #app .hq-grounds{margin:0;border:3px solid #142638;box-shadow:4px 4px 0 #142638;background:#faeac5;min-width:0;overflow:hidden}
 #app .hq-grounds-title{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#ffd34f;color:#142638;padding:5px 12px;border-bottom:3px solid #142638}
 #app .hq-grounds-title h2{font:1.35rem Bangers,cursive;margin:0;letter-spacing:.04em}
