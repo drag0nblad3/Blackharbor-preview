@@ -47,7 +47,11 @@
       font:700 12px/1.4 Archivo,system-ui,sans-serif}
     #app{padding-top:2px}
     @media(max-width:600px){
-      .art-lab-bar{padding:7px;gap:5px}
+      .art-lab-bar{position:static;padding:5px;gap:4px}
+      .art-lab-title span{display:none}
+      .art-lab-controls{gap:5px}
+      .art-lab-bar label{font-size:10px}
+      .art-lab-bar select,.art-lab-bar a,.art-lab-bar button{min-height:32px;padding:4px 6px;font-size:10px}
       .art-lab-title b{font-size:.8rem}
       .art-lab-controls{width:100%;justify-content:space-between}
       .art-lab-bar label{flex:1}
@@ -131,6 +135,7 @@
   <script src="src/art/villain-art.js"></script>
   <script src="src/art/minis.js"></script>
   <link rel="stylesheet" href="css/hero-loadout.css">
+  <link rel="stylesheet" href="css/mobile.css">
   <script src="src/hq/hero-loadout.js"></script>
   <script>
   /* The art lab deliberately suppresses saves and never calls load(). */
