@@ -73,12 +73,7 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
     <button class="btn sm" data-a="book:${o.key}" style="align-self:flex-start">Read playbook · ${seen} seen</button>
     <div class="row small"><span class="eyebrow" data-tip="kw:scheme">Scheme</span><span class="meter">${[...Array(schemeMax())].map((_,i)=>`<i class="${i<o.scheme?'f':''}"></i>`).join('')}</span></div>
       ${S.guide&&party().length<4?`<button class="btn pri" data-a="inv:${o.key}" data-tip="kw:party" disabled>Needs 4 heroes · ${party().length}/4</button>`:`<button class="btn pri" data-a="inv:${o.key}" ${party().length?'':'disabled'}>Investigate</button>`}</div>`};
-  const facCard=k=>{const f=FAC[k],b=S.facilities.includes(k),soon=!facOpen(k);return `<div class="card ${b?'built':''}" data-tip="fac:${k}">
-    <div class="row between"><h3>${f.name}</h3>${b?'<span class="tag g">Built</span>':''}</div><div class="small">${f.txt}</div>
-    ${b?'':`<div class="row between"><span class="small mono">${costHtml(f.cost)}</span><button class="btn sm" data-a="build:${k}" ${afford(f.cost)&&!soon?'':'disabled'}>${soon?`Opens in Arc ${f.arc}`:'Build'}</button></div>`}</div>`};
   const lockedCard=it=>`<div class="card locked" data-tip="${it}"><div class="row between"><h3>${itemName(it)}</h3><span class="tag" data-tip="kw:blueprint">No blueprint</span></div>${it.startsWith('gear:')?`<div class="row">${reqChips(GEAR[it.slice(5)])}<span class="small muted">${gearSlotN(GEAR[it.slice(5)])}</span></div>`:''}<div class="small muted">Unlocks from: ${unlockSources(it)}</div></div>`;
-  const facNow=k=>facOpen(k)&&afford(FAC[k].cost);
-  const facU=Object.keys(FAC).filter(k=>isUnlocked('fac:'+k)&&!S.facilities.includes(k)).sort((a,b)=>facNow(b)-facNow(a)),facB=Object.keys(FAC).filter(k=>S.facilities.includes(k)),facL=Object.keys(FAC).filter(k=>!isUnlocked('fac:'+k));
   const ws=S.facilities.includes('workshop');
   const canMake=k=>(ws||GEAR[k].cons)&&afford(GEAR[k].cost),wsBy=(S.ui&&S.ui.wsBy)||'vil',VK=Object.keys(VILLAINS).filter(k=>k in S.salvage),vil=g=>VK.some(v=>g.cost[v]);
   const consG={id:'cons',label:'<span class="disc fill hyb" data-tip="kw:pouch">Consumables</span>',f:g=>!!g.cons};
@@ -116,10 +111,8 @@ function hqView(only){if(tutOn())return tutHq(only);const arc=arcOf(S.issue),iia
   const fl=S.flash;S.flash=null;
   return `${guideBar()}${bhPagehead('Guardians command center','Headquarters','Develop facilities, outfit the team, and prepare for the next issue.',[['Field team',`${party().length}/4`],['Facilities',S.facilities.length],['Armory',S.armory.length]])}${fl?`<div class="cap tilt"><b>Fresh off the press!</b> ${esc(fl)}</div>`:''}<div class="bh-hq-layout"><aside class="bh-hq-rail">${bhHqOps()}</aside><div class="hqcols"><div class="hqa">${recruitPanel()}
   ${skunkPanel()}
-  <section class="panel">${coll('hq-base',`<div><div class="eyebrow">Headquarters · ${S.facilities.length} built</div><h2>Base development</h2></div>`,
-    `${facU.length?`<div class="grid2">${facU.map(facCard).join('')}</div>`:'<p class="small muted" style="margin:0">Every facility blueprint on file is built.</p>'}
-    ${facB.length?coll('hq-facb',`<span class="eyebrow">Built · ${facB.length}</span>`,`<div class="grid2">${facB.map(facCard).join('')}</div>`,false,'nested'):''}
-    ${facL.length?coll('hq-facl',`<span class="eyebrow" data-tip="kw:blueprint">Missing facility blueprints · ${facL.length}</span>`,`<div class="grid2">${facL.map(k=>lockedCard('fac:'+k)).join('')}</div>`,false,'nested'):''}`)}</section>
+  <section class="panel">${coll('hq-base',`<div><div class="eyebrow">Harbor compound · ${S.facilities.length} built</div><h2>Base development</h2></div>`,
+    `<p class="small">Visit the grounds to preview and build facilities.</p><button class="btn pri" data-a="view:construction">Build headquarters →</button>`)}</section>
   ${S.chronicle.length?`<section class="panel">${coll('hq-back',`<div class="eyebrow">Back issues · ${S.chronicle.length}</div>`,`<ul class="lines small">${S.chronicle.slice().reverse().map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`,false)}</section>`:''}</div><div class="hqb">
   <section class="panel">${coll('hq-ws',`<div><div class="eyebrow">Workshop</div><h2>Gear from salvage</h2></div>`,
     `${ws?'':'<p class="small muted" style="margin:0">Build the Workshop to craft gear. Consumables can be bought without it.</p>'}
@@ -143,5 +136,5 @@ function recruitPanel(){const n=roster().length,full=n>=ROSTER_MAX,arc=xArc(),xo
     ${qb.length?coll('hq-qb',`<span class="eyebrow" data-tip="kw:quickbuild">Quick builds · ${qb.length}</span>`,`<p class="small muted" style="margin:0">The classic Guardians lineup, ready to go. Same rules as a basic hero: level 1 and no gear.</p><div class="grid2">${qb.map(qbCard).join('')}</div>`,!n,'nested'):''}`)}</section>`}
 
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
-ACT.build=(p1)=>{if(facOpen(p1)&&afford(FAC[p1].cost)){pay(FAC[p1].cost);S.facilities.push(p1)}};
+ACT.build=(p1)=>{if(S.phase==='hq'&&Object.hasOwn(FAC,p1)&&isUnlocked('fac:'+p1)&&!S.facilities.includes(p1)&&facOpen(p1)&&afford(FAC[p1].cost)){pay(FAC[p1].cost);S.facilities.push(p1)}};
 ACT.qb=(p1)=>{recruitQuick(p1)};

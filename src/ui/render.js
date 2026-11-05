@@ -6,7 +6,7 @@ function flip(){const b=document.querySelector('.board');if(!b){lastPos={};retur
     if(p&&(p[0]!==x||p[1]!==y)&&!noFlip.has(id)&&!RM){const d=Math.hypot(p[0]-x,p[1]-y);
       e.animate([{transform:`translate(${(p[0]-x)*c}px,${(p[1]-y)*c}px)`},{transform:`translate(${(p[0]-x)*c*.5}px,${(p[1]-y)*c*.5-c*.18}px)`,offset:.5},{transform:'none'}],{duration:Math.min(520,180+90*d),easing:'ease-in-out'})}});
   noFlip.clear();lastPos=now}
-function mast(){return `<header class="mast"><div><small>A campaign of capes and consequences</small><h1>Blackharbor</h1></div>
+function mast(){return `<header class="mast"><div class="bh-comic-brand"><h1><img src="assets/ui/comic-masthead.webp" alt="Blackharbor" width="2172" height="724" fetchpriority="high"></h1></div>
   <div class="row mast-tools"><span class="issue" data-tip="kw:volume">Vol. ${S.vol} · Arc ${arcOf(Math.min(S.issue,MAX_ISSUE))} · #${Math.min(S.issue,MAX_ISSUE)}</span><button type="button" class="btn sm mast-save-btn" data-save-open aria-haspopup="dialog" aria-label="Open game menu: new campaign, difficulty, save and load">☰ Menu</button></div>
   <div class="res" style="flex-basis:100%">
     <span class="chip trust" data-tip="kw:trust" aria-label="Trust" title="Trust">${UI('trust')}${S.trust}</span><span class="chip" data-tip="kw:techres" aria-label="Tech" title="Tech">${UI('tech')}${S.tech}</span><span class="chip" data-tip="kw:intel" aria-label="Intel" title="Intel">${UI('intel')}${S.intel}</span>
@@ -15,7 +15,8 @@ function mast(){return `<header class="mast"><div><small>A campaign of capes and
 function nav(){const m=S.phase!=='hq'&&S.phase!=='over';const v=S.view;
   const pend=roster().some(h=>h.pendingUp>0);
   const g=m?{}:navGlow();
-  return `<nav class="nav">${m?`<button class="btn ${v==='mission'?'on':''}" data-a="view:mission">${UI('target')}Mission</button>`:`<button class="btn ${v==='hq'||v==='create'?'on':''} ${g.hq?'glow':''}" data-a="view:hq">${UI('hq')}HQ</button>`}
+  return `<nav class="nav">${m?`<button class="btn ${v==='mission'?'on':''}" data-a="view:mission">${UI('target')}Mission</button>`:`<button class="btn ${v==='hq'||v==='create'?'on':''} ${g.hq?'glow':''}" data-a="view:hq">${UI('hq')}Operations</button>`}
+  ${m||tutOn()?'':`<button class="btn ${v==='construction'?'on':''}" data-a="view:construction">${UI('hq')}Build HQ</button>`}
   <button class="btn ${v==='roster'?'on':''} ${g.roster?'glow':''}" data-a="view:roster">${UI('roster')}Roster${pend?' ★':''}</button>${m?'':`<button class="btn ${v==='villains'?'on':''} ${g.villains?'glow':''}" data-a="view:villains">${UI('mask')}Villains</button>`}</nav>`}
 /* tab glow: HQ while something there can be used, Roster while there is new armory gear or a pending choice, Villains once HQ and Roster have both been opened this issue */
 function visitTick(){if(S.phase!=='hq')return;if(!S.visit||S.visit.issue!==S.issue)S.visit={issue:S.issue};const v=S.view==='create'?'hq':S.view;
@@ -32,6 +33,7 @@ function navGlow(){if(S.phase!=='hq'||S.view==='create')return {};const vi=S.vis
   return {hq:S.view!=='hq'&&hqUse(),roster:S.view!=='roster'&&(newArmory()||roster().some(h=>h.pendingUp>0)),villains:S.view!=='villains'&&!!vi.hq&&!!vi.roster&&!vi.villains}}
 function body(){return bodyMain()+fsplashView()+cheatPanel()+guideModal()+tipModal()+tutModal()}
 function bodyMain(){if(S.phase==='tutend')return tutEndView();if(storyShowing())return storyView();if(S.over&&S.phase!=='after')return overView();if(S.view==='create'&&S.cre&&S.phase==='hq')return createView();if(S.view==='roster')return rosterView();if(S.phase==='event')return eventView();if(S.phase==='arc')return arcView();
+  if(S.phase==='hq'&&S.view==='construction'&&!tutOn())return hqConstructionView();
   if(S.phase==='hq')return hqView(S.view==='villains'?'villains':null);if(S.phase==='inv')return invView();if(S.phase==='sd')return sdView();if(S.phase==='after')return afterView();return ''}
 
 /* Shared screen framing for the preview comic-noir UI. Values come from current state. */

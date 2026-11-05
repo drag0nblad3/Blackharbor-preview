@@ -1,0 +1,78 @@
+/* Harbor construction: generated cel art, stable plots, full-width scene below navigation. */
+#app .hq-grounds{margin:0;border:3px solid #142638;box-shadow:4px 4px 0 #142638;background:#faeac5;min-width:0;overflow:hidden}
+#app .hq-grounds-title{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#ffd34f;color:#142638;padding:5px 12px;border-bottom:3px solid #142638}
+#app .hq-grounds-title h2{font:1.35rem Bangers,cursive;margin:0;letter-spacing:.04em}
+#app .hq-grounds-title>span{font-weight:800;font-size:.8rem}
+#app .hq-grounds-scroll{overflow-x:auto;height:clamp(210px,31vh,340px);scrollbar-color:#d4503e #ecd398;overscroll-behavior-x:contain}
+#app .hq-grounds-stage{position:relative;min-width:1000px;width:100%;height:100%;background:url('../assets/headquarters/grounds.webp') center/100% 100% no-repeat;isolation:isolate}
+#app .hq-fac-art{display:block;aspect-ratio:1;background-size:300% 200%;background-position:var(--ax) var(--ay);background-repeat:no-repeat;pointer-events:none}
+#app .hq-plot{position:absolute;left:var(--px);top:var(--py);width:var(--pw);aspect-ratio:1;transform:translate(-50%,-88%);border:0;padding:0;background:none;box-shadow:none;cursor:pointer;color:#142638}
+#app .hq-plot.is-preview .hq-fac-art{opacity:.6;filter:sepia(1) saturate(4) drop-shadow(0 0 2px #ffb800)}
+#app .hq-plot.is-selected::after{content:'';position:absolute;inset:58% 8% 0;border:3px solid #ffbd19;border-radius:50%;transform:scaleY(.4);pointer-events:none;box-shadow:0 0 0 2px #142638}
+#app .hq-plot-label{position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);padding:2px 5px;background:#fff1c8;color:#142638;border:1px solid #142638;white-space:nowrap;font-size:clamp(.5rem,.8vw,.72rem);font-weight:800;opacity:0;pointer-events:none;z-index:5}
+#app .hq-plot:is(:hover,:focus-visible,.is-selected) .hq-plot-label{opacity:1}
+#app .hq-plot:focus-visible{outline:3px solid #e14b39;outline-offset:2px}
+#app .hq-grounds-caption{margin:0;padding:4px 10px;font-size:.72rem;color:#233747;border-top:2px solid #142638}
+#app .hq-pan-hint{display:none;font-weight:800}
+#app .hq-construction{padding:12px;min-width:0}
+#app .hq-construction-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:3px solid #142638;padding-bottom:8px;margin-bottom:10px}
+#app .hq-construction-heading h2{margin:0;font:1.6rem Bangers,cursive;color:#142638}
+#app .hq-build-layout{display:grid;grid-template-columns:minmax(230px,.8fr) minmax(0,1.4fr);gap:14px;align-items:start}
+#app .hq-build-list{display:grid;gap:5px;max-height:560px;overflow-y:auto;padding:0 5px 5px 0}
+#app .hq-fac-choice{display:flex;align-items:center;gap:8px;text-align:left;border:2px solid #142638;background:#f8efd9;color:#142638;padding:3px 7px;cursor:pointer;min-width:0;border-radius:2px}
+#app .hq-fac-choice>.hq-fac-art{width:62px;flex-shrink:0}
+#app .hq-fac-choice>span:last-child{display:grid;gap:3px}
+#app .hq-fac-choice b{font-size:.93rem}
+#app .hq-fac-choice small{font-size:.72rem}
+#app .hq-fac-choice.is-selected{background:#ffd34f;border-left:6px solid #d54236}
+#app .hq-built-state{color:#166547;font-weight:800}
+#app .hq-fac-detail{position:sticky;top:12px;padding:14px;background:#fff5dd;border:2px solid #142638;box-shadow:3px 3px 0 #142638;min-width:0}
+#app .hq-fac-detail h3{font:1.7rem Bangers,cursive;margin:0;color:#142638}
+#app .hq-fac-detail p{font-size:.92rem;line-height:1.5}
+#app .hq-fac-showcase{display:grid;place-items:center;background:radial-gradient(ellipse,#ffe09c,transparent 70%);margin:8px 0}
+#app .hq-fac-showcase>.hq-fac-art{width:min(100%,320px)}
+#app .hq-build-footer{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-top:2px solid #142638;padding-top:12px}
+#app .hq-built-notice{color:#166547;font-weight:800}
+#app .hq-fac-choice:focus-visible{outline:3px solid #d54236;outline-offset:1px}
+@media(max-width:760px){
+  #app .hq-pan-hint{display:inline}
+  #app .hq-build-layout{grid-template-columns:1fr}
+  #app .hq-build-list{grid-template-columns:repeat(2,minmax(0,1fr));max-height:210px;padding:2px 4px 5px 2px}
+  #app .hq-fac-choice{gap:4px;padding:3px;min-height:56px}
+  #app .hq-fac-choice>.hq-fac-art{width:42px}
+  #app .hq-fac-choice b{font-size:.78rem}
+  #app .hq-fac-choice small{font-size:.65rem}
+  #app .hq-fac-detail{position:static;padding:10px}
+  #app .hq-fac-showcase>.hq-fac-art{width:210px}
+  #app .hq-construction-heading{align-items:flex-start}
+  #app .hq-construction-heading>.btn{font-size:.65rem}
+  #app .nav{flex-wrap:wrap}
+}
+/* Concept A's lighthouse masthead; resource chips remain live and accessible. */
+#app.wrap .mast{background:#101014;border-color:#101014;border-bottom:4px solid #ee443e;padding:5px 9px;gap:5px 12px}
+#app.wrap .mast::after{content:none}
+#app.wrap .mast .bh-comic-brand{flex:1 1 330px;min-width:0;max-width:760px}
+#app.wrap .mast .bh-comic-brand h1{font-size:0;margin:0;padding:0;line-height:1;text-shadow:none}
+#app.wrap .mast .bh-comic-brand img{display:block;width:100%;height:auto;aspect-ratio:6/1;object-fit:cover;object-position:center}
+#app.wrap .mast>.res{flex-basis:100%;padding:4px 0;border-top:1px solid #ed433c}
+@media(max-width:600px){
+  #app.wrap .mast .bh-comic-brand{flex:1 0 100%;width:100%;max-width:none}
+  #app.wrap .mast>.res{flex-wrap:wrap}
+}
+/* Override the compact legacy masthead outside combat so the illustrated title can read at banner size. */
+#app.wrap:not(.sprite-gallery):not(.v-sd) .mast{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;background:#101014;background-image:none;border-color:#101014;border-bottom-color:#ed443b}
+#app.wrap:not(.sprite-gallery) .mast::after{content:none}
+#app.wrap:not(.sprite-gallery):not(.v-sd) .mast .bh-comic-brand{width:100%;max-width:680px;min-width:0;display:block}
+#app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.res{grid-column:1/-1;width:100%;flex-wrap:wrap;border-top:1px solid #ed443b}
+#app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{min-width:0;flex-wrap:wrap}
+#app.wrap.v-sd .mast .bh-comic-brand{flex:0 1 200px;max-width:200px}
+@media(max-width:600px){
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast{grid-template-columns:1fr}
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.bh-comic-brand{grid-column:1/-1;max-width:none}
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{grid-column:1/-1;margin:0;justify-content:space-between}
+}
+@media(max-width:600px){
+  #app.wrap:not(.v-sd) .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #app .hq-construction-heading h2{font-size:1.3rem}
+  #app .hq-construction-heading>.btn{max-width:125px}
+}

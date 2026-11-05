@@ -32,6 +32,6 @@ function guideModal(){const g=S.guide;if(!g||S.tut||S.phase!=='hq'||S.view==='cr
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
 ACT.guide=(p1,p2)=>{const g=S.guide;if(!g)return;if(p1==='skip'){if(g.s===0)S.tipsOff=true;S.guide=null;return;}if(p1==='go'){S.tipsOff=false;g.s=1;g.pop=null;return;}if(p1==='close'){g.pop=null;return;}
       if(p1==='next'){if(g.s===2){g.s=3;g.pop='gear'}else if(g.s===3){g.s=4;g.pop='roster'}return;}
-      if(p1==='open'){g.pop=null;S.ui=S.ui||{};if(p2==='roster'){S.view='roster';S.ui['ro-party']=S.ui['ro-bench']=true;roster().forEach(h=>S.ui['h-'+h.id]=true)}else{S.view=p2.startsWith('vl-')?'villains':'hq';S.ui[p2]=true}
+      if(p1==='open'){g.pop=null;S.ui=S.ui||{};if(p2==='roster'){S.view='roster';S.ui['ro-party']=S.ui['ro-bench']=true;roster().forEach(h=>S.ui['h-'+h.id]=true)}else{S.view=p2==='hq-base'?'construction':p2.startsWith('vl-')?'villains':'hq';S.ui[p2]=true}
         render();const t=p2==='roster'?null:document.querySelector(`[data-cid="${p2}"]`);if(t)t.scrollIntoView({block:'start',behavior:RM?'auto':'smooth'});else scrollTo(0,0);return NO_RENDER;}
       return;};
