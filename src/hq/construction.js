@@ -9,44 +9,45 @@ const HQ_FAC_ART={
    Art is illustrative: these are scale anchors, not surveyed building dimensions. */
 const HQ_WORLD_WIDTH_M=112;
 const HQ_SCALE={
-  skunk:[96,2.1,'personnel door'],medbay:[77,2.1,'personnel door'],workshop:[105,3.3,'loading door'],
-  comms:[445,22,'mast'],training:[140,4,'courtyard eaves'],press:[100,2.1,'personnel door'],
-  lab:[70,2.1,'personnel door'],hangar:[124,5,'hangar opening'],reactor:[96,2.2,'transformer cabinet'],
-  sanctum:[101,2.4,'chapel door'],bunker:[121,2.2,'bunker hatch'],antivenom:[100,2.1,'greenhouse door'],
-  magnet:[70,2.1,'control hut door'],dojo:[130,3.1,'veranda eaves'],bombsq:[187,4.2,'tall bay door'],
-  optics:[89,2.1,'annex door'],jammer:[100,1.6,'equipment cabinet']
+  skunk:[92,2.1,'personnel door'],medbay:[90,2.1,'personnel door'],workshop:[117,3.3,'loading door'],
+  comms:[428,22,'mast'],training:[155,4,'courtyard eaves'],press:[82,2.1,'personnel door'],
+  lab:[96,2.1,'personnel door'],hangar:[140,5,'hangar opening'],reactor:[79,2.2,'transformer cabinet'],
+  sanctum:[82,2.4,'chapel door'],bunker:[104,2.2,'bunker hatch'],antivenom:[108,2.1,'greenhouse door'],
+  magnet:[300,7,'gantry eaves'],dojo:[195,3.1,'veranda eaves'],bombsq:[181,4.2,'tall bay door'],
+  optics:[100,2.1,'annex door'],jammer:[136,1.6,'equipment cabinet']
 };
-function hqScaledWidth(k){const a=HQ_SCALE[k];return 512*a[1]/a[0]/HQ_WORLD_WIDTH_M*100}
-/* Site anchors [x%, foot-y%, scaled cell width%], authored around access routes and clearance. */
-const HQ_SITES={
-  skunk:[31,66,hqScaledWidth('skunk')],medbay:[65,51,hqScaledWidth('medbay')],workshop:[19,66,hqScaledWidth('workshop')],
-  comms:[68,78,hqScaledWidth('comms')],training:[37,78.5,hqScaledWidth('training')],press:[23,42,hqScaledWidth('press')],
-  lab:[54,50,hqScaledWidth('lab')],hangar:[83,78,hqScaledWidth('hangar')],reactor:[90,59,hqScaledWidth('reactor')],
-  sanctum:[35,43,hqScaledWidth('sanctum')],bunker:[8,62,hqScaledWidth('bunker')],antivenom:[76,55,hqScaledWidth('antivenom')],
-  magnet:[16,80,hqScaledWidth('magnet')],dojo:[48,80.5,hqScaledWidth('dojo')],bombsq:[93,78,hqScaledWidth('bombsq')],
-  optics:[44,46,hqScaledWidth('optics')],jammer:[57,76,hqScaledWidth('jammer')]
+/* Large facilities sit on the rear terrace. One gentle distance curve scales every structure,
+   rather than giving the rear buildings miniature doors in the artwork itself. */
+function hqDistanceScale(y){return .72+Math.max(0,Math.min(44,y-40))*.28/44}
+function hqScaledWidth(k,y=84){const a=HQ_SCALE[k];return 512*a[1]/a[0]/HQ_WORLD_WIDTH_M*100*hqDistanceScale(y)}
+const HQ_SITE_POINTS={
+  skunk:[31.6,70],medbay:[66,42],workshop:[20,70],comms:[88,75],training:[39,83],press:[24,41],
+  lab:[55,44],hangar:[82,45],reactor:[93,48],sanctum:[36,43],bunker:[8,61],antivenom:[74,50],
+  magnet:[12,82],dojo:[51,84],bombsq:[79,80],optics:[43,64],jammer:[65,81]
 };
-/* An authored brick-and-glass annex, sized and drawn for this particular pair.
-   Workshop is guaranteed at campaign start. No free-floating passages between optional buildings. */
-const HQ_ANNEXES=[{a:'workshop',b:'skunk',x:26.2,y:66.3,width:6.4,depth:67,src:'workshop-annex.webp'}];
-function hqConnections(){
-  return `<div class="hq-connections" aria-hidden="true">${HQ_ANNEXES.filter(l=>S.facilities.includes(l.a)&&S.facilities.includes(l.b)).map(l=>
-    `<img class="hq-annex" data-hq-link="${l.a}:${l.b}" src="assets/headquarters/${l.src}?v=authored-annex-3" alt="" draggable="false" style="--px:${l.x}%;--py:${l.y}%;--pw:${l.width}%;z-index:${l.depth}">`
-  ).join('')}</div>`;
+const HQ_SITES=Object.fromEntries(Object.entries(HQ_SITE_POINTS).map(([k,[x,y]])=>[k,[x,y,hqScaledWidth(k,y)]]));
+/* The connected state is one complete drawing, including both buildings and their shared walls.
+   The standalone Workshop remains the starting state; no connector is pasted onto its facade. */
+const HQ_WORKSHOP_COMPLEX={x:25,y:70,width:24.5*hqDistanceScale(70)};
+function hqWorkshopJoined(selected){return S.facilities.includes('workshop')&&(S.facilities.includes('skunk')||selected==='skunk')}
+function hqWorkshopComplex(selected){
+  if(!hqWorkshopJoined(selected))return '';
+  const c=HQ_WORKSHOP_COMPLEX,preview=!S.facilities.includes('skunk');
+  return `<img class="hq-complex ${preview?'is-preview':''}" data-hq-complex="workshop:skunk" src="assets/headquarters/workshop-complex.webp?v=parallel-depth-4" alt="" aria-hidden="true" draggable="false" style="--px:${c.x}%;--py:${c.y}%;--pw:${c.width}%;z-index:69">`;
 }
 function hqFacilityArt(k,cls=''){
   const a=HQ_FAC_ART[k];if(!a)return '';
-  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=authored-annex-3');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
+  return `<span class="hq-fac-art ${cls}" aria-hidden="true" style="background-image:url('assets/headquarters/facilities-${a[0]}.webp?v=parallel-depth-4');--ax:${a[1]%3*50}%;--ay:${Math.floor(a[1]/3)*100}%"></span>`;
 }
 function hqGrounds(selected){
   const keys=Object.keys(HQ_FAC_ART);
   return `<section class="hq-grounds" aria-label="Harbor headquarters grounds">
     <div class="hq-grounds-title"><h2>Harbor compound</h2><span>${S.facilities.filter(k=>HQ_FAC_ART[k]).length} / ${keys.length} built</span></div>
     <div class="hq-grounds-scroll" tabindex="0" aria-label="Headquarters grounds; scroll horizontally on narrow screens">
-      <div class="hq-grounds-stage">${hqConnections()}${keys.map((k,i)=>{
+      <div class="hq-grounds-stage">${hqWorkshopComplex(selected)}${keys.map((k,i)=>{
         const built=S.facilities.includes(k),active=k===selected,site=HQ_SITES[k],x=site[0],y=site[1];
         if(!built&&!active)return '';
-        return `<button type="button" class="hq-plot ${built?'is-built':'is-preview'} ${active?'is-selected':''}" style="--px:${x}%;--py:${y}%;--pw:${site[2]}%;z-index:${Math.round(y)}" data-a="facselect:${k}" aria-label="${esc(FAC[k].name)} · ${built?'built':'proposed location'}" title="${esc(FAC[k].name)}${built?' · Built':' · Preview'}">${hqFacilityArt(k)}<span class="hq-plot-label">${esc(FAC[k].name)}</span></button>`;
+        return `<button type="button" class="hq-plot ${built?'is-built':'is-preview'} ${active?'is-selected':''} ${hqWorkshopJoined(selected)&&(k==='workshop'||k==='skunk')?'is-complex-part':''}" style="--px:${x}%;--py:${y}%;--pw:${site[2]}%;z-index:${Math.round(y)}" data-a="facselect:${k}" aria-label="${esc(FAC[k].name)} · ${built?'built':'proposed location'}" title="${esc(FAC[k].name)}${built?' · Built':' · Preview'}">${hqFacilityArt(k)}<span class="hq-plot-label">${esc(FAC[k].name)}</span></button>`;
       }).join('')}</div>
     </div>
     <p class="hq-grounds-caption">Built facilities appear on the grounds. Amber marks your selection.<span class="hq-pan-hint"> Swipe to explore →</span></p>
@@ -60,7 +61,7 @@ function hqConstructionView(){
     <div class="hq-construction-heading"><div><span class="eyebrow">Headquarters</span><h2>Base development</h2></div><button class="btn sm" data-a="view:hq">Operations & workshop</button></div>
     <div class="hq-build-layout"><div class="hq-build-list" role="group" aria-label="Facility plans">${keys.map(k=>`<button type="button" class="hq-fac-choice ${k===selected?'is-selected':''}" data-a="facselect:${k}" aria-pressed="${k===selected}">${hqFacilityArt(k)}<span><b>${esc(FAC[k].name)}</b><small class="${S.facilities.includes(k)?'hq-built-state':''}">${state(k)}</small></span></button>`).join('')}</div>
     <article class="hq-fac-detail" aria-labelledby="hq-fac-name"><div class="row between"><h3 id="hq-fac-name" tabindex="-1">${esc(f.name)}</h3>${built?'<span class="tag g">Built</span>':''}</div>
-      <div class="hq-fac-showcase">${hqFacilityArt(selected)}</div><p>${esc(f.txt)}</p>
+      <div class="hq-fac-showcase">${selected==='skunk'&&S.facilities.includes('workshop')?'<img class="hq-complex-preview" src="assets/headquarters/workshop-complex.webp?v=parallel-depth-4" alt="Skunkworks wing built into the Workshop">':hqFacilityArt(selected)}</div>${selected==='skunk'&&S.facilities.includes('workshop')?'<p class="small muted">Adds an integrated Skunkworks wing to the Workshop.</p>':''}<p>${esc(f.txt)}</p>
       ${!known?`<p class="cap">Blueprint required. Unlocks from: ${unlockSources('fac:'+selected)}</p>`:!open?`<p class="cap">Opens in Arc ${f.arc}.</p>`:''}
       ${built?'<p class="hq-built-notice">✓ Operational on your grounds</p>':`<div class="hq-build-footer"><span class="cost" aria-label="Construction cost">${costHtml(f.cost)}</span><button class="btn pri" data-a="hqbuild:${selected}" ${ready?'':'disabled'}>Build ${esc(f.name)}</button></div>${known&&open&&!ready?'<p class="small muted">Gather more Tech or Intel to build this facility.</p>':''}`}
     </article></div></section>`;

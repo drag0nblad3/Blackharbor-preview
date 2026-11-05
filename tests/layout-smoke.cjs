@@ -93,18 +93,19 @@ const path=require('node:path');
    await page.locator('.nav [data-a="view:construction"]').click();
    await page.evaluate(()=>{S.facilities=Object.keys(FAC);render()});
    assert.equal(await page.locator('.hq-plot.is-built').count(),17,'all facilities appear on the compact island');
-   assert.equal(await page.locator('[data-hq-link]').count(),1,'workshop complex gets its illustrated annex');
+   assert.equal(await page.locator('[data-hq-complex]').count(),1,'workshop and Skunkworks become one integrated sprite');
    const campus=await page.evaluate(async()=>{
      const stage=document.querySelector('.hq-grounds-stage'),r=stage.getBoundingClientRect();
      const image=new Image();image.src=new URL(getComputedStyle(stage).backgroundImage.slice(5,-2),location.href).href;
      await image.decode();
-     await document.querySelector('.hq-annex').decode();
+     await document.querySelector('.hq-complex').decode();
      return {ratio:r.width/r.height,bodyWidth:document.documentElement.scrollWidth,
-       links:getComputedStyle(document.querySelector('.hq-annex')).pointerEvents};
+       links:getComputedStyle(document.querySelector('.hq-complex')).pointerEvents};
    });
    assert(Math.abs(campus.ratio-3)<.02,'campus preserves its illustrated projection');
    assert(campus.bodyWidth<=size.width+24,'campus pans internally without widening the page');
-   assert.equal(campus.links,'none','passages cannot block facility selection');
+   assert.equal(await page.locator('.hq-plot.is-complex-part').count(),2,'both facilities remain independently selectable under the joined artwork');
+   assert.equal(campus.links,'none','integrated artwork cannot block facility selection');
    await page.screenshot({path:path.join(shots,size.name+'-compact-harbor.png'),animations:'disabled'});
    await page.evaluate(facilities=>{S.facilities=facilities;S.view='hq';render()},originalFacilities);
    await page.locator('.nav [data-a="view:roster"]').click();
