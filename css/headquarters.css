@@ -106,3 +106,5 @@
   #app .hq-construction-heading h2{font-size:1.3rem}
   #app .hq-construction-heading>.btn{max-width:125px}
 }
+/* Phone landscape still needs comfortable scene-control targets. */
+@media(pointer:coarse){#app .hq-light-picker,#app .hq-motion-toggle{min-height:44px}}
