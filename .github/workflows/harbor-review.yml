@@ -26,6 +26,7 @@ jobs:
           node tests/headquarters.cjs
           node tests/comic-ui.cjs
       - name: Install browser
+        timeout-minutes: 3
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
