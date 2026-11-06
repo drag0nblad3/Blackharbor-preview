@@ -31,14 +31,14 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sd
   if(!sd.result){sd.round++;
     {sd.units.forEach(u=>{u.stasis=false;u.reactionWard=false;u.hexesMoved=0;u.moved=!!u.dazed;u.dazed=false;u.acted=false;u.freeEvac=false;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.buffReap=0;u.buffEva=0;u.avoidDamage=false;u.dr=0;u.anchor=false;if(u.capUsed&&!u.abRd)u.capUsed=false;u.abRd=false;u.innUsed=0;u.abUsed=[];u.augRd=false;u.convRd=false;u.jump=false;u.ripo=false;u.ripUsed=false;u.reflect=0;
         if(u.relHit){u.relN=u.relHit===u.relKey?(u.relN||0)+1:1;u.relKey=u.relHit}else{u.relN=0;u.relKey=null}u.relHit=null;
-        const h=heroOf(u);u.anchor=setOn(h,'lode');if(!u.ko){if(setOn(h,'cantor'))h.comp=Math.min(stat(h,'maxComp'),h.comp+1);if(setOn(h,'serpent'))h.hp=Math.min(stat(h,'maxHp'),h.hp+1)}u.lowP=(u.res.tech||0)<=1;u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+pwrRegen(h));u.res.magic=Math.min(arcMax(h),u.res.magic||0);if(S.facilities.includes('sanctum')&&!u.ko)h.comp=Math.min(stat(h,'maxComp'),h.comp+1)});
+        const h=heroOf(u);u.anchor=setOn(h,'lode');if(!u.ko){if(setOn(h,'cantor'))gainHero(h,1);if(setOn(h,'serpent'))h.hp=Math.min(stat(h,'maxHp'),h.hp+1)}u.lowP=(u.res.tech||0)<=1;u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+pwrRegen(h));u.res.magic=Math.min(arcMax(h),u.res.magic||0);if(S.facilities.includes('sanctum')&&!u.ko)gainHero(h,1)});
       roster().forEach(h=>{if(h.cd>0)h.cd--});
       sd.units.forEach(u=>{const h=heroOf(u);if(u.ko||!setOn(h,'helios'))return;const hm=sd.hench.filter(m=>cheb(m,u)<=1);if(!hm.length)return;hm.forEach(m=>{m.hp-=1;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'SIZZLE!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',`Corona: ${h.name} scorches ${hm.length} henchm${hm.length===1?'an':'en'}.`)});
       {const got={mend:[],calm:[],charge:[]};sd.units.forEach(u=>{if(u.ko)return;const h=heroOf(u);
         if(auraOn(u,'mend')&&h.hp*2<=stat(h,'maxHp')){h.hp++;got.mend.push(h.name)}
-        if(auraOn(u,'calm')&&h.comp*2<=stat(h,'maxComp')){h.comp++;got.calm.push(h.name)}
+        if(auraOn(u,'calm')&&h.comp<3){h.comp++;got.calm.push(h.name)}
         if(auraOn(u,'charge')&&pwrMax(h)&&u.lowP&&(u.res.tech||0)<pwrMax(h)){u.res.tech++;got.charge.push(h.name)}});
-        for(const id in got)if(got[id].length)log('hero',`${AURA_FX[id].n}: ${got[id].join(', ')} ${id==='mend'?'regain 1 health':id==='calm'?'regain 1 composure':'recharge 1 more Power'}.`)}
+        for(const id in got)if(got[id].length)log('hero',`${AURA_FX[id].n}: ${got[id].join(', ')} ${id==='mend'?'regain 1 health':id==='calm'?'gain 1 Heroism':'recharge 1 more Power'}.`)}
       log('sys',`Round ${sd.round}. Your move.`)}}
   sd.busy=false;sd.vturn=false;render()}
 
@@ -66,7 +66,7 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
     else h.hp=Math.max(h.hp,Math.ceil(stat(h,'maxHp')*.6));
     /* Med Bay: half of the health still missing after normal recovery */
     if(med)h.hp+=Math.ceil((stat(h,'maxHp')-h.hp)/2);
-    h.comp=stat(h,'maxComp');h.cd=0;clampHero(h)}
+    h.comp=heroStart(h);h.cd=0;clampHero(h)}
   if(xpL.length)L.splice(xpAt,0,`XP earned: ${xpL.join(', ')}.`);
   const mk=fieldCount('medkit');if(mk){party().forEach(h=>{h.hp=Math.min(stat(h,'maxHp'),h.hp+3*mk)});L.push(`Field Medic Kit: the party recovers ${3*mk} extra health.`)}
   finishIssue(L,{hunted:sd.vkey,headline,vkey:sd.vkey})}

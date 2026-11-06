@@ -7,8 +7,8 @@ const ROSTER_MAX=10;
 /* Version 104 (Tyler): a level-1 Head item for Magic and for Innate too */
 const STARTER_LOCKER=['baton','knuckles','runeblade','goggles','hood','headband','medkit','scanner','coin','hooks'];
 /* Version 116 (Tyler): new heroes start at Strength 2 and evasion 8 (were 3 and 10) */
-const O_TEMPLATE={maxHp:9,move:4,speed:2,acc:0,str:2,eva:8,range:1,maxComp:5};
-const O_FLOOR={maxHp:6,move:2,speed:1,acc:0,str:1,eva:6,range:1,maxComp:3};
+const O_TEMPLATE={maxHp:9,move:4,speed:2,acc:0,str:2,eva:8,range:1,maxComp:0};
+const O_FLOOR={maxHp:6,move:2,speed:1,acc:0,str:1,eva:6,range:1,maxComp:-2}; /* maxComp here is the starting Heroism bonus (Heroism, 2026-11-06) */
 const O_GLOW={tech:'#3DB6DD',innate:'#F08A4B',magic:'#B48CF0'};
 const O_COLS=['#C92463','#2F6FB5','#D08A12','#1F9C8A','#7A4FC0','#A0522D','#556B2F','#B0306A','#3F51B5','#5A6275'];
 const O_NAME=[['Night','Iron','Static','Crimson','Silver','Ghost','Storm','Ember','Quiet','Neon','Hollow','Rook','Velvet','Cinder'],['hawk','line','fist','shade','wire','fall','jack','spark','veil','watch','bolt','fang','moth','tide']];
@@ -139,10 +139,10 @@ function oFinish(){const c=S.cre;if(!c.name.trim())c.name=oRandName(oTrack(c));c
       else if(id==='notes'){const a=unlockRandom(),b=unlockRandom();L.push(`new blueprints: ${[a,b].filter(Boolean).join(', ')}`)}
       else if(id.startsWith('pat-')){const k=id.slice(4);if(!S.facilities.includes(k))S.facilities.push(k);L.push(`a free ${FAC[k].name}`)}}
     if(S.cheat&&S.cheat.xover)S.cheat.xover=false;else{S.xover=S.xover||[];S.xover.push(xArc())}}
-  recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains();
+  recruitXp(h);h.hp=stat(h,'maxHp');h.comp=heroStart(h);S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains();
   S.flash=`${h.name} joins the Blackharbor Guardians${xo?` at level ${lvlOf(h)}`:''}${L.length?`, bringing ${L.join('; ')}`:''}.${S.party.includes(h.id)?' Added to the party.':' Waiting on the bench.'}`;
   S.ui=S.ui||{};S.ui['h-'+h.id]=true;S.cre=null;S.view='hq'}
-function recruitQuick(cls){if(roster().length>=ROSTER_MAX||roster().some(h=>h.cls===cls))return;const h=newHero(cls);recruitXp(h);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains()}
+function recruitQuick(cls){if(roster().length>=ROSTER_MAX||roster().some(h=>h.cls===cls))return;const h=newHero(cls);recruitXp(h);h.hp=stat(h,'maxHp');h.comp=heroStart(h);S.heroes.push(h);if(S.party.length<4)S.party.push(h.id);revealStartingVillains()}
 /* recruits who join after issue #1 start with 1 XP per issue completed */
 const recruitXpN=(x=0)=>Math.max(0,Math.min((S.issue||1)+x,MAX_ISSUE+1)-1);
 const recruitXpTxt=()=>recruitXpN()?`<p class="small" style="margin:0" data-tip="kw:xp">Joins with <b>${recruitXpN()} XP</b>, 1 for each issue completed.</p>`:'';

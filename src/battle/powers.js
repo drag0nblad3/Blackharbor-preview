@@ -16,7 +16,7 @@ function usePower(){const sd=S.sd,u=sd.units[sd.sel],h=heroOf(u),pw=BASE(h).powe
   if(pw==='drain'){if(dV(u,sd.v)>4){fxU(u,'TOO FAR','miss');render();return}
     return act(async()=>{u.acted=true;payPow(u,h);const w0=sd.woundsBy[h.id]||0;await heroAttack(u,'v',0,0,'bolt');const w=(sd.woundsBy[h.id]||0)-w0;
       if(w&&!u.ko){h.hp=Math.min(stat(h,'maxHp'),h.hp+w);await A.heal(ctrU(u),COL.magic);fxU(u,`+${w} HP`,'good');log('hero',`${h.name} drains ${w} health.`)}})}
-  if(pw==='serene')return act(async()=>{payPow(u,h);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().forEach(o=>{const t=heroOf(o);t.comp=Math.min(stat(t,'maxComp'),t.comp+2)});fxU(u,'BREATHE…','say');log('hero',`${h.name} steadies the team: +2 composure each.`)});
+  if(pw==='serene')return act(async()=>{payPow(u,h);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().forEach(o=>{const t=heroOf(o);gainHero(t,2)});fxU(u,'BREATHE…','say');log('hero',`${h.name} steadies the team: +2 Heroism each.`)});
   if(pw==='brace')return act(async()=>{u.guard=true;payPow(u,h);await A.shield(ctrU(u),COL.yel,true);fxU(u,'BRACE!','good');log('hero',`${h.name} braces to protect nearby allies.`)});
   if(pw==='blur')return act(async()=>{await A.sparkle(ctrU(u),BASE(h).glow);u.buffEva=(u.buffEva||0)+2;u.freeEvac=true;payPow(u,h);fxU(u,'ZOOM!','good');log('hero',`${h.name} blurs: +2 evasion until the next hero turn.`)});
   if(pw==='mark')return act(async()=>{sd.v.marked=true;u.markUsed=true;payPow(u,h);await A.reticle(ctrV(),BASE(h).glow);fxV('MARKED!','good');log('hero',`${h.name} marks ${VILLAINS[sd.vkey].name}: +1 die on every attack against it from a side or the rear this round.`)});
@@ -48,7 +48,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.evaNext){const n=v(f.evaNext);await A.shield(ctrU(tu),COL.cyan,true);tu.evaNext=(tu.evaNext||0)+n;fxU(tu,'WHOOSH!','good');log('hero',`Wind wraps ${th.name}: +${n} evasion against the next attack.`)}
   if(f.ward){await A.shield(ctrU(tu),COL.magic,true);tu.ward=true;fxU(tu,'WARD!','good')}
   if(f.heal){const n=v(f.heal);await A.heal(ctrU(tu),COL.heal);th.hp=Math.min(stat(th,'maxHp'),th.hp+n);fxU(tu,`+${n} HP`,'good');log('hero',`${th.name} regains ${n} health.`)}
-  if(f.comp){const n=v(f.comp);await A.heal(ctrU(u),COL.cyan);th.comp=Math.min(stat(th,'maxComp'),th.comp+n);fxU(tu,'FOCUS!','good')}
+  if(f.comp){const n=v(f.comp);await A.heal(ctrU(u),COL.cyan);gainHero(th,n);fxU(tu,'FOCUS!','good')}
   if(f.absorb){const n=v(f.absorb);tu.absorb=Math.max(tu.absorb||0,n);await A.shield(ctrU(tu),col,true);fxU(tu,'SHELL!','good');log('hero',`${th.name} gains a shield that absorbs ${n} damage.`)}
   if(f.dr){const n=v(f.dr);u.dr=(u.dr||0)+n;await A.shield(ctrU(u),col);fxU(u,'GUARD!','good');log('hero',`${h.name} takes ${n} less damage per hit this round.`)}
   if(f.drAll){const n=v(f.drAll);await A.ring(ctrU(u),col,2.4,{count:2});live().filter(o=>cheb(o,u)<=1).forEach(o=>{o.dr=(o.dr||0)+n;fxU(o,'BRACED!','good')})}
@@ -69,7 +69,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
     if(!f.move&&a.mode!=='tele'){await A.ring(ctrU(u),col,2.2,{inward:true,count:2});fxU(u,pick(['VRRRM!','RAAAH!','POWER UP!']),'good')}
     log('hero',`${h.name}'s next attack: ${[d&&`+${d} ${d===1?'die':'dice'}`,ac&&`${signedBonus(ac)} accuracy`,st&&`${signedBonus(st)} Strength`,bk&&`+${bk} more on a melee attack from a side or the rear`].filter(Boolean).join(', ')}.`)}
   if(f.reap)u.buffReap=(u.buffReap||0)+v(f.reap);
-  if(f.rally){const n=v(f.rally);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().filter(o=>cheb(o,u)<=2).forEach(o=>{const t=heroOf(o);t.comp=Math.min(stat(t,'maxComp'),t.comp+n);fxU(o,'STEADY!','good')})}
+  if(f.rally){const n=v(f.rally);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().filter(o=>cheb(o,u)<=2).forEach(o=>{const t=heroOf(o);gainHero(t,n);fxU(o,'STEADY!','good')})}
   if(f.gain){u.res.magic=Math.min(arcMax(h),(u.res.magic||0)+v(f.gain));await A.sparkle(ctrU(u),COL.magic);fxU(u,'+ARCANA','good')}if(f.gainP){u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+v(f.gainP));await A.sparkle(ctrU(u),COL.tech);fxU(u,'+POWER','good')}
   if(f.callout){sd.v.callout=(sd.v.callout||0)+v(f.callout);await A.reticle(ctrV(),col);fxV('CALLED OUT!','good')}
   if(f.mark){sd.v.marked=true;u.markUsed=true;await A.reticle(ctrV(),col);fxV('TARGETED!','good')}

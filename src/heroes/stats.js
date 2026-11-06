@@ -14,7 +14,7 @@ const potOf=h=>h.ranks.innate||0;
 const innUses=h=>1+stat(h,'innUses');
 const resMax=(h,t)=>t==='tech'?pwrMax(h):t==='magic'?arcMax(h):0;
 const canWear=(h,g)=>Object.entries(GEAR[g].reqs).every(([t,n])=>h.ranks[t]>=n);
-/* Shaken: a hero at 0 composure in a fight */
+/* Shaken: a hero at 0 Heroism in a fight */
 const SHAKEN={str:3,acc:3,eva:3,move:1}; /* Tyler (2026-10-30): -3s, and no lasting Rattled injury */
 function stat(h,k,raw){const b=BASE(h);let v=b[k]??0;
   for(const u of h.upgrades)v+=UPG[u].mods[k]||0;
@@ -29,7 +29,7 @@ function stat(h,k,raw){const b=BASE(h);let v=b[k]??0;
   if(S.sd&&h.comp<=0&&SHAKEN[k]&&!rankMod(h,'innate','unshake'))v-=SHAKEN[k];
   /* Version 108 (Tyler): Optics Bench scope rails, +1 range and +1 accuracy in showdowns for heroes with range 2+ */
   if(!raw&&S.sd&&(k==='range'||k==='acc')&&S.facilities.includes('optics')&&(k==='range'?v:stat(h,'range',1))>=2)v+=1;
-  if(k==='move'||k==='maxComp'||k==='speed')v=Math.max(1,v);
+  if(k==='move'||k==='speed')v=Math.max(1,v);
   return v}
 /* Version 124: the Innate capstone's extra Innate ability is once per fight, and comes back after a round in which the hero used no abilities */
 const innOk=(u,h)=>(u.innUsed||0)<1+(stat(h,'innUses')>0&&!u.capUsed?1:0);
@@ -62,4 +62,4 @@ const bench=()=>roster().filter(h=>!(S.party||[]).includes(h.id));
 const partyHas=fid=>party().some(h=>BASE(h).field&&BASE(h).field.id===fid);
 const fieldGear=fid=>party().flatMap(h=>Object.values(h.gear).filter(g=>GEAR[g].field&&GEAR[g].field.id===fid).map(g=>({h,g})));
 const fieldCount=fid=>fieldGear(fid).length;
-function clampHero(h){h.hp=Math.min(h.hp,stat(h,'maxHp'));h.comp=Math.min(h.comp,stat(h,'maxComp'))}
+function clampHero(h){h.hp=Math.min(h.hp,stat(h,'maxHp'))} /* Heroism has no cap */

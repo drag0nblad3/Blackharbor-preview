@@ -5,7 +5,7 @@ let N = 9;
 const UPG = {
   hp:{name:'+2 Max Health',mods:{maxHp:2}}, acc:{name:'+2 Accuracy',mods:{acc:2}}, str:{name:'+2 Strength',mods:{str:2}},
   speed:{name:'+1 Attack Die',mods:{speed:1}}, move:{name:'+1 Movement',mods:{move:1}}, eva:{name:'+2 Evasion',mods:{eva:2}},
-  comp:{name:'+2 Max Composure',mods:{maxComp:2}}, range:{name:'+1 Range',mods:{range:1}},
+  comp:{name:'+2 Starting Heroism',mods:{maxComp:2}}, range:{name:'+1 Range',mods:{range:1}},
 };
 const INJ = {
   knee:{name:'Wrecked Knee',mods:{move:-1}}, eye:{name:'Damaged Eye',mods:{acc:-2}}, ribs:{name:'Cracked Ribs',mods:{maxHp:-2}},
@@ -15,10 +15,10 @@ const INJ = {
 const TRACKS = {
   tech:{name:'Tech',res:'Power',abbr:'PWR',perk:'+2 accuracy',mods:{acc:2}},
   innate:{name:'Innate',res:'Innate rank',abbr:'INN',perk:'+2 max health',mods:{maxHp:2}},
-  magic:{name:'Magic',res:'Arcana',abbr:'ARC',perk:'+1 max composure',mods:{maxComp:1}},
+  magic:{name:'Magic',res:'Arcana',abbr:'ARC',perk:'+1 starting Heroism',mods:{maxComp:1}},
 };
 const SLOTS = {head:'Head',body:'Body',arms:'Arms',legs:'Legs',acc:'Accessory'};
-const MODN = {acc:'accuracy',str:'strength',eva:'evasion',move:'movement',speed:'attack die',maxHp:'max health',maxComp:'max composure',range:'range'};
+const MODN = {acc:'accuracy',str:'strength',eva:'evasion',move:'movement',speed:'attack die',maxHp:'max health',maxComp:'starting Heroism',range:'range'};
 /* ab.act = uses the hero's action; ab.mode = needs a target on the board */
 /* Version 127 (Tyler): GEAR, VILLAINS, SETS, START_UNLOCK, ARC_UNLOCK, DEFEAT_UNLOCK, ALL_ITEMS and MID_UNLOCK now hold their final values where they are declared.
    They used to be built up by about 140 patch statements spread through this script; the Version comments that explained those patches are kept where they were.
@@ -83,7 +83,7 @@ for(const k in HERO_BASE){const b=HERO_BASE[k],m=POOL_MOD[b.track];b[m]=(b[m]||0
 /* auras help the wearer and allies within 1 hex (Version 63: the wearer counts too, and some auras do more than stats) */
 /* Version 65 (Tyler): auras reach 2 hexes, and each effect aura only works under a condition */
 const AURA_R=2;
-const AURA_FX={mend:{n:'Mending Light',txt:'at the start of each round, regain 1 health while at half health or less'},calm:{n:'Calming Smoke',txt:'at the start of each round, regain 1 composure while at half composure or less'},
+const AURA_FX={mend:{n:'Mending Light',txt:'at the start of each round, regain 1 health while at half health or less'},calm:{n:'Calming Smoke',txt:'at the start of each round, gain 1 Heroism while below 3 Heroism'},
   charge:{n:'Power Relay',txt:'recharge 1 more Power each round while at 1 Power or less'},brace:{n:'Shield Wall',txt:'take 1 less damage from any hit of 3 or more'},
   luck:{n:'Fortune',txt:'the first henchman attack on you each round rolls twice and keeps the lower die (villains are not affected)'}};
 /* Version 115 (Tyler's gear pass) */

@@ -7,7 +7,8 @@ async function knockU(u,n){const sd=S.sd,v=sd.v,h=heroOf(u);if(u.anchor){fxU(u,'
   if(k){log('vill',`${h.name} is knocked back ${k} hex${k>1?'es':''}.`);render();await sleep(FAST?0:200)}}
 async function upRiders(u,up){if(up.daze)dazeU(u,up.n);if(up.knock)await knockU(u,up.knock)}
 async function vHit(u,dmg,label,style){const h=heroOf(u);if(S.sd.v.cursed&&dmg>0)dmg=Math.max(1,dmg-2);faceTo(u);render();await strikeAnim(style,ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);
-  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const up=CUR_CARD||{},acc=vStat('acc')+(up.accUp||0),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0)+avoidEva(u);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};const hit=r===20||(r!==1&&r+acc>=eva);
+  let r=d20();/* Version 115 (Tyler): Lucky Coin no longer affects villain attacks */const up=CUR_CARD||{},acc=vStat('acc')+(up.accUp||0),eva=stat(h,'eva')+(u.buffEva||0)+(u.evaNext||0)+avoidEva(u);if(u.evaNext){log('hero',`Wind Ward: +${u.evaNext} evasion for ${h.name}.`);u.evaNext=0};let hit=r===20||(r!==1&&r+acc>=eva);
+  if(hit&&await heroDodge(u,r,acc,eva,label))hit=false;
   log('vill',`${label} at ${h.name}: rolled ${r}+${acc} vs evasion ${eva}. ${hit?`Hit for ${dmg}.`:'Miss.'}`);
   if(hit&&await wardBlocks(u))return false;
   if(hit&&u.reflect&&!S.sd.v.down){u.reflect=0;log('hero',`${h.name} turns the blow back: ${VILLAINS[S.sd.vkey].short} tears a page.`);await woundAnim(`${h.name}: reflected.`)}
@@ -37,8 +38,8 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       if(shotVB(t,v)){log('vill',`A girder is in the way: ${vn}'s ${c.n} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
       let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=1);
       if(g){log('hero',`${heroOf(g).name} braces and takes the blow.`);A.lunge('h'+g.hid,ctrU(t));await A.shield(ctrU(g),COL.yel,true);t=g;if(dmg>0)dmg=Math.max(1,dmg-1)}
-      {const hit=await vHit(t,dmg,c.n,vStyle(c));if(hit&&c.comp&&!t.ko){const th=heroOf(t);th.comp=Math.max(0,th.comp-c.comp);fxU(t,'RATTLED!','vhit');log('vill',`${th.name} loses ${c.comp} composure.`);render()}
-        if(hit&&c.dupeLow&&!t.ko&&!sd.mimic){const th=heroOf(t);if(th.comp*2<=stat(th,'maxComp')){const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(p)leaveDupe(v,p)}}}
+      {const hit=await vHit(t,dmg,c.n,vStyle(c));if(hit&&c.comp&&!t.ko){const th=heroOf(t);th.comp=Math.max(0,th.comp-c.comp);fxU(t,'RATTLED!','vhit');log('vill',`${th.name} loses ${c.comp} Heroism.`);render()}
+        if(hit&&c.dupeLow&&!t.ko&&!sd.mimic){const th=heroOf(t);if(th.comp<3){const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(p)leaveDupe(v,p)}}}
       if(c.col)sd.civs.filter(cv=>cheb(cv,t)<=1).forEach(cv=>harmCiv(cv,'flying wreckage'));break}
     case 'sweep':await sweep(c.r,dmgScale(c.dmg),c.n);break;
     /* Version 133: Mole Boy digs under the floor and bursts up beside the farthest hero, leaving rubble where he went down */
@@ -52,7 +53,7 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       if(c.rush&&added.length){log('vill','They attack as soon as they arrive.');const was=CUR_CARD;CUR_CARD=null;try{for(const m of added){if(sd.result)break;if(sd.hench.includes(m))await henchAct(m)}}finally{CUR_CARD=was}}break}
     case 'endanger':{const cv=sd.civs.slice().sort((a,b)=>dV(a,v)-dV(b,v))[0];if(cv)faceTo(cv);
       const undermine=u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.comp);fxU(u,'RATTLED!','vhit');
-        log('vill',`${c.n}: ${h.name} loses ${c.comp} Composure.`);render()};
+        log('vill',`${c.n}: ${h.name} loses ${c.comp} Heroism.`);render()};
       if(!cv){const t=pickTarget('nearest');if(t){await vMove(()=>vToward(t,c.emv||2,1));
         if(dV(t,v)<=1){if(c.comp)undermine(t);else await vHit(t,dmgScale(2),c.n,'slash')}}break}
       await vMove(()=>vToward(cv,c.emv||2,1));const prot=live().find(u=>cheb(u,cv)<=1);
@@ -73,7 +74,7 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       break}
     case 'taunt':{await A.ring(ctrV(),COL.yel,c.r*2+2,{dashed:true,fill:false,count:3});
       const hit=live().filter(u=>dV(u,v)<=c.r);const lm=litMap(),ex=u=>(c.bombx&&(sd.bombs||[]).some(b=>cheb(bombP(b),u)<=1)?1:0)+(c.litx&&lm[u.x+','+u.y]?1:0);hit.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt-ex(u));fxU(u,'GRR!','miss')});
-      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} composure.`:`${c.n}: nobody is close enough to hear.`);shakenSting(c,hit);
+      log('vill',hit.length?`${c.n}: ${hit.map(u=>heroOf(u).name).join(', ')} lose ${c.amt} Heroism.`:`${c.n}: nobody is close enough to hear.`);shakenSting(c,hit);
       if(c.shakeDaze)hit.filter(u=>!u.ko&&heroOf(u).comp<=0&&!rankMod(heroOf(u),'innate','unshake')).forEach(u=>dazeU(u,c.n));break}
     case 'vanish':{let best=null,bs=-1;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const s=Math.min(...live().map(u=>dV(u,{x,y})))+Math.random();if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),9);fxV('POOF!','miss');{const t=pickTarget('nearest');if(t)faceTo(t)}log('vill',`${vn} vanishes and reappears across the room.`);break}
@@ -151,7 +152,7 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       render();break}
     case 'fade':{const L=live(),from={x:v.x,y:v.y};let best=null,bs=-1e9;for(let y=0;y<N;y++)for(let x=0;x<N;x++){if(!vFits(x,y,true))continue;const d=L.length?Math.min(...L.map(u=>cheb(u,{x,y}))):3,s=-Math.abs(d-3)+Math.random()*.9;if(s>bs){bs=s;best=[x,y]}}
       await A.smoke(ctrV(),9);if(best){v.x=best[0];v.y=best[1]}v.face=rnd(6)-1;v.hide=true;if(c.evaUp&&!sd.mimic){v.fadeEva=c.evaUp;log('vill',`${vn} is hard to pin down: +${c.evaUp} evasion until her next action.`)}noFlip.add('v'+sd.vi);render();await A.smoke(ctrV(),6);
-      if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} composure.`);shakenSting(c,L)}
+      if(c.amt){L.forEach(u=>{const h=heroOf(u);h.comp=Math.max(0,h.comp-c.amt);fxU(u,'?!','vhit')});log('vill',`The lights die. Every hero loses ${c.amt} Heroism.`);shakenSting(c,L)}
       fxV('…','miss');log('vill',`${vn} fades into the dark and reappears somewhere else. Her facing is hidden.`);jumpDupe(v,from);if(c.twin&&!sd.mimic){const s2=doubleSpot(v,5);if(s2)leaveDupe(v,s2.p)}render();break}
     case 'converge':{const t=pickTarget('nearest');if(!t)break;if(!v.sw){await vMove(()=>vToward(t,c.mv,1));if(dV(t,v)<=1)await vHit(t,dmgScale(c.dmg),c.n,'slash');break}
       const os=JSON.stringify([v.x,v.y,v.sw]);swBodies(v).forEach(b=>swStep(v,b.i,t,c.mv,1,-1));faceTo(t);if(JSON.stringify([v.x,v.y,v.sw])!==os){render();await sleep(FAST?0:420)}

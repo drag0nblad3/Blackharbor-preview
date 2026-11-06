@@ -13,7 +13,7 @@ assert.match(glossary.bomb[1],/19 hexes/);
 assert.match(glossary.bomb[1],/next villain turn/);
 assert.match(glossary.bomb[1],/not Payload/);
 assert(d.cantor.hints.some(x=>x.includes('Crowd Control')&&x.includes('1 HP')));
-assert(d.cantor.hints.some(x=>x.includes('Leverage')&&x.includes('Composure')));
+assert(d.cantor.hints.some(x=>x.includes('Leverage')&&x.includes('Heroism')));
 assert(d.gallows.hints.some(x=>x.includes('2 hexes')));
 assert(d.bomber.hints.some(x=>x.includes('Bait and Switch')));
 for(const lv of [1,3,4,5,6]){
@@ -30,7 +30,7 @@ assert.equal(cantor.t,'henchvolley');
 assert.match(cantor.txt,/hired gun/);
 assert.match(cantor.txt,/without moving/);
 const lev=JSON.parse(JSON.stringify(get("buildCard('cantor',{id:'lev',mk:0},3)")));
-assert.match(lev.txt,/Composure/);
+assert.match(lev.txt,/Heroism/);
 assert.doesNotMatch(lev.txt,/2 damage/);
 const tips=JSON.parse(JSON.stringify(get('TIPS.map(x=>({id:x.id,t:x.t}))')));
 assert(tips.some(t=>t.id==='cantorGuns'));

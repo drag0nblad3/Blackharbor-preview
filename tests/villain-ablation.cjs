@@ -29,7 +29,7 @@ function setup(k,group,stage,variant){
  S.armory=STARTER_LOCKER.filter(x=>GEAR[x]&&!GEAR[x].cons);
  S.armory.push(...Object.keys(GEAR).filter(x=>GEAR[x].cost.any&&!GEAR[x].cons&&GEAR[x].req<=${stage.rank}&&GEAR[x].req>=2));
  equipBest(S.heroes);
- S.heroes.forEach(h=>{const keep=Object.entries(h.gear).sort((a,b)=>gScore(b[1],h)-gScore(a[1],h)).slice(0,${stage.cap});h.gear=Object.fromEntries(keep);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});
+ S.heroes.forEach(h=>{const keep=Object.entries(h.gear).sort((a,b)=>gScore(b[1],h)-gScore(a[1],h)).slice(0,${stage.cap});h.gear=Object.fromEntries(keep);h.hp=stat(h,'maxHp');h.comp=heroStart(h)});
  S.inv={v:${JSON.stringify(k)},clues:3};startShowdown();S.sd.intro=false;`;
 }
 const results=[];

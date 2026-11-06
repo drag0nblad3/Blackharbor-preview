@@ -13,8 +13,8 @@ const bc=(k,id,mk,lv)=>`buildCard('${k}',{id:'${id}',mk:${mk}},${lv})`;
    if(b.comp!=null)assert.equal(c.comp,b.comp,`${k}.${id} composure grows with marks`)}
  // Pages show the level bonus: +1 damage per even level, +1 composure at levels 3 and 6.
  assert.match(get(bc('noct','garrote',0,8)+'.txt'),/for 8\./);assert.match(get(bc('noct','garrote',0,1)+'.txt'),/for 4\./);
- assert.match(get(bc('noct','dread',0,8)+'.txt'),/lose 4 composure/);assert.match(get(bc('helios','flare',0,6)+'.txt'),/: 8 damage/);
- assert.match(get("rxTxt(rxOf('noct','terror'),6)"),/loses 4 Composure/);
+ assert.match(get(bc('noct','dread',0,8)+'.txt'),/lose 4 Heroism/);assert.match(get(bc('helios','flare',0,6)+'.txt'),/: 8 damage/);
+ assert.match(get("rxTxt(rxOf('noct','terror'),6)"),/loses 4 Heroism/);
  // Upgrade ladders: attack pages get +2 accuracy, then daze, then knockback; the text says so.
  const g3=get(bc('noct','garrote',3,8));assert.equal(g3.accUp,2);assert(g3.daze);assert.equal(g3.knock,1);assert.match(g3.txt,/\+2 accuracy.*can't move next round.*knocked back 1 hex/);
  assert(get(bc('helios','flare',2,1)+'.zr')===1&&get(bc('helios','flare',2,1)+'.daze'));

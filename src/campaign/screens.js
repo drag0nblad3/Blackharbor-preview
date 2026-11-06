@@ -22,11 +22,11 @@ function setupEvent(){const mm=S.mastermind&&!S.villains.some(v=>v.key===S.maste
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
 const PREP={scout:{n:'Coordinated recon',txt:'Both villains start with 1 page already torn out.'},
   evac:{n:'Evacuate the district',txt:'Only 2 civilians remain on the battlefield instead of 4, and the city thanks you: +2 trust.'},
-  rally:{n:'Rally the team',txt:'Heroes start at full health and composure, and every hero\'s first attack gets +1 die.'}};
+  rally:{n:'Rally the team',txt:'Heroes start at full health with +3 Heroism, and every hero\'s first attack gets +1 die.'}};
 function startFinale(p){S.event.prep=p;if(p==='evac')S.trust+=2;
-  if(p==='rally')party().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});
+  if(p==='rally')party().forEach(h=>{h.hp=stat(h,'maxHp')});
   startShowdown({finale:true,keys:S.event.keys,quality:p==='scout'?'prepared':'normal',civs:p==='evac'?2:4});
-  if(p==='rally')S.sd.units.forEach(u=>u.buffDice=1)}
+  if(p==='rally')S.sd.units.forEach(u=>{u.buffDice=1;gainHero(heroOf(u),3)})}
 function eliteSalvage(L){const sd=S.sd;for(const k of sd.elites||[])if(!sd.hench.some(m=>m.elite&&m.owner===k)){S.salvage[k]=(S.salvage[k]||0)+1;L.push(`${eliteOf(k).name} was taken down: +1 ${VILLAINS[k].salvage}.`)}}
 function finaleDebrief(){const sd=S.sd,L=[],names=S.event.keys.map(k=>VILLAINS[k].name).join(' and ');
   eliteSalvage(L);const evT=sd.evac,per=S.ethos.a==='force'?2:1;S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilians evacuated, ${sd.harmed} harmed.`);
@@ -46,7 +46,7 @@ function eventView(){const e=S.event;
     <div class="grid2">${Object.entries(PREP).map(([k,p])=>`<button class="btn opt" data-a="finale:${k}"><span>${p.n}</span><small>${p.txt}</small></button>`).join('')}</div></section>`}
 
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
-ACT.ethos=(p1,p2)=>{S.ethos[p1]=p2;if(p1==='b'&&p2==='secret')roster().forEach(h=>h.comp=stat(h,'maxComp'));S.after.ethos=null};
+ACT.ethos=(p1,p2)=>{S.ethos[p1]=p2;if(p1==='b'&&p2==='secret')roster().forEach(h=>h.comp=heroStart(h));S.after.ethos=null};
 ACT.next=()=>{S.after=null;if(S.over){S.phase='over';storyEpilogue()}else if(S.arcInfo){S.phase='arc';S.view='mission';storyArc(S.arcInfo.arc)}else if(S.finalePending)setupEvent();else{S.phase='hq';S.view='hq'}};
 ACT.finale=(p1)=>{storyFinale(p1)};
 ACT.arcnext=()=>{S.arcInfo=null;S.phase='hq';S.view='hq'};

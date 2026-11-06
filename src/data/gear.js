@@ -185,7 +185,7 @@ const GEAR = {
 const SETS={
  gallows:{n:'Mad Science',mods:{maxPwr:1,pwrRegen:1},txt:'+1 max Power and +1 Power recharge.'},
  quarry:{n:'Living Landslide',mods:{maxHp:2,str:2},txt:'+2 max health and +2 Strength.'},
- cantor:{n:'Mesmerist\'s Calm',mods:{maxComp:2},txt:'+2 max composure, and regain 1 composure at the start of every round.'},
+ cantor:{n:'Mesmerist\'s Calm',mods:{maxComp:2},txt:'+2 starting Heroism, and gain 1 Heroism at the start of every round.'},
  architect:{n:'Load-Bearing',mods:{},txt:'Take 1 less damage from every hit (never below 1), subject to the total Guard limit.'},
  helios:{n:'Corona',mods:{range:1},txt:'+1 range, and henchmen next to you take 1 damage at the start of every round.'},
  serpent:{n:'Shed Skin',mods:{},txt:'Regain 1 health at the start of every round.'},

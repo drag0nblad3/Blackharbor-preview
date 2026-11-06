@@ -62,7 +62,7 @@ function invCaseShell(i,content){
           ${party().map(h=>`<div class="inv-hero-row">
             <span class="inv-hero-name">${esc(h.name)}</span>
             <span title="Health">${UI('hp')}${h.hp}/${stat(h,'maxHp')}</span>
-            <span title="Composure">${UI('comp')}${h.comp}/${stat(h,'maxComp')}</span>
+            <span title="Starting Heroism">${UI('comp')}${heroStart(h)}</span>
           </div>`).join('')}
         </div>
       </aside>

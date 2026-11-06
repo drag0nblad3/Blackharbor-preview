@@ -18,7 +18,7 @@ function bossObserve(){
 function bossAbility(u,usesPower){
   bossObserve();const sd=S.sd;if(!sd||sd.result)return;
   for(const {v} of sd.vl){if(v.down)continue;
-    if(usesPower&&v.circuit&&v.circuit.includes(u.hid)){const other=sd.units.find(o=>o.hid!==u.hid&&v.circuit.includes(o.hid));if(other&&!other.ko){const h=heroOf(other),n=1+compBonus(v.level);h.comp=Math.max(0,h.comp-n);log('vill',`Closed Circuit: ${h.name} loses ${n} Composure.`)}}
+    if(usesPower&&v.circuit&&v.circuit.includes(u.hid)){const other=sd.units.find(o=>o.hid!==u.hid&&v.circuit.includes(o.hid));if(other&&!other.ko){const h=heroOf(other),n=1+compBonus(v.level);h.comp=Math.max(0,h.comp-n);log('vill',`Closed Circuit: ${h.name} loses ${n} Heroism.`)}}
     if(v.solarHeat!=null&&dV(u,v)<=2){v.solarHeat=Math.min(4,v.solarHeat+1);log('vill',`Solar Debt: ${v.solarHeat}/4 Heat.`)}
   }
 }
@@ -52,7 +52,7 @@ async function specialBossCard(c){const sd=S.sd,v=sd.v;
     case 'solar':v.solarHeat=0;break;
     case 'satellites':{v.satellites=v.satellites||0;const rocks=sd.obs.map(bossPoint).filter(p=>dV(p,v)<=3).sort((a,b)=>dV(a,v)-dV(b,v)).slice(0,2-v.satellites);for(const p of rocks)sd.obs=sd.obs.filter(k=>k!==bossKey(p));v.satellites+=rocks.length;log('vill',`Scrap Satellites: ${v.satellites}/2 orbit Lodestone.`);break}
     case 'shadow':{sd.hench=sd.hench.filter(m=>m.id!==v.shadowId);delete v.shadowId;const t=pickTarget('nearest');if(t)v.shadowMark={hid:t.hid,x:t.x,y:t.y};
-      if(t&&c.knife&&dV(t,v)<=c.rng){await vHit(t,dmgScale(c.knife),c.n,'shot');const h=heroOf(t);if(!t.ko&&c.comp){h.comp=Math.max(0,h.comp-c.comp);log('vill',`${c.n}: ${h.name} loses ${c.comp} composure.`)}}break}
+      if(t&&c.knife&&dV(t,v)<=c.rng){await vHit(t,dmgScale(c.knife),c.n,'shot');const h=heroOf(t);if(!t.ko&&c.comp){h.comp=Math.max(0,h.comp-c.comp);log('vill',`${c.n}: ${h.name} loses ${c.comp} Heroism.`)}}break}
     case 'borrow':{const bodies=swBodies(v).slice(1);v.borrowed=sd.hench.filter(m=>m.owner==='swarm'&&!m.elite&&!m.shadow).slice(0,Math.min(2,bodies.length)).map((m,i)=>{m.infested=true;return {id:m.id,k:bodies[i].k}});break}
     case 'collection':await collection();break;
     case 'double':{const s=doubleSpot(v,c.rng);if(!s)break;const {t,p}=s;
@@ -133,7 +133,7 @@ function restoreBorrowedBodies(v){
    They live in sd.dupes, not sd.hench, so no attack, blast or aura can reach them; they still occupy their hex. */
 function leaveDupe(v,p){const sd=S.sd;if(sd.mimic||blocked(p.x,p.y))return;const id='dupe-'+sd.round+'-'+Math.random().toString(36).slice(2,6);
   const d={id,owner:sd.vkey,x:p.x,y:p.y};if(!sd.vturn&&v.planned)d.plan=JSON.parse(JSON.stringify(v.planned));(sd.dupes=sd.dupes||[]).push(d);(v.dupes=v.dupes||[]).push(id);log('vill','A shadow double lingers. It will mimic her next action, then dissipate.')}
-/* the hex beside the least composed hero within rng (any hero if none), where a double steps out */
+/* the hex beside the hero with the least Heroism within rng (any hero if none), where a double steps out */
 function doubleSpot(v,rng){const L=live();if(!L.length)return null;const inR=L.filter(u=>dV(u,v)<=rng),t=(inR.length?inR:L).sort((a,b)=>heroOf(a).comp-heroOf(b).comp||dV(a,v)-dV(b,v))[0];
   const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(!p){log('vill','Her shadow finds no room beside its prey.');return null}return {t,p}}
 /* each double locks in its own copy of the page she has planned; tearing or skipping her page later does not touch it */
@@ -147,6 +147,6 @@ async function dupeTurn(v,c0,ids){const sd=S.sd;
       log('vill',`Her shadow double mimics ${c.n}.`);fxV('MIMIC!','say');
       try{await execCard(c)}finally{sd.mimic=false;v.x=keep.x;v.y=keep.y;v.face=keep.face;v.hide=keep.hide}checkLoss()}
     log('vill','The shadow double dissipates.');render()}}
-/* Nocturne: heroes left Shaken (no composure) by some of her actions take extra damage. */
+/* Nocturne: heroes left Shaken (no Heroism) by some of her actions take extra damage. */
 function shakenSting(c,L){if(!c.shakenDmg)return;for(const u of L){const h=heroOf(u);if(u.ko||h.comp>0||rankMod(h,'innate','unshake'))continue;
   fxU(u,'SHAKEN!','vhit');log('vill',`${c.n}: ${h.name} is Shaken and takes ${c.shakenDmg}.`);damageHero(u,c.shakenDmg)}}

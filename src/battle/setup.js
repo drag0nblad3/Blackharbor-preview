@@ -72,7 +72,7 @@ function startShowdown(opt={}){
   const hs=party();
   if(q==='ambush'&&!S.facilities.includes('hangar')){hs.forEach(h=>{const t=pick(freeTiles((x,y)=>y>=3&&y<=N-2));sd.units.push(mkUnit(h,t.x,t.y))})}
   else{const cols=fin?[2,4,6,8]:[1,3,5,7];hs.forEach((h,i)=>{let x=cols[i%cols.length],y=N-1;if(blocked(x,y)){const t=pick(freeTiles((a,b)=>b>=N-2));x=t.x;y=t.y}sd.units.push(mkUnit(h,x,y))})}
-  hs.forEach(h=>{h.comp=stat(h,'maxComp');h.cd=0});
+  hs.forEach(h=>{h.comp=heroStart(h);h.cd=0});
   lastPos={};
   sd.vl.forEach((o,vi)=>{const n=Math.min(4,fin?Math.ceil(o.v.level/2):o.v.level)+(q==='ambush'?1:0);
     for(let i=0;i<n;i++){const t=pick(freeTiles((x,y)=>y>=1&&y<=4&&Math.abs(x-(o.v.x+.5))<=3))||pick(freeTiles((x,y)=>y<=5));if(t)sd.hench.push({id:'h'+vi+'_'+i,owner:o.key,x:t.x,y:t.y,hp:regularHenchHp(o.key)})}

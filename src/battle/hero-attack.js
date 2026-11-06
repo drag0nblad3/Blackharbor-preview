@@ -13,10 +13,12 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
   const turret=setOn(h,'grid')&&!u.moved?1:0;if(turret)log('hero',`Turret Stance: ${h.name} hasn't moved yet, +1 die.`);
   const rel=target==='v'&&!u.noRel&&gearHas(h,'relent')&&u.relKey===sd.vkey?Math.min(1,u.relN||0):0;if(rel)log('hero',`Relentless: +${rel} ${rel===1?'die':'dice'} for keeping up the pressure.`);if(target==='v'&&!u.noRel)u.relHit=sd.vkey;
   const dice=(fixedDice||stat(h,'speed')+bonus)+(u.buffDice||0)+(target==='v'&&v.marked&&side!=='front'?1:0)+(blind?1:0)+back+call+turret+rel,strB=u.buffStr||0,accB=u.buffAcc||0,reap=target==='v'?(u.buffReap||0):0;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;if(target==='v')u.buffReap=0;
-  const acc=stat(h,'acc')+accB,rolls=[];let hits=0,wounds=0;
+  const acc=stat(h,'acc')+accB,rolls=[],boost=[];let hits=0,wounds=0;
   await strikeAnim(style||b.fx,ctrU(u),target==='v'?(body?HC(body.x,body.y):ctrV()):ctrU(target),b.glow,'h'+u.hid);
   if(target==='v'){const eva=vStat('eva');
-    for(let i=0;i<dice;i++){const r=d20();rolls.push(r);if(r===20||(r!==1&&r+acc>=eva))hits++}
+    for(let i=0;i<dice;i++){const r=d20();rolls.push(r);let ok=r===20||(r!==1&&r+acc>=eva);
+      if(!ok&&r!==1){const sp=await heroSpend(u,eva-r-acc,{kind:'acc',line:`Die ${i+1} of ${dice}: rolled <b>${r}</b> + ${acc} = ${r+acc} vs ${esc(VILLAINS[sd.vkey].short)}'s evasion ${eva}.`,win:`The roll becomes ${eva} and hits.`});if(sp){boost[i]=sp;ok=true}}
+      if(ok)hits++}
     log('hero',`${h.name} attacks: rolled ${rolls.join(', ')} (+${acc}) vs evasion ${eva}. ${hits} hit${hits===1?'':'s'}.`);
     {const gm=hits?sd.hench.find(m=>m.elite&&m.owner===sd.vkey&&m.hp>0&&eliteOf(m.owner).guard&&dV(m,v)<=1):null;
       if(gm){hits--;gm.hp--;gm.hurtAt=Date.now();fxP(gm.x,gm.y,gm.hp<=0?'K.O.!':'BLOCKED!','hit');log('vill',`${eliteOf(gm.owner).name} steps in front of ${VILLAINS[sd.vkey].short} and takes the first hit.${gm.hp<=0?' He goes down.':''}`);if(gm.hp<=0)sd.hench=sd.hench.filter(m=>m!==gm);render()}}
@@ -25,7 +27,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     const ranged=dV(u,v)>1,close=body&&swBodies(v).some(o=>o.i!==body.i&&cheb(o,body)===1);
     if(body)log('hero',`${h.name} strikes the ${SWN[body.k].toLowerCase()} body from its ${ARCN[side]} arc.${close?' Another body is right beside it: +2 toughness.':''}`);
     let spin=false,powerDrain=0,counter=0,flee=false,drain=0,summon=0,push=0,wall=false,pull=0,hide=false,bombAt=0,fuseTick=false,reflect=0,flash=false;const rows=[],q={splash:[]};
-    for(let i=0;i<hits&&!sd.result;i++){let tc=drawTactic();if(tc.sig)tc={...tc,...rxOf(tc.sig,tc.id)};if(v.repress){v.repress=false;log('hero',`${tc.n} is revealed and repressed.`);if(v.repressComp){v.repressComp=false;h.comp=Math.min(stat(h,'maxComp'),h.comp+2);fxU(u,'+2 COMPOSURE','good');log('hero',`${h.name} restores 2 composure.`)}tc={id:'glance',n:tc.n+' (repressed)',txt:'Repressed: this reaction has no effect. Roll to wound normally.'};}const okArc=!tc.arc||tc.arc.includes(side),okRng=!tc.ranged||ranged,okPart=!tc.part||(body&&body.k===tc.part),inArc=okArc&&okRng&&okPart;
+    for(let i=0;i<hits&&!sd.result;i++){let tc=drawTactic();if(tc.sig)tc={...tc,...rxOf(tc.sig,tc.id)};if(v.repress){v.repress=false;log('hero',`${tc.n} is revealed and repressed.`);if(v.repressComp){v.repressComp=false;gainHero(h,2);fxU(u,'+2 HEROISM','good');log('hero',`${h.name} gains 2 Heroism.`)}tc={id:'glance',n:tc.n+' (repressed)',txt:'Repressed: this reaction has no effect. Roll to wound normally.'};}const okArc=!tc.arc||tc.arc.includes(side),okRng=!tc.ranged||ranged,okPart=!tc.part||(body&&body.k===tc.part),inArc=okArc&&okRng&&okPart;
       const why=!tc.sig?'':!okPart?`${h.name} hit the ${body?SWN[body.k].toLowerCase():''} body, not the ${SWN[tc.part].toLowerCase()}, so it does nothing.`:!okRng?`${h.name} is adjacent, and it only answers ranged attacks.`:tc.ranged&&okArc?`${h.name} attacked from range: it triggers!`:'';
       const note=why||(tc.arc&&side?`${h.name} struck from the ${ARCN[side]} arc: ${inArc?'it triggers!':'wrong side, it does nothing.'}`:'');
       if(tc.sig&&!inArc){log('hero',why||`${tc.n} only works in the ${arcTxt(tc.arc)}. ${h.name} is in the ${ARCN[side]} arc, so it does nothing.`);fxU(u,!okPart?'WRONG BODY!':!okRng?'TOO CLOSE!':'WRONG SIDE!','good')}
@@ -34,21 +36,22 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
         if(tc.guard&&sd.hench.some(hm=>dV(hm,v)<=1)){block=true;blockTxt='A henchman takes the blow.'}}
       else if(!tc.sig){if(tc.id==='weak')auto=true;if(tc.id==='armor')tough+=4;if(tc.id==='over')tough-=4;if(tc.id==='counter')counter+=2;
       if(tc.id==='shield'&&sd.civs.some(c=>dV(c,v)<=2))block=true;if(tc.id==='escape')flee=true}
-      const r=d20(),str=stat(h,'str')+strB,ok=!block&&(auto||r===20||(r!==1&&r+str>=tough));
-      const rollTxt=block?blockTxt:auto?`${tc.sig?tc.n:'Weak point'}: the wound lands.`:`Wound roll ${r} + ${str} vs toughness ${tough}.`;
+      const r=d20(),str=stat(h,'str')+strB;let ok=!block&&(auto||r===20||(r!==1&&r+str>=tough)),hb=0;
+      if(!ok&&!block&&r!==1){hb=await heroSpend(u,tough-r-str,{kind:'str',card:`${tc.n}: ${tc.txt}`,line:`Strength roll <b>${r}</b> + ${str} = ${r+str} vs toughness ${tough}.`,win:`The roll becomes ${tough} and wounds.`});if(hb)ok=true}
+      const rollTxt=block?blockTxt:auto?`${tc.sig?tc.n:'Weak point'}: the wound lands.`:`Wound roll ${r} + ${str}${hb?` + ${hb} Heroism`:''} vs toughness ${tough}.`;
       log('hero',`${tc.n}: ${rollTxt} ${ok?'Wound!':block?'':'No wound.'}`);
-      const rw={tc,note,off:tc.sig&&!inArc,auto,block,blockTxt,r,str,tough,ok};rows.push(rw);
+      const rw={tc,note,off:tc.sig&&!inArc,auto,block,blockTxt,r,str,tough,ok,hb};rows.push(rw);
       if(ok&&v.satellites>0){dropSatellite(v,u);rw.ok=false;rw.block=true;rw.blockTxt='A scrap satellite absorbs the wound.';continue;}
-      if(ok){wounds++;sd.woundsBy[h.id]=(sd.woundsBy[h.id]||0)+1;if(tc.id==='mono')h.comp=Math.min(stat(h,'maxComp'),h.comp+1);
+      if(ok){wounds++;sd.woundsBy[h.id]=(sd.woundsBy[h.id]||0)+1;if(tc.id==='mono')gainHero(h,1);
         q.page=null;const end=await woundAnim(`${h.name}: ${rollTxt}`,q);rw.page=q.page;if(end)break}}
-    await attackPanel({name:h.name,acc,eva,rolls,hits,rows});
+    await attackPanel({name:h.name,acc,eva,rolls,boost,hits,rows});
     fxV(wounds>=3?'KA-BOOM!':wounds?pick(SFX_HIT):rows.some(o=>o.block)?'NO!':'CLANG!',wounds?'hit':'miss');render();
     await breakStack(q.splash);
     if(wounds&&setOn(h,'bomber')&&!sd.result){const hm=sd.hench.filter(m=>cheb(m,u)<=1);if(hm.length){await A.ring(ctrU(u),COL.yel,2.4);hm.forEach(m=>{m.hp-=1;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'SHRAPNEL!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',`Shrapnel: ${hm.length} henchm${hm.length===1?'an':'en'} next to ${h.name} take 1.`);render()}}
     sd.reactionContext=true;try{
     if(powerDrain&&!sd.result){u.res.tech=Math.max(0,(u.res.tech||0)-powerDrain);log('vill',`${h.name} loses ${powerDrain} Power to feedback.`);}
     if(counter&&!sd.result){log('vill',`Reaction! ${h.name} takes ${counter}.`);await strikeAnim('slash',ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);fxU(u,'OOF!','vhit');damageHero(u,counter);render()}
-    if(drain&&!sd.result){h.comp=Math.max(0,h.comp-drain);fxU(u,'RATTLED!','vhit');log('vill',`${h.name} loses ${drain} composure.`);render()}
+    if(drain&&!sd.result){h.comp=Math.max(0,h.comp-drain);fxU(u,'RATTLED!','vhit');log('vill',`${h.name} loses ${drain} Heroism.`);render()}
     if(push&&!u.ko&&u.anchor&&!sd.result){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`)}
     if(push&&!u.ko&&!u.anchor&&!sd.result){let n=0;for(let i=0;i<push;i++){const t=benchTile(u,v,(a,b)=>dV(b,v)-dV(a,v));if(!t||dV(t,v)<=dV(u,v))break;u.x=t.x;u.y=t.y;n++}if(n){log('vill',n>1?`${h.name} is flung ${n} hexes back.`:`${h.name} is shoved back.`);render();await sleep(260)}else log('vill',`${h.name} is pinned in place and can't be shoved.`)}
     if(pull&&!u.ko&&u.anchor&&!sd.result){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`)}
@@ -67,7 +70,9 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(spin&&!sd.result&&!v.down){v.face=rnd(6)-1;noFlip.add('v'+sd.vi);log('vill',`${VILLAINS[sd.vkey].short} whirls to face a new direction.`)}
     if(hide&&!sd.result&&!v.down){v.hide=true;log('vill',`${VILLAINS[sd.vkey].short} melts back into the shadows. Her facing is hidden again.`);render()}
     }finally{sd.reactionContext=false}
-  }else{const hm=target,meva=hm.elite?eliteEva(hm):7;for(let i=0;i<dice;i++){const r=d20();rolls.push(r);if(r===20||(r!==1&&r+acc>=meva))hits++}
+  }else{const hm=target,meva=hm.elite?eliteEva(hm):7;for(let i=0;i<dice;i++){const r=d20();rolls.push(r);let ok=r===20||(r!==1&&r+acc>=meva);
+      if(!ok&&r!==1&&hits<hm.hp&&await heroSpend(u,meva-r-acc,{kind:'acc',line:`Die ${i+1} of ${dice}: rolled <b>${r}</b> + ${acc} = ${r+acc} vs ${esc(hName(hm))}'s evasion ${meva}.`,win:`The roll becomes ${meva} and hits.`}))ok=true;
+      if(ok)hits++}
     if(hits&&hm.elite&&eliteOf(hm.owner||sd.vkey).brute&&hm.shrug!==sd.round){hm.shrug=sd.round;hits--;log('vill',`${hName(hm)} shrugs off the first hit this round.`)}
     hm.hp-=hits;hm.hurtAt=Date.now();log('hero',`${h.name} hits ${hName(hm)}: rolled ${rolls.join(', ')}. ${hits} damage.`);
     fxP(hm.x,hm.y,hm.hp<=0?'K.O.!':hits?pick(SFX_HIT):'WHIFF!',hits?'hit':'miss');

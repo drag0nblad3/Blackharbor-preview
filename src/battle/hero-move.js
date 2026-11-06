@@ -30,10 +30,10 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
     if(sd.mode==='attack'||sd.mode==='arc'){const rng=stat(h,'range');let t=null;
       if(vAt>=0&&dV(u,sd.vl[vAt].v)<=rng&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);t='v';sd.aim={x,y}}else{const m=sd.hench.find(m=>m.x===x&&m.y===y&&cheb(m,u)<=rng&&!shotBlocked(u,m));if(m)t=m}
       if(t){const arc=sd.mode==='arc';return act(async()=>{u.acted=true;if(arc)payPow(u,h);await heroAttack(u,t,arc?1:0);if(arc&&!sd.result)await splash(t)})}}
-    if(sd.mode==='rallySpirit'&&unitIdx>=0&&!u.acted&&!u.ko&&cheb(u,sd.units[unitIdx])<=lvlOf(h)){const tu=sd.units[unitIdx],t=heroOf(tu);return act(async()=>{u.acted=true;if(tu!==u)await A.shot(ctrU(u),ctrU(tu),COL.heal);await A.heal(ctrU(tu),COL.heal);const gained=Math.min(3,Math.max(0,stat(t,'maxComp')-t.comp));t.comp+=gained;fxU(tu,gained?'+'+gained+' SPIRIT':'STEADY!','good');log('hero',`${h.name} rallies ${tu===u?'themselves':t.name}, restoring ${gained} composure.`)})}
+    if(sd.mode==='rallySpirit'&&unitIdx>=0&&!u.acted&&!u.ko&&cheb(u,sd.units[unitIdx])<=lvlOf(h)){const tu=sd.units[unitIdx],t=heroOf(tu);return act(async()=>{u.acted=true;if(tu!==u)await A.shot(ctrU(u),ctrU(tu),COL.heal);await A.heal(ctrU(tu),COL.heal);const gained=3;gainHero(t,gained);fxU(tu,'+'+gained+' HEROISM','good');log('hero',`${h.name} rallies ${tu===u?'themselves':t.name}, giving ${gained} Heroism.`)})}
     if(sd.mode==='patch'&&unitIdx>=0&&cheb(sd.units[unitIdx],u)<=3){const tu=sd.units[unitIdx],t=heroOf(tu);
       return act(async()=>{payPow(u,h);if(tu!==u)await A.shot(ctrU(u),ctrU(tu),COL.heal);await A.heal(ctrU(tu),COL.heal);
-        t.hp=Math.min(stat(t,'maxHp'),t.hp+3);t.comp=Math.min(stat(t,'maxComp'),t.comp+2);fxU(tu,'+3 HP','good');log('hero',`${h.name} patches up ${t.name}.`)})}
+        t.hp=Math.min(stat(t,'maxHp'),t.hp+3);gainHero(t,2);fxU(tu,'+3 HP','good');log('hero',`${h.name} patches up ${t.name}.`)})}
     if(sd.mode==='barricade'&&cheb({x,y},u)<=2&&!blocked(x,y))return act(async()=>{payPow(u,h);await A.smoke(HC(x,y),4);sd.walls.push({k,ttl:3});fxU(u,'CLANK!','good');log('hero',`${h.name} bolts up a barricade.`)});
     if(sd.mode==='abally'&&unitIdx>=0){const key=sd.abKey,g=GEAR[key],a=g.ab,tu=sd.units[unitIdx];
       if(abOk(u,h,key)&&cheb(tu,u)<=abV(a.r,potOf(h))&&allyAbilityOK(u,tu,a))return act(async()=>{payAb(u,key);log('hero',`${h.name} uses ${a.n} on ${tu===u?'themselves':heroOf(tu).name} (${abCost(g)}).`);if(tu!==u)await A.shot(ctrU(u),ctrU(tu),COL[g.type]);await abApply(u,h,g,tu)})}
