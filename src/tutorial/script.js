@@ -22,7 +22,7 @@ const tutAimDest=(k,pick)=>{const sd=S.sd,u=tutU(k),r=reachH(u,stat(heroOf(u),'m
 const TUT=[
   {id:'offer'},
   {id:'meet',next:1,nextL:'To the subway',only:[],t:'This is <b>Lynx</b>, a tracker who fights up close. Diggers are breaking into the subway on 9th Street. Every number on this card gets explained the first time it matters, so don\'t try to memorise anything.',
-    extra:()=>{const h=tutH('lynx');if(!h)return '';const st=[['hp','Health',stat(h,'maxHp')],['move','Move',stat(h,'move')],['dice','Dice',stat(h,'speed')],['acc','Accuracy','+'+stat(h,'acc')],['str','Strength','+'+stat(h,'str')],['eva','Evasion',stat(h,'eva')],['rng','Range',stat(h,'range')],['comp','Composure',stat(h,'maxComp')]];
+    extra:()=>{const h=tutH('lynx');if(!h)return '';const st=[['hp','Health',stat(h,'maxHp')],['move','Move',stat(h,'move')],['dice','Dice',stat(h,'speed')],['acc','Accuracy','+'+stat(h,'acc')],['str','Strength','+'+stat(h,'str')],['eva','Evasion',stat(h,'eva')],['rng','Range',stat(h,'range')],['comp','Heroism',heroStart(h)]];
       return `<div class="tutst">${st.map(([i,l,v])=>`<span>${UI(i)}<b>${v}</b><small>${l}</small></span>`).join('')}</div>`},
     go:()=>tutPatrol()},
   /* the Diggers */
@@ -86,7 +86,7 @@ const TUT=[
   {id:'b-avoid',only:['combatMenu:other','combatPick:other:avoidDamage','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='avoidDamage'?'#app [data-a="combatUse"]':S.sd.combatMenuOpen==='other'?'#app [data-a="combatPick:other:avoidDamage"]':'#app .other-actions .combat-menu-toggle',done:()=>{const u=tutU('volt');return !!u.avoidDamage&&!S.sd.busy},
     t:'<b>Other Actions</b> holds moves any hero can make. <b>Avoid Damage</b> spends Volt\'s action for +3 Evasion until next round, or +5 next to cover like walls, rubble or an ally. <b>Open Other Actions, select Avoid Damage, then tap Use action.</b> Selecting an entry only shows its details; Cancel backs out for free. Abilities that target the board skip that button: pick one, then tap the board.'},
   {id:'b-end2',dq:[7],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=3,t:'Lynx holds back this round. <b>End the round</b> (tap it twice).'},
-  {id:'b-vturn2',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':'<b>Tunnel Ambush!</b> He rolled 7 + 2 = 9. That beats Volt\'s evasion of 8, but Avoid Damage raised it to 11, so he missed. Next to him in Other Actions is <b>Rally Spirit</b>: it spends your action to give an ally nearby up to 3 Composure back.'},
+  {id:'b-vturn2',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':'<b>Tunnel Ambush!</b> He rolled 7 + 2 = 9. That beats Volt\'s evasion of 8, but Avoid Damage raised it to 11, so he missed. Next to him in Other Actions is <b>Rally Spirit</b>: it spends your action to give an ally nearby +3 Heroism.'},
   {id:'b-free',next:1,nextL:'Play on',only:[],go:()=>{S.tut.dq=[];S.tips=[...new Set([...(S.tips||[]),...TUT_TIPS])]},
     t:'That\'s the end of the script. Mole Boy has 2 pages left. <b>Finish him off on your own</b>, with real dice. Long-press anything you\'re unsure about.'},
   {id:'free'},

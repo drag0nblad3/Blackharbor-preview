@@ -38,7 +38,7 @@ assert.match(roster,/class="bh-roster-rail"/);
 assert.match(roster,/data-a="rofocus:[^"]+"/,'rail heroes open their sheets');
 assert.match(roster,/Upgrades/);
 assert.match(roster,/data-cid="h-/);
-assert.match(roster,/COMP \d+\/\d+/);
+assert.match(roster,/HERO \d+/);assert.match(roster,/data-a="heroPref:/);
 assert.match(roster,/HP \d+\/\d+/);
 assert.doesNotMatch(roster,/data-cid="h-[^"]+" open/,'hero sheets start compact outside the tutorial');
 run("S.view='villains'");

@@ -45,7 +45,7 @@ const makeSetup=(k,stage)=>{
  // The full generic item catalog makes a benchmark party unrealistically
  // powerful. Retain only the best few pieces at each tier.
  S.heroes.forEach(h=>{const keep=Object.entries(h.gear).sort((a,b)=>gScore(b[1],h)-gScore(a[1],h)).slice(0,${stage.gearCap});h.gear=Object.fromEntries(keep)});
- S.heroes.forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});
+ S.heroes.forEach(h=>{h.hp=stat(h,'maxHp');h.comp=heroStart(h)});
  S.inv={v:${JSON.stringify(k)},clues:3};startShowdown();S.sd.intro=false;`;
 };
 const rows=[];

@@ -19,11 +19,11 @@ const RXSRC={gallows:{cap:['field','You overloaded his capacitor bank!'],bdrone:
   grid:{mirror:['red','You smashed his reflector visor!'],lens:['sight','You cracked his lens array!'],flash:['lattice','You burned out his afterimage capacitors!']}};
 for(const k in RXSRC)for(const id in RXSRC[k]){const r=rxOf(k,id);[r.src,r.brk]=RXSRC[k][id]}
 const ROMAN=['','II','III','IV','V','VI','VII'];
-const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'least composed'};
+const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'lowest-Heroism'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
 const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',hero:'the most injured hero',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
 const chargeNeed=v=>tutOn()?Math.max(1,v.level):Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up; the scripted tutorial keeps 1 wound so Big Dig can be torn).
-/* Tyler (2026-10-30): upgraded pages (II, III, IV) never add damage or composure loss; those come from the villain's level.
+/* Tyler (2026-10-30): upgraded pages (II, III, IV) never add damage or Heroism loss; those come from the villain's level.
    Each mark instead adds the next step of its page type's ladder in UPS, on top of the move, range, reach and count growth. */
 const UPFX={acc:c=>{c.accUp=(c.accUp||0)+2},daze:c=>{c.daze=1},knock:c=>{c.knock=(c.knock||0)+1},ring:c=>{c.zr=(c.zr||0)+1},
   wide:c=>{c.r=(c.r||0)+1},bigger:c=>{c.radUp=1},more:c=>{c.cnt=(c.cnt||1)+1},longer:c=>{c.ttl=(c.ttl||1)+1},
@@ -46,36 +46,36 @@ function upText(c){const o=[],hit=c.zone==='hero'?'Marked heroes':['charge','air
   if(c.daze)o.push(c.t==='endanger'?'The hero who takes the blow can\'t move next round.':c.t==='repel'?'A hero who slams into something can\'t move next round.':`${hit} can't move next round.`);
   if(c.knock)o.push(`${hit} are knocked back ${c.knock} hex${c.knock>1?'es':''}.`);
   if(c.shakeDaze)o.push('Shaken heroes it reaches can\'t move next round.');
-  if(c.twin)o.push('A second double steps out beside the hero with the least composure.');
+  if(c.twin)o.push('A second double steps out beside the hero with the least Heroism.');
   if(c.rush)o.push('They attack as soon as they arrive.');
   if(c.zr&&c.zone!=='hero')o.push(`The marked area reaches ${c.zr} hex${c.zr>1?'es':''} further.`);
   return o.length?' '+o.join(' '):''}
-/* hit reaction text with the level bonus to composure loss (reactions drain comp + compBonus) */
-const rxTxt=(r,lv)=>{const b=r&&r.comp?compBonus(lv):0;return b?r.txt.replace(/loses (\d+) ([Cc]omposure)/,(m,n,w)=>`loses ${+n+b} ${w}`):r.txt};
+/* hit reaction text with the level bonus to Heroism loss (reactions drain comp + compBonus) */
+const rxTxt=(r,lv)=>{const b=r&&r.comp?compBonus(lv):0;return b?r.txt.replace(/loses (\d+) (Heroism)/,(m,n,w)=>`loses ${+n+b} ${w}`):r.txt};
 function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase(),D=n=>(n||0)+(c.lvd||0); /* Tyler (2026-10-30): pages show damage with the level bonus (dmgScale) */
   const area=(c.radius||1)>1?`${1+3*c.radius*(c.radius+1)} hexes (radius ${c.radius})`:'7 hexes (radius 1)';
   switch(c.t){
-    case 'circuit':return 'Links the two nearest heroes until the next boss action. Power-costing abilities drain 1 Composure from the other hero. Separate by 4 hexes to break the link permanently.';
+    case 'circuit':return 'Links the two nearest heroes until the next boss action. Power-costing abilities drain 1 Heroism from the other hero. Separate by 4 hexes to break the link permanently.';
     case 'heave':return 'Marks a three-hex line through the nearest hero. Before the next boss action, it rises into permanent rubble. Occupants are pushed to the nearest open hex; trapped heroes take 2 damage. Occupied hexes cannot become rubble.';
     case 'collection':return 'Each hired gun moves up to 2 hexes toward a civilian and takes custody when adjacent. Guards already holding a civilian drag them up to 2 hexes toward the board edge. Captives remain on the board; defeat their guard to free them.';
     case 'renovate':return 'Marks the nearest hero and the surrounding six hexes. Before the next boss action, rubble and temporary walls inside disappear; empty perimeter hexes become walls for 2 hero rounds. Occupants leave doorways.';
     case 'solar':return 'Until the next boss action, abilities used within 2 hexes add 1 Heat (maximum 4). Then heroes within 2 take damage equal to Heat. At 3 or 4 Heat, Helios also tears one draw-pile page.';
     case 'satellites':return 'Turns up to two rubble hexes within 3 into satellites (maximum two). Each absorbs one successful attack wound, then falls beside Lodestone toward the attacker. An adjacent hero may spend an action to pull one down reliably.';
-    case 'double':return `A shadow double steps out beside the hero with the least composure within ${c.rng} and strikes them for ${D(c.dmg)}. The double cannot be harmed. It stays, locks in a copy of her next planned page and plays it from where it stands even if her own page is torn, then dissipates.`;
-    case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.'+(c.knife?` She also throws a knife at that hero from up to ${c.rng} away for ${D(c.knife)}, and they lose ${c.comp} composure.`:'');
+    case 'double':return `A shadow double steps out beside the hero with the least Heroism within ${c.rng} and strikes them for ${D(c.dmg)}. The double cannot be harmed. It stays, locks in a copy of her next planned page and plays it from where it stands even if her own page is torn, then dissipates.`;
+    case 'shadow':return 'Marks the nearest hero. Their next change of position leaves a 1-HP shadow at the old hex if clear. Before Nocturne’s next action she swaps with it; destroy it to prevent the swap. An unmoved mark expires.'+(c.knife?` She also throws a knife at that hero from up to ${c.rng} away for ${D(c.knife)}, and they lose ${c.comp} Heroism.`:'');
     case 'borrow':return 'Infests up to two regular mites, replacing up to two secondary swarm-body origins for the next action. Destroying a carrier removes that origin for that action. No extra attacks; infestation expires after that action.';
-    case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${D(c.dmg)}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${D(c.dmg)}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} composure.`:'')+(c.dupeLow?' If the target has half their composure or less, an untouchable shadow double steps out beside them; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'');
+    case 'strike':return (c.mv?`Moves ${c.mv} toward the ${TGN[c.tgt]} hero, then hits at range ${c.rng} for ${D(c.dmg)}.`:`Hits the ${TGN[c.tgt]} hero from up to ${c.rng} away for ${D(c.dmg)}.`)+(c.col?' Civilians next to the target are harmed.':'')+(c.comp?` The target loses ${c.comp} Heroism.`:'')+(c.dupeLow?' If the target has less than 3 Heroism, an untouchable shadow double steps out beside them; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'');
     case 'burrow':return `Dives underground and bursts up next to the farthest hero, then hits them for ${D(c.dmg)}. Leaves rubble where it went down.`;
     case 'multi':return `Hits up to ${c.cnt} heroes within ${c.rng} for ${D(c.dmg)} each.`;
     case 'sweep':return `Everything within ${c.r} takes ${D(c.dmg)}. Civilians caught are harmed.`;
     case 'rampage':return `Moves ${c.mv} toward the nearest hero, then everything adjacent takes ${D(c.dmg)}.`;
     case 'summon':return `${c.k} ${hn}s join the fight.`;
-    case 'endanger':return `Moves ${c.emv||2} toward the nearest civilian and harms them from up to ${c.ereach||3} away. A hero next to them ${c.comp?`loses ${c.comp} Composure`:`takes ${D(c.dmg)} damage`} instead.`;
-    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} composure.`+(c.shakenDmg?` Shaken heroes (no composure left) also take ${c.shakenDmg} damage.`:'');
+    case 'endanger':return `Moves ${c.emv||2} toward the nearest civilian and harms them from up to ${c.ereach||3} away. A hero next to them ${c.comp?`loses ${c.comp} Heroism`:`takes ${D(c.dmg)} damage`} instead.`;
+    case 'taunt':return `Heroes within ${c.r} lose ${c.amt} Heroism.`+(c.shakenDmg?` Shaken heroes (no Heroism left) also take ${c.shakenDmg} damage.`:'');
     case 'henchvolley':return 'Every hired gun already within range 2 of a hero immediately fires one extra shot without moving. Elite henchmen do not join the volley.';
     case 'vanish':return 'Disappears and reappears far from the heroes.';
-    case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`+(c.dupe?' An untouchable shadow double steps out beside the hero with the least composure within 5; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'')}
-    case 'puppet':return `${(c.tgts||1)>1?`The ${c.tgts} heroes with the least composure each lose`:'The hero with the least composure loses'} ${c.amt||1} more${c.pull?`, ${(c.tgts||1)>1?'are':'is'} dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it,`:''} and cannot move next round.`;
+    case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`+(c.dupe?' An untouchable shadow double steps out beside the hero with the least Heroism within 5; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'')}
+    case 'puppet':return `${(c.tgts||1)>1?`The ${c.tgts} heroes with the least Heroism each lose`:'The hero with the least Heroism loses'} ${c.amt||1} more${c.pull?`, ${(c.tgts||1)>1?'are':'is'} dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it,`:''} and cannot move next round.`;
     case 'walls':return `${c.retreat?`Backs ${c.retreat} hexes away from the nearest hero, then r`:'R'}aises ${c.lines>1?`${c.lines} walls`:'a wall'} of ${c.len} hexes between itself and the heroes. Walls crumble after ${c.ttl} rounds.`;
     case 'hazard':if(c.grow){const who=c.cnt>1?`each of the ${c.cnt} nearest heroes`:'the nearest hero';return `${c.r?'The floor caves in under':'A one-hex sinkhole opens under'} ${who}${c.r?` and every hex within ${c.r} of them`:''} for ${c.ttl} villain turns. Anyone standing in one when the villain acts takes ${D(c.dmg)}.`}return `The floor ${c.r>1?`within ${c.r} of`:'around'} ${c.cnt>1?`the ${c.cnt} nearest heroes`:'the nearest hero'} turns molten for ${c.ttl} villain turns. Anyone standing on it when the villain acts takes ${D(c.dmg)}.`;
     case 'cage':return `Fills every open hex around the nearest hero with walls for ${c.ttl} rounds.`;
@@ -84,7 +84,7 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase(),D=n=>(n||
     case 'swallow':return `Slithers up to ${c.mv} after prey${c.cnt>1?`, ${c.cnt} times`:''}: a civilian first, then a hero, then the weakest ${hn}. A swallowed civilian or ${hn} makes it one hex longer for the rest of the fight. A hero is bitten for ${D(c.dmg)}, and a hero next to the civilian takes the bite instead.`;
     case 'pull':return `Drags every hero within ${c.r} up to ${c.mv} hexes toward itself, then everything adjacent takes ${D(c.dmg)}.`;
     case 'repel':return `Flings every hero within ${c.r} up to ${c.mv} hexes away. A hero who slams into a wall, rubble, the edge or another hero before flying the full distance takes ${D(c.dmg)}.`;
-    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.evaUp?` She has +${c.evaUp} evasion until her next action.`:''}${c.amt?` The lights die and every hero loses ${c.amt} composure${c.shakenDmg?`; Shaken heroes also take ${c.shakenDmg} damage`:''}.`:''} An untouchable shadow double stays where she stood, locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.`;
+    case 'fade':return `Melts into the shadows and reappears a few hexes from the nearest hero. Her facing is hidden again.${c.evaUp?` She has +${c.evaUp} evasion until her next action.`:''}${c.amt?` The lights die and every hero loses ${c.amt} Heroism${c.shakenDmg?`; Shaken heroes also take ${c.shakenDmg} damage`:''}.`:''} An untouchable shadow double stays where she stood, locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.`;
     case 'converge':return `Every body of the swarm flies up to ${c.mv} hexes toward the nearest hero. That hero takes ${D(c.dmg)} for each body next to them.`;
     case 'scatter':return `The swarm bursts apart. Each body reappears next to a different hero and strikes them for ${D(c.dmg)}.`;
     case 'leap':return `Vaults over ${c.cnt>1?`up to ${c.cnt} heroes, one after another,`:'the nearest hero'} within ${c.mv}, sailing over anything in between, and lands on the far side facing away.${c.fuse?` Leaves a bomb on ${c.cnt>1?'each':'that'} hero's hex: ${D(c.dmg)} damage over ${area}, exploding at the start of the next villain turn.`:''} A hero with no open hex behind them can't be jumped.`;
@@ -105,7 +105,7 @@ const MV_UP=['strike','rampage','swallow','converge','leap'];
 const compBonus=level=>Math.floor(Math.min(level||1,VCAP)/3);
 function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(base,e.mk||0);c.lvd=Math.floor((level||1)/2);c.id=e.id;c.mk=e.mk||0;c.n=base.n+(c.mk?' '+ROMAN[c.mk]:'');
   if(vk==='bomber'&&['leap','bomb','swapbomb'].includes(c.t)){c.fuse=c.fuse?1:0;c.radius=Math.min(2,(c.bigAt&&level>=c.bigAt?2:1)+(c.radUp||0))}
-  /* Tyler (2026-10-30): composure loss grows by 1 at villain levels 3 and 6 */
+  /* Tyler (2026-10-30): Heroism loss grows by 1 at villain levels 3 and 6 */
   {const b=compBonus(level);if(b){if(c.amt!=null&&['taunt','fade','puppet'].includes(c.t))c.amt+=b;if(c.comp)c.comp+=b}}
   if(c.mv>0&&MV_UP.includes(c.t)&&!VILLAINS[vk].rooted)c.mv++;c.txt=cardText(c,vk)+upText(c);
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';

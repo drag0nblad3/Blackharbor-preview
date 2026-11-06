@@ -28,7 +28,7 @@ const FAC = {
   lab:{name:'Forensics Lab',cost:{tech:3,intel:2},txt:'Unlocks decrypt options while investigating. +1 tech after each mission.'},
   hangar:{name:'Sky Hangar',cost:{tech:4,intel:2},txt:'Ambushes no longer scatter the team. Heroes always start in formation.'},
   reactor:{name:'Arc Reactor',cost:{tech:5,intel:1},txt:'+3 max Power and +1 max Arcana for every hero who has those pools.'},
-  sanctum:{name:'Sanctum',cost:{tech:2,intel:5},txt:'Heroes regain 1 composure at the start of every round.'},
+  sanctum:{name:'Sanctum',cost:{tech:2,intel:5},txt:'Heroes gain 1 Heroism at the start of every round.'},
   bunker:{name:'Bunker Protocol',cost:{tech:3,intel:3},txt:'Villain schemes need 4 to strike the city instead of 3.'},
   antivenom:{name:'Antivenom Lab',cost:{tech:4,intel:3},txt:'The first time each hero would be knocked out in a showdown, they stay up with 1 health.'},
   magnet:{name:'Scrap Magnet',cost:{tech:4,intel:2},txt:'+1 salvage from every lair you win.'},

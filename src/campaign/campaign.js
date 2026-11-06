@@ -23,7 +23,7 @@ const TACT = [
   ['armor','Reinforced','+4 toughness for this wound.'],['armor','Reinforced','+4 toughness for this wound.'],
   ['over','Overextended','−4 toughness for this wound.'],['over','Overextended','−4 toughness for this wound.'],
   ['counter','Counterstrike','Reaction: the attacker takes 2 damage.'],['counter','Counterstrike','Reaction: the attacker takes 2 damage.'],
-  ['mono','Monologue Opening','If this wounds, the hero regains 1 composure.'],
+  ['mono','Monologue Opening','If this wounds, the hero gains 1 Heroism.'],
   ['shield','Human Shield','No wound if a civilian is within 2 of the villain.'],
   ['escape','Escape Plan','Reaction: the villain shifts 2 spaces away.'],
   ['glance','Clean Hit','Roll to wound as normal.'],['glance','Clean Hit','Roll to wound as normal.'],
@@ -34,7 +34,7 @@ const ETHOS = {
     {id:'force',n:'Overwhelming Force',txt:'Heroes gain +2 strength. Each civilian harmed costs 2 trust instead of 1.'}]},
   b:{q:'Do the heroes show their faces?',opts:[
     {id:'public',n:'Public Faces',txt:'+1 trust every issue. Investigations end in an ambush on 2 clues or fewer.'},
-    {id:'secret',n:'Secret Identities',txt:'+1 max composure for every hero. Evacuations earn at most 1 trust per mission.'}]},
+    {id:'secret',n:'Secret Identities',txt:'+1 starting Heroism for every hero. Evacuations earn at most 1 trust per mission.'}]},
 };
 /* Pick a small, randomized shortlist of bosses whose unique salvage can supply
    gear suited to the current party. Ranks are considered cumulatively across all
@@ -92,7 +92,7 @@ function newCampaign(prev){
   S={vol:(prev&&prev.vol||0)+1,issue:1,trust:6,tech:3,intel:2,salvage:Object.fromEntries(Object.keys(VILLAINS).map(k=>[k,0])),facilities:['workshop'],armory:STARTER_LOCKER.slice(),ethos:{},
     heroes:[],fallen:[],xover:[],
     villains:[],pool:keys,unlocked:START_UNLOCK.slice(),
-    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),storyOff:!!(prev&&prev.storyOff),story:{q:[{id:'assemble'}],seen:{}},diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true};
+    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),storyOff:!!(prev&&prev.storyOff),story:{q:[{id:'assemble'}],seen:{}},diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true,heroism:true};
   S.party=[];
   S.guide={s:0,pop:null};if(prev&&prev.tutDone)S.tutDone=true;else S.tut={b:0,dq:[]};S.ui=Object.fromEntries(['hq-base','hq-ws','hq-back','hq-skunk','ro-bench'].map(k=>[k,false]));
 }
@@ -151,7 +151,7 @@ function finishIssue(L,{hunted,headline,vkey}){storyAfter(L,vkey);
    and non-set tier 4 Main Hand, Off Hand and Belt gear for each discipline, so Arc 3 has options outside the sets. */
 const TIER3_ISSUE=ISSUES_PER_ARC+4,MID_UNLOCK=['gear:uplink','gear:wings','gear:serum','gear:mutagen','gear:compeyes','gear:sigil','gear:titan','gear:grimoire','gear:exo','gear:greaves','gear:claws','gear:helm','gear:familiar','gear:faraday','gear:staff','gear:halo','gear:mantle','gear:shadowpaw','gear:bloodstone','gear:hexfist','gear:crown','gear:paragon','gear:wand','gear:bandolier','gear:censer','gear:dynamo','gear:aegisgen','gear:ironbark','gear:sanctaegis'];
 const START_GEAR={bulwark:'graft',volt:'visor',wisp:'cloak',cipher:'suit',rivet:'earpiece',lynx:'wraps',goliath:'medkit',sibyl:'coin',hexen:'monocle'};
-function giveStart(h){const g=START_GEAR[h.cls];if(g&&!GEAR[g].set&&!h.gear[GEAR[g].slot])h.gear[GEAR[g].slot]=g;h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')}
+function giveStart(h){const g=START_GEAR[h.cls];if(g&&!GEAR[g].set&&!h.gear[GEAR[g].slot])h.gear[GEAR[g].slot]=g;h.hp=stat(h,'maxHp');h.comp=heroStart(h)}
 function issueStart(L){const out=[];
   {const n=fieldCount('wiretap');if(n){S.intel+=n;out.push(`Wiretap Rig: +${n} intel.`)}}
   /* Version 107 (Tyler): Bomb Squad Bay hands out one free bomb consumable per issue */
@@ -160,7 +160,7 @@ function issueStart(L){const out=[];
     const pool=[];S.villains.filter(v=>v.status==='active').forEach(v=>{const seen=(S.seen&&S.seen[v.key])||[];[...new Set(v.deck.map(e=>e.id))].filter(id=>!seen.includes(id)).forEach(id=>pool.push({k:v.key,id}))});
     const got=shuffle(pool).slice(0,2);got.forEach(p=>markSeen(p.k,p.id));S.intel++;
     out.push(`${sib.name}'s Premonition: +1 intel${got.length?`, and visions of ${got.map(p=>`${VILLAINS[p.k].cards[p.id].n} (${VILLAINS[p.k].short})`).join(' and ')}`:''}.`)}
-  for(const h of bench()){h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');h.xp++;while(h.xp>=xpNeed(h)){h.xp-=xpNeed(h);h.pendingUp++;out.push(`${h.name} trained on the bench and reached level ${lvlOf(h)+h.pendingUp}.`)}}
+  for(const h of bench()){h.hp=stat(h,'maxHp');h.comp=heroStart(h);h.xp++;while(h.xp>=xpNeed(h)){h.xp-=xpNeed(h);h.pendingUp++;out.push(`${h.name} trained on the bench and reached level ${lvlOf(h)+h.pendingUp}.`)}}
   L.push(...out)}
 const vState=k=>S.villains.find(v=>v.key===k);
 function afford(cost){const sv={...S.salvage};for(const[k,n]of Object.entries(cost)){if(k==='any')continue;if(k in sv){if(sv[k]<n)return false;sv[k]-=n}else if(S[k]<n)return false}

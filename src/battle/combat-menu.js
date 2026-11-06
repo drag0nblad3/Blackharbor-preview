@@ -100,7 +100,7 @@ function combatInfo(u,h){
         ok=!u.acted&&!u.ko&&!u.avoidDamage;
         tip='Current cover provides +'+(avoidCover(u).length?5:3)+' Evasion.';break;
       case 'rallySpirit':
-        name='Rally Spirit';description='Spend an action to restore up to 3 Composure to yourself or a conscious ally within '+lvlOf(h)+' hexes.';
+        name='Rally Spirit';description='Spend an action to give +3 Heroism to yourself or a conscious ally within '+lvlOf(h)+' hexes.';
         ok=!u.acted&&!u.ko;tip='Targets yourself or an ally on the board.';break;
       case 'letgo':
         name='Let Go';description='Release the civilians currently following this hero. Does not use an action.';
@@ -164,7 +164,7 @@ function combatMenus(u,h){
       ${sd.term?choice('other','hack','Hack','Evidence terminal','action'):''}
       ${satelliteTarget(u)?choice('other','satellite','Pull Down Satellite','Adjacent boss · no roll','action'):''}
       ${choice('other','avoidDamage','Avoid Damage','+3 Evasion · +5 by cover','action')}
-      ${choice('other','rallySpirit','Rally Spirit','Range '+lvlOf(h)+' · +3 Composure','action')}
+      ${choice('other','rallySpirit','Rally Spirit','Range '+lvlOf(h)+' · +3 Heroism','action')}
       ${nFol?choice('other','letgo','Let Go','Following '+nFol,'free'):''}
     </div></div>`;
   return abilities+others;

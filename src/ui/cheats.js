@@ -12,7 +12,7 @@ function cheat(a,p2){S.cheat=S.cheat||{};
   switch(a){
     case 'res':S.tech+=20;S.intel+=20;S.trust+=5;for(const k in S.salvage)S.salvage[k]+=6;break;
     case 'xp':roster().forEach(h=>{h.xp+=6;while(h.xp>=xpNeed(h)){h.xp-=xpNeed(h);h.pendingUp++}});break;
-    case 'heal':roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});if(S.sd)S.sd.units.forEach(u=>{if(u.ko){u.ko=false}});break;
+    case 'heal':roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=heroStart(h)});if(S.sd)S.sd.units.forEach(u=>{if(u.ko){u.ko=false}});break;
     case 'god':S.cheat.god=!S.cheat.god;break;
     case 'tips':S.tips=[];S.tipsOff=false;S.tipAt=0;break;
     case 'xover':S.cheat.xover=true;break;

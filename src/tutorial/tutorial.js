@@ -10,14 +10,14 @@ function tutBlock(a){const B=tutBeat();if(!B||!B.only||!a)return false;if(a.star
 function tutLP(el){if(!tutOn())return;const d=el.dataset.tip||'';if(d.startsWith('cell:')){S.tut.lp=d.slice(5).replace(':',',');save();setTimeout(tutPaint,0)}}
 function tutBoard(n){N=n;lastPos={};const sd=S.sd={N:n,finale:false,vkey:'mole',quality:'normal',round:1,obs:[],units:[],hench:[],civs:[],vl:[],vi:0,tdk:{},walls:[],pits:[],haz:[],bombs:[],beams:[],
   sel:null,mode:null,busy:false,log:[],evac:0,harmed:0,woundsBy:{},result:null,fx:[],intro:false,hexv:1};sd.exits=mkExits(n,false);return sd}
-function tutHero(sd,k,x,y){const h=tutH(k);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');h.cd=0;sd.units.push(mkUnit(h,x,y))}
+function tutHero(sd,k,x,y){const h=tutH(k);h.hp=stat(h,'maxHp');h.comp=heroStart(h);h.cd=0;sd.units.push(mkUnit(h,x,y))}
 function tutStart(){S.tutStash={villains:S.villains,pool:S.pool,armory:S.armory};S.villains=[moleState()];S.pool=[];S.armory=[];S.guide=null;
   recruitQuick('lynx');S.tut={b:0,dq:[]};tutGo(TUT.findIndex(b=>b.id==='meet'));S.phase='hq';S.view='hq'}
 function tutPatrol(){const sd=tutBoard(7);sd.patrol=true;
   sd.vl.push({key:'mole',v:{x:0,y:0,shape:'one',face:5,level:1,deck:[],discard:[],wounds:[],last:null,down:true}});focusV(0);
   tutHero(sd,'lynx',3,6);sd.hench.push({id:'tA',owner:'mole',x:2,y:2,hp:2},{id:'tB',owner:'mole',x:5,y:1,hp:2});sd.obs.push('0,2','6,4');
   S.phase='sd';S.view='mission';log('sys','Patrol: Diggers on the 9th Street subway platform.');log('sys','Round 1. Tap a hero to act.')}
-function tutPatrolEnd(){const h=tutH('lynx');S.salvage.mole=(S.salvage.mole||0)+2;h.xp+=1;h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp');S.sd=null;N=9;S.phase='hq';S.view='hq'}
+function tutPatrolEnd(){const h=tutH('lynx');S.salvage.mole=(S.salvage.mole||0)+2;h.xp+=1;h.hp=stat(h,'maxHp');h.comp=heroStart(h);S.sd=null;N=9;S.phase='hq';S.view='hq'}
 function tutBoss(){if(!tutH('volt'))return;const sd=tutBoard(7),vs=vState('mole');
   sd.vl.push({key:'mole',v:{x:3,y:2,shape:'one',face:5,level:vs.level,deck:['dig','claw','tunnel','kick'].map(id=>buildCard('mole',{id,mk:0})),discard:[],wounds:[],last:null}});focusV(0);
   sd.obs.push('0,2','6,3');tutHero(sd,'lynx',1,6);tutHero(sd,'volt',5,6);
@@ -26,13 +26,13 @@ function tutBoss(){if(!tutH('volt'))return;const sd=tutBoard(7),vs=vState('mole'
   log('sys','Issue #1: Mole Boy\'s tunnel under the First City Bank. Standoff.');log('sys','Round 1. Tap a hero to act.')}
 function tutFinish(){const sd=S.sd,t=S.tut,win=sd.result==='win',L=[];
   if(win){S.salvage.mole+=3;L.push('Salvaged 3 Grit from the tunnel.')}else L.push('The team is dragged out of the tunnel, a little dusty. No harm done.');
-  const xp=[];sd.units.forEach(u=>{const h=heroOf(u);h.xp+=1;xp.push(`${h.name} +1`);h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});L.push(`XP earned: ${xp.join(', ')}.`);
+  const xp=[];sd.units.forEach(u=>{const h=heroOf(u);h.xp+=1;xp.push(`${h.name} +1`);h.hp=stat(h,'maxHp');h.comp=heroStart(h)});L.push(`XP earned: ${xp.join(', ')}.`);
   if(win)L.push('Mole Boy escapes into his tunnels. Something tells you he\'ll be back.');
   t.won=win;t.lines=L;S.sd=null;N=9;S.phase='tutend';S.view='mission';tutGo(TUT.findIndex(b=>b.id==='end'))}
 function tutSkip(){const t=S.tut;S.sd=null;N=9;slotPick=null;t.skip=true;t.lines=null;S.phase='tutend';S.view='mission';tutGo(TUT.findIndex(b=>b.id==='end'))}
 function tutClose(){S.tips=[...new Set([...(S.tips||[]),...TUT_TIPS])];S.tut=null;S.tutDone=true;S.tutStash=null;S.sd=null;N=9;S.phase='hq';S.view='hq'}
 function tutKeep(){const st=S.tutStash||{};S.villains=(st.villains||S.villains).filter(v=>v.key!=='mole');S.pool=st.pool||S.pool;S.armory=[...(st.armory||[]),...S.armory];
-  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=stat(h,'maxComp')});if(S.story)S.story.kept=true;tutClose();revealStartingVillains();S.guide={s:1,pop:null}}
+  roster().forEach(h=>{h.hp=stat(h,'maxHp');h.comp=heroStart(h)});if(S.story)S.story.kept=true;tutClose();revealStartingVillains();S.guide={s:1,pop:null}}
 function tutFresh(){const keep={tips:S.tips,seen:S.seen,seenR:S.seenR,tipsOff:S.tipsOff,storyOff:S.storyOff};newCampaign();Object.assign(S,keep);tutClose()}
 function tutAct(p){switch(p){
   case 'start':tutStart();scrollTo(0,0);break;

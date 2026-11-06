@@ -29,12 +29,13 @@ const assert=require('node:assert/strict');
       // Primal
       setR(0,2,2);check('Primal on',bridgeOn(h,'primal'));
       const mk=Object.keys(GEAR).find(k=>GEAR[k].type==='magic'&&GEAR[k].ab&&GEAR[k].ab.c>=2&&!GEAR[k].ab.act&&!GEAR[k].ab.mode&&!Object.keys(GEAR[k].ab.fx||{}).some(f=>['eclipse','gain','again','move','boost','mark'].includes(f)));
-      h.gear={};h.gear[GEAR[mk].slot==='arms'?'arms':GEAR[mk].slot]=mk;h.comp=3;u.abUsed=[];
+      h.gear={};h.gear[GEAR[mk].slot==='arms'?'arms':GEAR[mk].slot]=mk;h.comp=3;h.hp=5;u.abUsed=[];
       const c=GEAR[mk].ab.c;u.res.magic=c-1;u.bloodPay=false;
       check('without Blood Price it is too costly',!abOk(u,h,mk));
       bridgeAct('blood');check('Blood Price toggles on',u.bloodPay);
       check('with Blood Price it is affordable',abOk(u,h,mk));
-      payAb(u,mk);check('pays 1 less Arcana and 1 composure',u.res.magic===0&&h.comp===2);
+      payAb(u,mk);check('pays 1 less Arcana and 1 health',u.res.magic===0&&h.hp===4&&h.comp===3);
+      h.hp=1;u.res.magic=c-1;check('Blood Price never takes the last health',!abOk(u,h,mk));h.hp=5;
       // Paragon
       setR(2,2,2);check('Paragon on with all pairs',bridgesOf(h).length===4);
       u.abUsed=[];u.res.magic=20;u.bloodPay=false;payAb(u,mk);check('Paragon allows a second use this round',abOk(u,h,mk));

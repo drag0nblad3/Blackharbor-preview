@@ -14,7 +14,7 @@ function bhHqOps(){
     </div>
     <div class="bh-rail-block"><div class="bh-rail-title">Team readiness <span>${team.length}/4</span></div>
       ${team.map(h=>`<div class="bh-mini-hero"><b>${esc(h.name)}</b><span title="Health">${UI('hp')} ${h.hp}/${stat(h,'maxHp')}</span>
-        <span title="Composure">${UI('comp')} ${h.comp}/${stat(h,'maxComp')}</span></div>`).join('')||'<p class="small">Recruit heroes to build a field team.</p>'}
+        <span title="Starting Heroism">${UI('comp')} ${heroStart(h)}</span></div>`).join('')||'<p class="small">Recruit heroes to build a field team.</p>'}
       ${needs.length?`<p class="bh-alert">${needs.length} hero${needs.length===1?'':'es'} ready to level up</p>`:''}
       <button class="btn sm bh-rail-button" data-a="view:roster">Manage roster</button>
     </div>

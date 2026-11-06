@@ -62,7 +62,7 @@ function eyeFig(h,look,g){const [hp,tilt]=look||eyeLook(h),I=EYE_INK,r=20,cy=54,
   s+=sh(I)+`<g transform="translate(50 ${cy}) rotate(${tilt})">${gear.back}${head(I)}${gear.front}</g>`;
   return s}
 /* Version 137 (Tyler): hero board tokens are standees: the eyes-panel figure standing on a flat disc in the hero's colour,
-   with health and composure bars on the disc. The box matches the hex's bounding box (1 : 2/sqrt3). */
+   with health and Heroism bars on the disc. The box matches the hex's bounding box (1 : 2/sqrt3). */
 function standee(h,o){const ko=o.ko,[k,g]=ko?['#596173','#9AA1B2']:eyeCols(h),f=x=>Math.max(0,Math.min(1,x));
-  const hpF=f(h.hp/stat(h,'maxHp')),cpF=f(h.comp/Math.max(1,stat(h,'maxComp')));
+  const hpF=f(h.hp/stat(h,'maxHp')),cpF=f(Math.min(1,h.comp/Math.max(1,S.sd?heroStart(h):h.comp)));
   return `<svg class="hs" viewBox="0 0 100 115" aria-hidden="true"><ellipse cx="50" cy="92" rx="44" ry="11" fill="${k}" stroke="#151821" stroke-width="4"/><ellipse cx="50" cy="89.5" rx="35" ry="6" fill="${eyeShade(k,.3)}" opacity=".5"/><svg x="6" y="-12" width="88" height="104" viewBox="6 0 88 104">${eyeFig(h,null,g)}</svg><g stroke="#151821" stroke-width="1.6"><rect x="22" y="73.5" width="56" height="5.6" fill="#EDF0F4"/><rect x="22" y="73.5" width="${56*hpF}" height="5.6" fill="#2F8A4E"/><rect x="22" y="79.1" width="56" height="4" fill="#EDF0F4"/><rect x="22" y="79.1" width="${56*cpF}" height="4" fill="#3DB6DD"/></g></svg>`}

@@ -27,7 +27,7 @@ async function main(){
  assert.equal(g.get('heroOf(S.sd.units[0]).hp'),hp,'Leverage does not reduce HP');
  assert.equal(g.get('heroOf(S.sd.units[0]).comp'),2,'Leverage removes two Composure, +1 at villain level 3');
  assert.equal(g.get('S.sd.civs.length'),1,'Civilian remains protected');
- assert.match(g.get("buildCard('cantor',{id:'lev',mk:0},3).txt"),/Composure/);
+ assert.match(g.get("buildCard('cantor',{id:'lev',mk:0},3).txt"),/Heroism/);
  // Other villains' HP-based civilian threats should remain intact.
  assert.equal(g.get("buildCard('cantor',{id:'black',mk:0},3).dmg"),3);
  assert.equal(g.get("buildCard('cantor',{id:'black',mk:0},3).comp"),undefined);

@@ -1,5 +1,5 @@
 /* heroes/origin-view.js: Hero creation screens (createView, previews, quick-build cards). */
-const O_STATS=[['HP','maxHp'],['MOV','move'],['DICE','speed'],['ACC','acc'],['STR','str'],['EVA','eva'],['RNG','range'],['COMP','maxComp']];
+const O_STATS=[['HP','maxHp'],['MOV','move'],['DICE','speed'],['ACC','acc'],['STR','str'],['EVA','eva'],['RNG','range'],['HERO','maxComp']];
 const O_SK={maxHp:'hp',move:'move',speed:'speed',acc:'acc',str:'str',eva:'eva',range:'range',maxComp:'comp'};
 const TRACK_HOW={tech:'Abilities spend Power, a pool of your Tech rank + 1 for each Tech item you wear that slowly recharges during a fight. Every Tech item has an ability.',
   innate:'Abilities spend nothing but require a minimum Innate rank (1 at the start), and you fire one per round. Many grow with your Innate rank.',
@@ -17,7 +17,7 @@ function oMech(sid,o,c){
   return ''}
 function oHero(c){const r=oBuild(c),b=r.base,xo=c.mode==='xover';const h={...newHero('custom',b.name,b),ranks:r.ranks,upgrades:xo?c.ups.slice():[],gear:{}};if(xo)c.gear.forEach(g=>putGear(h,g));return h}
 function oPreview(c){const r=oBuild(c),b=r.base,xo=c.mode==='xover',h=oHero(c);
-  const st=O_STATS.map(([l,k])=>{const v=stat(h,k),d=v-O_TEMPLATE[k];return `<div class="stat ${d>0?'up':d<0?'dn':''}" data-tip="ostat:${k}"><b>${(k==='acc'||k==='str')&&v>=0?'+':''}${v}</b><span>${l}</span></div>`}).join('');
+  const st=O_STATS.map(([l,k])=>{const v=k==='maxComp'?heroStart(h):stat(h,k),d=stat(h,k)-O_TEMPLATE[k];return `<div class="stat ${d>0?'up':d<0?'dn':''}" data-tip="ostat:${k}"><b>${(k==='acc'||k==='str')&&v>=0?'+':''}${v}</b><span>${l}</span></div>`}).join('');
   const sp=oOpt('spark',c.picks.spark),gift=oOpt('gift',c.picks.gift);
   return `<aside class="card opv"><div class="eyebrow">The hero so far</div>
     <div class="row"><span class="sw" style="background:${c.col};border-radius:50%;width:16px;height:16px"></span><h3>${esc(b.name)}</h3><span class="lvl">LVL ${r.level}</span></div>
@@ -56,7 +56,7 @@ function createView(){const c=S.cre,steps=oSteps(c),sid=steps[c.step],pg=ORIGIN[
     <div class="obody"><div class="ocol">${inner}</div>${oPreview(c)}</div>${navb}</section>`}
 function oCover(c){const r=oBuild(c),b=r.base,xo=c.mode==='xover',gift=POWERS[b.power];
   const h=oHero(c);
-  const st=O_STATS.map(([l,k])=>`<div><b>${(k==='acc'||k==='str')&&stat(h,k)>=0?'+':''}${stat(h,k)}</b><span>${l}</span></div>`).join('');
+  const st=O_STATS.map(([l,k])=>`<div><b>${(k==='acc'||k==='str')&&stat(h,k)>=0?'+':''}${k==='maxComp'?heroStart(h):stat(h,k)}</b><span>${l}</span></div>`).join('');
   const story=['life','spark','gift','style','drive'].concat(xo?['career','training']:[]).map(s=>{const o=s==='training'?oTrainOpts(c).find(x=>x.id===c.picks.training):oOpt(s,c.picks[s]);return o?`<li><b>${ORIGIN[s].t}:</b> ${esc(o.n)}. <span class="muted">${oMech(s,o,c)}</span></li>`:''}).join('');
   return `<div class="ocover" style="--hc:${c.col}"><small>${xo?'Special crossover issue':'Blackharbor presents'} · Issue #1</small><b>${esc(b.name)}</b><span class="ctag">${esc(b.role)}</span>
     <div class="ocstats">${st}</div><div class="small"><b>${gift.name}:</b> ${gift.txt}</div>${b.field?`<div class="small"><b>${b.field.n}:</b> ${b.field.txt}</div>`:''}

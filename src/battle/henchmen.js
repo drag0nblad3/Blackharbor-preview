@@ -47,7 +47,8 @@ async function henchShoot(hm,def,L){
   await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id);
   const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0)+avoidEva(t);
   if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0}
-  const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0),hit=r===20||(r!==1&&r+ha>=eva);
+  const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0);let hit=r===20||(r!==1&&r+ha>=eva);
+  if(hit&&await heroDodge(t,r,ha,eva,def.name))hit=false;
   log('vill',`${def.name} attacks ${h.name}: ${r}${ha<0?'−'+(-ha):'+'+ha} vs ${eva}. ${hit?`Hit for ${henchDmg(hm)}.`:'Miss.'}`);
   if(hit&&!await wardBlocks(t)){fxU(t,def.rng>1?'PEW!':'THUD!','vhit');damageHero(t,henchDmg(hm))}
   else if(!hit){fxU(t,'SWISH!','miss');await avoidRedirect(t,hm,henchDmg(hm),def.name)}
