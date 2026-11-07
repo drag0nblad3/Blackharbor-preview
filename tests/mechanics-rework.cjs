@@ -37,7 +37,7 @@ function plan(id,ids=['lash','snipe','drones','ray','mono','galv']){run(`S.sd.v.
  setup();run("S.sd.mode='move';onCell(0,6)");assert.equal(get('S.sd.units[0].hexesMoved'),2);await run('abApply(S.sd.units[0],S.heroes[0],GEAR.cloak,S.sd.units[0])');assert.equal(get('S.sd.units[0].buffEva'),2);
  run('S.sd.units[0].hexesMoved=4');assert.equal(get('S.sd.units[0].buffEva'),2);
  // Ally push / pull and swap never spend the target's move, and blocked targets cost nothing.
- setup();run('S.sd.units[0].x=2;S.sd.units[0].y=6;S.sd.units[1].x=3;S.sd.units[1].y=6');const before=get('cheb(S.sd.units[0],S.sd.units[1])');await run('abApply(S.sd.units[0],S.heroes[0],GEAR.polar,S.sd.units[1])');assert.equal(get('S.sd.units[1].buffEva'),4);assert.equal(get('cheb(S.sd.units[0],S.sd.units[1])'),before+1);assert.equal(get('!!S.sd.units[1].moved'),false);
+ setup();run('S.sd.units[0].x=2;S.sd.units[0].y=6;S.sd.units[1].x=3;S.sd.units[1].y=6');const before=get('cheb(S.sd.units[0],S.sd.units[1])');await run('abApply(S.sd.units[0],S.heroes[0],GEAR.polar,S.sd.units[1])');assert.equal(get('S.sd.units[1].buffEva'),3);assert.equal(get('cheb(S.sd.units[0],S.sd.units[1])'),before+1);assert.equal(get('!!S.sd.units[1].moved'),false);
  const positions=get('S.sd.units.slice(0,2).map(u=>[u.x,u.y])');await run('abApply(S.sd.units[0],S.heroes[0],GEAR.shadowpaw,S.sd.units[1])');assert.deepEqual(get('S.sd.units.slice(0,2).map(u=>[u.x,u.y])'),positions.reverse());
  run('S.sd.v.blind=true');assert.equal(get("VILLAINS.gallows.acc+vLvB('acc',S.sd.v.level)-vStat('acc')"),3);
  // Targeted AoE hits its footprint, not around its caster.
