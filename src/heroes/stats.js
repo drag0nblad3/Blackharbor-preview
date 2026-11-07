@@ -8,7 +8,22 @@ const techGearN=h=>wornGear(h).filter(g=>GEAR[g]&&GEAR[g].type==='tech').length;
 const magicGearA=h=>wornGear(h).reduce((s,g)=>s+((GEAR[g]&&GEAR[g].reqs&&GEAR[g].reqs.magic)||0),0);
 const pwrMax=h=>h.ranks.tech?h.ranks.tech+techGearN(h)+stat(h,'maxPwr')+(reactorOn()?3:0):0;
 const arcMax=h=>h.ranks.magic?h.ranks.magic+magicGearA(h)+stat(h,'maxArc')+(reactorOn()?1:0):0;
-const pwrRegen=h=>1+stat(h,'pwrRegen');
+/* Powered gear (Tyler, 2026-11-07): a Tech Body item is the Core and gives power slots equal to its tier.
+   It powers itself first; only then can it power other Tech items, one slot each. An unpowered Tech item keeps
+   its stats but its ability is off. Every unused slot adds +1 Power recharge. h.pwr = keys the player chose
+   (undefined = auto in slot order); the Core always comes first unless h.pwrOff. The scripted tutorial powers everything. */
+const PWR_ORDER=['body','head','arms','arms2','acc','acc2','belt','legs'];
+const coreOf=h=>{const k=h.gear&&h.gear.body,g=k&&GEAR[k];return g&&g.type==='tech'?k:null};
+const pwrSlots=h=>{const k=coreOf(h);return k?GEAR[k].req||1:0};
+const pwrNeeds=k=>{const g=GEAR[k];return !!(g&&g.type==='tech'&&g.ab&&!g.cons)};
+function pwrWorn(h){const o=[];PWR_ORDER.forEach(s=>{const k=h.gear&&h.gear[s];if(k&&GEAR[k]&&GEAR[k].type==='tech'&&!o.includes(k))o.push(k)});return o}
+function powered(h,list){const core=coreOf(h),worn=pwrWorn(h);if(tutOn())return worn;if(!core)return [];
+  if(list?!list.includes(core):h.pwrOff)return [];const want=(list||h.pwr||worn).filter(k=>worn.includes(k));
+  const o=[core];want.forEach(k=>{if(k!==core&&o.length<pwrSlots(h))o.push(k)});return o}
+const pwrSpare=(h,list)=>Math.max(0,pwrSlots(h)-powered(h,list).length);
+const unitPwr=(u,h)=>u.pwr?powered(h,u.pwr):powered(h);
+const isPowered=(u,h,k)=>!pwrNeeds(k)||(u?unitPwr(u,h):powered(h)).includes(k);
+const pwrRegen=(h,u)=>1+stat(h,'pwrRegen')+pwrSpare(h,u&&u.pwr);
 /* Version 123 (Tyler): Innate rank is gone; Innate abilities use the Innate rank itself */
 const potOf=h=>h.ranks.innate||0;
 const innUses=h=>1+stat(h,'innUses');

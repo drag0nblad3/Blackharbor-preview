@@ -49,7 +49,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     await breakStack(q.splash);
     if(wounds&&setOn(h,'bomber')&&!sd.result){const hm=sd.hench.filter(m=>cheb(m,u)<=1);if(hm.length){await A.ring(ctrU(u),COL.yel,2.4);hm.forEach(m=>{m.hp-=1;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'SHRAPNEL!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',`Shrapnel: ${hm.length} henchm${hm.length===1?'an':'en'} next to ${h.name} take 1.`);render()}}
     sd.reactionContext=true;try{
-    if(powerDrain&&!sd.result){u.res.tech=Math.max(0,(u.res.tech||0)-powerDrain);log('vill',`${h.name} loses ${powerDrain} Power to feedback.`);}
+    if(powerDrain&&!sd.result){u.res.tech=Math.max(0,(u.res.tech||0)-powerDrain);log('vill',`${h.name} loses ${powerDrain} Power to feedback.`);pwrShort(u,h);}
     if(counter&&!sd.result){log('vill',`Reaction! ${h.name} takes ${counter}.`);await strikeAnim('slash',ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);fxU(u,'OOF!','vhit');damageHero(u,counter);render()}
     if(drain&&!sd.result){h.comp=Math.max(0,h.comp-drain);fxU(u,'RATTLED!','vhit');log('vill',`${h.name} loses ${drain} Heroism.`);render()}
     if(push&&!u.ko&&u.anchor&&!sd.result){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`)}
