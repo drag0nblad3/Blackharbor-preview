@@ -114,7 +114,7 @@ const GEAR = {
  c_vial:{name:'Arcana Vial',slot:'pouch',type:'magic',cons:true,reqs:{},cost:{any:2},mods:{},ab:{id:'c_vial',n:'Arcana Vial',fx:{gain:2}},req:0},
  surveyor:{name:'Surveyor\'s Visor',slot:'head',type:'tech',req:2,cost:{architect:3},mods:{acc:3,maxComp:2,maxHp:1},ab:{id:'surveyor',n:'Find the Flaw',c:2,fx:{excise:3}},reqs:{tech:2},set:'architect'},
  stilts:{name:'Stage Stilts',slot:'legs',type:'innate',req:2,cost:{cantor:3},mods:{move:1,maxHp:2},ab:null,reqs:{innate:2},set:'cantor'},
- corona:{name:'Corona Plate',slot:'body',type:'tech',req:2,cost:{helios:3},mods:{maxHp:3,eva:3,maxComp:2},ab:{id:'corona',n:'Heat Shimmer',c:3,fx:{eva:4}},reqs:{tech:2},set:'helios'},
+ corona:{name:'Corona Plate',slot:'body',type:'tech',req:4,cost:{helios:8},mods:{maxHp:4,eva:4,maxComp:2},ab:{id:'corona',n:'Heat Shimmer',c:3,fx:{eva:5}},reqs:{tech:4},set:'helios'},
  flaregaunt:{name:'Flare Gauntlets',slot:'arms',type:'magic',req:2,cost:{helios:3},mods:{str:3,acc:3,range:1},ab:{id:'flaregaunt',n:'Solar Flare',c:2,mode:'blast',r:3,fx:{blast:[0,2]}},reqs:{magic:2},set:'helios',hand:'main'},
  serpeye:{name:'Serpent\'s Eye',slot:'acc',type:'magic',req:2,cost:{serpent:2},mods:{maxComp:1,eva:2},ab:null,reqs:{magic:2},set:'serpent'},
  rebarbelt:{name:'Rebar Tool Belt',slot:'belt',type:'innate',req:1,cost:{architect:1},mods:{maxHp:2},ab:null,reqs:{innate:1},auraFx:'brace',set:'architect'},
