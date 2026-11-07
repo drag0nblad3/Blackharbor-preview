@@ -65,6 +65,7 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.skip)push("The villain's next turn is lost: its next page (or charged attack) is thrown away unplayed.");
   if(f.boost){push(`Your next move goes ${pl(f.boost,'hex','hexes')} farther${f.jump?', and that move is a jump':''}`);push('It lasts until you move')}
   if(f.move)push('Move again.');
+  if(f.discharge)push('Until the round ends, your Tech abilities ignore the once-per-round limit. You still pay Power for each use.');
   if(f.again)push('Take a second action this round.');
   if(f.hpCost)push(`Then lose ${v(f.hpCost)} health (never below 1).`);
   return L.join(' ')}

@@ -74,6 +74,8 @@ const GEAR = {
  prismgaunt:{name:'Prism Gauntlets',slot:'arms',type:'magic',req:2,cost:{grid:3},mods:{acc:2,eva:2},ab:{id:'prismgaunt',n:'Glare',c:2,fx:{blind:1}},reqs:{magic:2},set:'grid',hand:'off'},
  vaultjets:{name:'Vault Jets',slot:'legs',type:'innate',reqs:{tech:1,innate:1},cost:{grid:3},mods:{move:1,eva:1},ab:null,req:2,set:'grid'},
  cell:{name:'Power Cell',slot:'acc',type:'tech',req:2,cost:{any:2},mods:{maxPwr:2},ab:{id:'cell',n:'Capacitor Dump',c:3,fx:{shock:[1,3]}},reqs:{tech:2}},
+ zeropoint:{name:'Zero-Point Core',slot:'body',type:'tech',req:5,cost:{any:10},mods:{maxHp:3,eva:3,pwrRegen:1},ab:{id:'zeropoint',n:'Full Discharge',c:3,fx:{discharge:1}},reqs:{tech:5}},
+ titanexo:{name:'Titan Exoskeleton',slot:'body',type:'tech',req:5,cost:{any:10},mods:{maxHp:4,eva:2,str:1},ab:{id:'titanexo',n:'Hydraulic Slam',c:3,fx:{str:3,breach:1,dr:1}},reqs:{tech:5}},
  fusion:{name:'Fusion Core',slot:'body',type:'tech',req:4,cost:{any:8},mods:{maxHp:4,eva:3,pwrRegen:1},ab:{id:'fusion',n:'Fusion Vent',c:3,fx:{shock:[1,3]}},reqs:{tech:4}},
  lance:{name:'Plasma Lance',slot:'arms',type:'tech',req:4,cost:{any:11},mods:{str:5,acc:2,speed:1,range:1,move:-1},two:true,ab:{id:'lance',n:'Plasma Burst',c:4,fx:{dice:1,str:3,acc:-3}},reqs:{tech:4}},
  gravboots:{name:'Gravity Boots',slot:'legs',type:'tech',req:4,cost:{any:6},mods:{eva:4,maxHp:2},jumps:true,ab:{id:'gravboots',n:'Thruster Dive',c:5,mode:'tele',leap:1,r:3,fx:{}},reqs:{tech:4}},

@@ -1,6 +1,6 @@
 /* battle/combat-menu.js: Combat menus, target picking, end-round button, ability buttons. */
 function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko||!isPowered(u,h,k))return false;const f=a.fx||{};
-  if(g.cons){if(!pouchOf(h).includes(k))return false}else if(g.type!=='innate'&&!bridgeOn(h,'paragon')&&(u.abUsed||[]).includes(k))return false;else if(g.type==='innate'){if(potOf(h)<a.min||!innOk(u,h))return false}else if((u.res[g.type]||0)<(g.type==='magic'?arcCost(u,h,a.c):a.c))return false;
+  if(g.cons){if(!pouchOf(h).includes(k))return false}else if(g.type!=='innate'&&!bridgeOn(h,'paragon')&&!(u.discharge&&g.type==='tech')&&(u.abUsed||[]).includes(k))return false;else if(g.type==='innate'){if(potOf(h)<a.min||!innOk(u,h))return false}else if((u.res[g.type]||0)<(g.type==='magic'?arcCost(u,h,a.c):a.c))return false;
   if(a.mode==='ally'&&!live().some(o=>cheb(o,u)<=abV(a.r,potOf(h))&&allyAbilityOK(u,o,a)))return false;
   if(a.act&&u.acted)return false;if(f.move&&!u.moved)return false;if(f.boost&&u.boost)return false;if(f.again&&!u.acted)return false;
   if(f.eclipse&&!sd.vl.some(o=>o.v.charge&&!o.v.down))return false;if(f.mark&&u.markUsed)return false;if(f.repress&&sd.v.repress)return false;if(f.moveEva&&!(u.hexesMoved>0))return false;
