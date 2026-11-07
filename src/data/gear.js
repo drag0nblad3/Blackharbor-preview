@@ -1,6 +1,7 @@
 /* data/gear.js: Every gear item (GEAR) and villain gear sets (SETS). Plain data; edit values in place. */
 const GEAR = {
  visor:{name:'Targeting Visor',slot:'head',type:'tech',req:1,cost:{gallows:2},mods:{acc:3,maxComp:1},ab:{id:'visor',n:'Lock-on',c:2,fx:{acc:2,str:2}},reqs:{tech:1},set:'gallows'},
+ fieldrig:{name:'Field Rig',slot:'body',type:'tech',req:1,cost:{any:2},mods:{eva:1,maxHp:2},ab:{id:'fieldrig',n:'Kinetic Shell',c:3,fx:{eva:2,absorb:1}},reqs:{tech:1}},
  suit:{name:'Grounded Suit',slot:'body',type:'tech',req:1,cost:{gallows:2},mods:{eva:2,maxHp:3},ab:{id:'suit',n:'Ground Out',c:3,fx:{dr:1,eva:2}},reqs:{tech:1},set:'gallows'},
  earpiece:{name:'Comms Earpiece',slot:'acc',type:'tech',req:1,cost:{any:1},mods:{maxComp:2},ab:{id:'earpiece',n:'Callout',c:3,fx:{callout:1}},reqs:{tech:1}},
  gaunt:{name:'Coil Gauntlet',slot:'arms',type:'tech',req:2,cost:{gallows:3},mods:{str:1,acc:2},ab:{id:'gaunt',n:'Overcharge',c:4,fx:{dice:1,acc:-2}},reqs:{tech:2},pair:{mods:{},txt:'No additional bonus beyond both gauntlets counting in full'},set:'gallows',hand:'either'},

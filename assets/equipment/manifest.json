@@ -23,6 +23,22 @@
       "libraryFileId": "libfile_b9e5064a24088191a9fc43634e90255a"
     },
     {
+      "id": "fieldrig",
+      "name": "Field Rig",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "armor",
+      "motif": "bolt",
+      "sourceTitle": "Field Rig (recoloured Grounded Suit placeholder)",
+      "sourceFile": "fieldrig-512.webp",
+      "sourceSha256": "8273b1766ff63741a7ff0a7816567b2b6294d02148e480fc96c0c6a8c5f4ae4f",
+      "thumbnail": "assets/equipment/painted/fieldrig-128.webp",
+      "image": "assets/equipment/painted/fieldrig-512.webp",
+      "libraryFileId": null
+    },
+    {
       "id": "suit",
       "name": "Grounded Suit",
       "slot": "body",

@@ -9,7 +9,7 @@ if(!S.v61){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
 /* Version 62: new blueprints follow the arcs already reached; stats moved between slots, so clamp health and composure */
 if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V62.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
   START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();if(!S.noRattled){(S.heroes||[]).forEach(h=>{if(h.injuries&&h.injuries.includes('rattled')){h.injuries=h.injuries.filter(k=>k!=='rattled');clampHero(h)}});S.noRattled=true}
-  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();if(!S.heroism)migrateHeroism();return true}}catch(e){}return false}
+  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();if(!S.heroism)migrateHeroism();if(!S.pwrGear)migratePwrGear();return true}}catch(e){}return false}
 /* Version 82: capture, interrogation, leads and the clue consumables are gone. Captured villains go free again (they keep their blueprints),
    a built Containment Cell is refunded, and Informant's Tips and Search Warrants are sold back for intel. */
 /* Version 121: Main Hand / Off Hand. A main-only weapon in the off hand (or off-only in the main hand) moves over if that hand is free, else goes back to the armory */
@@ -18,6 +18,8 @@ if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
 /* Version 126: tier 3 blueprints for saves already past issue 10 */
 /* Heroism (2026-11-06): Composure became Heroism. Custom heroes stored a base max of 5 (the old template), now their base is the starting bonus,
    so drop 5 and keep the origin's +/- picks. Heroes outside a fight get their new starting Heroism; a fight in progress keeps its pools. */
+/* Powered gear (2026-11-07): open the Field Rig blueprint and give one to every Tech hero without a Body item. */
+function migratePwrGear(){if(S.unlocked&&!S.unlocked.includes('gear:fieldrig'))S.unlocked.push('gear:fieldrig');(S.heroes||[]).forEach(h=>{if(h.ranks&&h.ranks.tech&&h.gear&&!h.gear.body){h.gear.body='fieldrig';if(typeof clampHero==='function')clampHero(h)}});S.pwrGear=true}
 function migrateHeroism(){const inFight=new Set(S.sd&&S.sd.units?S.sd.units.map(u=>u.hid):[]);
   (S.heroes||[]).forEach(h=>{if(h.base&&h.base.maxComp!=null)h.base.maxComp-=5;if(!inFight.has(h.id))h.comp=heroStart(h)});S.heroism=true}
 /* Version 130: lasting injuries from the old injury roll are healed (Rattled stays). Heroes who already retired stay retired */
