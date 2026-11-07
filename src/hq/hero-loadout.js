@@ -19,7 +19,7 @@ function heroLoadout(h,editable){
     }).join('')}</div>${pwrPanel(h,editable)}
   </section>`;
 }
-/* Powered gear: the Tech Body item powers itself first, then one other Tech item per slot (slots = its tier). */
+/* Powered gear: the Tech Body item powers itself first, then one other Tech item per slot (slots = its tier + 1). */
 function pwrPanel(h,editable){const worn=pwrWorn(h).filter(pwrNeeds);if(!worn.length)return '';const core=coreOf(h),p=powered(h),n=pwrSlots(h);
   const head=core?`${esc(GEAR[core].name)} · ${p.length}/${n} power slots${pwrSpare(h)?` · +${pwrSpare(h)} Power recharge from unused slots`:''}`:'No Tech Body item: Tech abilities are unpowered';
   const chip=k=>{const on=p.includes(k),tag=editable&&core?'button':'span';return `<${tag} ${tag==='button'?`type="button" data-a="pwrTog:${h.id}:${k}" aria-pressed="${on}"`:''} class="pwr-chip ${on?'on':''}" data-tip="gear:${k}">${on?'⚡':'○'} ${esc(GEAR[k].ab.n)}${k===core?' <small>Core</small>':''}</${tag}>`};
