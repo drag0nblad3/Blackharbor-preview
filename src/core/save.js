@@ -9,7 +9,7 @@ if(!S.v61){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
 /* Version 62: new blueprints follow the arcs already reached; stats moved between slots, so clamp health and composure */
 if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEAR_V62.map(k=>'gear:'+k)),add=it=>{if(fresh.has(it)&&!S.unlocked.includes(it))S.unlocked.push(it)};
   START_UNLOCK.forEach(add);for(let a=2;a<=arc;a++)(ARC_UNLOCK[a]||[]).forEach(add);S.heroes.forEach(clampHero);S.v62=true}if(!S.v82)migrateV82();if(!S.v121)migrateV121();if(!S.v123)migrateV123();if(!S.v124)migrateV124();if(!S.v126)migrateV126();if(!S.v130)migrateV130();/* Version 132 (Tyler): heroes no longer sit out an issue after a knockout */if(!S.v132){(S.heroes||[]).forEach(h=>delete h.rest);S.v132=true}if(!S.v133)migrateV133();if(!S.noRattled){(S.heroes||[]).forEach(h=>{if(h.injuries&&h.injuries.includes('rattled')){h.injuries=h.injuries.filter(k=>k!=='rattled');clampHero(h)}});S.noRattled=true}
-  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();if(!S.heroism)migrateHeroism();if(!S.pwrGear)migratePwrGear();if(!S.corona4)migrateCorona4();return true}}catch(e){}return false}
+  /* Version 102: the new starter blueprints */['gear:baton','gear:knuckles','gear:goggles','gear:hood','gear:headband'].forEach(it=>{if(S.unlocked&&!S.unlocked.includes(it))S.unlocked.push(it)});migratePlans();if(!S.heroism)migrateHeroism();if(!S.pwrGear)migratePwrGear();if(!S.corona4)migrateCorona4();if(!S.tiers1107)migrateTiers1107();return true}}catch(e){}return false}
 /* Version 82: capture, interrogation, leads and the clue consumables are gone. Captured villains go free again (they keep their blueprints),
    a built Containment Cell is refunded, and Informant's Tips and Search Warrants are sold back for intel. */
 /* Version 121: Main Hand / Off Hand. A main-only weapon in the off hand (or off-only in the main hand) moves over if that hand is free, else goes back to the armory */
@@ -21,6 +21,13 @@ if(!S.v62){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE)),fresh=new Set(NEW_GEA
 /* Powered gear (2026-11-07): open the Field Rig blueprint and give one to every Tech hero without a Body item. */
 function migratePwrGear(){if(S.unlocked&&!S.unlocked.includes('gear:fieldrig'))S.unlocked.push('gear:fieldrig');(S.heroes||[]).forEach(h=>{if(h.ranks&&h.ranks.tech&&h.gear&&!h.gear.body){h.gear.body='fieldrig';if(typeof clampHero==='function')clampHero(h)}});S.pwrGear=true}
 /* Corona Plate moved to tier 4 (Tech 4, Arc 3): hide the blueprint before Arc 3 and take it off heroes below Tech 4. */
+/* 2026-11-07 (Tyler): Jackhammer Fist, Fuse Bandolier and Flare Gauntlets became two-handed; Meteor Fist, Sigil Blade and Champion's Belt need rank 5.
+   A two-hander moves to the Main Hand and clears the Off Hand; gear the hero can no longer wear goes back to the armory. */
+function migrateTiers1107(){S.armory=S.armory||[];(S.heroes||[]).forEach(h=>{const g=h.gear;if(!g)return;let ch=false;
+  if(g.arms2&&GEAR[g.arms2]&&GEAR[g.arms2].two){const k=g.arms2;delete g.arms2;if(!g.arms)g.arms=k;else S.armory.push(k);ch=true}
+  if(g.arms&&GEAR[g.arms]&&GEAR[g.arms].two&&g.arms2){S.armory.push(g.arms2);delete g.arms2;ch=true}
+  for(const sl in g){const k=g[sl];if(k&&GEAR[k]&&!canWear(h,k)){delete g[sl];if(!(GEAR[k].two&&sl==='arms2'))S.armory.push(k);ch=true}}
+  if(ch&&typeof clampHero==='function')clampHero(h)});S.tiers1107=true}
 function migrateCorona4(){const arc=arcOf(Math.min(S.issue||1,MAX_ISSUE));if(arc<3&&S.unlocked)S.unlocked=S.unlocked.filter(x=>x!=='gear:corona');(S.heroes||[]).forEach(h=>{if(h.gear&&h.gear.body==='corona'&&!wearOK(h,'corona')){delete h.gear.body;(S.armory=S.armory||[]).push('corona');if(typeof clampHero==='function')clampHero(h)}});S.corona4=true}
 function migrateHeroism(){const inFight=new Set(S.sd&&S.sd.units?S.sd.units.map(u=>u.hid):[]);
   (S.heroes||[]).forEach(h=>{if(h.base&&h.base.maxComp!=null)h.base.maxComp-=5;if(!inFight.has(h.id))h.comp=heroStart(h)});S.heroism=true}

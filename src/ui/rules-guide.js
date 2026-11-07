@@ -60,7 +60,7 @@ const BH_GUIDE=[
 <p><b>Read playbook</b> (pictured) shows how many pages are left and torn, and every page and hit reaction you have seen so far.</p>`},
   {id:'after',t:'Aftermath and the finale',img:'aftermath',alt:'The aftermath screen listing salvage, XP and what happened',b:`
 <p>After the fight you see what it earned or cost:</p>
-<ul><li><b>Win:</b> 3 of the villain's salvage plus 1 tech (+1 if Prepared, +1 on Easy, −1 on Hard). The villain escapes and returns one level higher.</li>
+<ul><li><b>Win:</b> 3 of the villain's salvage (4 in Arc 2, 5 in Arc 3) plus 1 tech (+1 if Prepared, +1 on Easy, −1 on Hard). The villain escapes and returns one level higher.</li>
 <li><b>Loss:</b> −2 trust, and the villain gains a level.</li>
 <li><b>Escape:</b> −1 trust, 1 salvage.</li></ul>
 <p>Every hero who fought gains XP, and knocked-out heroes recover. Then the next issue starts. Early on you also make <b>defining moments</b>, permanent choices about what kind of team you are.</p>
