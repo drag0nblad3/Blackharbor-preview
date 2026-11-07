@@ -23,6 +23,22 @@
       "libraryFileId": "libfile_b9e5064a24088191a9fc43634e90255a"
     },
     {
+      "id": "fieldrig",
+      "name": "Field Rig",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 1,
+      "family": "armor",
+      "motif": "bolt",
+      "sourceTitle": "Field Rig (recoloured Grounded Suit placeholder)",
+      "sourceFile": "fieldrig-512.webp",
+      "sourceSha256": "8273b1766ff63741a7ff0a7816567b2b6294d02148e480fc96c0c6a8c5f4ae4f",
+      "thumbnail": "assets/equipment/painted/fieldrig-128.webp",
+      "image": "assets/equipment/painted/fieldrig-512.webp",
+      "libraryFileId": null
+    },
+    {
       "id": "suit",
       "name": "Grounded Suit",
       "slot": "body",
@@ -1173,6 +1189,38 @@
       "thumbnail": "assets/equipment/painted/cell-128.webp",
       "image": "assets/equipment/painted/cell-512.webp",
       "libraryFileId": "libfile_4594089f63008191b8d7392fa7b8a937"
+    },
+    {
+      "id": "zeropoint",
+      "name": "Zero-Point Core",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 5,
+      "family": "armor",
+      "motif": "bolt",
+      "sourceTitle": "Zero-Point Core (recoloured Fusion Core placeholder)",
+      "sourceFile": "zeropoint-512.webp",
+      "sourceSha256": "4421b42fc046ac578b659f35d748ecc24b3fc8aecfbfab22b0adb7aa6fe63a99",
+      "thumbnail": "assets/equipment/painted/zeropoint-128.webp",
+      "image": "assets/equipment/painted/zeropoint-512.webp",
+      "libraryFileId": null
+    },
+    {
+      "id": "titanexo",
+      "name": "Titan Exoskeleton",
+      "slot": "body",
+      "discipline": "tech",
+      "set": null,
+      "rank": 5,
+      "family": "armor",
+      "motif": "bolt",
+      "sourceTitle": "Titan Exoskeleton (recoloured Exo-Frame placeholder)",
+      "sourceFile": "titanexo-512.webp",
+      "sourceSha256": "394b0b45a3f56e190c3323df6ced0878239ffc5611a641c45cdcb586c58c45bf",
+      "thumbnail": "assets/equipment/painted/titanexo-128.webp",
+      "image": "assets/equipment/painted/titanexo-512.webp",
+      "libraryFileId": null
     },
     {
       "id": "fusion",

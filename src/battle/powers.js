@@ -84,6 +84,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.tear){const tornBefore=sd.v.wounds.length;await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`);if(sd.v.wounds.length>tornBefore)sigBreak(h,sd.v)}
   if(f.boost){const n=v(f.boost);u.boost=(u.boost||0)+n;if(f.jump)u.boostJump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');log('hero',`${h.name}: +${n} to the next move${f.jump?', and it is a jump':''}.`);if(!u.moved)sd.thenMode='move'}
   if(f.move){u.moved=false;u.mv=null;if(JUMP_AB.includes(g.ab.id))u.jump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');sd.thenMode='move'}
+  if(f.discharge){u.discharge=true;await A.ring(ctrU(u),col,3,{count:2});fxU(u,'FULL DISCHARGE!','good');log('hero',`${h.name} opens the Core: Tech abilities have no once-per-round limit until the round ends.`)}
   if(f.again){u.acted=false;await A.ring(ctrU(u),col,3,{count:2});fxU(u,'UNLEASHED!','good')}
   if(f.blind){await A.sigil(ctrV(),col,2.6);sd.v.blind=true;fxV('BLINDED!','good');log('hero',`${VILLAINS[sd.vkey].short} is blinded: −3 accuracy this round.`)}
   if(f.vsplash)await splashV(v(f.vsplash));
@@ -140,3 +141,12 @@ function applyBoardPrep(kind){const sd=S.sd;sd.boardPrep=kind;
   if(kind==='thin'){const m=sd.hench.find(h=>!h.elite);if(m)sd.hench=sd.hench.filter(h=>h!==m);}
   log('hero',`Battlefield preparation: ${BOARD_PREP_TEXT[kind]}`);
 }
+/* Powered gear: Gallows-style Power feedback shorts out one powered item; Reroute moves power once per hero turn. */
+function pwrShort(u,h){const core=coreOf(h),p=unitPwr(u,h),k=[...p].reverse().find(x=>x!==core);if(!k)return;u.pwr=p.filter(x=>x!==k);log('vill',`${h.name}'s ${GEAR[k].name} shorts out: unpowered until rerouted.`)}
+function canReroute(u,h){const core=coreOf(h);return !!core&&!u.ko&&!u.rerouted&&unitPwr(u,h).includes(core)&&!tutOn()}
+function reroute(on,off){const sd=S.sd,u=sd&&sd.units[sd.sel],h=u&&heroOf(u);if(!u||sd.busy||sd.result||!canReroute(u,h)||(!on&&!off))return;
+  const core=coreOf(h);let p=unitPwr(u,h).slice();
+  if(off){if(off===core||!p.includes(off))return;p=p.filter(x=>x!==off)}
+  if(on){if(!pwrNeeds(on)||p.includes(on)||!pwrWorn(h).includes(on)||p.length>=pwrSlots(h))return;p.push(on)}
+  u.pwr=p;u.rerouted=true;log('hero',`${h.name} reroutes power${on?' to '+GEAR[on].name:''}${off?(on?' from ':' away from ')+GEAR[off].name:''}.`)}
+ACT.reroute=(p1,p2)=>{reroute(p1||null,p2||null)};

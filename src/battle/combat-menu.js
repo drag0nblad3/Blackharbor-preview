@@ -1,6 +1,6 @@
 /* battle/combat-menu.js: Combat menus, target picking, end-round button, ability buttons. */
-function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko)return false;const f=a.fx||{};
-  if(g.cons){if(!pouchOf(h).includes(k))return false}else if(g.type!=='innate'&&!bridgeOn(h,'paragon')&&(u.abUsed||[]).includes(k))return false;else if(g.type==='innate'){if(potOf(h)<a.min||!innOk(u,h))return false}else if((u.res[g.type]||0)<(g.type==='magic'?arcCost(u,h,a.c):a.c))return false;
+function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko||!isPowered(u,h,k))return false;const f=a.fx||{};
+  if(g.cons){if(!pouchOf(h).includes(k))return false}else if(g.type!=='innate'&&!bridgeOn(h,'paragon')&&!(u.discharge&&g.type==='tech')&&(u.abUsed||[]).includes(k))return false;else if(g.type==='innate'){if(potOf(h)<a.min||!innOk(u,h))return false}else if((u.res[g.type]||0)<(g.type==='magic'?arcCost(u,h,a.c):a.c))return false;
   if(a.mode==='ally'&&!live().some(o=>cheb(o,u)<=abV(a.r,potOf(h))&&allyAbilityOK(u,o,a)))return false;
   if(a.act&&u.acted)return false;if(f.move&&!u.moved)return false;if(f.boost&&u.boost)return false;if(f.again&&!u.acted)return false;
   if(f.eclipse&&!sd.vl.some(o=>o.v.charge&&!o.v.down))return false;if(f.mark&&u.markUsed)return false;if(f.repress&&sd.v.repress)return false;if(f.moveEva&&!(u.hexesMoved>0))return false;
@@ -70,7 +70,7 @@ function combatInfo(u,h){
   if(!c||c.hid!==u.hid)return '';
   if(c.armed&&sd.mode!==c.armed)return '';
   const targeted=!!combatTargetMode(u,h,c);
-  let name='',description='',cost='',ok=false,tip='';
+  let name='',description='',cost='',ok=false,tip='',pwrHtml='';
   if(c.kind==='ability'){
     if(c.key==='power'){
       const pw=BASE(h).power,p=POWERS[pw];if(!p)return '';
@@ -80,9 +80,10 @@ function combatInfo(u,h){
       const keys=[...new Set(Object.values(h.gear)),...new Set(pouchOf(h))];
       if(!keys.includes(c.key)||!GEAR[c.key]||!GEAR[c.key].ab)return '';
       const g=GEAR[c.key],a=g.ab;
-      name=a.n;cost=abCost(g);description='From '+g.name+'. '+abTxt(a,g.type==='innate'?potOf(h):null);
+      name=a.n;cost=abCost(g);description=(g.slot==='body'&&g.type==='tech'?'Overcharge from ':'From ')+g.name+'. '+abTxt(a,g.type==='innate'?potOf(h):null);
       ok=abOk(u,h,c.key);
       tip=a.mode?'Targets the board.':'Confirm to activate.';
+      if(pwrNeeds(c.key)){const pw=isPowered(u,h,c.key);if(!pw){cost='Unpowered';description+=' Unpowered: your Tech Body item must power it before you can use it.'}pwrHtml=rerouteHtml(u,h,c.key,pw)}
     }
   }else{
     switch(c.key){
@@ -117,7 +118,7 @@ function combatInfo(u,h){
       ${targeted?'':`<button class="btn pri combat-confirm" type="button" data-a="combatUse" ${ok?'':'disabled'}>${c.kind==='ability'?'Activate ability':'Use action'}</button>`}
       <button class="btn sm" type="button" data-a="combatClear">Cancel</button>
     </div>
-    ${ok?'':'<span class="small muted">Unavailable right now.</span>'}
+    ${ok?'':'<span class="small muted">Unavailable right now.</span>'}${pwrHtml}
   </section>`;
 }
 function combatUse(){
@@ -155,7 +156,7 @@ function combatMenus(u,h){
   const abilities=`<div class="combat-dropdown abilities-dropdown"><button type="button" class="btn sm combat-menu-toggle" data-a="combatMenu:abilities" aria-expanded="${sd.combatMenuOpen==='abilities'}" aria-controls="combat-abilities-menu">Abilities ▾</button>
     <div id="combat-abilities-menu" class="combat-dropdown-menu abilities-menu" ${sd.combatMenuOpen==='abilities'?'':'hidden'}>
       ${choice('ability','power',p.name,'Primary · '+powCost(pw,true),p.free?'free':'action')}
-      ${gear.map(k=>{const g=GEAR[k],a=g.ab;return choice('ability',k,a.n,g.name+' · '+abCost(g,true),a.act?'action':a.moveAct?'move':'free')}).join('')}
+      ${gear.map(k=>{const g=GEAR[k],a=g.ab;return choice('ability',k,a.n,g.name+' · '+(isPowered(u,h,k)?abCost(g,true):'Unpowered'),a.act?'action':a.moveAct?'move':'free')}).join('')}
     </div></div>`;
   const nFol=followers(u).length;
   const others=`<div class="combat-dropdown other-actions"><button type="button" class="btn sm combat-menu-toggle" data-a="combatMenu:other" aria-expanded="${sd.combatMenuOpen==='other'}" aria-controls="combat-other-menu">Other Actions ▾</button>
@@ -185,6 +186,15 @@ function abButtons(u,h){const ks=[...new Set(Object.values(h.gear)),...new Set(p
   return `<div class="row">${ks.map(k=>{const g=GEAR[k],a=g.ab,ok=abOk(u,h,k),low=g.type==='innate'&&P<a.min,on=S.sd.abKey===k&&S.sd.mode&&S.sd.mode.startsWith('ab');
     return `<button class="btn sm abtn t-${g.type} ${on?'on':''}" data-a="ab:${k}" data-tip="gear:${k}" ${ok?'':'disabled'} title="${esc(low?`Requires Innate rank ${a.min}. ${abTxt(a)}`:abTxt(a,g.type==='innate'?P:null))}">${a.n}<small>${abCost(g,true)}</small></button>`}).join('')}</div>`}
 
+/* Reroute (powered gear): once per hero turn, power this item from a free slot or from another powered item, or unpower it for +1 recharge. */
+function rerouteHtml(u,h,k,pw){const core=coreOf(h);if(!core||k===core)return '';const p=unitPwr(u,h);
+  let body;if(!p.includes(core))body='<span class="small muted">Your Tech Body item is unpowered, so it can power nothing else.</span>';
+  else if(u.rerouted)body='<span class="small muted">Already rerouted this turn.</span>';
+  else if(!canReroute(u,h))body='';
+  else if(pw)body=`<button class="btn sm" type="button" data-a="reroute::${k}">Unpower (+1 Power recharge)</button>`;
+  else if(p.length<pwrSlots(h))body=`<button class="btn sm" type="button" data-a="reroute:${k}:">Power it</button>`;
+  else body=p.filter(x=>x!==core).map(x=>`<button class="btn sm" type="button" data-a="reroute:${k}:${x}">Take power from ${esc(GEAR[x].name)}</button>`).join('');
+  return body?`<div class="combat-reroute"><div class="eyebrow">Reroute power · once per turn · ${p.length}/${pwrSlots(h)} slots</div><div class="row">${body}</div></div>`:''}
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
 ACT.combatMenu=(p1)=>{combatMenu(p1);return NO_RENDER;};
 ACT.combatPick=(p1,p2)=>{combatPick(p1,p2);return NO_RENDER;};

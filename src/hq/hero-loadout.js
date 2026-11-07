@@ -15,10 +15,19 @@ function heroLoadout(h,editable){
       const tag=editable?'button':'div';
       return `<${tag} ${editable?`type="button" data-a="slotpick:${h.id}:${s}" aria-haspopup="dialog"`:''} data-slot="${s}" class="loadout-slot ${g?'is-equipped':'is-empty'} ${linked?'is-linked':''}" style="grid-row:${Math.floor(i/2)+1};grid-column:${i%2?3:1}" ${!editable&&g?`data-tip="gear:${key}"`:''}>
       <span class="loadout-slot-label">${loadoutLabel(s)}</span>${g?equipmentIcon(key,56):'<span class="loadout-empty" aria-hidden="true">＋</span>'}
-      <span class="loadout-item-name">${g?esc(g.name):'Empty'}</span><span class="loadout-slot-note">${linked?'Uses both hands':g?esc(reqTxt(g)):editable?`${n} available`:'—'}</span>${g?`<span class="loadout-bonuses">${esc(modsTxt(g.mods)||'No passive bonus')}</span>${g.ab?`<span class="loadout-ability">${esc(g.ab.n)} · ${esc(abCost(g))}</span>`:''}`:''}</${tag}>`;
-    }).join('')}</div>
+      <span class="loadout-item-name">${g?esc(g.name):'Empty'}</span><span class="loadout-slot-note">${linked?'Uses both hands':g?esc(reqTxt(g)):editable?`${n} available`:'—'}</span>${g?`<span class="loadout-bonuses">${esc(modsTxt(g.mods)||'No passive bonus')}</span>${g.ab?`<span class="loadout-ability">${esc(g.ab.n)} · ${esc(abCost(g))}${pwrNeeds(key)&&!powered(h).includes(key)?' · unpowered':''}</span>`:''}`:''}</${tag}>`;
+    }).join('')}</div>${pwrPanel(h,editable)}
   </section>`;
 }
+/* Powered gear: the Tech Body item powers itself first, then one other Tech item per slot (slots = its tier + 1). */
+function pwrPanel(h,editable){const worn=pwrWorn(h).filter(pwrNeeds);if(!worn.length)return '';const core=coreOf(h),p=powered(h),n=pwrSlots(h);
+  const head=core?`${esc(GEAR[core].name)} · ${p.length}/${n} power slots${pwrSpare(h)?` · +${pwrSpare(h)} Power recharge from unused slots`:''}`:'No Tech Body item: Tech abilities are unpowered';
+  const chip=k=>{const on=p.includes(k),tag=editable&&core?'button':'span';return `<${tag} ${tag==='button'?`type="button" data-a="pwrTog:${h.id}:${k}" aria-pressed="${on}"`:''} class="pwr-chip ${on?'on':''}" data-tip="gear:${k}">${on?'⚡':'○'} ${esc(GEAR[k].ab.n)}${k===core?' <small>Core</small>':''}</${tag}>`};
+  return `<div class="pwr-panel"><div class="eyebrow">Core power</div><p class="small" style="margin:0">${head}</p><div class="row pwr-chips">${worn.map(chip).join('')}</div>${editable&&core?'<p class="small muted" style="margin:0">Tap to power or unpower. The Core must stay powered to power anything else. In a fight you can reroute once per turn.</p>':''}</div>`}
+function pwrToggle(h,k){const core=coreOf(h);if(!core||!pwrWorn(h).includes(k))return;const p=powered(h);
+  if(k===core){h.pwrOff=!h.pwrOff;if(!h.pwrOff&&!h.pwr)h.pwr=pwrWorn(h);return}
+  let o=p.filter(x=>x!==core);if(o.includes(k))o=o.filter(x=>x!==k);else{h.pwrOff=false;if(o.length+1>=pwrSlots(h))o=o.slice(0,Math.max(0,pwrSlots(h)-2));o.push(k)}h.pwr=o}
+ACT.pwrTog=(p1,p2)=>{const h=S.heroes.find(x=>x.id===p1);if(!h||!(S.phase==='hq'||prepGear()))return;pwrToggle(h,p2);save()};
 /* Keep keyboard focus inside the dossier and restore the originating slot on close. */
 let loadoutReturnAction=null;
 function loadoutCaptureFocus(){

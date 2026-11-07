@@ -8,7 +8,7 @@ const fxP=(x,y,t,k)=>{const c=HC(x,y);fx(c.cx,c.cy,t,k)};
 const fxU=(u,t,k)=>fxP(u.x,u.y,t,k);
 const fxV=(t,k)=>{const c=vCtr(S.sd.v);fx(c.cx,c.cy,t,k)};
 const SFX_HIT=['BAM!','POW!','WHAM!','KRAK!','THWACK!','BOOM!'],SFX_VHIT=['THOOM!','KRASH!','SMACK!','CRUNCH!'];
-function mkUnit(h,x,y){return {hid:h.id,x,y,moved:false,acted:false,ko:false,anchor:setOn(h,'lode'),res:{tech:pwrMax(h),magic:arcMax(h)},innUsed:0,buffDice:0,buffStr:0}}
+function mkUnit(h,x,y){return {hid:h.id,x,y,moved:false,acted:false,ko:false,anchor:setOn(h,'lode'),res:{tech:pwrMax(h),magic:arcMax(h)},innUsed:0,buffDice:0,buffStr:0,pwr:powered(h)}}
 function freeTiles(f){const out=[];for(let y=0;y<N;y++)for(let x=0;x<N;x++)if(!blocked(x,y)&&(!f||f(x,y)))out.push({x,y});return out}
 
 function focusV(i){const sd=S.sd;if(i<0||!sd.vl[i])return;sd.vi=i;sd.v=sd.vl[i].v;sd.vkey=sd.vl[i].key}

@@ -46,7 +46,7 @@ const assert=require('node:assert/strict');
       assert.match(seen['b-free'].log,/Clean Hit: Wound roll 4 \+ 2 vs toughness 8\. No wound\./,'Clean Hit miss matches the caption');
       assert.match(seen['b-plan'].plan,/Charging: Tunnel Ambush/,'round 2 shows Tunnel Ambush charging');
       assert.match(seen['b-free'].log,/Volt avoids damage: \+3 evasion/,'Volt uses Avoid Damage');
-      assert.match(seen['b-free'].log,/bursts up next to Volt[\s\S]*rolled 7\+2 vs evasion 11\. Miss/,'Tunnel Ambush misses Volt as the caption says');
+      assert.match(seen['b-free'].log,/bursts up next to Volt[\s\S]*rolled 7\+2 vs evasion 12\. Miss/,'Tunnel Ambush misses Volt as the caption says');
       assert.match(seen.bookText,/Mole Boy/,'Read playbook opens and closes during the tutorial');
       const end=await page.evaluate(()=>{S.sd.result='win';tutFinish();render();
         const keep=document.querySelector('[data-a="tut:keep"]');keep.click();

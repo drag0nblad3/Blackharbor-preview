@@ -11,7 +11,7 @@ const assert=require('node:assert/strict');
       newCampaign();['volt','wisp','bulwark','lynx'].forEach(recruitQuick);
       S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
       const volt=S.heroes.find(h=>h.cls==='volt'),wisp=S.heroes.find(h=>h.cls==='wisp');
-      volt.gear.arms='baton';volt.gear.acc='uplink';volt.pouch.push('c_smoke');
+      volt.gear.arms='baton';volt.gear.acc='uplink';volt.gear.body='fusion';/* powered gear: a tier 4 Core powers the baton and uplink */volt.pouch.push('c_smoke');
       S.inv={v:S.villains[0].key,clues:2};
       startShowdown();const sd=S.sd;
       sd.intro=false;sd.busy=false;sd.quality='normal';

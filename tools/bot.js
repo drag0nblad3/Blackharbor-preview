@@ -73,7 +73,7 @@ const tick=()=>new Promise(r=>setImmediate(r));
 async function idle(){let g=0;while(S.sd&&S.sd.busy&&g++<200000)await tick()}
 const GEAR_KEYS=Object.keys(GEAR).filter(k=>!GEAR[k].cons);
 const FAC_ORDER=[...new Set([...(STRATEGY==='specialist'?['workshop','training','medbay','comms','dojo','reactor']:PROFILE.fac),'workshop','skunk','medbay','training','comms','magnet','lab','cell','press','hangar','reactor','dojo','antivenom','bunker','sanctum','jammer','bombsq','optics'])];
-const gScore=(k,h)=>{if(!k||!GEAR[k])return 0;const g=GEAR[k],P=profileOf(h),W=P.weights;let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3;const f=g.ab.fx||{};s+=P.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;return s};
+const gScore=(k,h)=>{if(!k||!GEAR[k])return 0;const g=GEAR[k],P=profileOf(h),W=P.weights;let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3;const f=g.ab.fx||{};s+=P.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;if(typeof pwrSlots==='function'&&h&&h.ranks&&h.ranks.tech&&g.slot==='body'&&g.type==='tech')s+=8*g.req;return s}; // powered gear: a Tech Body item powers req slots
 const ST={crafted:new Set(),blockF:{tech:0,intel:0,both:0,none:0},blockG:{set:0,any:0,none:0},stalls:0,
  setGoals:[],bigGoal:null,setCrafts:0,bigCrafts:0,reserveSkips:0,goalCompleted:0};
 
@@ -363,7 +363,7 @@ async function moveTo(u,score){const sd=S.sd,h=heroOf(u);if(u.moved)return;const
   if(best){sd.sel=sd.units.indexOf(u);sd.mode='move';onCell(best.x,best.y);await idle()}}
 /* ---------- abilities (ported from combat-sim/bot.js) ---------- */
 const ABIL=!!process.env.ABIL;
-const ATK=['dice','str','acc','back','reap','callout','mark','hex'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor','reactionWard','moveEva'],VDEB=['repress','reactionPeek','revealFacing','curse','blind','skip','tear','vsplash','excise','scry','bury','foresee','scramble','eclipse'];
+const ATK=['dice','str','acc','back','reap','callout','mark','hex','discharge'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor','reactionWard','moveEva'],VDEB=['repress','reactionPeek','revealFacing','curse','blind','skip','tear','vsplash','excise','scry','bury','foresee','scramble','eclipse'];
 function abKind(g){const f=g.ab.fx||{};if(g.ab.mode==='blast')return 'blast';if(g.ab.mode==='strike')return 'strike';if(g.ab.mode==='tele')return 'tele';if(g.ab.mode==='cover')return 'skip';
   if(f.again)return 'again';if(f.heal)return 'heal';if(ATK.some(k=>f[k]))return 'atk';if(VDEB.some(k=>f[k]))return 'deb';if(f.shock)return 'shock';
   if(DEF.some(k=>f[k]))return 'def';if(f.comp||f.rally)return 'comp';if(f.gain||f.gainP)return 'gain';if(f.boost||f.move)return 'move';return 'skip'}

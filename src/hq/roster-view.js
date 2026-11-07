@@ -67,7 +67,7 @@ function heroCard(h,where){const b=BASE(h),mx=stat(h,'maxHp'),mc=heroStart(h),p=
 /* S.guide only exists on volumes started after this update: s 0 splash, 1 team, 2 base, 3 gear, 4 roster. pop names the step a pop-up is suggesting. */
 function equipHero(h,g,pref){const i=S.armory.indexOf(g),G=GEAR[g];if(i<0||!wearOK(h,g))return false;
   if(G.cons){S.armory.splice(i,1);pouchOf(h).push(g);if(S.guide)S.guide.eq=true;return true}
-  S.armory.splice(i,1);putGear(h,g,pref).forEach(o=>S.armory.push(o));if(G.mods.maxHp)h.hp+=G.mods.maxHp;clampHero(h);if(S.guide)S.guide.eq=true;return true}
+  S.armory.splice(i,1);putGear(h,g,pref).forEach(o=>S.armory.push(o));if(G.type==='tech'){if(G.slot==='body')h.pwrOff=false;else if(h.pwr&&!h.pwr.includes(g))h.pwr.push(g)}if(G.mods.maxHp)h.hp+=G.mods.maxHp;clampHero(h);if(S.guide)S.guide.eq=true;return true}
 function eqTo(g,craft){const G=GEAR[g],hs=[...party(),...bench()];if(!hs.length)return '<button class="btn sm" disabled title="Recruit a hero first">Equip to…</button>';
   return `<details class="eqto"><summary class="btn sm">${craft?'Craft &amp; equip to…':'Equip to…'}</summary><div class="eqmenu">${hs.map(h=>{const ok=wearOK(h,g),pl=G.cons?null:eqPlan(h,g);
     return `<button class="btn sm" data-a="${craft?`crafteq:${g}:${h.id}`:`equip:${h.id}:${g}`}" ${ok?'':'disabled'}>${esc(h.name)}${S.party.includes(h.id)?'':' <span class="muted">(bench)</span>'} <span class="muted">${ok?(pl&&pl.out.length?`swaps out ${[...new Set(pl.out)].map(o=>GEAR[o].name).join(' and ')}`:G.cons?`pouch ${pouchOf(h).length}/${POUCH_MAX}`:`${SLOTS[pl.s]} empty`):G.cons?'pouch full':`needs ${reqTxt(G)}`}</span></button>`}).join('')}</div></details>`}

@@ -148,4 +148,4 @@ const recruitXpN=(x=0)=>Math.max(0,Math.min((S.issue||1)+x,MAX_ISSUE+1)-1);
 const recruitXpTxt=()=>recruitXpN()?`<p class="small" style="margin:0" data-tip="kw:xp">Joins with <b>${recruitXpN()} XP</b>, 1 for each issue completed.</p>`:'';
 function recruitXp(h,x=0){h.xp+=recruitXpN(x);while(h.xp>=xpNeed(h)){h.xp-=xpNeed(h);h.pendingUp++}}
 function newHero(cls,name,base){const b=base||HERO_BASE[cls];const ranks={tech:0,innate:0,magic:0};ranks[b.track]=1;
-  return {pouch:[],id:cls+Math.random().toString(36).slice(2,7),cls,name:name||b.name,hp:b.maxHp,comp:b.maxComp,xp:0,ranks,trackPick:null,pendingUp:0,upChoices:null,upgrades:[],gear:{},injuries:[],cd:0,retired:false,...(base?{base:{...base}}:{})}}
+  const h={pouch:[],id:cls+Math.random().toString(36).slice(2,7),cls,name:name||b.name,hp:b.maxHp,comp:b.maxComp,xp:0,ranks,trackPick:null,pendingUp:0,upChoices:null,upgrades:[],gear:{},injuries:[],cd:0,retired:false,...(base?{base:{...base}}:{})};if(ranks.tech)h.gear.body='fieldrig';return h}

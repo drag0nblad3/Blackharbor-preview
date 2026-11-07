@@ -10,7 +10,7 @@ const assert=require('node:assert/strict');
    newCampaign();recruitQuick('volt');recruitQuick('wisp');recruitQuick('bulwark');recruitQuick('lynx');
    S.guide=null;S.tut={dq:[],skip:true};S.tutDone=true;
    const volt=S.heroes.find(h=>h.cls==='volt');
-   volt.gear.arms='baton';volt.gear.acc='uplink';
+   volt.gear.arms='baton';volt.gear.acc='uplink';volt.gear.body='fusion';/* powered gear: a tier 4 Core powers the baton and uplink */
    S.inv={v:S.villains[0].key,clues:2};startShowdown();
    const sd=S.sd;sd.intro=false;sd.busy=false;sd.sel=0;sd.mode=null;
    sd.civs=[];sd.hench=[];sd.bombs=[];sd.beams=[];
@@ -66,7 +66,7 @@ const assert=require('node:assert/strict');
   assert.match(await page.locator('.combat-board-prompt').textContent(),/Click the board to activate/);
   const activation=await page.evaluate(async()=>{
     const sd=S.sd,u=sd.units[0],h=heroOf(u);
-    h.ranks.innate=1;h.gear.arms2='bracer';sd.sel=0;sd.mode=null;sd.combatPick=null;
+    h.ranks.innate=1;h.gear.arms2='bracer';u.pwr=null;sd.sel=0;sd.mode=null;sd.combatPick=null;
     u.acted=false;u.abUsed=[];u.buffStr=0;u.buffAcc=0;u.buffDice=0;u.res.tech=pwrMax(h);
     const initial=u.res.tech;
     await useAb('bracer');
@@ -168,7 +168,7 @@ const assert=require('node:assert/strict');
     const u=sd.units[0];u.x=4;u.y=4;u.ko=false;
     const used=[];
     for(const id of ['wraps','gaunt','stinger','blades','claws','lance','soulreaver']){
-      h.gear={arms:id};if(GEAR[id].two)h.gear.arms2=id;
+      h.gear={body:'fusion',arms:id};u.pwr=null;if(GEAR[id].two)h.gear.arms2=id;
       u.res.tech=pwrMax(h);u.res.magic=arcMax(h);
       u.abUsed=[];u.innUsed=0;u.capUsed=false;u.abRd=false;
       u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.acted=false;
