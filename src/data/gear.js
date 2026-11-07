@@ -46,7 +46,7 @@ const GEAR = {
  scanner:{name:'Police Scanner',slot:'acc',type:'tech',req:1,cost:{any:1},mods:{},field:{id:'clue',txt:'70% chance that investigations start with +1 clue.'},ab:{id:'scanner',n:'Threat Scan',c:1,fx:{foresee:1}},reqs:{tech:1}},
  medkit:{name:'Field Medic Kit',slot:'body',type:'innate',req:1,cost:{any:2},mods:{maxHp:2},field:{id:'medkit',txt:'After each mission, every party hero recovers 3 extra health.'},ab:{id:'medkit',n:'Field Dressing',min:1,mode:'ally',r:[1,0.6],fx:{heal:[0,1]}},reqs:{innate:1}},
  coin:{name:'Lucky Coin',slot:'acc',type:'magic',req:1,cost:{any:1},mods:{maxComp:1},field:{id:'roll',txt:'+2 to every investigation roll.'},ab:null,reqs:{magic:1},auraFx:'luck'},
- harness:{name:'Salvage Harness',slot:'body',type:'tech',req:2,cost:{any:3},mods:{maxHp:3,eva:3},field:{id:'salvage',txt:'+1 salvage from every lair you win.'},ab:{id:'harness',n:'Grapple Line',c:3,mode:'tele',r:3},reqs:{tech:2}},
+ harness:{name:'Salvage Harness',slot:'body',type:'tech',req:2,cost:{any:3},mods:{maxHp:3,eva:3},field:{id:'salvage',txt:'+1 salvage from every lair you win (only once, however many heroes wear one).'},ab:{id:'harness',n:'Grapple Line',c:3,mode:'tele',r:3},reqs:{tech:2}},
  mask:{name:'Spokesperson Mask',slot:'head',type:'magic',req:2,cost:{any:3},mods:{maxComp:2,eva:2},field:{id:'trust',txt:'+1 trust at the end of every issue.'},ab:null,reqs:{magic:2}},
  goggles:{name:'Night-Vision Goggles',slot:'head',type:'tech',req:1,reqs:{tech:1},cost:{any:2},mods:{acc:3,maxComp:1}},
  scalemail:{name:'Scale Mail',slot:'body',type:'innate',req:1,cost:{serpent:2},mods:{eva:1,maxHp:2},riposte:true,ab:null,reqs:{innate:1},set:'serpent'},

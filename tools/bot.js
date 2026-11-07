@@ -528,7 +528,7 @@ async function campaign(){newCampaign();S.guide=null;S.ui={};
       const pre={t:S.tech,i:S.intel,s:Object.values(S.salvage).reduce((a,b)=>a+b,0)};
       click('lair');const r=await fight();res[r]++;for(const c of consB){const i=S.armory.indexOf(c);if(i>=0)S.armory.splice(i,1)}
       const lastOfArc=S.issue%ISSUES_PER_ARC===0,U0=new Set(S.unlocked),arcN=arcOf(S.issue);
-      const sd=S.sd,vk=sd.vkey,parts={};if(r==='win'){parts.base=3;parts.prepared=sd.quality==='prepared'?1:0;parts.harness=fieldCount('salvage');parts.magnet=S.facilities.includes('magnet')?1:0;parts.restraint=S.ethos.a==='restraint'?1:0}
+      const sd=S.sd,vk=sd.vkey,parts={};if(r==='win'){parts.base=3;parts.prepared=sd.quality==='prepared'?1:0;parts.harness=Math.min(1,fieldCount('salvage'));parts.magnet=S.facilities.includes('magnet')?1:0;parts.restraint=S.ethos.a==='restraint'?1:0}
       const b1=sv();click('debrief');{let d=tot(S.salvage)-tot(b1);if(r==='win'){for(const k in parts){add('lair '+k,parts[k],vk);d-=parts[k]}add('lair hooks',d,vk)}else add(r==='escape'?'escape':'loss/other',d,vk)}
       if(lastOfArc){const nx=ARC_UNLOCK[arcN+1]||[];const al=new Set(S.unlocked.filter(i=>U0.has(i)||!nx.includes(i)));spend(al);snaps.push(snap('Arc '+arcN,al))}
       {const b2=sv();if(S.after&&S.after.ethos)click(`ethos:${S.after.ethos}:${S.after.ethos==='a'?'restraint':ETHB}`);
