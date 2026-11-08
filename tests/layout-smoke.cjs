@@ -123,10 +123,11 @@ const path=require('node:path');
        const chips=res.children.length;
        S.salvage=salvage;
        render();
-       return {ratio:rect.width/header.width,rows,chips};
+       return {ratio:rect.width/header.width,rows,chips,left:header.left,right:innerWidth-header.right};
      });
      assert(fullLedger.chips>=12&&fullLedger.ratio>.9&&fullLedger.rows<=4,
        'full salvage ledger uses the phone mast width: '+JSON.stringify(fullLedger));
+     assert(fullLedger.left<=6&&fullLedger.right<=6,'phone mast sits within the narrow safe gutter');
      await page.setViewportSize({width:size.width,height:size.height});
    }
    await page.evaluate(()=>{S.facilities=Object.keys(FAC);hqSetPref('lighting','day');hqSetPref('motion','on');render()});

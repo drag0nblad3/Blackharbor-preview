@@ -247,3 +247,12 @@ body:has(#app.wrap:not(.sprite-gallery)){background-color:#ffe7a6;background-ima
   outline:1px solid #fff9e880;
   outline-offset:-4px;
 }
+
+/* Keep the ink edge on phones without stacking wide borders and shadows. */
+@media(max-width:600px){
+  #app.wrap:not(.sprite-gallery):not(.v-sd) :is(.mast,.bh-pagehead,.panel,.bh-hq-rail,.bh-roster-rail,.bh-threat-rail){
+    border-inline-width:2px;
+    box-shadow:2px 2px 0 #08131e;
+  }
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .bh-pagehead{border-left-width:3px}
+}

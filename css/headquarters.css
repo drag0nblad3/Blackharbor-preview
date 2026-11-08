@@ -117,6 +117,7 @@
   #app.wrap.v-sd .mast>.mast-tools{gap:4px}
 }
 @media(max-width:600px){
+  #app .hq-grounds{border-width:2px;box-shadow:2px 2px 0 #142638}
   #app .hq-construction-heading h2{font-size:1.3rem}
   #app .hq-construction-heading>.btn{max-width:125px}
 }
