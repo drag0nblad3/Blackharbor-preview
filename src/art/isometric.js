@@ -36,7 +36,64 @@ function isoOpponentSide(from,opponents){
  }
  return Math.abs(offset)<.0001?null:offset<0?'left':'right';
 }
-function isoSprite(key,label,scale=1,side=null){
+// The alternate sheets use the same character order as the idle atlases.
+const ISO_POSE_GROUPS=[
+ ['heroes-superhero',ISO_HERO_SPRITES,4,2],
+ ...ISO_COVER_GROUPS.map((keys,i)=>['cover-'+(i+1),keys,4,2]),
+ ...ISO_CAST_GROUPS.map((keys,i)=>['cast-'+(i+1),keys,3,i===0?3:2]),
+];
+const isoPoseArt=new Map();
+for(const [sheet,keys,cols,moveCols] of ISO_POSE_GROUPS){
+ const rows=Math.ceil(keys.length/cols),moveRows=Math.ceil(keys.length/moveCols);
+ keys.forEach((key,i)=>{
+  const pos=(j,c,r)=>`${j%c/(c-1)*100}% ${r===1?0:Math.floor(j/c)/(r-1)*100}%`;
+  isoPoseArt.set(key,`--combat-sheet:url(../assets/isometric/poses/${sheet}.webp);--combat-size:${cols*100}% ${rows*200}%;--attack-pos:${pos(i,cols,rows*2)};--defense-pos:${pos(i+rows*cols,cols,rows*2)};--move-sheet:url(../assets/isometric/poses/${sheet}-move.webp);--move-size:${moveCols*100}% ${moveRows*100}%;--move-pos:${pos(i,moveCols,moveRows)};`);
+ });
+}
+const ISO_POSE_MS=500;
+const isoPoseStates=new WeakMap(),isoPoseImages=new Map();
+function isoPreloadPoses(){
+ if(isoPoseImages.size)return;
+ for(const [sheet] of ISO_POSE_GROUPS)for(const suffix of ['', '-move']){
+  const image=new Image();image.src=`assets/isometric/poses/${sheet}${suffix}.webp`;
+  isoPoseImages.set(sheet+suffix,image);
+ }
+}
+function isoApplyPose(tid,pose){
+ const figure=document.querySelector(`.iso-board [data-tid="${CSS.escape(tid)}"] .iso-figure`);
+ if(figure)figure.dataset.pose=pose;
+}
+function isoCombatPose(tid,pose){
+ if(FAST||!tid||!S.sd||!document.querySelector('.iso-board'))return;
+ const battle=S.sd;
+ let states=isoPoseStates.get(battle);
+ if(!states){states=new Map();isoPoseStates.set(battle,states)}
+ const active=states.get(tid);
+ if(active){
+  const tail=active.pending.at(-1);
+  if(!tail&&active.pose===pose){active.until=performance.now()+ISO_POSE_MS;return Promise.resolve()}
+  if(tail?.pose===pose)return tail.ready;
+  let start;
+  const ready=new Promise(resolve=>{start=resolve});
+  active.pending.push({pose,ready,start});
+  return ready;
+ }
+ const state={pose,pending:[],until:performance.now()+ISO_POSE_MS};
+ states.set(tid,state);
+ isoApplyPose(tid,pose);
+ const advance=()=>{
+  if(S.sd!==battle){states.delete(tid);state.pending.forEach(p=>p.start());return}
+  const left=state.until-performance.now();
+  if(left>0){setTimeout(advance,left);return}
+  const next=state.pending.shift();
+  if(!next){states.delete(tid);isoApplyPose(tid,'idle');return}
+  state.pose=next.pose;state.until=performance.now()+ISO_POSE_MS;
+  isoApplyPose(tid,state.pose);next.start();setTimeout(advance,ISO_POSE_MS);
+ };
+ setTimeout(advance,ISO_POSE_MS);
+ return Promise.resolve();
+}
+function isoSprite(key,label,scale=1,side=null,pose='idle'){
  const canonical=key==='hive'?'swarm':key,i=Math.max(0,ISO_KEYS.indexOf(canonical));
  const group=ISO_COVER_GROUPS.findIndex(a=>a.includes(canonical)),slot=group<0?0:ISO_COVER_GROUPS[group].indexOf(canonical);
  let art=group<0?'':`background-image:url(assets/isometric/cover-${group+1}.webp);background-size:200% 200%;background-position:${slot%2*100}% ${Math.floor(slot/2)*100}%;`;
@@ -47,7 +104,7 @@ function isoSprite(key,label,scale=1,side=null){
  const variant=ISO_VILLAIN_VARIANTS[canonical];
  if(variant)art=`background-image:url(assets/isometric/${variant}.webp);background-size:100% 100%;background-position:center;`;
  const nativeSide=ISO_LEFT_POSES.has(canonical)?'left':'right',facing=side||nativeSide;
- return `<span class="iso-figure" data-sprite="${esc(canonical)}" data-facing="${facing}" style="${art}--face:${facing===nativeSide?1:-1};--sx:${i%6*20}%;--sy:${Math.floor(i/6)*20}%;--size:${scale}" aria-hidden="true"></span><span class="iso-name">${esc(label)}</span>`;
+ return `<span class="iso-figure" data-sprite="${esc(canonical)}" data-facing="${facing}" data-pose="${pose}" style="${art}${isoPoseArt.get(canonical)||''}--face:${facing===nativeSide?1:-1};--sx:${i%6*20}%;--sy:${Math.floor(i/6)*20}%;--size:${scale}" aria-hidden="true"></span><span class="iso-name">${esc(label)}</span>`;
 }
 function isoProp(kind,p,pos,badge=''){
  const slot={wall:0,rubble:1,terminal:2,bomb:3}[kind];
@@ -82,6 +139,7 @@ function isoBoard(sd,reachM,tg,al){
  buttons+=`<button class="iso-cell ${cls}" data-cell="${k}" data-tip="cell:${x}:${y}" style="${pos(p)};width:${hexW/W*100}%;height:${hexH/H*100}%;clip-path:polygon(${Array.from({length:6},(_,i)=>{const a=(i*60-90)*Math.PI/180,q=isoPoint(h.cx+Math.cos(a)*HS,h.cy+Math.sin(a)*HS);return `${50+(q.x-p.x)/hexW*100}% ${50+(q.y-p.y)/hexH*100}%`}).join(',')})" aria-label="Hex ${x+1},${y+1}${wall?', wall':rubble?', rubble':pit?', pit':haz?', hazard':''}${exit?', exit':''}${danger?', blast danger':''}"></button>`;
  if(wall||rubble)objects.push({d:p.y,html:isoProp(wall?'wall':'rubble',p,pos)});
  }
+ const poses=isoPoseStates.get(sd);
  const heroes=sd.units.filter(u=>!u.ko);
  const enemies=[
   ...sd.hench.filter(m=>m.hp>0),...(sd.dupes||[]),
@@ -89,7 +147,7 @@ function isoBoard(sd,reachM,tg,al){
  ];
  const token=(unit,key,label,tid,opponents,cls='',scale=1,badge='',title=label,p=point(unit.x,unit.y))=>{
   const side=isoOpponentSide(unit,opponents);
-  objects.push({d:p.y,html:`<div class="iso-unit ${cls}" title="${esc(title)}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale,side)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`});
+  objects.push({d:p.y,html:`<div class="iso-unit ${cls}" title="${esc(title)}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale,side,poses?.get(tid)?.pose)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`});
  };
  sd.units.forEach((u,i)=>{const h=heroOf(u);token(u,h.cls,h.name,'h'+u.hid,u.ko?[]:enemies,`hero ${sd.sel===i?'selected':''} ${u.ko?'ko':''} ${u.moved&&u.acted?'spent':''}`,1,u.guard?'◆':'')});
  sd.hench.forEach(m=>{

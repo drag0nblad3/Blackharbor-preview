@@ -4,7 +4,7 @@ async function act(fn){const sd=S.sd;if(sd.busy)return;sd.busy=true;const keepSe
 function usePower(){const sd=S.sd,u=sd.units[sd.sel],h=heroOf(u),pw=BASE(h).power,P=POWERS[pw];if(!powOk(u,h)&&sd.mode!==pw)return;
   const glow=BASE(h).glow;
   if(pw==='overclock')return act(async()=>{payPow(u,h);await A.ring(ctrU(u),glow,2.2,{inward:true,count:2});u.buffDice+=1;u.buffAcc=(u.buffAcc||0)+1;u.buffStr-=1;fxU(u,'OVERCLOCK!','good');log('hero',`${h.name} overclocks: +1 die, +1 accuracy and −1 Strength on the next attack.`)});
-  if(pw==='drone')return act(async()=>{payPow(u,h);const hm=sd.hench.filter(m=>cheb(m,u)<=3);await Promise.all(hm.map(m=>A.shot(ctrU(u),ctrU(m),glow)));
+  if(pw==='drone')return act(async()=>{payPow(u,h);const hm=sd.hench.filter(m=>cheb(m,u)<=3);await Promise.all(hm.map(m=>strikeAnim('shot',ctrU(u),ctrU(m),glow,'h'+u.hid,'m'+m.id)));
     hm.forEach(m=>{m.hp-=2;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);if(!hm.length)fxU(u,'NO TARGETS','miss');log('hero',`${h.name}'s drone zaps ${hm.length} henchm${hm.length===1?'an':'en'}.`)});
   if(pw==='emp'){if(dV(u,sd.v)>3){fxU(u,'TOO FAR','miss');render();return}
     return act(async()=>{payPow(u,h);await A.ring(ctrV(),glow,3,{count:2});sd.v.hex=true;fxV('EMP!','good');log('hero',`${h.name}'s EMP scrambles ${VILLAINS[sd.vkey].name}: −4 evasion this round.`)})}
@@ -17,11 +17,11 @@ function usePower(){const sd=S.sd,u=sd.units[sd.sel],h=heroOf(u),pw=BASE(h).powe
     return act(async()=>{u.acted=true;payPow(u,h);const w0=sd.woundsBy[h.id]||0;await heroAttack(u,'v',0,0,'bolt');const w=(sd.woundsBy[h.id]||0)-w0;
       if(w&&!u.ko){h.hp=Math.min(stat(h,'maxHp'),h.hp+w);await A.heal(ctrU(u),COL.magic);fxU(u,`+${w} HP`,'good');log('hero',`${h.name} drains ${w} health.`)}})}
   if(pw==='serene')return act(async()=>{payPow(u,h);await A.ring(ctrU(u),COL.cyan,5,{count:2});live().forEach(o=>{const t=heroOf(o);gainHero(t,2)});fxU(u,'BREATHE…','say');log('hero',`${h.name} steadies the team: +2 Heroism each.`)});
-  if(pw==='brace')return act(async()=>{u.guard=true;payPow(u,h);await A.shield(ctrU(u),COL.yel,true);fxU(u,'BRACE!','good');log('hero',`${h.name} braces to protect nearby allies.`)});
+  if(pw==='brace')return act(async()=>{u.guard=true;payPow(u,h);battlePose('h'+u.hid,'defense');await A.shield(ctrU(u),COL.yel,true);fxU(u,'BRACE!','good');log('hero',`${h.name} braces to protect nearby allies.`)});
   if(pw==='blur')return act(async()=>{await A.sparkle(ctrU(u),BASE(h).glow);u.buffEva=(u.buffEva||0)+2;u.freeEvac=true;payPow(u,h);fxU(u,'ZOOM!','good');log('hero',`${h.name} blurs: +2 evasion until the next hero turn.`)});
   if(pw==='mark')return act(async()=>{sd.v.marked=true;u.markUsed=true;payPow(u,h);await A.reticle(ctrV(),BASE(h).glow);fxV('MARKED!','good');log('hero',`${h.name} marks ${VILLAINS[sd.vkey].name}: +1 die on every attack against it from a side or the rear this round.`)});
   if(pw==='omen')return act(async()=>{payPow(u,h);await A.sigil(ctrV(),BASE(h).glow,2);sd.v.foresee=true;if(sd.v.planned)markSeen(sd.vkey,sd.v.planned.id);fxU(u,'I FORESEE…','say');log('hero',`${h.name} reads the omens.${sd.omenSalvage?'':' Win this fight for +1 salvage.'}`);sd.omenSalvage=true});
-  if(pw==='quake')return act(async()=>{payPow(u,h);A.lunge('h'+u.hid,ctrU(u));await A.ring(ctrU(u),BASE(h).glow,3.2,{count:2});
+  if(pw==='quake')return act(async()=>{payPow(u,h);battlePose('h'+u.hid,'attack');A.lunge('h'+u.hid,ctrU(u));await A.ring(ctrU(u),BASE(h).glow,3.2,{count:2});
     const hm=sd.hench.filter(m=>cheb(m,u)<=1),qd=Math.max(1,potOf(h)),qh=Math.max(1,Math.ceil(qd/2));hm.forEach(m=>{m.hp-=qh;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'THOOM!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);
     const keep=sd.vi;for(let i=0;i<sd.vl.length;i++){if(sd.vl[i].v.down||dV(u,sd.vl[i].v)>1)continue;focusV(i);if(VILLAINS[sd.vkey].rooted){fxV('BOLTED DOWN!','miss');log('hero',`${VILLAINS[sd.vkey].short} is bolted to the floor and can't be shoved.`);continue}const vz=VSIZE[sd.v.shape]||1;if(vz>qd){fxV('UNMOVED!','miss');log('hero',`${VILLAINS[sd.vkey].short} is size ${vz}, too big to shove at Innate rank ${qd}.`);continue}await vMove(()=>vAway(u,1,{strict:true}));fxV('SHOVED!','hit')}focusV(keep);
     log('hero',`${h.name} quakes the ground${hm.length?`, flattening ${hm.length} henchm${hm.length===1?'an':'en'}`:''}.`)});
@@ -136,7 +136,7 @@ async function splashV(n){const sd=S.sd,hm=sd.hench.filter(m=>dV(m,sd.v)<=2);if(
   await Promise.all(hm.map(m=>A.bolt(ctrV(),ctrU(m),COL.magic,true)));
   hm.forEach(m=>{m.hp-=n;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);
   log('hero',`The blast catches ${hm.length} henchm${hm.length===1?'an':'en'}.`);render()}
-async function gearBlast(center,area,name){const sd=S.sd,[r,d]=area,hm=sd.hench.filter(m=>cheb(m,center)<=r);await A.blast(center,r,COL.tech);hm.forEach(m=>{m.hp-=d;fxP(m.x,m.y,m.hp<=0?'K.O.!':'BLAST!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);termHit(p=>cheb(p,center)<=r,name);log('hero',`${name}: ${d} damage to ${hm.length} henchmen within ${r} of the chosen hex.`);}
+async function gearBlast(center,area,name){const sd=S.sd,[r,d]=area,hm=sd.hench.filter(m=>cheb(m,center)<=r);hm.forEach(m=>battlePose('m'+m.id,'defense'));await A.blast(center,r,COL.tech);hm.forEach(m=>{m.hp-=d;fxP(m.x,m.y,m.hp<=0?'K.O.!':'BLAST!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);termHit(p=>cheb(p,center)<=r,name);log('hero',`${name}: ${d} damage to ${hm.length} henchmen within ${r} of the chosen hex.`);}
 /* Reaction Scry (Tech): look at the next n hit reactions and choose which comes up first; the rest go back in order */
 async function rxScry(n,col){const sd=S.sd,k=sd.vkey,top=[];for(let i=0;i<n;i++)top.push(drawTactic());
   await A.reticle(ctrV(),col);const i=top.length>1?await choose(`Reaction Scry · ${VILLAINS[k].short}`,'Choose the hit reaction that comes up first. The others follow in this order.',top.map(c=>({l:`${c.sig?'★ ':''}${c.n}`,s:c.txt}))):0;

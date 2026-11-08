@@ -8,7 +8,7 @@ const SERP_MAX=9;
 function serpGrow(v){if(v.body.length+1+(v.grow||0)>=SERP_MAX){if(v.wounds.length){v.deck.push(v.wounds.pop());shuffle(v.deck)}return false}
   const cs=vCells(v),tail=cs[cs.length-1],t=nbrs(tail).filter(p=>!blocked(p.x,p.y)).sort((a,b)=>cheb(b,v)-cheb(a,v))[0];
   if(t)v.body.push(t);else v.grow=(v.grow||0)+1;return true}
-async function sweep(r,dmg,label){const sd=S.sd,v=sd.v;A.lunge('v'+sd.vi,ctrV());await A.ring(ctrV(),COL.mag,r*2+2.4);const hit=live().filter(u=>dV(u,v)<=r);
+async function sweep(r,dmg,label){const sd=S.sd,v=sd.v;const hit=live().filter(u=>dV(u,v)<=r);battlePose('v'+sd.vi,'attack');hit.forEach(u=>battlePose('h'+u.hid,'defense'));A.lunge('v'+sd.vi,ctrV());await A.ring(ctrV(),COL.mag,r*2+2.4);
   if(!hit.length)log('vill',`${label} hits only rubble.`);for(const u of hit)await vHit(u,dmg,label,'none');
   sd.civs.filter(c=>dV(c,v)<=r).forEach(c=>harmCiv(c,label))}
 /* Version 84 (Tyler): henchman damage scales half as fast as villain damage, +1 every 4 levels of the villain they serve */
@@ -44,7 +44,7 @@ async function henchShoot(hm,def,L){
   const t=L.filter(u=>cheb(u,hm)<=def.rng&&!shotBlocked(hm,u))
     .sort((a,b)=>cheb(a,hm)-cheb(b,hm))[0];
   if(!t)return false;
-  await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id);
+  await strikeAnim(def.style,ctrU(hm),ctrU(t),COL.grey,'m'+hm.id,'h'+t.hid);
   const h=heroOf(t),r=luckUp(t)?Math.min(d20(),d20()):d20(),eva=stat(h,'eva')+(t.buffEva||0)+(t.evaNext||0)+avoidEva(t);
   if(t.evaNext){log('hero',`Wind Ward: +${t.evaNext} evasion for ${h.name}.`);t.evaNext=0}
   const ha=(setOn(h,'swarm')?-2:2)+(hm.elite?2:0);let hit=r===20||(r!==1&&r+ha>=eva);

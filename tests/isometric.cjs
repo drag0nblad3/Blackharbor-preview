@@ -90,3 +90,16 @@ for(const [key,asset] of [['architect','architect-left'],['grid','gridlock-left'
   assert(g.get(expr).includes(url),key+' uses the approved pose in '+expr);
  }
 }
+
+assert.equal(g.get('isoPoseArt.size'),37,'Each battle sprite has all three alternate poses');
+for(const sheet of g.get('ISO_POSE_GROUPS.map(([sheet])=>sheet)')){
+ for(const suffix of ['', '-move']){
+  const file='assets/isometric/poses/'+sheet+suffix+'.webp';
+  assert(fs.statSync(file).size>1000,file+' is packaged');
+ }
+}
+for(const pose of ['attack','defense','move']){
+ assert.match(g.get(`isoSprite('bulwark','Bulwark',1,'right','${pose}')`),new RegExp('data-facing="right" data-pose="'+pose+'"'));
+ assert(css.includes(`[data-pose="${pose}"]`),pose+' selects its own sprite frame');
+}
+console.log('PASS: attack, defense and move atlases cover all 37 characters and retain both facings.');

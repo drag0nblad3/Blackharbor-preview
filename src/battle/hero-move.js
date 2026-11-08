@@ -39,7 +39,7 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
       if(abOk(u,h,key)&&cheb(tu,u)<=abV(a.r,potOf(h))&&allyAbilityOK(u,tu,a))return act(async()=>{payAb(u,key);log('hero',`${h.name} uses ${a.n} on ${tu===u?'themselves':heroOf(tu).name} (${abCost(g)}).`);if(tu!==u)await A.shot(ctrU(u),ctrU(tu),COL[g.type]);await abApply(u,h,g,tu)})}
     if(sd.mode==='abtele'&&cheb({x,y},u)<=abV(GEAR[sd.abKey].ab.r,potOf(h))&&!blocked(x,y)){const key=sd.abKey,g=GEAR[key],a=g.ab;
       return act(async()=>{payAb(u,key);await A.sparkle(ctrU(u),COL[g.type]);if(a.leap)u.hexesMoved=(u.hexesMoved||0)+cheb(u,{x,y});u.x=x;u.y=y;noFlip.add('h'+u.hid);beamStep(u);render();await A.sparkle(ctrU(u),COL[g.type]);fxU(u,a.leap?'KA-THOOM!':'BAMF!','good');log('hero',`${h.name} uses ${a.n} (${abCost(g)}).`);await abApply(u,h,g,u)})}
-    if(sd.mode==='abblast'){const key=sd.abKey,g=GEAR[key],a=g.ab;if(abOk(u,h,key)&&cheb(u,{x,y})<=a.r&&!shotBlocked(u,{x,y}))return act(async()=>{payAb(u,key);await gearBlast({x,y},a.fx.blast,a.n)})}
+    if(sd.mode==='abblast'){const key=sd.abKey,g=GEAR[key],a=g.ab;if(abOk(u,h,key)&&cheb(u,{x,y})<=a.r&&!shotBlocked(u,{x,y}))return act(async()=>{payAb(u,key);battlePose('h'+u.hid,'attack');await gearBlast({x,y},a.fx.blast,a.n)})}
     if(sd.mode==='abcover'&&cheb({x,y},u)<=abV(GEAR[sd.abKey].ab.r,potOf(h))&&!blocked(x,y)){const key=sd.abKey,g=GEAR[key],a=g.ab;
       return act(async()=>{payAb(u,key);await A.smoke(HC(x,y),4);sd.walls.push({k,ttl:2});fxU(u,'CLANK!','good');log('hero',`${h.name} uses ${a.n} (${abCost(g)}): a wall goes up.`)})}
     if(sd.mode==='abstrike'&&vAt>=0){const key=sd.abKey,g=GEAR[key],a=g.ab;

@@ -14,14 +14,14 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
   const rel=target==='v'&&!u.noRel&&gearHas(h,'relent')&&u.relKey===sd.vkey?Math.min(1,u.relN||0):0;if(rel)log('hero',`Relentless: +${rel} ${rel===1?'die':'dice'} for keeping up the pressure.`);if(target==='v'&&!u.noRel)u.relHit=sd.vkey;
   const dice=(fixedDice||stat(h,'speed')+bonus)+(u.buffDice||0)+(target==='v'&&v.marked&&side!=='front'?1:0)+(blind?1:0)+back+call+turret+rel,strB=u.buffStr||0,accB=u.buffAcc||0,reap=target==='v'?(u.buffReap||0):0;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;if(target==='v')u.buffReap=0;
   const acc=stat(h,'acc')+accB,rolls=[],boost=[];let hits=0,wounds=0;
-  await strikeAnim(style||b.fx,ctrU(u),target==='v'?(body?HC(body.x,body.y):ctrV()):ctrU(target),b.glow,'h'+u.hid);
+  await strikeAnim(style||b.fx,ctrU(u),target==='v'?(body?HC(body.x,body.y):ctrV()):ctrU(target),b.glow,'h'+u.hid,target==='v'?'v'+sd.vi+(body?.i?'s'+body.i:''):'m'+target.id);
   if(target==='v'){const eva=vStat('eva');
     for(let i=0;i<dice;i++){const r=d20();rolls.push(r);let ok=r===20||(r!==1&&r+acc>=eva);
       if(!ok&&r!==1){const sp=await heroSpend(u,eva-r-acc,{kind:'acc',line:`Die ${i+1} of ${dice}: rolled <b>${r}</b> + ${acc} = ${r+acc} vs ${esc(VILLAINS[sd.vkey].short)}'s evasion ${eva}.`,win:`The roll becomes ${eva} and hits.`});if(sp){boost[i]=sp;ok=true}}
       if(ok)hits++}
     log('hero',`${h.name} attacks: rolled ${rolls.join(', ')} (+${acc}) vs evasion ${eva}. ${hits} hit${hits===1?'':'s'}.`);
     {const gm=hits?sd.hench.find(m=>m.elite&&m.owner===sd.vkey&&m.hp>0&&eliteOf(m.owner).guard&&dV(m,v)<=1):null;
-      if(gm){hits--;gm.hp--;gm.hurtAt=Date.now();fxP(gm.x,gm.y,gm.hp<=0?'K.O.!':'BLOCKED!','hit');log('vill',`${eliteOf(gm.owner).name} steps in front of ${VILLAINS[sd.vkey].short} and takes the first hit.${gm.hp<=0?' He goes down.':''}`);if(gm.hp<=0)sd.hench=sd.hench.filter(m=>m!==gm);render()}}
+      if(gm){battlePose('m'+gm.id,'defense');hits--;gm.hp--;gm.hurtAt=Date.now();fxP(gm.x,gm.y,gm.hp<=0?'K.O.!':'BLOCKED!','hit');log('vill',`${eliteOf(gm.owner).name} steps in front of ${VILLAINS[sd.vkey].short} and takes the first hit.${gm.hp<=0?' He goes down.':''}`);if(gm.hp<=0)sd.hench=sd.hench.filter(m=>m!==gm);render()}}
     if(!hits){fxV('WHIFF!','miss');render();return}
     if(v.hide){v.hide=false;fxU(u,'GOTCHA!','good');log('hero',`${h.name} lands a hit and reads her stance. ${VILLAINS[sd.vkey].short}'s facing is revealed.`)}
     const ranged=dV(u,v)>1,close=body&&swBodies(v).some(o=>o.i!==body.i&&cheb(o,body)===1);
@@ -50,7 +50,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
     if(wounds&&setOn(h,'bomber')&&!sd.result){const hm=sd.hench.filter(m=>cheb(m,u)<=1);if(hm.length){await A.ring(ctrU(u),COL.yel,2.4);hm.forEach(m=>{m.hp-=1;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'SHRAPNEL!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',`Shrapnel: ${hm.length} henchm${hm.length===1?'an':'en'} next to ${h.name} take 1.`);render()}}
     sd.reactionContext=true;try{
     if(powerDrain&&!sd.result){u.res.tech=Math.max(0,(u.res.tech||0)-powerDrain);log('vill',`${h.name} loses ${powerDrain} Power to feedback.`);pwrShort(u,h);}
-    if(counter&&!sd.result){log('vill',`Reaction! ${h.name} takes ${counter}.`);await strikeAnim('slash',ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi);fxU(u,'OOF!','vhit');damageHero(u,counter);render()}
+    if(counter&&!sd.result){log('vill',`Reaction! ${h.name} takes ${counter}.`);await strikeAnim('slash',ctrV(),ctrU(u),COL.mag,'v'+S.sd.vi,'h'+u.hid);fxU(u,'OOF!','vhit');damageHero(u,counter);render()}
     if(drain&&!sd.result){h.comp=Math.max(0,h.comp-drain);fxU(u,'RATTLED!','vhit');log('vill',`${h.name} loses ${drain} Heroism.`);render()}
     if(push&&!u.ko&&u.anchor&&!sd.result){fxU(u,'ANCHORED!','good');log('hero',`${h.name} is anchored and holds firm.`)}
     if(push&&!u.ko&&!u.anchor&&!sd.result){let n=0;for(let i=0;i<push;i++){const t=benchTile(u,v,(a,b)=>dV(b,v)-dV(a,v));if(!t||dV(t,v)<=dV(u,v))break;u.x=t.x;u.y=t.y;n++}if(n){log('vill',n>1?`${h.name} is flung ${n} hexes back.`:`${h.name} is shoved back.`);render();await sleep(260)}else log('vill',`${h.name} is pinned in place and can't be shoved.`)}
