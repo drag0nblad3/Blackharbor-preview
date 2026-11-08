@@ -9,8 +9,13 @@
     padding-right:max(6px,env(safe-area-inset-right,0px));
     padding-block:6px 14px;
   }
+  body:has(#app.wrap:not(.sprite-gallery):not(.v-sd)){
+    margin:0;
+    padding-inline:max(5px,env(safe-area-inset-left,0px)) max(5px,env(safe-area-inset-right,0px));
+  }
   #app{gap:5px}
   #app .panel{padding:7px;gap:7px}
+  #app.wrap:not(.v-sd) .panel{padding-inline:5px}
 
   /* Masthead: title + resources on one line, issue + save on the next. */
   #app .mast{padding:5px 8px;gap:4px 6px;align-items:center;

@@ -342,7 +342,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
   place-items:center;
   position:relative;
   isolation:isolate;
-  min-height:44px;
+  min-height:38px;
   padding:0 3px;
   background:none;
   border:0;
@@ -350,7 +350,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
   color:#173447;
   box-shadow:none;
   transform:none;
-  font:400 clamp(.9rem,3.9vw,1.5rem)/1 var(--sfx);
+  font:400 clamp(.9rem,4.15vw,1.6rem)/1 var(--sfx);
   letter-spacing:.025em;
   white-space:nowrap;
 }
@@ -381,9 +381,9 @@ button.slot.pick:hover{border-color:var(--cyan)}
 #app .nav.nav-comic > button.nav-tab.glow{animation:none;text-shadow:0 0 5px #dc951c}
 @media(max-width:400px){
   #app .nav.nav-comic{padding-inline:4px}
+  #app .nav-comic > [data-a="view:hq"]{flex-grow:1.35}
   .nav-comic > .nav-tab.on::after{inset-inline:3px;transform:skewX(-8deg)}
 }
 @media(max-width:340px){
-  #app .nav.nav-comic > button.btn.nav-tab{font-size:.78rem;padding-inline:1px}
-  #app .nav-comic > [data-a="view:hq"]{flex-grow:1.25}
+  #app .nav.nav-comic > button.btn.nav-tab{font-size:.82rem;padding-inline:1px}
 }
