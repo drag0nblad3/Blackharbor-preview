@@ -91,6 +91,15 @@ const path=require('node:path');
    // Approved harbor: real construction, steady night lighting, optional motion, and a fit-width phone view.
    const originalFacilities=await page.evaluate(()=>S.facilities.slice());
    await page.locator('.nav [data-a="view:construction"]').click();
+   const navLayout=await page.locator('.nav .nav-tab').evaluateAll(tabs=>tabs.map(tab=>({
+     top:tab.getBoundingClientRect().top,
+     fits:tab.scrollWidth<=tab.clientWidth,
+     current:tab.getAttribute('aria-current'),
+     action:tab.dataset.a,
+   })));
+   assert.equal(navLayout.length,4,'all HQ destinations remain available');
+   assert(navLayout.every(tab=>tab.top===navLayout[0].top&&tab.fits),'nav labels fit a single row');
+   assert.deepEqual(navLayout.filter(tab=>tab.current==='page').map(tab=>tab.action),['view:construction']);
    await page.evaluate(()=>{S.facilities=Object.keys(FAC);hqSetPref('lighting','day');hqSetPref('motion','on');render()});
    assert.equal(await page.locator('.hq-plot.is-built').count(),17);
    const campus=await page.evaluate(async()=>{

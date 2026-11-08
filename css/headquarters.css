@@ -102,9 +102,28 @@
   #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{grid-column:1/-1;margin:0;justify-content:space-between}
 }
 @media(max-width:600px){
-  #app.wrap:not(.v-sd) .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
   #app .hq-construction-heading h2{font-size:1.3rem}
   #app .hq-construction-heading>.btn{max-width:125px}
 }
 /* Phone landscape still needs comfortable scene-control targets. */
 @media(pointer:coarse){#app .hq-light-picker,#app .hq-motion-toggle{min-height:44px}}
+
+/* Printed title bands and inset rules for the construction folio. */
+#app .hq-construction-heading{
+  padding:7px 10px;
+  border:2px solid #142638;
+  border-radius:8px 1px;
+  box-shadow:inset 0 0 0 1px #fffdf1;
+  background:repeating-linear-gradient(130deg,transparent 0 7px,#14263814 7px 11px) right 8px center / 27px 55% no-repeat;
+}
+@media(min-width:761px){#app .hq-construction-heading{padding-right:46px}}
+#app .hq-fac-detail{border-radius:8px 1px}
+#app .hq-fac-detail h3{
+  padding:0 7px 5px;
+  border-bottom:2px solid #142638;
+  background:repeating-linear-gradient(130deg,transparent 0 7px,#14263822 7px 11px) right 3px center / 27px 55% no-repeat;
+}
+#app .hq-fac-choice.is-selected{
+  border-radius:7px 1px;
+  box-shadow:inset 0 0 0 1px #fffdf1;
+}

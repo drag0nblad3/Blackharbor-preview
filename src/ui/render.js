@@ -15,9 +15,13 @@ function mast(){return `<header class="mast"><div class="bh-comic-brand"><h1><im
 function nav(){const m=S.phase!=='hq'&&S.phase!=='over';const v=S.view;
   const pend=roster().some(h=>h.pendingUp>0);
   const g=m?{}:navGlow();
-  return `<nav class="nav">${m?`<button class="btn ${v==='mission'?'on':''}" data-a="view:mission">${UI('target')}Mission</button>`:`<button class="btn ${v==='hq'||v==='create'?'on':''} ${g.hq?'glow':''}" data-a="view:hq">${UI('hq')}Operations</button>`}
-  ${m||tutOn()?'':`<button class="btn ${v==='construction'?'on':''}" data-a="view:construction">${UI('hq')}Build HQ</button>`}
-  <button class="btn ${v==='roster'?'on':''} ${g.roster?'glow':''}" data-a="view:roster">${UI('roster')}Roster${pend?' ★':''}</button>${m?'':`<button class="btn ${v==='villains'?'on':''} ${g.villains?'glow':''}" data-a="view:villains">${UI('mask')}Villains</button>`}</nav>`}
+  const tab=(view,label,current,glow=false)=>`<button type="button" class="btn nav-tab${current?' on':''}${glow?' glow':''}" data-a="view:${view}"${current?' aria-current="page"':''}>${label}</button>`;
+  return `<nav class="nav nav-comic" aria-label="Game navigation">
+    ${m?tab('mission','Mission',v==='mission'):tab('hq','Operations',v==='hq'||v==='create',g.hq)}
+    ${m||tutOn()?'':tab('construction','Build HQ',v==='construction')}
+    ${tab('roster',pend?'Roster ★':'Roster',v==='roster',g.roster)}
+    ${m?'':tab('villains','Villains',v==='villains',g.villains)}
+  </nav>`;}
 /* tab glow: HQ while something there can be used, Roster while there is new armory gear or a pending choice, Villains once HQ and Roster have both been opened this issue */
 function visitTick(){if(S.phase!=='hq')return;if(!S.visit||S.visit.issue!==S.issue)S.visit={issue:S.issue};const v=S.view==='create'?'hq':S.view;
   if(v==='hq'||v==='roster'||v==='villains')S.visit[v]=true;if(v==='roster')S.armSeen=S.armory.slice()}
