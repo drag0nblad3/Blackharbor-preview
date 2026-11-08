@@ -66,3 +66,7 @@
   .combat-dropdown>.combat-menu-toggle{width:100%}
   .combat-dropdown-menu{max-width:min(88vw,300px)}
 }
+
+/* Keep the view switch and camera on one toolbar above the map. */
+#app .battle-view-tools{display:flex;justify-content:space-between;align-items:center;gap:4px;flex-wrap:wrap}
+#app .battle-view-tools .btn{white-space:nowrap}

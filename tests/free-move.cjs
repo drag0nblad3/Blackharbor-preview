@@ -14,7 +14,7 @@ const assert=require('node:assert/strict');
       const key=S.villains.find(v=>v.status==='active')?.key||S.pool[0];S.inv={v:key,clues:2};startShowdown();S.sd.intro=false;S.sd.busy=false;
       S.sd.beams=[];render();
       const sd=S.sd,tap=(x,y)=>document.querySelector(`.board [data-cell="${x},${y}"]`).click();
-      const blue=()=>[...document.querySelectorAll('.board .cell.reach')].map(e=>e.dataset.cell);
+      const blue=()=>[...document.querySelectorAll('.board .iso-cell.reachable')].map(e=>e.dataset.cell);
       const u=sd.units[0],h=heroOf(u),start={x:u.x,y:u.y};
       tap(u.x,u.y);
       const r0=reachH(u,stat(h,'move'));const ks=Object.keys(r0).filter(k=>!sd.civs.some(c=>c.x+','+c.y===k));

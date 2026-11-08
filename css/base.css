@@ -354,7 +354,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
   letter-spacing:.025em;
   white-space:nowrap;
 }
-#app .nav.nav-comic > button.nav-tab.on{z-index:1}
+#app .nav.nav-comic > button.btn.nav-tab.on{background:none;z-index:1}
 .nav-comic > .nav-tab.on::after{
   content:'';
   position:absolute;
@@ -381,4 +381,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
 @media(max-width:400px){
   #app .nav.nav-comic{padding-inline:4px}
   .nav-comic > .nav-tab.on::after{inset-inline:3px;transform:skewX(-8deg)}
+}
+@media(max-width:340px){
+  #app .nav.nav-comic > button.btn.nav-tab{font-size:.82rem}
 }

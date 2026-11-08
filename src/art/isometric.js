@@ -1,5 +1,5 @@
 /* Isometric presentation only. Distances, facing, collision and saves stay in hex space. */
-let isoEnabled=false;
+let isoEnabled=true;
 ACT.battleArt=()=>{isoEnabled=!isoEnabled;lastPos={}};
 const ISO_KEYS=['bulwark','volt','wisp','cipher','rivet','lynx','goliath','sibyl','hexen','gallows','quarry','cantor','architect','helios','serpent','lode','noct','swarm','bomber','grid','mole','sting','shell','civilian','m-gallows','m-quarry','m-cantor','m-architect','m-helios','m-serpent','m-lode','m-noct','m-swarm','m-bomber','m-grid','civilian2'];
 let isoAngle=-15,isoFrameCache=null;
