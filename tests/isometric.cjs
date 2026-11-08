@@ -19,7 +19,7 @@ g.run('isoEnabled=false');assert.doesNotMatch(g.get('sdView()'),/class="board is
 for(const file of ['characters.webp','street.webp','digger.webp'])assert(fs.statSync('assets/isometric/'+file).size>10000);
 console.log('PASS: all 12 villains, nine hero identities, swarm mapping, 81 projected cells, pure rendering, classic comparison and assets.');
 assert.equal(g.get('ISO_COVER_GROUPS.flat().length'),12,'Every cover has a sprite mapping');
-for(const key of g.get('Object.keys(VILLAINS)'))assert.match(g.get(`isoSprite('${key}','Boss')`),/cover-[123]\.webp/,'Cover art replaces '+key);
+for(const key of g.get('Object.keys(VILLAINS)'))assert.match(g.get(`isoSprite('${key}','Boss')`),/(?:cover-[123]|architect-left|gridlock-left)\.webp/,'Cover art replaces '+key);
 g.run("isoEnabled=true;S.villains=[makeVillain('serpent',2)];S.inv={v:'serpent',clues:3};startShowdown()");
 const serpent=g.get('sdView()');
 assert.match(serpent,/iso-serpent-body/,'Connected serpent body is drawn');
@@ -63,7 +63,15 @@ g.run('ACT.isoReset()');
 console.log('PASS: camera fitting at every supported rotation, complete board visibility, reset and bounds.');
 assert.equal(g.get('ISO_CAST_GROUPS.flat().length'),21,'Remaining cast has exactly 21 new identities');
 assert.equal(g.get('new Set([...ISO_HERO_SPRITES,...ISO_COVER_GROUPS.flat(),...ISO_CAST_GROUPS.flat()]).size'),37,'All 37 character identities have a new style mapping');
-for(const key of g.get('[...ISO_KEYS,"m-mole"]'))assert.match(g.get(`isoSprite('${key}','Actor')`),/background-image:url\(assets\/isometric\/(?:cover-[123]|cast-[123]|heroes-superhero)\.webp\)/,key+' never falls back to the old atlas');
+for(const key of g.get('[...ISO_KEYS,"m-mole"]'))assert.match(g.get(`isoSprite('${key}','Actor')`),/background-image:url\(assets\/isometric\/(?:cover-[123]|cast-[123]|heroes-superhero|architect-left|gridlock-left)\.webp\)/,key+' never falls back to the old atlas');
 console.log('PASS: full 37-character style coverage with no legacy atlas fallback.');
 for(const file of ['heroes-superhero.webp','cast-1.webp','cast-2.webp','cast-3.webp'])assert(fs.statSync('assets/isometric/'+file).size>10000,'New style sheet '+file+' is packaged');
 assert.match(fs.readFileSync('isometric-sprites.html','utf8'),/galleryGroups/,'Full-cast review gallery is packaged');
+
+for(const [key,asset] of [['architect','architect-left'],['grid','gridlock-left']]){
+ const url='assets/isometric/'+asset+'.webp';
+ assert(fs.statSync(url).size>1000,asset+' is packaged');
+ for(const expr of [`isoSprite('${key}','Actor')`,`vPortrait('${key}')`,`vIc('${key}')`]){
+  assert(g.get(expr).includes(url),key+' uses the approved pose in '+expr);
+ }
+}
