@@ -363,7 +363,7 @@ async function moveTo(u,score){const sd=S.sd,h=heroOf(u);if(u.moved)return;const
   if(best){sd.sel=sd.units.indexOf(u);sd.mode='move';onCell(best.x,best.y);await idle()}}
 /* ---------- abilities (ported from combat-sim/bot.js) ---------- */
 const ABIL=!!process.env.ABIL;
-const ATK=['dice','str','acc','back','reap','callout','mark','hex','discharge'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor','reactionWard','moveEva'],VDEB=['repress','reactionPeek','revealFacing','curse','blind','skip','tear','vsplash','excise','scry','bury','foresee','scramble','eclipse'];
+const ATK=['dice','str','acc','back','reap','callout','mark','hex','discharge'],DEF=['reflect','dr','drAll','absorb','evaNext','eva','ward','riposte','anchor','reactionWard','moveEva'],VDEB=['repress','rxScry','reactionPeek','revealFacing','curse','blind','skip','tear','vsplash','excise','reclaim','scry','bury','foresee','scramble','eclipse'];
 function abKind(g){const f=g.ab.fx||{};if(g.ab.mode==='blast')return 'blast';if(g.ab.mode==='strike')return 'strike';if(g.ab.mode==='tele')return 'tele';if(g.ab.mode==='cover')return 'skip';
   if(f.again)return 'again';if(f.heal)return 'heal';if(ATK.some(k=>f[k]))return 'atk';if(VDEB.some(k=>f[k]))return 'deb';if(f.shock)return 'shock';
   if(DEF.some(k=>f[k]))return 'def';if(f.comp||f.rally)return 'comp';if(f.gain||f.gainP)return 'gain';if(f.boost||f.move)return 'move';return 'skip'}
