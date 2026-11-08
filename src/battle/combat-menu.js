@@ -4,7 +4,7 @@ function abOk(u,h,k){const g=GEAR[k],a=g&&g.ab,sd=S.sd;if(!a||u.ko||!isPowered(u
   if(a.mode==='ally'&&!live().some(o=>cheb(o,u)<=abV(a.r,potOf(h))&&allyAbilityOK(u,o,a)))return false;
   if(a.act&&u.acted)return false;if(f.move&&!u.moved)return false;if(f.boost&&u.boost)return false;if(f.again&&!u.acted)return false;
   if(f.eclipse&&!sd.vl.some(o=>o.v.charge&&!o.v.down))return false;if(f.mark&&u.markUsed)return false;if(f.repress&&sd.v.repress)return false;if(f.reclaim&&!(sd.v.discard||[]).length)return false;if(f.moveEva&&!(u.hexesMoved>0))return false;
-  if((f.repress||f.reactionPeek||f.revealFacing||f.tear||f.skip||f.hex||f.curse||f.face||f.foresee||f.mark||f.callout||f.blind||f.scry||f.bury||f.excise||f.reclaim||f.scramble||f.vsplash)&&sd.v.down)return false;
+  if((f.repress||f.rxScry||f.reactionPeek||f.revealFacing||f.tear||f.skip||f.hex||f.curse||f.face||f.foresee||f.mark||f.callout||f.blind||f.scry||f.bury||f.excise||f.reclaim||f.scramble||f.vsplash)&&sd.v.down)return false;
   if(f.gain&&(u.res.magic||0)>=arcMax(h))return false;if(f.gainP&&(u.res.tech||0)>=pwrMax(h))return false;
   return true}
 

@@ -24,6 +24,7 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.swapAlly)push('Exchange positions with another hero without spending either move.');
   if(f.reactionWard)push('Prevent all damage from hit reactions to the recipient until round end. Movement and other non-damage effects still apply.');
   if(f.repress)push('Repress the next revealed hit reaction against this villain. Roll to wound normally. Lasts until triggered; does not stack.');
+  if(f.rxScry)push(`Look at the villain's next ${f.rxScry} hit reactions and choose which one comes up first.`);
   if(f.reactionPeek)push('Inspect the next hit reaction without consuming it.');
   if(f.revealFacing)push('Reveal the targeted villain’s facing.');
   if(a.mode==='blast')push(`Choose a visible hex within ${a.r}; deal ${f.blast[1]} damage to henchmen within ${f.blast[0]} of it.`);
@@ -72,11 +73,11 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   return L.join(' ')}
 /* rank perks: ranks 2-3 (or a first rank outside the origin) give the old perk; ranks 4 and 5 are masteries */
 /* Version 22: ranks give no stats on their own; only rank 5 grants a capstone */
-/* Capstones carry no stats (Tyler, 2026-10-30): Tech recharge, Innate unshakable + last stand, Magic tears stagger charges */
-const RANK_PERK={tech:{5:{pwrRegen:1}},innate:{5:{unshake:1,lastStand:1}},magic:{5:{sigBreak:1}}};
+/* Capstones carry no stats (Tyler, 2026-10-30): Tech recharge, Innate unshakable + last stand, Magic Rewrite (2026-11-08: once per round the first page you tear is your pick of the next 2) */
+const RANK_PERK={tech:{5:{pwrRegen:1}},innate:{5:{unshake:1,lastStand:1}},magic:{5:{rewrite:1}}};
 const perkAt=(t,n)=>RANK_PERK[t][n]||{};
 function rankMod(h,t,k){const own=t===BASE(h).track;let v=0;for(let n=own?2:1;n<=Math.min(h.ranks[t],RANK_MAX);n++)v+=perkAt(t,n)[k]||0;return v}
-function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='sigBreak')s.push('any page you tear staggers a charging Signature Move at once');else if(k==='unshake')s.push("can't be Shaken");else if(k==='lastStand')s.push('once per fight, survive a blow that would knock you out with 1 health');else if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
+function perkTxt(t,n){const m=perkAt(t,n),s=[];for(const[k,v]of Object.entries(m)){if(k==='rewrite')s.push('once per round, the first page you tear is the one you choose from the villain’s next 2');else if(k==='unshake')s.push("can't be Shaken");else if(k==='lastStand')s.push('once per fight, survive a blow that would knock you out with 1 health');else if(k==='innUses')s.push('a second Innate ability once per fight, which comes back after any round in which you use no abilities');else if(k==='arcWound')s.push('+1 Arcana whenever an attack tears a page');else s.push(`${v>0?'+':''}${v} ${MODN[k]}`)}return s.join(', ')}
 
 /* Version 22: signature powers run on the discipline engines instead of cooldowns */
 const POW_ENG={arc:{d:'tech',c:2},patch:{d:'tech',c:3},barricade:{d:'tech',c:2},overclock:{d:'tech',c:3},drone:{d:'tech',c:2},emp:{d:'tech',c:3},

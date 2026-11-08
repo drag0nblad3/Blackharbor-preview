@@ -79,7 +79,7 @@ const GEAR = {
  fusion:{name:'Fusion Core',slot:'body',type:'tech',req:4,cost:{any:8},mods:{maxHp:4,eva:3,pwrRegen:1},ab:{id:'fusion',n:'Fusion Vent',c:3,fx:{shock:[1,3]}},reqs:{tech:4}},
  lance:{name:'Plasma Lance',slot:'arms',type:'tech',req:4,cost:{any:11},mods:{str:5,acc:2,speed:1,range:1,move:-1},two:true,ab:{id:'lance',n:'Plasma Burst',c:4,fx:{dice:1,str:3,acc:-3}},reqs:{tech:4}},
  gravboots:{name:'Gravity Boots',slot:'legs',type:'tech',req:4,cost:{any:6},mods:{eva:4,maxHp:2},jumps:true,ab:{id:'gravboots',n:'Thruster Dive',c:5,mode:'tele',leap:1,r:3,fx:{}},reqs:{tech:4}},
- cmdvisor:{name:'Command Visor',slot:'head',type:'tech',req:5,cost:{any:8},mods:{acc:3,maxPwr:2,maxComp:2},ab:{id:'cmdvisor',n:'Tactical Uplink',c:3,fx:{reactionPeek:1,repress:1}},reqs:{tech:5},aura:{acc:2,eva:2}},
+ cmdvisor:{name:'Command Visor',slot:'head',type:'tech',req:5,cost:{any:8},mods:{acc:3,maxPwr:2,maxComp:2},ab:{id:'cmdvisor',n:'Tactical Uplink',c:3,fx:{rxScry:3}},reqs:{tech:5},aura:{acc:2,eva:2}},
  arccore:{name:'Arc Core',slot:'acc',type:'tech',req:5,cost:{any:5},mods:{maxPwr:2,pwrRegen:1},ab:{id:'arccore',n:'Overload',c:5,fx:{again:1}},reqs:{tech:5}},
  hide:{name:'Primal Hide',slot:'body',type:'innate',req:4,cost:{any:8},mods:{maxHp:3,eva:2,move:-1},ab:{id:'hide',n:'Unbreakable',min:4,fx:{dr:1,heal:[0,1]}},reqs:{innate:4}},
  meteor:{name:'Meteor Fist',slot:'arms',type:'innate',req:4,cost:{any:8},mods:{str:2,acc:-1},ab:{id:'meteor',n:'Meteor Strike',min:4,fx:{str:[2,1],acc:-2}},reqs:{innate:4},pair:{mods:{str:1,speed:1},fx:{str:3},txt:'+1 Strength and +1 attack die, and Meteor Strike gives +3 more Strength'},hand:'either'},
@@ -112,7 +112,7 @@ const GEAR = {
  c_adren:{name:'Adrenaline Shot',slot:'pouch',type:'innate',cons:true,reqs:{},cost:{any:2},mods:{},ab:{id:'c_adren',n:'Adrenaline Shot',fx:{boost:2,str:2}},req:0},
  c_charm:{name:'Ward Charm',slot:'pouch',type:'magic',cons:true,reqs:{},cost:{any:1},mods:{},ab:{id:'c_charm',n:'Ward Charm',fx:{ward:1}},req:0},
  c_vial:{name:'Arcana Vial',slot:'pouch',type:'magic',cons:true,reqs:{},cost:{any:2},mods:{},ab:{id:'c_vial',n:'Arcana Vial',fx:{gain:2}},req:0},
- surveyor:{name:'Surveyor\'s Visor',slot:'head',type:'tech',req:2,cost:{architect:3},mods:{acc:3,maxComp:2,maxHp:1},ab:{id:'surveyor',n:'Stress Test',c:2,fx:{repress:1}},reqs:{tech:2},set:'architect'},
+ surveyor:{name:'Surveyor\'s Visor',slot:'head',type:'tech',req:2,cost:{architect:3},mods:{acc:3,maxComp:2,maxHp:1},ab:{id:'surveyor',n:'Stress Test',c:2,fx:{rxScry:2}},reqs:{tech:2},set:'architect'},
  stilts:{name:'Stage Stilts',slot:'legs',type:'innate',req:2,cost:{cantor:3},mods:{move:1,maxHp:2},ab:null,reqs:{innate:2},set:'cantor'},
  corona:{name:'Corona Plate',slot:'body',type:'tech',req:4,cost:{helios:8},mods:{maxHp:4,eva:3,maxComp:4},ab:{id:'corona',n:'Heat Shimmer',c:3,fx:{eva:4}},reqs:{tech:4},set:'helios'},
  flaregaunt:{name:'Flare Gauntlets',slot:'arms',type:'magic',req:2,cost:{helios:3},mods:{str:3,acc:3,range:1},ab:{id:'flaregaunt',n:'Solar Flare',c:2,mode:'blast',r:3,fx:{blast:[0,2]}},reqs:{magic:2},set:'helios',hand:'main'},
@@ -182,7 +182,7 @@ const GEAR = {
  carapace:{name:'Carapace Shield',slot:'arms',hand:'off',type:'innate',reqs:{innate:4},mods:{maxHp:3,eva:1},ab:{n:'Shell Up',min:4,fx:{absorb:[0,1]},id:'carapace'},req:4,cost:{any:8}},
  ironhide:{name:'Ironhide Belt',slot:'belt',type:'innate',reqs:{innate:4},mods:{maxHp:3,eva:1,maxComp:1},req:4,cost:{any:4}},
  sigilblade:{name:'Sigil Blade',slot:'arms',hand:'main',type:'magic',reqs:{magic:4},mods:{acc:4,str:4},ab:{n:'Bane Strike',c:3,fx:{str:3,curse:1},id:'sigilblade'},req:4,cost:{any:8}},
- mirrortome:{name:'Mirror Tome',slot:'arms',hand:'off',type:'magic',reqs:{magic:4},mods:{maxHp:3,eva:2},ab:{id:'mirrortome',n:'Read the Reflection',c:2,fx:{reactionPeek:1,reactionWard:1}},req:4,cost:{any:8}},
+ mirrortome:{name:'Mirror Tome',slot:'arms',hand:'off',type:'magic',reqs:{magic:4},mods:{maxHp:3,eva:2},ab:{id:'mirrortome',n:'Deep Scry',c:2,fx:{scry:3}},req:4,cost:{any:8}},
  starsash:{name:'Starwoven Sash',slot:'belt',type:'magic',reqs:{magic:4},mods:{eva:2,maxComp:2},ab:{n:'Starlight Mend',c:2,mode:'ally',r:2,fx:{heal:2},id:'starsash'},req:4,cost:{any:4}}
 };
 const SETS={
