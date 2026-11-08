@@ -95,12 +95,14 @@ const path=require('node:path');
    const navLayout=await page.locator('.nav .nav-tab').evaluateAll(tabs=>tabs.map(tab=>({
      top:tab.getBoundingClientRect().top,
      fits:tab.scrollWidth<=tab.clientWidth,
+     width:tab.clientWidth,
+     contentWidth:tab.scrollWidth,
      current:tab.getAttribute('aria-current'),
      action:tab.dataset.a,
      background:getComputedStyle(tab).backgroundColor,
    })));
    assert.equal(navLayout.length,4,'all HQ destinations remain available');
-   assert(navLayout.every(tab=>tab.top===navLayout[0].top&&tab.fits),'nav labels fit a single row');
+   assert(navLayout.every(tab=>tab.top===navLayout[0].top&&tab.fits),'nav labels fit a single row: '+JSON.stringify(navLayout));
    assert.deepEqual(navLayout.filter(tab=>tab.current==='page').map(tab=>tab.action),['view:construction']);
    assert.equal(navLayout.find(tab=>tab.current==='page').background,'rgba(0, 0, 0, 0)','selected tab paints only its slanted plate');
    if(size.name==='phone'){

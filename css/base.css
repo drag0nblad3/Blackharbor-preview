@@ -383,5 +383,6 @@ button.slot.pick:hover{border-color:var(--cyan)}
   .nav-comic > .nav-tab.on::after{inset-inline:3px;transform:skewX(-8deg)}
 }
 @media(max-width:340px){
-  #app .nav.nav-comic > button.btn.nav-tab{font-size:.82rem}
+  #app .nav.nav-comic > button.btn.nav-tab{font-size:.78rem;padding-inline:1px}
+  #app .nav-comic > [data-a="view:hq"]{flex-grow:1.25}
 }
