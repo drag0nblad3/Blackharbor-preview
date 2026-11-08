@@ -15,8 +15,8 @@ for(const [key,id,name] of [['quarry','fault','Tectonic Heave'],['architect','fo
 }
 await page.evaluate(async()=>{bossTestSetup('lode');S.sd.units[0].x=S.sd.v.x;S.sd.units[0].y=S.sd.v.y+1;S.sd.v.satellites=2;render()});
 await page.locator('.other-actions .combat-menu-toggle').click();await page.locator('[data-a="combatPick:other:satellite"]').click();assert.equal(await page.evaluate(()=>S.sd.v.satellites),2);assert.match(await page.locator('.combat-choice').innerText(),/without a roll/);await page.locator('[data-a="combatUse"]').click();await page.waitForFunction(()=>!S.sd.busy);assert.equal(await page.evaluate(()=>S.sd.v.satellites),1);assert(await page.evaluate(()=>S.sd.units[0].acted));
-await page.evaluate(async()=>{bossTestSetup('noct');await execCard(buildCard('noct',{id:'decoy',mk:0}));S.sd.units[0].x--;render()});assert.equal(await page.locator('.hmt[title="Stolen shadow · 1 HP"]').count(),1);
-await page.evaluate(async()=>{bossTestSetup('swarm');S.sd.hench=[{id:'a',owner:'swarm',x:0,y:3,hp:1},{id:'b',owner:'swarm',x:8,y:3,hp:1}];await execCard(buildCard('swarm',{id:'needle',mk:0}));render()});assert.equal(await page.locator('.hmt[title="Infested mite · next boss action"]').count(),2);
+await page.evaluate(async()=>{bossTestSetup('noct');await execCard(buildCard('noct',{id:'decoy',mk:0}));S.sd.units[0].x--;render()});assert.equal(await page.locator('.iso-unit.enemy[title="Stolen shadow · 1 HP"]').count(),1);
+await page.evaluate(async()=>{bossTestSetup('swarm');S.sd.hench=[{id:'a',owner:'swarm',x:0,y:3,hp:1},{id:'b',owner:'swarm',x:8,y:3,hp:1}];await execCard(buildCard('swarm',{id:'needle',mk:0}));render()});assert.equal(await page.locator('.iso-unit.enemy[title="Infested mite · next boss action"]').count(),2);
 assert.deepEqual(errors,[]);console.log(`PASS: ${width}px boss status, board markers, save/load, satellite confirmation and special tokens.`);await page.close();
 }
 }finally{await browser.close()}})().catch(e=>{console.error(e);process.exit(1)});
