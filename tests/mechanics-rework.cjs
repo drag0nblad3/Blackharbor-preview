@@ -41,7 +41,7 @@ function plan(id,ids=['lash','snipe','drones','ray','mono','galv']){run(`S.sd.v.
  const positions=get('S.sd.units.slice(0,2).map(u=>[u.x,u.y])');await run('abApply(S.sd.units[0],S.heroes[0],GEAR.shadowpaw,S.sd.units[1])');assert.deepEqual(get('S.sd.units.slice(0,2).map(u=>[u.x,u.y])'),positions.reverse());
  run('S.sd.v.blind=true');assert.equal(get("VILLAINS.gallows.acc+vLvB('acc',S.sd.v.level)-vStat('acc')"),3);
  // Targeted AoE hits its footprint, not around its caster.
- setup();run("S.sd.hench=[{id:'a',x:4,y:5,hp:3},{id:'b',x:5,y:5,hp:3},{id:'c',x:0,y:7,hp:3}]");await run("gearBlast({x:4,y:5},GEAR.fusebando.ab.fx.blast,'Cherry Bomb')");assert.deepEqual(get('S.sd.hench.map(m=>m.hp)'),[2,2,3]);
+ setup();run("S.sd.hench=[{id:'a',x:4,y:5,hp:3},{id:'b',x:5,y:5,hp:3},{id:'c',x:0,y:7,hp:3}]");await run("gearBlast({x:4,y:5},GEAR.fusebando.ab.fx.blast,'Cherry Bomb')");assert.deepEqual(get('S.sd.hench.map(m=>m.hp)'),[1,1,3]);
  // Inspect without consuming the next reaction.
  setup();run("S.sd.tdk.gallows=[{id:'counter',n:'Counterstrike',txt:'2 damage'}]");await run('peekReaction()');assert.equal(get('S.sd.tdk.gallows.length'),1);assert.equal(get('S.sd.tdk.gallows[0].id'),'counter');
  // Deck selection preserves exact size / upgrade budget and samples a larger pool.

@@ -73,23 +73,28 @@ const tick=()=>new Promise(r=>setImmediate(r));
 async function idle(){let g=0;while(S.sd&&S.sd.busy&&g++<200000)await tick()}
 const GEAR_KEYS=Object.keys(GEAR).filter(k=>!GEAR[k].cons);
 const FAC_ORDER=[...new Set([...(STRATEGY==='specialist'?['workshop','training','medbay','comms','dojo','reactor']:PROFILE.fac),'workshop','skunk','medbay','training','comms','magnet','lab','cell','press','hangar','reactor','dojo','antivenom','bunker','sanctum','jammer','bombsq','optics'])];
-const gScore=(k,h)=>{if(!k||!GEAR[k])return 0;const g=GEAR[k],P=profileOf(h),W=P.weights;let s=g.req*6;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3;const f=g.ab.fx||{};s+=P.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;if(typeof pwrSlots==='function'&&h&&h.ranks&&h.ranks.tech&&g.slot==='body'&&g.type==='tech')s+=8*g.req;return s}; // powered gear: a Tech Body item powers req slots
+const gScore=(k,h)=>{if(!k||!GEAR[k])return 0;const g=GEAR[k],P=profileOf(h),W=P.weights;const tw=g.two?2:1,tier=Math.max(0,...Object.values(g.reqs||{}))||g.req;let s=tier*6*tw;if(h&&BASE(h).track===g.type)s+=3;for(const[m,v]of Object.entries(g.mods||{}))s+=(W[m]||.5)*v;if(g.ab){s+=3*tw;const f=g.ab.fx||{};s+=P.focus.filter(q=>q===g.ab.mode||Object.prototype.hasOwnProperty.call(f,q)).length*4;}if(g.field)s+=2;if(g.aura||g.auraFx)s+=2;if(typeof pwrSlots==='function'&&h&&h.ranks&&h.ranks.tech&&g.slot==='body'&&g.type==='tech'){const n=Object.entries(h.gear).filter(([sl,x])=>sl!=='body'&&GEAR[x]&&pwrNeeds(x)).length;s+=3*Math.min(g.req+1,n)}return s}; // powered gear: a Tech Body item powers tier+1 other Tech items, worth only as many as the hero wears; two-handers count their tier twice (they fill two slots)
 const ST={crafted:new Set(),blockF:{tech:0,intel:0,both:0,none:0},blockG:{set:0,any:0,none:0},stalls:0,
  setGoals:[],bigGoal:null,setCrafts:0,bigCrafts:0,reserveSkips:0,goalCompleted:0};
 
 function slotKeys(g){const G=GEAR[g];if(G.slot==='arms'&&!G.two&&G.hand)return G.hand==='main'?['arms']:G.hand==='off'?['arms2']:['arms','arms2'];return SLOT_KEYS[G.slot]||[G.slot]}
 /* best upgrade gain for hero h if they wore item g */
-function gain(h,g){const G=GEAR[g];if(G.two||G.cons||!canWear(h,g)||!gearAllowed(h,g))return 0;
+function gain(h,g){const G=GEAR[g];if(G.cons||!canWear(h,g)||!gearAllowed(h,g))return 0;
   if(LOOT_MODE!=='greedy'){
     const pinned=new Set([...ST.setGoals.filter(p=>p.hid===h.id).flatMap(p=>p.items),...wornGear(h).filter(k=>GEAR[k].set&&setsOn(h).includes(GEAR[k].set))]);
     const slots=slotKeys(g);
     if(slots.some(s=>pinned.has(h.gear[s])&&h.gear[s]!==g))return 0;
+    if(G.slot==='arms'&&h.gear.arms&&GEAR[h.gear.arms].two&&pinned.has(h.gear.arms)&&h.gear.arms!==g)return 0;
   }if(Object.values(h.gear).includes(g)&&!(SLOT_KEYS[G.slot]))return 0;
-  const ks=slotKeys(g);let worst=null,ws=1e9;for(const s of ks){const cur=h.gear[s];if(cur&&GEAR[cur].two)return 0;const sc=gScore(cur,h);if(sc<ws){ws=sc;worst=s}}
+  const a=h.gear.arms,twoNow=a&&GEAR[a].two;
+  if(G.two){if(a===g)return 0;return Math.max(0,gScore(g,h)-gScore(a,h)-(twoNow?0:gScore(h.gear.arms2,h)))}
+  if(G.slot==='arms'&&twoNow)return Math.max(0,gScore(g,h)-gScore(a,h)); // swapping out a two-hander frees the other hand
+  const ks=slotKeys(g);let ws=1e9;for(const s of ks){const sc=gScore(h.gear[s],h);if(sc<ws)ws=sc}
   return Math.max(0,gScore(g,h)-ws)}
 function equipBest(hs){let did=true,g=0;while(did&&g++<50){did=false;
   for(const h of hs){let best=null,bg=0;for(const k of new Set(S.armory)){if(GEAR[k].cons)continue;const v=gain(h,k);if(v>bg){bg=v;best=k}}
-    if(best){const ks=slotKeys(best);let worst=ks[0],ws=1e9;for(const s of ks){const sc=gScore(h.gear[s],h);if(sc<ws){ws=sc;worst=s}}
+    if(best&&(GEAR[best].two||GEAR[best].slot==='arms'&&h.gear.arms&&GEAR[h.gear.arms].two)){if(equipHero(h,best))did=true}
+    else if(best){const ks=slotKeys(best);let worst=ks[0],ws=1e9;for(const s of ks){const sc=gScore(h.gear[s],h);if(sc<ws){ws=sc;worst=s}}
       if(h.gear[worst]&&ks.length>1){const o=h.gear[worst];delete h.gear[worst];S.armory.push(o)}
       if(equipHero(h,best))did=true}}}}
 /* ---------- Salvage investment planner (bot only) ----------
@@ -523,7 +528,7 @@ async function campaign(){newCampaign();S.guide=null;S.ui={};
       const pre={t:S.tech,i:S.intel,s:Object.values(S.salvage).reduce((a,b)=>a+b,0)};
       click('lair');const r=await fight();res[r]++;for(const c of consB){const i=S.armory.indexOf(c);if(i>=0)S.armory.splice(i,1)}
       const lastOfArc=S.issue%ISSUES_PER_ARC===0,U0=new Set(S.unlocked),arcN=arcOf(S.issue);
-      const sd=S.sd,vk=sd.vkey,parts={};if(r==='win'){parts.base=3;parts.prepared=sd.quality==='prepared'?1:0;parts.harness=fieldCount('salvage');parts.magnet=S.facilities.includes('magnet')?1:0;parts.restraint=S.ethos.a==='restraint'?1:0}
+      const sd=S.sd,vk=sd.vkey,parts={};if(r==='win'){parts.base=3;parts.prepared=sd.quality==='prepared'?1:0;parts.harness=Math.min(1,fieldCount('salvage'));parts.magnet=S.facilities.includes('magnet')?1:0;parts.restraint=S.ethos.a==='restraint'?1:0}
       const b1=sv();click('debrief');{let d=tot(S.salvage)-tot(b1);if(r==='win'){for(const k in parts){add('lair '+k,parts[k],vk);d-=parts[k]}add('lair hooks',d,vk)}else add(r==='escape'?'escape':'loss/other',d,vk)}
       if(lastOfArc){const nx=ARC_UNLOCK[arcN+1]||[];const al=new Set(S.unlocked.filter(i=>U0.has(i)||!nx.includes(i)));spend(al);snaps.push(snap('Arc '+arcN,al))}
       {const b2=sv();if(S.after&&S.after.ethos)click(`ethos:${S.after.ethos}:${S.after.ethos==='a'?'restraint':ETHB}`);

@@ -92,7 +92,7 @@ function newCampaign(prev){
   S={vol:(prev&&prev.vol||0)+1,issue:1,trust:6,tech:3,intel:2,salvage:Object.fromEntries(Object.keys(VILLAINS).map(k=>[k,0])),facilities:['workshop'],armory:STARTER_LOCKER.slice(),ethos:{},
     heroes:[],fallen:[],xover:[],
     villains:[],pool:keys,unlocked:START_UNLOCK.slice(),
-    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),storyOff:!!(prev&&prev.storyOff),story:{q:[{id:'assemble'}],seen:{}},diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true,heroism:true,pwrGear:true,corona4:true};
+    phase:'hq',view:'hq',inv:null,sd:null,after:null,arcInfo:null,chronicle:[],over:null,seen:(prev&&prev.seen)||{},seenR:(prev&&prev.seenR)||{},tips:(prev&&prev.tips)||[],tipsOff:!!(prev&&prev.tipsOff),storyOff:!!(prev&&prev.storyOff),story:{q:[{id:'assemble'}],seen:{}},diff:diffClamp(prev&&prev.diff),mig3:true,d20:true,str1:true,deck3:true,deck2:true,disc5:true,v22:true,v59:true,v61:true,v62:true,v130:true,heroism:true,pwrGear:true,corona4:true,tiers1107:true};
   S.party=[];
   S.guide={s:0,pop:null};if(prev&&prev.tutDone)S.tutDone=true;else S.tut={b:0,dq:[]};S.ui=Object.fromEntries(['hq-base','hq-ws','hq-back','hq-skunk','ro-bench'].map(k=>[k,false]));
 }
@@ -149,7 +149,7 @@ function finishIssue(L,{hunted,headline,vkey}){storyAfter(L,vkey);
 /* Version 126 (Tyler): Magic items no longer carry +max Arcana (worn Magic ranks fill the pool now), except the Arcana pieces Mana Font,
    Rune Sash and Philosopher's Stone; tier 3 blueprints open halfway through Arc 2 (issue TIER3_ISSUE) instead of at its start;
    and non-set tier 4 Main Hand, Off Hand and Belt gear for each discipline, so Arc 3 has options outside the sets. */
-const TIER3_ISSUE=ISSUES_PER_ARC+4,MID_UNLOCK=['gear:uplink','gear:wings','gear:serum','gear:mutagen','gear:compeyes','gear:sigil','gear:titan','gear:grimoire','gear:exo','gear:greaves','gear:claws','gear:helm','gear:familiar','gear:faraday','gear:staff','gear:halo','gear:mantle','gear:shadowpaw','gear:bloodstone','gear:hexfist','gear:crown','gear:paragon','gear:wand','gear:bandolier','gear:censer','gear:dynamo','gear:aegisgen','gear:ironbark','gear:sanctaegis'];
+const TIER3_ISSUE=ISSUES_PER_ARC+4,MID_UNLOCK=['gear:jackhammer','gear:hivegirdle','gear:uplink','gear:wings','gear:serum','gear:mutagen','gear:compeyes','gear:sigil','gear:titan','gear:grimoire','gear:exo','gear:greaves','gear:claws','gear:helm','gear:familiar','gear:faraday','gear:staff','gear:halo','gear:mantle','gear:shadowpaw','gear:bloodstone','gear:hexfist','gear:crown','gear:paragon','gear:wand','gear:bandolier','gear:censer','gear:dynamo','gear:aegisgen','gear:ironbark','gear:sanctaegis'];
 const START_GEAR={bulwark:'graft',volt:'visor',wisp:'cloak',cipher:'suit',rivet:'earpiece',lynx:'wraps',goliath:'medkit',sibyl:'coin',hexen:'monocle'};
 function giveStart(h){const g=START_GEAR[h.cls];if(g&&!GEAR[g].set&&!h.gear[GEAR[g].slot])h.gear[GEAR[g].slot]=g;h.hp=stat(h,'maxHp');h.comp=heroStart(h)}
 function issueStart(L){const out=[];

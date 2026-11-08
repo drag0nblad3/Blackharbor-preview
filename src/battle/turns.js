@@ -48,7 +48,7 @@ function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],r
   S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilian${sd.evac===1?'':'s'} evacuated (+${evT} trust), ${sd.harmed} harmed (−${sd.harmed*per} trust).`);
   eliteSalvage(L);
   let headline;
-  if(res==='win'){const sal=Math.max(1,3+diffOf().sal+(sd.quality==='prepared'?1:0)+fieldCount('salvage')+(S.facilities.includes('magnet')?1:0));S.salvage[sd.vkey]+=sal;S.tech++;L.push(`Salvaged ${sal} ${def.salvage} and 1 tech from the lair.`);
+  if(res==='win'){const sal=Math.max(1,3+(ARC_SALVAGE[arcOf(Math.min(S.issue,MAX_ISSUE))]||0)+diffOf().sal+(sd.quality==='prepared'?1:0)+Math.min(1,fieldCount('salvage'))+(S.facilities.includes('magnet')?1:0));S.salvage[sd.vkey]+=sal;S.tech++;L.push(`Salvaged ${sal} ${def.salvage} and 1 tech from the lair.`);
     {let n=0;for(const {h} of fieldGear('strip'))n+=Math.floor((sd.woundsBy[h.id]||0)/3);if(n){S.salvage[sd.vkey]+=n;L.push(`Scrapper's Hooks: +${n} ${def.salvage} stripped from the pages torn out.`)}}
     vs.beaten=(vs.beaten||0)+1;
     if(S.ethos.a==='restraint'){S.salvage[sd.vkey]++;L.push(`Restraint: +1 ${def.salvage}.`)}
