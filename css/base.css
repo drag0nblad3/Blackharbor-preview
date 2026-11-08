@@ -354,6 +354,7 @@ button.slot.pick:hover{border-color:var(--cyan)}
   letter-spacing:.025em;
   white-space:nowrap;
 }
+#app .nav.nav-comic > button.btn.nav-tab:is(:hover,:active){box-shadow:none;transform:none}
 #app .nav.nav-comic > button.btn.nav-tab.on{background:none;z-index:1}
 .nav-comic > .nav-tab.on::after{
   content:'';
