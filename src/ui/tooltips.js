@@ -27,6 +27,8 @@ function cellTip(x,y){const sd=S.sd;if(!sd||S.phase!=='sd')return null;const k=x
     b+=v.hide?' Its facing is hidden until you land a hit.':v.sw?' Each body has its own facing: attack from a side or behind for bonus dice.':' The yellow arrow is its facing. Attacks from the shaded blind spot behind it get +1 die.';
     return {title:d.name,eyebrow:`Villain · level ${v.level}`,body:b}}
   const m=sd.hench.find(m=>m.x===x&&m.y===y);
+  if(m?.shadow)return {title:'Stolen shadow',eyebrow:`Special henchman · health ${m.hp}`,body:GLOSS.henchman[1]};
+  if(m?.infested)return {title:'Infested mite',eyebrow:`Special henchman · health ${m.hp}`,body:'Acts on the next boss action.'};
   if(m){const e=m.elite&&eliteOf(m.owner);return e?{title:e.name,eyebrow:`Special henchman · health ${m.hp}`,body:GLOSS.elite[1]}:{title:VILLAINS[m.owner].hench.name,eyebrow:`Henchman · health ${m.hp}`,body:GLOSS.henchman[1]}}
   const u=sd.units.find(o=>!o.ko&&o.x===x&&o.y===y);
   if(u){const h=heroOf(u);return {title:h.name,eyebrow:`Hero · health ${h.hp}/${stat(h,'maxHp')} · Heroism ${h.comp}`,body:`Move ${stat(h,'move')}, range ${stat(h,'range')}, ${stat(h,'speed')} attack ${stat(h,'speed')===1?'die':'dice'}, evasion ${stat(h,'eva')}. ${u.moved&&u.acted?'Done for this round.':u.moved?'Has moved, can still act.':u.acted?'Has acted, can still move.':'Can still move and act this round.'} Tap to select.`}}
