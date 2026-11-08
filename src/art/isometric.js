@@ -20,6 +20,7 @@ function isoControls(){return `<div class="iso-camera" role="group" aria-label="
 const ISO_CAST_GROUPS=[['cipher','rivet','goliath','sibyl','hexen','civilian','civilian2','sting','shell'],['m-gallows','m-quarry','m-cantor','m-architect','m-helios','m-serpent'],['m-lode','m-noct','m-swarm','m-bomber','m-grid','m-mole']];
 const ISO_HERO_SPRITES=['bulwark','volt','wisp','lynx'];
 const ISO_COVER_GROUPS=[['gallows','quarry','cantor','architect'],['helios','serpent','lode','noct'],['swarm','bomber','grid','mole']];
+const ISO_VILLAIN_VARIANTS={architect:'architect-left',grid:'gridlock-left'};
 function isoSprite(key,label,scale=1){
  const canonical=key==='hive'?'swarm':key,i=Math.max(0,ISO_KEYS.indexOf(canonical));
  const group=ISO_COVER_GROUPS.findIndex(a=>a.includes(canonical)),slot=group<0?0:ISO_COVER_GROUPS[group].indexOf(canonical);
@@ -28,6 +29,8 @@ function isoSprite(key,label,scale=1){
  if(heroSlot>=0)art=`background-image:url(assets/isometric/heroes-superhero.webp);background-size:200% 200%;background-position:${heroSlot%2*100}% ${Math.floor(heroSlot/2)*100}%;`;
  const castGroup=ISO_CAST_GROUPS.findIndex(a=>a.includes(canonical));
  if(castGroup>=0){const castSlot=ISO_CAST_GROUPS[castGroup].indexOf(canonical),rows=castGroup===0?3:2;art=`background-image:url(assets/isometric/cast-${castGroup+1}.webp);background-size:300% ${rows*100}%;background-position:${castSlot%3*50}% ${Math.floor(castSlot/3)/(rows-1)*100}%;`}
+ const variant=ISO_VILLAIN_VARIANTS[canonical];
+ if(variant)art=`background-image:url(assets/isometric/${variant}.webp);background-size:100% 100%;background-position:center;`;
  return `<span class="iso-figure" data-sprite="${esc(canonical)}" style="${art}--face:1;--sx:${i%6*20}%;--sy:${Math.floor(i/6)*20}%;--size:${scale}" aria-hidden="true"></span><span class="iso-name">${esc(label)}</span>`;
 }
 function isoProp(kind,p,pos,badge=''){
