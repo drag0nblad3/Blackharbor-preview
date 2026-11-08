@@ -226,3 +226,23 @@ body:has(#app.wrap:not(.sprite-gallery)){background-color:#ffe7a6;background-ima
 /* Keep the issue badge's intrinsic width beside the comic masthead. */
 #app.wrap:not(.sprite-gallery) .mast>.mast-tools{flex-shrink:0;min-width:max-content}
 #app.wrap:not(.sprite-gallery) .mast .issue{flex-shrink:0}
+
+/* Comic lettering and clipped plates tie the controls to the navigation strip. */
+#app.wrap:not(.sprite-gallery) .mast .chip{
+  border-radius:0;
+  clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  box-shadow:inset 0 0 0 1px #fffdf180;
+}
+#app.wrap:not(.sprite-gallery) .btn.pri{
+  font-family:var(--sfx);
+  font-size:max(1em,.95rem);
+  font-weight:400;
+  letter-spacing:.045em;
+  border-radius:7px 1px;
+  box-shadow:inset 0 0 0 1px #fff9e8aa,2px 3px 0 #142638;
+}
+#app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-rail-heading){
+  border-radius:9px 1px;
+  outline:1px solid #fff9e880;
+  outline-offset:-4px;
+}
