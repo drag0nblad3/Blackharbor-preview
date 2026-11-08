@@ -21,7 +21,22 @@ const ISO_CAST_GROUPS=[['cipher','rivet','goliath','sibyl','hexen','civilian','c
 const ISO_HERO_SPRITES=['bulwark','volt','wisp','lynx'];
 const ISO_COVER_GROUPS=[['gallows','quarry','cantor','architect'],['helios','serpent','lode','noct'],['swarm','bomber','grid','mole']];
 const ISO_VILLAIN_VARIANTS={architect:'architect-left',grid:'gridlock-left'};
-function isoSprite(key,label,scale=1){
+// Native direction of the inked pose, independent of which hand is raised.
+const ISO_LEFT_POSES=new Set([...ISO_HERO_SPRITES,'cipher','rivet','goliath','sibyl','hexen','cantor','helios','lode']);
+function isoOpponentSide(from,opponents){
+ const h=HC(from.x,from.y),screenX=isoPoint(h.cx,h.cy).x;
+ let nearest=Infinity,offset=0;
+ for(const to of opponents){
+  const distance=cheb(from,to);
+  if(distance>nearest)continue;
+  const p=HC(to.x,to.y),dx=isoPoint(p.cx,p.cy).x-screenX;
+  // Prefer the more visibly lateral target on a distance tie.
+  if(distance===nearest&&Math.abs(dx)<=Math.abs(offset))continue;
+  nearest=distance;offset=dx;
+ }
+ return Math.abs(offset)<.0001?null:offset<0?'left':'right';
+}
+function isoSprite(key,label,scale=1,side=null){
  const canonical=key==='hive'?'swarm':key,i=Math.max(0,ISO_KEYS.indexOf(canonical));
  const group=ISO_COVER_GROUPS.findIndex(a=>a.includes(canonical)),slot=group<0?0:ISO_COVER_GROUPS[group].indexOf(canonical);
  let art=group<0?'':`background-image:url(assets/isometric/cover-${group+1}.webp);background-size:200% 200%;background-position:${slot%2*100}% ${Math.floor(slot/2)*100}%;`;
@@ -31,7 +46,8 @@ function isoSprite(key,label,scale=1){
  if(castGroup>=0){const castSlot=ISO_CAST_GROUPS[castGroup].indexOf(canonical),rows=castGroup===0?3:2;art=`background-image:url(assets/isometric/cast-${castGroup+1}.webp);background-size:300% ${rows*100}%;background-position:${castSlot%3*50}% ${Math.floor(castSlot/3)/(rows-1)*100}%;`}
  const variant=ISO_VILLAIN_VARIANTS[canonical];
  if(variant)art=`background-image:url(assets/isometric/${variant}.webp);background-size:100% 100%;background-position:center;`;
- return `<span class="iso-figure" data-sprite="${esc(canonical)}" style="${art}--face:1;--sx:${i%6*20}%;--sy:${Math.floor(i/6)*20}%;--size:${scale}" aria-hidden="true"></span><span class="iso-name">${esc(label)}</span>`;
+ const nativeSide=ISO_LEFT_POSES.has(canonical)?'left':'right',facing=side||nativeSide;
+ return `<span class="iso-figure" data-sprite="${esc(canonical)}" data-facing="${facing}" style="${art}--face:${facing===nativeSide?1:-1};--sx:${i%6*20}%;--sy:${Math.floor(i/6)*20}%;--size:${scale}" aria-hidden="true"></span><span class="iso-name">${esc(label)}</span>`;
 }
 function isoProp(kind,p,pos,badge=''){
  const slot={wall:0,rubble:1,terminal:2,bomb:3}[kind];
@@ -66,18 +82,27 @@ function isoBoard(sd,reachM,tg,al){
  buttons+=`<button class="iso-cell ${cls}" data-cell="${k}" data-tip="cell:${x}:${y}" style="${pos(p)};width:${hexW/W*100}%;height:${hexH/H*100}%;clip-path:polygon(${Array.from({length:6},(_,i)=>{const a=(i*60-90)*Math.PI/180,q=isoPoint(h.cx+Math.cos(a)*HS,h.cy+Math.sin(a)*HS);return `${50+(q.x-p.x)/hexW*100}% ${50+(q.y-p.y)/hexH*100}%`}).join(',')})" aria-label="Hex ${x+1},${y+1}${wall?', wall':rubble?', rubble':pit?', pit':haz?', hazard':''}${exit?', exit':''}${danger?', blast danger':''}"></button>`;
  if(wall||rubble)objects.push({d:p.y,html:isoProp(wall?'wall':'rubble',p,pos)});
  }
- const token=(p,key,label,tid,cls='',scale=1,badge='',title=label)=>{objects.push({d:p.y,html:`<div class="iso-unit ${cls}" title="${esc(title)}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`})};
- sd.units.forEach((u,i)=>{const h=heroOf(u);token(point(u.x,u.y),h.cls,h.name,'h'+u.hid,`hero ${sd.sel===i?'selected':''} ${u.ko?'ko':''} ${u.moved&&u.acted?'spent':''}`,1,u.guard?'◆':'')});
+ const heroes=sd.units.filter(u=>!u.ko);
+ const enemies=[
+  ...sd.hench.filter(m=>m.hp>0),...(sd.dupes||[]),
+  ...sd.vl.filter(({v})=>!v.down&&!v.hide).flatMap(({v})=>vCells(v)),
+ ];
+ const token=(unit,key,label,tid,opponents,cls='',scale=1,badge='',title=label,p=point(unit.x,unit.y))=>{
+  const side=isoOpponentSide(unit,opponents);
+  objects.push({d:p.y,html:`<div class="iso-unit ${cls}" title="${esc(title)}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale,side)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`});
+ };
+ sd.units.forEach((u,i)=>{const h=heroOf(u);token(u,h.cls,h.name,'h'+u.hid,u.ko?[]:enemies,`hero ${sd.sel===i?'selected':''} ${u.ko?'ko':''} ${u.moved&&u.acted?'spent':''}`,1,u.guard?'◆':'')});
  sd.hench.forEach(m=>{
   const name=hName(m);
   const title=m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':name;
-  token(point(m.x,m.y),'m-'+m.owner,name,'m'+m.id,`enemy ${m.elite?'elite':m.infested?'infested':m.shadow?'shadow':''}`,m.elite?1.1:.9,String(m.hp),title);
+  token(m,'m-'+m.owner,name,'m'+m.id,heroes,`enemy ${m.elite?'elite':m.infested?'infested':m.shadow?'shadow':''}`,m.elite?1.1:.9,String(m.hp),title);
  });
- (sd.dupes||[]).forEach(m=>token(point(m.x,m.y),'m-'+m.owner,'Shadow double','d'+m.id,'double',.9,'∞'));
- sd.civs.forEach(c=>token(point(c.x,c.y),eyeHash(c.id)%2?'civilian':'civilian2','Civilian','c'+c.id,'civilian',.86,c.f?'↗':''));
+ (sd.dupes||[]).forEach(m=>token(m,'m-'+m.owner,'Shadow double','d'+m.id,heroes,'double',.9,'∞'));
+ sd.civs.forEach(c=>token(c,eyeHash(c.id)%2?'civilian':'civilian2','Civilian','c'+c.id,enemies,'civilian',.86,c.f?'↗':''));
  let footprints='',serpents='';sd.vl.forEach((o,i)=>{const v=o.v;if(v.down)return;vCells(v).forEach(c=>{const h=HC(c.x,c.y);footprints+=`<polygon class="iso-footprint" points="${poly(h.cx,h.cy,.82)}"/>`});
- if(v.sw){swBodies(v).forEach(b=>token(point(b.x,b.y),b.k,VILLAINS[o.key].short,'v'+i+(b.i?'s'+b.i:''),'boss',1.15,'L'+v.level));return}
- const h=vCtr(v),p=isoPoint(h.cx,h.cy);token(p,o.key,VILLAINS[o.key].short,'v'+i,`boss ${v.hide?'hidden':''} ${v.charge?'charging':''}`,vCells(v).length>1&&!v.body?1.65:1.2,v.hide?'?':'L'+v.level);
+ if(v.sw){swBodies(v).forEach(b=>token(b,b.k,VILLAINS[o.key].short,'v'+i+(b.i?'s'+b.i:''),heroes,'boss',1.15,'L'+v.level));return}
+ const h=vCtr(v),p=isoPoint(h.cx,h.cy),label=VILLAINS[o.key].short;
+ token(v,o.key,label,'v'+i,heroes,`boss ${v.hide?'hidden':''} ${v.charge?'charging':''}`,vCells(v).length>1&&!v.body?1.65:1.2,v.hide?'?':'L'+v.level,label,p);
  if(v.body)serpents+=isoSerpent(v,i);
  const f=FACE_DEG[v.face??5]*Math.PI/180,q=isoPoint(h.cx+Math.cos(f)*.8,h.cy+Math.sin(f)*.8);footprints+=`<line class="iso-facing" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" marker-end="url(#iso-arrow)"/>`;
  });

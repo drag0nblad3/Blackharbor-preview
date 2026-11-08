@@ -46,9 +46,24 @@ for(const key of g.get('Object.keys(HERO_BASE)')){
  else assert.match(art,/cast-1.webp/,'Remaining hero '+key+' uses the left-facing cast atlas');
  assert.match(art,/<\/span><span class="iso-name">Readable hero name<\/span>/,'Hero name remains outside the transformed figure');
 }
-for(const key of ['gallows','m-mole','civilian'])assert.match(g.get(`isoSprite('${key}','Other')`),/--face:1;/,'Only heroes change facing');
+for(const key of g.get('[...ISO_KEYS,"m-mole"]')){
+ const original=g.get(`isoSprite('${key}','Actor')`);
+ const side=original.match(/data-facing="(left|right)"/)[1];
+ const opposite=side==='left'?'right':'left';
+ assert.match(original,/--face:1;/);
+ const alternate=g.get(`isoSprite('${key}','Actor',1,'${opposite}')`);
+ assert.match(alternate,/--face:-1;/);
+ assert.equal(alternate.replace(`data-facing="${opposite}"`,`data-facing="${side}"`).replace('--face:-1;','--face:1;'),original,'Only figure orientation changes for '+key);
+}
 assert.match(css,/transform:scale\(var\(--size\)\) scaleX\(var\(--face,1\)\)/,'Figure scale and facing compose without moving its anchor');
-console.log('PASS: all nine hero facings, four superhero mappings and unmirrored labels/other characters.');
+g.run('isoAngle=0');
+assert.equal(g.get('isoOpponentSide({x:4,y:4},[{x:1,y:4},{x:5,y:4}])'),'right','Nearest hex wins over a farther enemy');
+assert.equal(g.get('isoOpponentSide({x:4,y:4},[{x:3,y:4}])'),'left');
+assert.equal(g.get('isoOpponentSide({x:4,y:4},[{x:4,y:2}])'),null,'Vertically aligned enemies use the default pose');
+assert.equal(g.get('isoOpponentSide({x:4,y:4},[])'),null);
+g.run('isoAngle=-30');
+assert.equal(g.get('isoOpponentSide({x:4,y:4},[{x:4,y:2}])'),'left','Direction follows the rotated camera');
+console.log('PASS: both facings for all 37 sprites, nearest opponent, camera direction and unmirrored labels.');
 for(const angle of [-60,-45,-30,-15,0,15,30]){
  g.run(`isoAngle=${angle};isoFrameCache=null`);
  const geometry=g.get('(()=>{const f=isoFrame();let inside=true;for(let y=0;y<N;y++)for(let x=0;x<N;x++){const h=HC(x,y);for(let i=0;i<6;i++){const a=(i*60-90)*Math.PI/180,p=isoPoint(h.cx+Math.cos(a)*HS,h.cy+Math.sin(a)*HS);if(p.x<0||p.y<0||p.x>f.W||p.y>f.H)inside=false}}return {inside,area:f.W*f.H}})()');
