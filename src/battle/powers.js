@@ -136,7 +136,7 @@ async function splashV(n){const sd=S.sd,hm=sd.hench.filter(m=>dV(m,sd.v)<=2);if(
   await Promise.all(hm.map(m=>A.bolt(ctrV(),ctrU(m),COL.magic,true)));
   hm.forEach(m=>{m.hp-=n;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);
   log('hero',`The blast catches ${hm.length} henchm${hm.length===1?'an':'en'}.`);render()}
-async function gearBlast(center,area,name){const sd=S.sd,[r,d]=area,hm=sd.hench.filter(m=>cheb(m,center)<=r);await A.ring(HC(center.x,center.y),COL.tech,r*2+1.4);hm.forEach(m=>{m.hp-=d;fxP(m.x,m.y,m.hp<=0?'K.O.!':'BLAST!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);termHit(p=>cheb(p,center)<=r,name);log('hero',`${name}: ${d} damage to ${hm.length} henchmen within ${r} of the chosen hex.`);}
+async function gearBlast(center,area,name){const sd=S.sd,[r,d]=area,hm=sd.hench.filter(m=>cheb(m,center)<=r);await A.blast(center,r,COL.tech);hm.forEach(m=>{m.hp-=d;fxP(m.x,m.y,m.hp<=0?'K.O.!':'BLAST!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);termHit(p=>cheb(p,center)<=r,name);log('hero',`${name}: ${d} damage to ${hm.length} henchmen within ${r} of the chosen hex.`);}
 /* Reaction Scry (Tech): look at the next n hit reactions and choose which comes up first; the rest go back in order */
 async function rxScry(n,col){const sd=S.sd,k=sd.vkey,top=[];for(let i=0;i<n;i++)top.push(drawTactic());
   await A.reticle(ctrV(),col);const i=top.length>1?await choose(`Reaction Scry · ${VILLAINS[k].short}`,'Choose the hit reaction that comes up first. The others follow in this order.',top.map(c=>({l:`${c.sig?'★ ':''}${c.n}`,s:c.txt}))):0;

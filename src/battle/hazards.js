@@ -31,7 +31,7 @@ function dropBomb(x,y,fuse,dmg,radius=1,daze){const sd=S.sd,k=x+','+y;sd.bombs=s
   if(sd.bombs.length>=BOMB_MAX)return false;sd.bombs.push({k,fuse:1,dmg,o:sd.vkey,radius,...(daze?{daze:1}:{})});return true}
 async function blowBombs(list,bonus=0){const sd=S.sd;
   for(const b of list){if(sd.result)break;sd.bombs=sd.bombs.filter(o=>o!==b);const p=bombP(b),radius=bombRadius(b),inZ=q=>cheb(q,p)<=radius,sap=sd.hench.some(m=>m.owner===b.o&&!m.elite&&cheb(m,p)<=1)?1:0,dm=b.dmg+bonus+sap;
-    render();await A.ring(HC(p.x,p.y),COL.yel,2*radius+1.4,{count:2});fxP(p.x,p.y,pick(['KA-BOOM!','BLAM!','KRAKOOM!']),'vhit');
+    render();await Promise.all([A.blast(p,radius,COL.yel),A.smoke(HC(p.x,p.y),5)]);fxP(p.x,p.y,pick(['KA-BOOM!','BLAM!','KRAKOOM!']),'vhit');
     if(sap)log('vill','A Sapper packed that bomb: +1 damage.');
     const hd=dm,hs=live().filter(inZ),hm=sd.hench.filter(m=>m.owner!=='bomber'&&inZ(m));
     for(const u of hs){if(await wardBlocks(u))continue;fxU(u,'OOF!','vhit');damageHero(u,hd);log('vill',`A bomb goes off on ${heroOf(u).name} for ${hd}.`);if(b.daze)dazeU(u)}

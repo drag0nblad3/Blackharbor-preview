@@ -3,8 +3,22 @@
 const COL={mag:'#EE548C',cyan:'#3DB6DD',yel:'#F3CB4B',tech:'#3DB6DD',innate:'#F08A4B',magic:'#B48CF0',heal:'#5BC27D',grey:'#9AA1B2',rock:'#8A7A66'};
 let stage=null;
 function getStage(){if(!stage){stage=document.createElement('div');stage.id='stage';stage.setAttribute('aria-hidden','true');document.body.appendChild(stage)}return stage}
-function bpos(p){if(FAST||RM)return null;const b=document.querySelector('.board');if(!b)return null;const r=b.getBoundingClientRect();if(b.classList.contains('iso-board')){const q=isoPoint(p.cx,p.cy),f=isoFrame();return {x:r.left+q.x*r.width/f.W,y:r.top+q.y*r.height/f.H,c:r.width/f.W,top:r.top}}const c=(r.width-5)/BW();
-  return {x:r.left+2.5+p.cx*c,y:r.top+2.5+p.cy*c,c,top:r.top}}
+function battleProjection(){
+  if(FAST||RM)return null;
+  const board=document.querySelector('.board');
+  if(!board)return null;
+  const r=board.getBoundingClientRect();
+  if(board.classList.contains('iso-board')){
+    const f=isoFrame(),c=r.width/f.W;
+    return p=>{
+      const q=isoPoint(p.cx,p.cy);
+      return {x:r.left+q.x*c,y:r.top+q.y*r.height/f.H,c,top:r.top};
+    };
+  }
+  const c=(r.width-5)/BW();
+  return p=>({x:r.left+2.5+p.cx*c,y:r.top+2.5+p.cy*c,c,top:r.top});
+}
+function bpos(p){return battleProjection()?.(p)}
 function mk(html){const d=document.createElement('div');d.innerHTML=html.trim();const e=d.firstElementChild;getStage().appendChild(e);return e}
 const gone=(e,ms)=>new Promise(r=>setTimeout(()=>{e.remove();r()},ms));
 const TC=(dx,dy,extra='')=>`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) ${extra}`;
@@ -15,7 +29,6 @@ const A={
     const p=pts.join(' ');
     const s=mk(`<svg class="a-full"><polyline points="${p}" fill="none" stroke="${col}" stroke-width="${thin?4:12}" stroke-linejoin="round" stroke-linecap="round" opacity=".6"/><polyline points="${p}" fill="none" stroke="#fff" stroke-width="${thin?1.5:4}" stroke-linejoin="round" stroke-linecap="round"/>${thin?'':`<circle cx="${b.x}" cy="${b.y}" r="${a.c*.5}" fill="#fff" opacity=".85"/>`}</svg>`);
     s.animate([{opacity:0},{opacity:1,offset:.08},{opacity:.25,offset:.25},{opacity:1,offset:.4},{opacity:.6,offset:.7},{opacity:0}],{duration:560});
-    if(!thin){const fl=mk(`<div class="a-flash"></div>`);fl.animate([{opacity:0},{opacity:.35,offset:.1},{opacity:0}],{duration:300});gone(fl,300)}
     return gone(s,560)},
   laser(f,t,col){const a=bpos(f),b=bpos(t);if(!a||!b)return Promise.resolve();
     const s=mk(`<svg class="a-full"><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="${col}" stroke-width="${a.c*.34}" stroke-linecap="round" opacity=".55"/><line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" stroke="#fff" stroke-width="${a.c*.1}" stroke-linecap="round"/></svg>`);
@@ -27,6 +40,29 @@ const A={
     return gone(e,dur).then(()=>A.pop(t,col))},
   pop(t,col){const b=bpos(t);if(!b)return Promise.resolve();const e=mk(`<div class="a-ring" style="left:${b.x}px;top:${b.y}px;width:${b.c}px;height:${b.c}px;border-color:${col};background:${col}55"></div>`);
     e.animate([{transform:TC(0,0,'scale(.2)'),opacity:1},{transform:TC(0,0,'scale(1)'),opacity:0}],{duration:240,easing:'ease-out'});return gone(e,240)},
+  dash(from,to,col){const a=bpos(from),b=bpos(to);if(!a||!b)return;
+    const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);
+    if(d<1)return;
+    const length=Math.min(d,b.c*2.2),angle=Math.atan2(dy,dx)*180/Math.PI;
+    const e=mk(`<svg class="a-dash" viewBox="0 0 80 24" preserveAspectRatio="none" style="left:${b.x}px;top:${b.y-b.c*.28}px;width:${length}px;height:${b.c*.45}px;--angle:${angle}deg"><path d="M10 4H62M0 12H77M24 20H58" stroke="#151821" stroke-width="6"/><path d="M10 4H62M0 12H77M24 20H58" stroke="${col}" stroke-width="2.5"/></svg>`);
+    e.animate([{opacity:.9},{opacity:0}],{duration:300,easing:'ease-out'});
+    gone(e,300)},
+  blast(center,radius,col){const project=battleProjection();
+    if(!project)return Promise.resolve();
+    const origin=HC(center.x,center.y);
+    const cells=hexesWithin(center,radius).map(p=>{
+      const h=HC(p.x,p.y),points=Array.from({length:6},(_,i)=>{
+        const a=(i*60-90)*Math.PI/180;
+        const q=project({cx:h.cx+Math.cos(a)*HS*.91,cy:h.cy+Math.sin(a)*HS*.91});
+        return `${q.x.toFixed(1)},${q.y.toFixed(1)}`;
+      }).join(' ');
+      return `<polygon points="${points}" data-wave="${cheb(center,p)}"/>`;
+    }).join('');
+    const e=mk(`<svg class="a-full a-blast" fill="${col}" stroke="${col}" stroke-width="2">${cells}</svg>`);
+    e.querySelectorAll('polygon').forEach(hex=>hex.animate([
+      {opacity:0},{opacity:.78,offset:.18},{opacity:.25,offset:.55},{opacity:0}
+    ],{duration:400,delay:+hex.dataset.wave*65,fill:'both'}));
+    return Promise.all([gone(e,400+radius*65),A.sparkle(origin,col)])},
   throw(f,t,kind='car'){const a=bpos(f),b=bpos(t);if(!a||!b)return Promise.resolve();const dx=b.x-a.x,dy=b.y-a.y,lift=Math.hypot(dx,dy)*.45+a.c*.6;
     const e=mk(`<div class="a-throw ${kind}" style="left:${a.x}px;top:${a.y}px;width:${a.c*.9}px;height:${a.c*.5}px"><i></i><i></i></div>`);
     e.animate([{transform:TC(0,0,'rotate(0) scale(.8)')},{transform:TC(dx/2,dy/2-lift,'rotate(220deg) scale(1.15)'),offset:.5},{transform:TC(dx,dy,'rotate(430deg) scale(1)')}],{duration:620,easing:'cubic-bezier(.3,.1,.6,1)'});
@@ -82,6 +118,13 @@ function strikeAnim(style,from,to,col,tid){
     case 'throw':return A.throw(from,to,'car');case 'rock':return A.throw(from,to,'rock');case 'beam':return A.beam(to,col);
     default:if(tid)A.lunge(tid,to);return sleep(FAST||RM?0:110).then(()=>A.slash(to,col))}}
 const ctrU=u=>HC(u.x,u.y),ctrV=()=>vCtr(S.sd.v);
+
+function battleFxMarkup(f,position,age){
+  if(age>1600)return '';
+  const damage=f.k==='dmg'||f.k==='dmgh',ko=f.k==='hit'&&f.t==='K.O.!';
+  const burst=!RM&&age<420&&(damage||ko)?`<svg class="impact ${f.k==='dmgh'?'hero-impact':''} ${ko?'ko-impact':''}" style="${position};animation-delay:-${age}ms" viewBox="-32 -32 64 64" aria-hidden="true"><path d="M0-22L5-10 17-17 14-5 25 0 12 5 19 16 6 12 0 23-5 11-18 16-13 5-24 0-12-5-17-18-5-11Z"/><path class="impact-rays" d="M-19-19L-25-25M19-19L26-25M-23 10L-30 13M22 10L30 14M0 25V31"/></svg>`:'';
+  return `${burst}<div class="fx k-${f.k}" style="${position};animation-delay:-${age}ms" aria-hidden="true"><div class="b"><span>${esc(f.t)}</span></div></div>`;
+}
 
 /* ---------- card reveals: comic book opening (draws) and torn pages (wounds) ---------- */
 const TYPE_SFX={multi:'BARRAGE!',walls:'BUILD!',hazard:'MELTDOWN!',cage:'CAGED!',shrapnel:'DEMOLISH!',fortify:'FORTIFY!',charge:'CHARGING!',strike:'STRIKE!',sweep:'SHOCKWAVE!',summon:'BACKUP!',endanger:'HOSTAGE!',taunt:'TAUNT!',henchvolley:'OPEN FIRE!',vanish:'POOF!',reanimate:'RECHARGE!',puppet:'OBEY!',rampage:'RAMPAGE!',swallow:'GULP!',pull:'ATTRACT!',repel:'REPEL!',fade:'FADE…',converge:'SWARM!',scatter:'SCATTER!',leap:'BOING!',bomb:'TSSS!',swapbomb:'SWITCH!',airburst:'LOOK UP!',beam:'ZZARK!',burrow:'SHUNK!'};

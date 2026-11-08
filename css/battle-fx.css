@@ -29,7 +29,6 @@
 .fx.k-say{animation-duration:1.6s}
 #stage{position:fixed;inset:0;pointer-events:none;z-index:40;overflow:hidden}
 #stage .a-full{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-#stage .a-flash{position:absolute;inset:0;background:#fff;mix-blend-mode:overlay}
 #stage .a-orb,#stage .a-ring,#stage .a-slash,#stage .a-puff,#stage .a-spark,#stage .a-plus,#stage .a-throw,#stage .a-box{position:absolute;transform:translate(-50%,-50%)}
 #stage .a-orb{border-radius:50%;background:#fff}
 #stage .a-ring{border-radius:50%;border:4px solid}
@@ -198,3 +197,17 @@
 .fx.k-dmg .b::before,.fx.k-dmg .b::after,.fx.k-dmgh .b::before,.fx.k-dmgh .b::after{display:none}
 .fx.k-dmg .b span,.fx.k-dmgh .b span{font-size:clamp(1.3rem,6vw,2rem);color:#FFD27A;-webkit-text-stroke:2px #151821;transform:rotate(-6deg)}
 .fx.k-dmgh .b span{color:#FF5A7A}
+
+/* Comic ink bursts stay anchored to the board through redraws. */
+.impact{position:absolute;z-index:6;pointer-events:none;width:clamp(36px,10vw,76px);height:auto;fill:#ffd27a;stroke:#151821;stroke-width:2;transform:translate(-50%,-50%);animation:impact-burst 420ms ease-out both}
+.impact.hero-impact{fill:#ff7890}
+.impact.ko-impact{fill:#fff0a0;width:clamp(48px,12vw,96px)}
+.impact .impact-rays{fill:none;stroke:#fff5cf;stroke-linecap:round}
+@keyframes impact-burst{
+  0%{transform:translate(-50%,-50%) scale(.35);opacity:1}
+  28%{transform:translate(-50%,-50%) scale(1);opacity:.95}
+  100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}
+}
+#stage .a-dash{position:absolute;overflow:visible;transform-origin:right center;transform:translate(-100%,-50%) rotate(var(--angle));stroke-linecap:round}
+#stage .a-blast polygon{opacity:0}
+@media(prefers-reduced-motion:reduce){.impact,#stage .a-dash,#stage .a-blast{display:none}}
