@@ -25,7 +25,7 @@ function onCell(x,y){const sd=S.sd;if(sd.busy||sd.result)return;const k=x+','+y;
   if(u){
     if(sd.mode==='move'&&mvOk(u)){const m=reMoveOk(u)?u.mv:null,r=heroReach(u,h);
       if(m&&x===m.x&&y===m.y&&!blocked(x,y,{self:u})){mvRewind(u);u.moved=false;u.mv=null;civFollow(u);log('hero',`${h.name} steps back to where they started.`);render();return}
-      if(k in r&&!(x===u.x&&y===u.y)){const lp=reachH.leaps.has(k),sw=sd.civs.find(c=>c.x===x&&c.y===y);if(m){m.boost+=u.boost||0;m.jump=m.jump||u.jump;m.bj=m.bj||u.boostJump;mvRewind(u)}else u.mv={x:u.x,y:u.y,hm:u.hexesMoved||0,boost:u.boost||0,jump:!!u.jump,bj:!!u.boostJump,acted:!!u.acted};
+      if(k in r&&!(x===u.x&&y===u.y)){A.dash(ctrU(u),HC(x,y),BASE(h).glow);const lp=reachH.leaps.has(k),sw=sd.civs.find(c=>c.x===x&&c.y===y);if(m){m.boost+=u.boost||0;m.jump=m.jump||u.jump;m.bj=m.bj||u.boostJump;mvRewind(u)}else u.mv={x:u.x,y:u.y,hm:u.hexesMoved||0,boost:u.boost||0,jump:!!u.jump,bj:!!u.boostJump,acted:!!u.acted};
         if(sw){sw.x=u.x;sw.y=u.y}u.hexesMoved=(u.hexesMoved||0)+r[k];u.x=x;u.y=y;u.moved=true;u.jump=false;u.boost=0;u.boostJump=false;u.mv.at=k;if(litMap()[k])u.mv.lock=true;sd.mode=reMoveOk(u)?'move':null;if(lp){fxU(u,'HUP!','good');log('hero',`${h.name} jumps clear over a beam.`)}beamStep(u);if(u.ko)u.mv.lock=true;civFollow(u);render();return}}
     if(sd.mode==='attack'||sd.mode==='arc'){const rng=stat(h,'range');let t=null;
       if(vAt>=0&&dV(u,sd.vl[vAt].v)<=rng&&!shotVB(u,sd.vl[vAt].v)){focusV(vAt);t='v';sd.aim={x,y}}else{const m=sd.hench.find(m=>m.x===x&&m.y===y&&cheb(m,u)<=rng&&!shotBlocked(u,m));if(m)t=m}
