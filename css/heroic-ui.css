@@ -194,6 +194,7 @@ body:has(#app.wrap:not(.sprite-gallery)){background-color:#ffe7a6;background-ima
 #app.wrap:not(.sprite-gallery) .mast::after{background:repeating-linear-gradient(120deg,transparent 0 20px,#ed674433 20px 24px);opacity:.6}
 #app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief){background-color:#c72d3b;border-left-color:#ffd238}
 #app.wrap:not(.sprite-gallery) .bh-pagehead::before{content:'';position:absolute;inset:0 0 0 auto;width:24%;height:auto;border-radius:0;background:repeating-conic-gradient(from 15deg at 100% 50%,#ffd23844 0deg 12deg,transparent 12deg 27deg);opacity:1;pointer-events:none;z-index:-1}
+#app.wrap.v-hq-villains .bh-pagehead::before{width:100%;border-radius:inherit;opacity:.55}
 #app.wrap:not(.sprite-gallery) :is(.bh-pagehead,.bh-combat-brief) h2{font-family:var(--sfx);font-size:2.1rem;letter-spacing:.045em;line-height:1.05;text-shadow:2px 2px 0 #142638}
 #app.wrap:not(.sprite-gallery) .bh-pagehead p{color:#fff7e0}
 #app.wrap:not(.sprite-gallery) .bh-page-kicker{display:inline-block;width:fit-content;background:#ffd238;color:#172b39;border:1px solid #142638;padding:1px 5px;transform:rotate(-1deg);text-shadow:none}

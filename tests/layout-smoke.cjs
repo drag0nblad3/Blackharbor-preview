@@ -112,6 +112,21 @@ const path=require('node:path');
        return {aligned:Math.abs((tools.top+tools.bottom)-(res.top+res.bottom))<2,fits:tools.right<=innerWidth};
      });
      assert(mast.aligned&&mast.fits,'phone mast shares a row for resources and menu');
+     const fullLedger=await page.evaluate(()=>{
+       const salvage=S.salvage;
+       S.salvage=Object.fromEntries(Object.keys(salvage).map(key=>[key,18]));
+       render();
+       const header=document.querySelector('.mast').getBoundingClientRect();
+       const res=document.querySelector('.mast>.res');
+       const rect=res.getBoundingClientRect();
+       const rows=new Set([...res.children].map(chip=>chip.getBoundingClientRect().top)).size;
+       const chips=res.children.length;
+       S.salvage=salvage;
+       render();
+       return {ratio:rect.width/header.width,rows,chips};
+     });
+     assert(fullLedger.chips>=12&&fullLedger.ratio>.9&&fullLedger.rows<=4,
+       'full salvage ledger uses the phone mast width: '+JSON.stringify(fullLedger));
      await page.setViewportSize({width:size.width,height:size.height});
    }
    await page.evaluate(()=>{S.facilities=Object.keys(FAC);hqSetPref('lighting','day');hqSetPref('motion','on');render()});
@@ -170,6 +185,11 @@ const path=require('node:path');
    assert.equal(await page.locator('[data-cid="h-'+heroId+'"]').getAttribute('open'),'','Selecting a hero opens the actual full sheet');
    await page.locator('.nav [data-a="view:villains"]').click();
    await checkPage('villains','.bh-threat-content','.bh-threat-rail');
+   const threatBurst=await page.locator('.bh-pagehead').evaluate(head=>({
+     burst:parseFloat(getComputedStyle(head,'::before').width),
+     header:head.clientWidth,
+   }));
+   assert(Math.abs(threatBurst.burst-threatBurst.header)<2,'threat header burst spans the full panel');
    const portrait=page.locator('.villain-dossier-art svg.vportrait').first();
    assert(await portrait.count()>0,'Villain dossier illustration exists');
    const portraitRect=await portrait.boundingBox();
