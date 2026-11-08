@@ -53,6 +53,12 @@ function plan(id,ids=['lash','snipe','drones','ray','mono','galv']){run(`S.sd.v.
  // Every new option executes, and extra reactions cannot create extra Murmur bodies.
  for(const k of get('Object.keys(EXTRA_PAGES)')){setup(k,4);g.get('sdView()');for(const id of get(`Object.keys(EXTRA_PAGES.${k})`))await run(`execCard(buildCard('${k}',{id:'${id}',mk:1},4))`);g.get('sdView()');if(k==='swarm')assert(get('swBodies(S.sd.v).length')<=3);}
  g.get('Object.values(GEAR).filter(g=>g.ab).map(g=>abTxt(g.ab))');
+ // Reclaim (Innate) tears the newest discard, keeps the planned page, ignores Find the Flaw, and needs a discard.
+ setup();plan('field',['lash','snipe']);run("S.sd.v.discard=['drones','ray'].map(id=>buildCard(S.sd.vkey,{id,mk:0}));S.sd.v.excise=2");const rc=get('remainingPages(S.sd.v)');
+ await run('abApply(S.sd.units[3],S.heroes[3],GEAR.bloodhound,S.sd.units[3])');assert.deepEqual(get('S.sd.v.wounds.map(c=>c.id)'),['ray']);assert.deepEqual(get('S.sd.v.discard.map(c=>c.id)'),['drones']);
+ assert.deepEqual(get('S.sd.v.deck.map(c=>c.id)'),['lash','snipe']);assert.equal(get('S.sd.v.planned.id'),'field');assert.equal(get('remainingPages(S.sd.v)'),rc-1);assert.equal(get('S.sd.v.excise'),2);assert.equal(get('S.sd.v.forceTop'),null);
+ run("S.sd.v.discard=[];S.heroes[3].ranks.innate=3;S.heroes[3].gear.head='bloodhound';S.sd.units[3].innUsed=0");assert.equal(get("abOk(S.sd.units[3],S.heroes[3],'bloodhound')"),false);
+ run("S.sd.v.discard=[buildCard(S.sd.vkey,{id:'mono',mk:0})]");assert.equal(get("abOk(S.sd.units[3],S.heroes[3],'bloodhound')"),true);
  // Old active-charge saves move the card from discard into the reserved slot once.
  setup('helios',2);plan('flare',['heat','sprites']);run('delete S.sd.planVersion;S.sd.v.last=S.sd.v.planned;S.sd.v.discard=[S.sd.v.planned];S.sd.v.planned=null;S.sd.v.charge={n:"Solar Flare",zone:[],dmg:5};S=JSON.parse(JSON.stringify(S));S.sd.v=S.sd.vl[0].v;migratePlans()');assert.equal(get('S.sd.v.planned.id'),'flare');assert.equal(get('S.sd.v.discard.length'),0);assert.equal(get('remainingPages(S.sd.v)'),3);
  console.log('PASS: charging lifecycle, threshold wounds, visibility, deck conservation, Repress, reaction wards, gear movement, AoE footprints, randomized decks, board leads and save state.');

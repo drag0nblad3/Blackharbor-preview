@@ -90,6 +90,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.vsplash)await splashV(v(f.vsplash));
   if(f.reflect){u.reflect=1;await A.shield(ctrU(u),col);fxU(u,'BRACED!','good');log('hero',`${h.name} is ready to turn the next villain hit back on it.`)}
   if(f.riposte){u.ripo=true;await A.shield(ctrU(u),col);fxU(u,'EN GARDE!','good');log('hero',`${h.name} is ready to strike back at the next miss.`)}
+  if(f.reclaim)await reclaim(h,a,col);
   if(f.excise){sd.v.excise=v(f.excise);await A.reticle(ctrV(),col);fxV('FLAW FOUND!','good');log('hero',`${h.name} finds the flaw: the next page torn from ${VILLAINS[sd.vkey].short} this round is one you choose from its next ${sd.v.excise}.`)}
   if(f.scramble){const vv=sd.v;if(!vv.deck.length&&vv.discard.length){vv.deck=vv.discard;vv.discard=[]}vv.deck=shuffle(vv.deck);vv.foresee=false;vv.warn=null;await A.ring(ctrV(),col,3,{count:2});fxV('SCRAMBLED!','good');log('hero',`${VILLAINS[sd.vkey].short}'s playbook is shuffled.`);vWarn()}
   if(f.scry)await scry(v(f.scry),col,u);
@@ -106,6 +107,10 @@ async function scry(n,col,u){const sd=S.sd,v=sd.v,k=sd.vkey;refillPages(v);
   const i=top.length>1?await choose(`Scry · ${VILLAINS[k].short}`,'Choose the next action. An already charging area attack cannot be replaced.',top.map(c=>({l:c.n,s:c.txt}))):0,c=top[i];
   if(pending){if(pending!==c)v.deck.unshift(pending);v.deck=v.deck.filter(p=>p!==c);v.planned=c;v.planningDone=true;}else{v.deck=v.deck.filter(p=>p!==c);v.deck.unshift(c);}
   v.foresee=true;v.warn=null;vWarn();log('hero',`Scry: ${c.n} is selected.`);}
+/* Reclaim (Innate): tear the villain's most recently played page out of its discard pile */
+async function reclaim(h,a,col){const sd=S.sd,v=sd.v;if(v.down||!v.discard.length)return;const c=v.discard.pop(),tornBefore=v.wounds.length;
+  v.deck.unshift(c);v.forceTop=c;await A.beam(ctrV(),col);try{await woundAnim(`${h.name}: ${a.n}.`)}finally{v.forceTop=null}
+  if(v.wounds.length>tornBefore)sigBreak(h,v)}
 async function bury(col,u){const sd=S.sd,v=sd.v,k=sd.vkey;refillPages(v);const c=v.charge?v.deck[0]:v.planned||v.deck[0];if(!c)return;
   markSeen(k,c.id);const i=await choose(`Spot the Tell · ${VILLAINS[k].short}`,`${c.n}. ${c.txt}`,[{l:'Bury it',s:'Send this page to the bottom; replace the planned action when possible.'},{l:'Keep it',s:'Leave this page revealed.'}]);
   if(i===0){if(c===v.planned){v.planned=null;v.deck.push(c);v.planned=v.deck.shift();}else{v.deck.shift();v.deck.push(c);}v.warn=null;vWarn();}v.foresee=true;}

@@ -52,6 +52,7 @@ function abTxt(a,P){const f=a.fx||{},L=[];let sx=[];
   if(f.riposte)push('Until the round ends, the first time the villain misses you, strike back with a free 1-die attack if it is within your range.');
   if(f.scry)push(`Look at the villain's next ${f.scry} pages and choose which one it plays first.`);
   if(f.bury)push("Look at the villain's next page. You may bury it at the bottom of the playbook.");
+  if(f.reclaim)push("Tear the villain's most recently played page out of its discard pile. Hit reactions don't trigger.");
   if(f.excise)push(`Until the round ends, the next page torn from the villain is the one you choose from its next ${f.excise}.`);
   if(f.scramble)push("Shuffle the villain's playbook. Anything foreseen is lost.");
   if(f.curse)push('The villain deals 2 less damage (never below 1) until the round ends.');
