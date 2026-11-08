@@ -63,9 +63,13 @@ function isoBoard(sd,reachM,tg,al){
  buttons+=`<button class="iso-cell ${cls}" data-cell="${k}" data-tip="cell:${x}:${y}" style="${pos(p)};width:${hexW/W*100}%;height:${hexH/H*100}%;clip-path:polygon(${Array.from({length:6},(_,i)=>{const a=(i*60-90)*Math.PI/180,q=isoPoint(h.cx+Math.cos(a)*HS,h.cy+Math.sin(a)*HS);return `${50+(q.x-p.x)/hexW*100}% ${50+(q.y-p.y)/hexH*100}%`}).join(',')})" aria-label="Hex ${x+1},${y+1}${wall?', wall':rubble?', rubble':pit?', pit':haz?', hazard':''}${exit?', exit':''}${danger?', blast danger':''}"></button>`;
  if(wall||rubble)objects.push({d:p.y,html:isoProp(wall?'wall':'rubble',p,pos)});
  }
- const token=(p,key,label,tid,cls='',scale=1,badge='')=>{objects.push({d:p.y,html:`<div class="iso-unit ${cls}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`})};
+ const token=(p,key,label,tid,cls='',scale=1,badge='',title=label)=>{objects.push({d:p.y,html:`<div class="iso-unit ${cls}" title="${esc(title)}" data-tid="${tid}" data-cx="${p.x}" data-cy="${p.y}" style="${pos(p)};--depth:${Math.round(p.y*100)}">${isoSprite(key,label,scale)}${badge?`<b class="iso-badge">${esc(badge)}</b>`:''}</div>`})};
  sd.units.forEach((u,i)=>{const h=heroOf(u);token(point(u.x,u.y),h.cls,h.name,'h'+u.hid,`hero ${sd.sel===i?'selected':''} ${u.ko?'ko':''} ${u.moved&&u.acted?'spent':''}`,1,u.guard?'◆':'')});
- sd.hench.forEach(m=>token(point(m.x,m.y),'m-'+m.owner,hName(m),'m'+m.id,`enemy ${m.elite?'elite':''}`,m.elite?1.1:.9,String(m.hp)));
+ sd.hench.forEach(m=>{
+  const name=hName(m);
+  const title=m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':name;
+  token(point(m.x,m.y),'m-'+m.owner,name,'m'+m.id,`enemy ${m.elite?'elite':''}`,m.elite?1.1:.9,String(m.hp),title);
+ });
  (sd.dupes||[]).forEach(m=>token(point(m.x,m.y),'m-'+m.owner,'Shadow double','d'+m.id,'double',.9,'∞'));
  sd.civs.forEach(c=>token(point(c.x,c.y),eyeHash(c.id)%2?'civilian':'civilian2','Civilian','c'+c.id,'civilian',.86,c.f?'↗':''));
  let footprints='',serpents='';sd.vl.forEach((o,i)=>{const v=o.v;if(v.down)return;vCells(v).forEach(c=>{const h=HC(c.x,c.y);footprints+=`<polygon class="iso-footprint" points="${poly(h.cx,h.cy,.82)}"/>`});
