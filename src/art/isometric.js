@@ -68,7 +68,7 @@ function isoBoard(sd,reachM,tg,al){
  sd.hench.forEach(m=>{
   const name=hName(m);
   const title=m.shadow?'Stolen shadow · 1 HP':m.infested?'Infested mite · next boss action':name;
-  token(point(m.x,m.y),'m-'+m.owner,name,'m'+m.id,`enemy ${m.elite?'elite':''}`,m.elite?1.1:.9,String(m.hp),title);
+  token(point(m.x,m.y),'m-'+m.owner,name,'m'+m.id,`enemy ${m.elite?'elite':m.infested?'infested':m.shadow?'shadow':''}`,m.elite?1.1:.9,String(m.hp),title);
  });
  (sd.dupes||[]).forEach(m=>token(point(m.x,m.y),'m-'+m.owner,'Shadow double','d'+m.id,'double',.9,'∞'));
  sd.civs.forEach(c=>token(point(c.x,c.y),eyeHash(c.id)%2?'civilian':'civilian2','Civilian','c'+c.id,'civilian',.86,c.f?'↗':''));
