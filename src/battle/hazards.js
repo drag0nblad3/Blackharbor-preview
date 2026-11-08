@@ -78,8 +78,6 @@ async function fireBeams(lines,dmg,label,o={}){const sd=S.sd,v=sd.v,hitSet=o.hit
   const nk=new Set(lit.flatMap(e=>e.r.ks)).size;
   log('vill',hits.length||civs.length?`${nk} hexes stay lit until ${VILLAINS[sd.vkey].short}'s next turn.`:`${label}: ${lit.length} beam${lit.length===1?'':'s'} light up ${nk} hexes, but nobody is caught.`);
   checkLoss();return hits.map(e=>e.r.hit)}
-/* Magic capstone: a page torn by this hero staggers the villain's charge at once */
-function sigBreak(h,v){if(!v||v.down||(!v.charge&&!v.planned?.sig)||!rankMod(h,'magic','sigBreak'))return;const n=v.charge?.n||v.planned.n;cancelPlan(v);fxV('STAGGERED!','good');log('hero',`Magic capstone: ${h.name} tears the page and ${n} fizzles out!`)}
 async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null;
   const cells=ch.zone.map(k=>{const[x,y]=k.split(',').map(Number);return {...HC(x,y),x,y}});
   sd.firing=ch.zone;fxV(ch.n.toUpperCase()+'!','say');render();

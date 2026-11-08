@@ -58,6 +58,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.reactionWard){tu.reactionWard=true;log('hero',`${th.name} is protected from reaction damage until round end.`)}
   if(f.repress){sd.v.repress=true;log('hero',`${VILLAINS[sd.vkey].short}'s next revealed reaction is repressed.`)}
   if(f.revealFacing){sd.v.hide=false;fxV('REVEALED!','good')}
+  if(f.rxScry)await rxScry(v(f.rxScry),col);
   if(f.reactionPeek)await peekReaction();
   if(f.swapAlly){const from={x:u.x,y:u.y};u.x=tu.x;u.y=tu.y;tu.x=from.x;tu.y=from.y;beamStep(u);beamStep(tu);civFollow(u);civFollow(tu);log('hero',`${h.name} exchanges shadows with ${th.name}.`)}
   if(f.pushAlly||f.pullAlly)await moveAlly(u,tu,f.pushAlly?1:-1,v(f.pushAlly||f.pullAlly));
@@ -81,7 +82,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
     hm.forEach(m=>{m.hp-=d;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',hm.length?`${a.n} hits ${hm.length} henchm${hm.length===1?'an':'en'}.`:`${a.n} hits nobody.`)}
   if(f.stasis){const zs=live().filter(o=>cheb(o,u)<=1);await A.ring(ctrU(u),col,3.4,{count:3});zs.forEach(o=>{o.stasis=true;fxU(o,'FROZEN IN TIME','good')});log('hero',`${h.name} stops time: ${zs.map(o=>heroOf(o).name).join(', ')} can't be hurt until ${h.name}'s next turn.`)}
   if(f.skip){sd.v.skip=true;await A.sigil(ctrV(),col,3);fxV('TIME STOPS!','good');log('hero',`${VILLAINS[sd.vkey].short} will lose its next turn.`)}
-  if(f.tear){const tornBefore=sd.v.wounds.length;await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`);if(sd.v.wounds.length>tornBefore)sigBreak(h,sd.v)}
+  if(f.tear){await A.beam(ctrV(),col);for(let i=0;i<f.tear&&!sd.result&&!sd.v.down;i++)await woundAnim(`${h.name}: ${a.n}.`,null,h)}
   if(f.boost){const n=v(f.boost);u.boost=(u.boost||0)+n;if(f.jump)u.boostJump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');log('hero',`${h.name}: +${n} to the next move${f.jump?', and it is a jump':''}.`);if(!u.moved)sd.thenMode='move'}
   if(f.move){u.moved=false;u.mv=null;if(JUMP_AB.includes(g.ab.id))u.jump=true;await A.smoke(ctrU(u),5);fxU(u,'WHOOSH!','good');sd.thenMode='move'}
   if(f.discharge){u.discharge=true;await A.ring(ctrU(u),col,3,{count:2});fxU(u,'FULL DISCHARGE!','good');log('hero',`${h.name} opens the Core: Tech abilities have no once-per-round limit until the round ends.`)}
@@ -90,6 +91,7 @@ async function abApply(u,h,g,tu){const sd=S.sd,a=g.ab,f=pairFx(h,g),P=potOf(h),v
   if(f.vsplash)await splashV(v(f.vsplash));
   if(f.reflect){u.reflect=1;await A.shield(ctrU(u),col);fxU(u,'BRACED!','good');log('hero',`${h.name} is ready to turn the next villain hit back on it.`)}
   if(f.riposte){u.ripo=true;await A.shield(ctrU(u),col);fxU(u,'EN GARDE!','good');log('hero',`${h.name} is ready to strike back at the next miss.`)}
+  if(f.reclaim)await reclaim(h,a,col);
   if(f.excise){sd.v.excise=v(f.excise);await A.reticle(ctrV(),col);fxV('FLAW FOUND!','good');log('hero',`${h.name} finds the flaw: the next page torn from ${VILLAINS[sd.vkey].short} this round is one you choose from its next ${sd.v.excise}.`)}
   if(f.scramble){const vv=sd.v;if(!vv.deck.length&&vv.discard.length){vv.deck=vv.discard;vv.discard=[]}vv.deck=shuffle(vv.deck);vv.foresee=false;vv.warn=null;await A.ring(ctrV(),col,3,{count:2});fxV('SCRAMBLED!','good');log('hero',`${VILLAINS[sd.vkey].short}'s playbook is shuffled.`);vWarn()}
   if(f.scry)await scry(v(f.scry),col,u);
@@ -106,6 +108,9 @@ async function scry(n,col,u){const sd=S.sd,v=sd.v,k=sd.vkey;refillPages(v);
   const i=top.length>1?await choose(`Scry · ${VILLAINS[k].short}`,'Choose the next action. An already charging area attack cannot be replaced.',top.map(c=>({l:c.n,s:c.txt}))):0,c=top[i];
   if(pending){if(pending!==c)v.deck.unshift(pending);v.deck=v.deck.filter(p=>p!==c);v.planned=c;v.planningDone=true;}else{v.deck=v.deck.filter(p=>p!==c);v.deck.unshift(c);}
   v.foresee=true;v.warn=null;vWarn();log('hero',`Scry: ${c.n} is selected.`);}
+/* Reclaim (Innate): tear the villain's most recently played page out of its discard pile */
+async function reclaim(h,a,col){const sd=S.sd,v=sd.v;if(v.down||!v.discard.length)return;const c=v.discard.pop();
+  v.deck.unshift(c);v.forceTop=c;await A.beam(ctrV(),col);try{await woundAnim(`${h.name}: ${a.n}.`)}finally{v.forceTop=null}}
 async function bury(col,u){const sd=S.sd,v=sd.v,k=sd.vkey;refillPages(v);const c=v.charge?v.deck[0]:v.planned||v.deck[0];if(!c)return;
   markSeen(k,c.id);const i=await choose(`Spot the Tell · ${VILLAINS[k].short}`,`${c.n}. ${c.txt}`,[{l:'Bury it',s:'Send this page to the bottom; replace the planned action when possible.'},{l:'Keep it',s:'Leave this page revealed.'}]);
   if(i===0){if(c===v.planned){v.planned=null;v.deck.push(c);v.planned=v.deck.shift();}else{v.deck.shift();v.deck.push(c);}v.warn=null;vWarn();}v.foresee=true;}
@@ -132,6 +137,10 @@ async function splashV(n){const sd=S.sd,hm=sd.hench.filter(m=>dV(m,sd.v)<=2);if(
   hm.forEach(m=>{m.hp-=n;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'ZAP!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);
   log('hero',`The blast catches ${hm.length} henchm${hm.length===1?'an':'en'}.`);render()}
 async function gearBlast(center,area,name){const sd=S.sd,[r,d]=area,hm=sd.hench.filter(m=>cheb(m,center)<=r);await A.ring(HC(center.x,center.y),COL.tech,r*2+1.4);hm.forEach(m=>{m.hp-=d;fxP(m.x,m.y,m.hp<=0?'K.O.!':'BLAST!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);termHit(p=>cheb(p,center)<=r,name);log('hero',`${name}: ${d} damage to ${hm.length} henchmen within ${r} of the chosen hex.`);}
+/* Reaction Scry (Tech): look at the next n hit reactions and choose which comes up first; the rest go back in order */
+async function rxScry(n,col){const sd=S.sd,k=sd.vkey,top=[];for(let i=0;i<n;i++)top.push(drawTactic());
+  await A.reticle(ctrV(),col);const i=top.length>1?await choose(`Reaction Scry · ${VILLAINS[k].short}`,'Choose the hit reaction that comes up first. The others follow in this order.',top.map(c=>({l:`${c.sig?'★ ':''}${c.n}`,s:c.txt}))):0;
+  const c=top[i];sd.tdk[k].unshift(c,...top.filter((_,j)=>j!==i));log('hero',`Reaction Scry: ${c.n} comes up next.`)}
 async function peekReaction(){const sd=S.sd,k=sd.vkey,c=drawTactic();sd.tdk[k].unshift(c);if(c.sig)markSeenR(k,c.id);await choose('Next hit reaction',`${c.n}. ${c.txt}`,[{l:'Understood',s:'The reaction stays on top of the hit deck.'}]);log('hero',`Next reaction: ${c.n}. ${c.txt}`);}
 
 function applyBoardPrep(kind){const sd=S.sd;sd.boardPrep=kind;
