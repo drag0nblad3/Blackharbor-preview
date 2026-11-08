@@ -2,7 +2,7 @@
    Internal names stay: h.comp is the pool and stat 'maxComp' is the starting bonus from gear, upgrades and perks, so saves and data tables keep working.
    A fight starts at 2 + level + bonuses (+3 after Rally the team). No cap. At 0 the hero is Shaken.
    On an attack, strength or evasion roll that falls short, the hero may spend up to their level in Heroism to add that much, but only enough to reach a success.
-   Natural 1s still fail and natural 20s still succeed. The tutorial's scripted fights skip the pop-up. */
+   Natural 1s still fail and natural 20s still succeed. The tutorial's scripted rolls skip the pop-up except on its Heroism beat. */
 const heroStart=h=>Math.max(0,2+lvlOf(h)+stat(h,'maxComp'));
 function gainHero(h,n){h.comp=Math.max(0,(h.comp||0)+n)}
 /* the most a hero can spend on one roll right now */
@@ -14,7 +14,7 @@ const heroPref=(h,k)=>{const v=h.hpref&&h.hpref[k];return v>=0&&v<=3?v:1};
 /* need = how much the roll falls short. o: {kind:'acc'|'str'|'eva', line (what was rolled), win (what the spend achieves), card (revealed page or reaction name)}.
    Returns the Heroism spent (0 when the hero can't or won't pay). */
 async function heroSpend(u,need,o){const h=heroOf(u);
-  if(!u||u.ko||need<1||(S.tut&&S.tut.b!=null)||need>heroCap(h))return 0; /* the scripted tutorial (S.tut.b) never asks */
+  if(!u||u.ko||need<1||(S.tut&&S.tut.b!=null&&!(TUT[S.tut.b]||{}).hero)||need>heroCap(h))return 0; /* the scripted tutorial asks only on beats marked hero (its Heroism lesson and free play) */
   const m=heroPref(h,o.kind),safe=h.comp-need>0;
   if(m===0||(m===2&&!safe))return 0;
   if(m===1&&(FAST?!safe:!await heroPopup(h,need,o)))return 0; /* headless sims treat Ask as "spend unless it leaves the hero Shaken" */

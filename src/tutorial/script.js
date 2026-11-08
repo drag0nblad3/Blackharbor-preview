@@ -3,7 +3,9 @@
    craft and equip a Shock Baton, then Mole Boy. The Diggers fight and Mole Boy's first round run on rails: only the highlighted control
    works and each scripted roll comes from S.tut.dq (see d20). After that round the fight plays out with real dice. Losing costs nothing
    beyond his taunt. At the end the player keeps Lynx and Volt or starts an all-new team.
-   S.tut={b,dq,...}: b is the beat in TUT (0 = the offer pop-up). S.tutStash holds the real villains, pool and armory meanwhile. */
+   S.tut={b,dq,...}: b is the beat in TUT (0 = the offer pop-up). S.tutStash holds the real villains, pool and armory meanwhile.
+   The tutorial plays by the real rules (2 wounds tear Big Dig at level 1, Volt's Field Rig powers the baton). Heroism pop-ups only show on
+   beats marked hero:1. Captions quote real numbers: tests/tutorial.cjs checks them against the log and live stats, so keep it green. */
 const TUT_TIPS=['sd','attack','arcs','engines','sig','tabs','salvage'];
 const tutOn=()=>!!(S&&S.tut&&S.tut.b);
 const tutBeat=()=>tutOn()?TUT[S.tut.b]:null;
@@ -42,9 +44,10 @@ const TUT=[
   {id:'p-atk2',dq:[20,12],only:tutAtkOnly('lynx',()=>tutDig('tB')),ring:tutAtkRing('lynx',()=>tutDig('tB'),'Attack'),lit:tutAtkLit('lynx'),done:()=>tutU('lynx').acted,
     t:'Lynx is already in place, so no need to move. <b>Tap Lynx, then Attack, then the fresh Digger.</b>'},
   {id:'p-roll2',only:[],done:()=>!S.sd.busy,t:'A <b>natural 20 always hits</b>, whatever the evasion. Remember that against tough villains.'},
-  {id:'p-end2',dq:[5],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=3,t:'One Digger left. <b>End the round</b> (tap it twice).'},
-  {id:'p-atk3',dq:[16,8],only:tutAtkOnly('lynx',()=>tutDig('tA')),ring:tutAtkRing('lynx',()=>tutDig('tA'),'Attack'),lit:tutAtkLit('lynx'),done:()=>!!S.sd.result,
-    t:'It missed. Finish the job: <b>Lynx, Attack, Digger.</b>'},
+  {id:'p-end2',dq:[5],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.round>=3&&!S.sd.busy, /* wait out the Digger's turn so it rolls the 5, not the next beat's dice */t:'One Digger left. <b>End the round</b> (tap it twice).'},
+  {id:'p-atk3',dq:[2,1],hero:1,only:tutAtkOnly('lynx',()=>tutDig('tA')),ring:tutAtkRing('lynx',()=>tutDig('tA'),'Attack'),lit:tutAtkLit('lynx'),done:()=>!!S.sd.result,
+    t:()=>document.getElementById('hpop')?'That die fell 1 short. Lynx can pay for it with <b>Heroism</b>. <b>Tap Spend</b>.':'It missed. Finish the job: <b>Lynx, Attack, Digger.</b>'},
+  {id:'p-hero',next:1,only:[],lit:()=>'#app [data-a^="heroPref:"]',t:()=>`That was <b>Heroism</b>. When an attack, Strength or evasion roll falls just short, a hero can spend up to their level in Heroism to make it. Lynx has ${tutH('lynx').comp} left; it resets every fight, and a hero at 0 is <b>Shaken</b>. A <b>natural 1</b> still fails. <b>Heroism ⚙</b> on a hero's panel sets when to spend it.`},
   {id:'p-won',only:['tut:hq'],lit:()=>'#app [data-a="tut:hq"]',done:()=>S.phase==='hq',t:'Subway safe! These Diggers work for a villain called Mole Boy, and they dropped his <b>salvage</b>, called Grit. <b>Head back to HQ.</b>'},
   /* HQ */
   {id:'h-grit',next:1,only:[],lit:()=>'.mast .chip[aria-label="Grit"]',t:'Your 2 Grit sits in the masthead with your other resources. Every villain drops their own kind of salvage, and the Workshop turns it into gear.'},
@@ -57,37 +60,37 @@ const TUT=[
     t:'Empty gear slots are buttons. <b>Tap Volt\'s Main Hand slot</b> to see what fits it.'},
   {id:'h-equip',only:()=>{const V=tutH('volt');return [`equip:${V.id}:baton:arms`,`slotpick:${V.id}:arms`]},lit:()=>{const V=tutH('volt');return slotPick?`#slotpick [data-a="equip:${V.id}:baton:arms"]`:`#app [data-a="slotpick:${V.id}:arms"]`},
     done:()=>tutH('volt').gear.arms==='baton',t:'<b>Tap the Shock Baton</b> to equip it.'},
-  {id:'h-stats',next:1,only:[],lit:()=>`[data-cid="h-${tutH('volt').id}"] .stats`,t:'Volt\'s accuracy and Strength went up. The baton also gives Volt a new fight button, <b>Stun Charge</b>: it spends Power for +3 Strength on the next attack.'},
+  {id:'h-stats',next:1,only:[],lit:()=>`[data-cid="h-${tutH('volt').id}"] .stats`,t:'Volt\'s accuracy and Strength went up. The baton also gives Volt a fight button, <b>Stun Charge</b>, which spends Power for +3 Strength on the next attack. Tech abilities only work while <b>powered</b>: Volt\'s <b>Field Rig</b> is a Tech Body item, and a tier 1 Body powers itself and one more Tech item, so the baton is live.'},
   {id:'h-vil',only:['view:villains'],lit:()=>'#app [data-a="view:villains"]',done:()=>S.view==='villains',t:'A case file just landed on your desk. <b>Open the Villains tab.</b>'},
   {id:'h-go',only:['tut:fight'],lit:()=>'#app [data-a="tut:fight"]',done:()=>S.phase==='sd',
     t:'Normally you investigate a villain first to learn their tricks. Tonight there\'s no time: Mole Boy is tunnelling under the bank right now. <b>Confront him.</b>'},
   /* Mole Boy, round 1 */
   {id:'b-splash',only:['sdgo'],lit:()=>'[data-a="sdgo"]',done:()=>!S.sd.intro,t:'Every fight opens with the villain\'s splash page. <b>Fight!</b>'},
   {id:'b-pages',next:1,only:['book:mole'],lit:()=>'#app .pips, #app [data-a="book:mole"]',t:'Villains have no health bar. Their <b>playbook is their health</b>: every wound tears out a page. Mole Boy has 4 pages, so 4 wounds beat him. <b>Read playbook</b> opens his comic and every page you have seen.'},
-  {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Big Dig is in the <b>charging slot</b>. Mole Boy is level 1, so one wound this round tears his planned Signature Move instead of the draw pile.'},
+  {id:'b-sig',next:1,only:[],lit:()=>'#app .cap.warn',t:'Big Dig is in the <b>charging slot</b>: the page he plays on his turn. Wounds normally tear the draw pile, but land <b>half his level + 1</b> wounds in one round (rounded up) and the last one tears a Signature Move in that slot instead. Mole Boy is level 1, so that takes <b>2 wounds</b> this round.'},
   {id:'b-arcs',next:1,only:[],lit:()=>'#app .boardwrap',t:'The yellow arrow shows where he faces, and the tinted hexes in front are his <b>front arc</b>. The shaded hexes behind him are his <b>blind spot</b>: attacks from there roll +1 die. Some hit reactions only trigger from one side.'},
   {id:'b-volt',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'Volt first. <b>Tap Volt.</b>'},
   {id:'b-stun',only:['combatMenu:abilities','combatPick:ability:baton','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='baton'?'#app [data-a="combatUse"]':S.sd.combatMenuOpen==='abilities'?'#app [data-a="combatPick:ability:baton"]':'#app .abilities-dropdown .combat-menu-toggle',done:()=>{const u=tutU('volt');return u.buffStr>=3&&!S.sd.busy},
     t:'Mole Boy\'s skull is thick. <b>Stun Charge</b> spends 2 Power for +3 Strength on Volt\'s next attack. <b>Open Abilities, select Stun Charge, read its details, then tap Activate ability.</b>'},
   {id:'b-vatk',dq:[17,1,6],only:tutAtkOnly('volt',tutMole),ring:tutAtkRing('volt',tutMole,'Attack'),lit:tutAtkLit('volt'),done:()=>tutU('volt').acted,
     t:'Volt can hit him from 4 hexes away. <b>Tap Attack, then Mole Boy.</b>'},
-  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 8 = 14 against 12. Without it, 6 + 5 = 11 would have bounced. And there goes Big Dig!'},
+  {id:'b-vres',only:[],done:()=>!S.sd.busy,t:'Every hit draws a <b>hit reaction</b>, then rolls <b>d20 + Strength against toughness</b>. Hard Hat added +4 toughness because Volt hit him from the front, but Stun Charge got the wound through: 6 + 8 = 14 against 12. Without it, 6 + 5 = 11 would have bounced. That tore a page from his draw pile. One more wound this round and Big Dig goes.'},
   {id:'b-lynx',only:()=>[tutCell(tutU('lynx'))],ring:()=>{const u=tutU('lynx');return [u.x,u.y,'Tap Lynx']},done:()=>S.sd.sel===tutIdx('lynx'),t:'Now Lynx. <b>Tap Lynx.</b>'},
   {id:'b-lmove',enter:()=>{const v=tutMole();tutAimDest('lynx',ps=>{const near=ps.filter(p=>dV(p,v)===1),u=tutU('lynx');return (near.filter(p=>sideOf(p,v)==='rear')[0]&&near.filter(p=>sideOf(p,v)==='rear').sort((a,b)=>cheb(a,u)-cheb(b,u))[0])||near.sort((a,b)=>cheb(a,u)-cheb(b,u))[0]})},
     only:()=>S.tut.dest?[`cell:${S.tut.dest.join(',')}`]:[],ring:()=>S.tut.dest?[...S.tut.dest,'Blind spot']:null,done:()=>tutU('lynx').moved,
     t:'Lynx moves 5. Swing around behind him: <b>tap the ringed hex</b> in his blind spot.'},
   {id:'b-latk',dq:[12,9,1,10,4],only:tutAtkOnly('lynx',tutMole),ring:tutAtkRing('lynx',tutMole,'Attack'),lit:tutAtkLit('lynx'),done:()=>tutU('lynx').acted,
     t:'From the blind spot Lynx rolls 3 dice instead of 2. <b>Tap Attack, then Mole Boy.</b>'},
-  {id:'b-lres',only:[],done:()=>!S.sd.busy,t:'<b>Soft Belly</b> only triggers from the blind spot, so that wound landed for free. A hit doesn\'t always wound, though: the Clean Hit rolled 4 + 2 = 6, short of his toughness of 8.'},
+  {id:'b-lres',only:[],done:()=>!S.sd.busy,t:'<b>Soft Belly</b> only triggers from the blind spot, so that wound landed for free, and as the second wound this round it tore out <b>Big Dig</b>! A hit doesn\'t always wound, though: the Clean Hit rolled 4 + 2 = 6, short of his toughness of 8, and 2 short is more than Lynx\'s Heroism can cover at level 1.'},
   {id:'b-end',only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=2,t:'Both heroes have acted. <b>End the round</b> (tap it twice).'},
-  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':'Mole Boy did nothing: Volt tore out <b>Big Dig</b> while he was charging it, so he <b>lost his turn</b>. Every round a villain plays the page in his charging slot. Wound him as many times as his level in one round and you cancel it. He is already charging his next page.'},
+  {id:'b-vturn',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':'Mole Boy did nothing: you tore out <b>Big Dig</b> while he was charging it, so he <b>lost his turn</b>. Every round a villain plays the page in his charging slot. When a Signature Move is in that slot he shouts a warning: pile on the wounds that round to tear it. He is already charging his next page.'},
   {id:'b-plan',next:1,only:[],lit:()=>'#app .cap',t:'Now he is charging <b>Tunnel Ambush</b>: he will burst up next to the hero farthest away. That is Volt. This round, let it through and see what a villain turn looks like.'},
   {id:'b-volt2',only:()=>[tutCell(tutU('volt'))],ring:()=>{const u=tutU('volt');return [u.x,u.y,'Tap Volt']},done:()=>S.sd.sel===tutIdx('volt'),t:'<b>Tap Volt.</b>'},
   {id:'b-avoid',only:['combatMenu:other','combatPick:other:avoidDamage','combatUse'],lit:()=>S.sd.combatPick&&S.sd.combatPick.key==='avoidDamage'?'#app [data-a="combatUse"]':S.sd.combatMenuOpen==='other'?'#app [data-a="combatPick:other:avoidDamage"]':'#app .other-actions .combat-menu-toggle',done:()=>{const u=tutU('volt');return !!u.avoidDamage&&!S.sd.busy},
     t:'<b>Other Actions</b> holds moves any hero can make. <b>Avoid Damage</b> spends Volt\'s action for +3 Evasion until next round, or +5 next to cover like walls, rubble or an ally. <b>Open Other Actions, select Avoid Damage, then tap Use action.</b> Selecting an entry only shows its details; Cancel backs out for free. Abilities that target the board skip that button: pick one, then tap the board.'},
   {id:'b-end2',dq:[7],only:['endround'],lit:()=>'#app [data-a="endround"]',done:()=>S.sd.busy||S.sd.round>=3,t:'Lynx holds back this round. <b>End the round</b> (tap it twice).'},
-  {id:'b-vturn2',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':'<b>Tunnel Ambush!</b> He rolled 7 + 2 = 9. That beats Volt\'s evasion of 8, but Avoid Damage raised it to 11, so he missed. Next to him in Other Actions is <b>Rally Spirit</b>: it spends your action to give an ally nearby +3 Heroism.'},
+  {id:'b-vturn2',next:1,only:[],wait:()=>!S.sd.busy,t:()=>S.sd.busy?'Mole Boy\'s turn. Watch what he does.':`<b>Tunnel Ambush!</b> He rolled 7 + 2 = 9. That would hit Volt's evasion of ${stat(tutH('volt'),'eva')}, but Avoid Damage raised it to ${stat(tutH('volt'),'eva')+3}, so he missed. Also in Other Actions is <b>Rally Spirit</b>: it spends your action to give you or an ally within your level in hexes +3 Heroism.`},
   {id:'b-free',next:1,nextL:'Play on',only:[],go:()=>{S.tut.dq=[];S.tips=[...new Set([...(S.tips||[]),...TUT_TIPS])]},
     t:'That\'s the end of the script. Mole Boy has 2 pages left. <b>Finish him off on your own</b>, with real dice. Long-press anything you\'re unsure about.'},
-  {id:'free'},
+  {id:'free',hero:1},
   {id:'end'}];

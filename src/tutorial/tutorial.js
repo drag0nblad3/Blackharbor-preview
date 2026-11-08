@@ -63,27 +63,30 @@ function tutEndView(){const t=S.tut||{},ns=roster().map(h=>h.name),gear=roster()
   const head=t.skip?'Tutorial skipped':t.won?'Mole Boy dug away!':'Mole Boy got away';
   return `<section class="panel"><div class="eyebrow">Tutorial complete</div><div><span class="sfxhead ${t.won===false?'bad':''}">${head}</span></div>
     ${t.lines?`<ul class="lines">${t.lines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
-    <p style="margin:0">Eleven villains are loose in Blackharbor. Who answers the call?</p>
-    <p class="small muted" style="margin:0">The game saves on this device as you play. <b>Save / Load</b> at the top makes a code you can keep as a backup or use on another device.</p>
+    <p style="margin:0">${tutWords(Object.values(VILLAINS).filter(v=>!v.intro).length)} villains are loose in Blackharbor. Who answers the call?</p>
+    <p class="small muted" style="margin:0">The game saves on this device as you play. The <b>☰ Menu</b> button at the top makes a save code you can keep as a backup or use on another device, and holds the difficulty setting and the rules guide.</p>
     <div class="grid2"><button class="btn opt" data-a="tut:keep"><span>Keep ${esc(ns.join(' and ')||'the team')}</span><small>They join Volume ${S.vol}${gear}${S.salvage.mole?` and your ${S.salvage.mole} Grit`:''} come with them. Recruit more heroes to fill a party of four.</small></button>
       <button class="btn opt" data-a="tut:fresh"><span>Start an all-new team</span><small>A fresh Volume ${S.vol} with an empty roster and the starter locker. Write your own heroes or pick quick builds.</small></button></div></section>`}
+const tutWords=n=>['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen'][n]||String(n);
 let tutSeenB=-1;
 function tutPaint(){let c=document.getElementById('tutc');const B=tutBeat();document.querySelectorAll('.tutlit').forEach(e=>e.classList.remove('tutlit'));document.querySelectorAll('.tutring').forEach(e=>e.remove());
   if(!B||!B.t){if(c)c.remove();document.body.classList.remove('tutpad');tutSeenB=-1;return}
   if(!c){c=document.createElement('div');c.id='tutc';c.setAttribute('role','status');document.body.appendChild(c)}
   const ready=!B.wait||B.wait(),txt=typeof B.t==='function'?B.t():B.t;
   const html=`<div class="tc"><b>Dispatch</b><p>${txt}</p>${B.extra?B.extra():''}<div class="row">${B.next?`<button class="btn sm pri" data-a="tut:next" ${ready?'':'disabled'}>${B.nextL||'Next'}</button>`:''}<button class="btn sm" data-a="tut:skip" style="margin-left:auto">Skip tutorial</button></div></div>`;
-  if(c.dataset.h!==html){c.innerHTML=html;c.dataset.h=html}c.classList.toggle('top',!!document.querySelector('#atk,#cards,#brk'));
+  if(c.dataset.h!==html){c.innerHTML=html;c.dataset.h=html}c.classList.toggle('top',!!document.querySelector('#atk,#cards,#brk,#hpop'));
   document.body.classList.add('tutpad');document.body.style.setProperty('--tutpad',(c.offsetHeight+20)+'px');
   let tgt=null;const sel=B.lit&&B.lit();if(sel)document.querySelectorAll(sel).forEach(e=>{e.classList.add('tutlit');tgt=tgt||e});
   const r=B.ring&&B.ring();if(r){const cell=document.querySelector(`.board [data-cell="${r[0]},${r[1]}"]`);if(cell){const d=document.createElement('div');d.className='tutring';d.setAttribute('style',cell.getAttribute('style'));
     d.innerHTML=`<svg viewBox="0 0 100 115.5" preserveAspectRatio="none" aria-hidden="true"><polygon points="50,3 97,30 97,85.5 50,112.5 3,85.5 3,30"/></svg>${r[2]?`<span>${esc(r[2])}</span>`:''}`;cell.parentNode.appendChild(d);tgt=tgt||d}}
-  /* scroll the target into view whenever it changes, clear of the caption at the bottom */
-  const key=S.tut.b+'|'+sel+'|'+(r||'');if(key!==tutSeenB){tutSeenB=key;if(tgt&&!document.getElementById('atk')&&!document.getElementById('cards'))setTimeout(()=>{if(!tgt.isConnected)return;const R=tgt.getBoundingClientRect(),top=c.getBoundingClientRect().top;
-    if(R.top<8||R.bottom>top-8)scrollBy({top:R.top+R.height/2-Math.min(innerHeight/2,(top-8)/2),behavior:RM?'auto':'smooth'})},60)}}
+  /* scroll the target into view whenever it changes, clear of the caption at the bottom; after a splash or panel closes, check again in case the layout moved it under the caption */
+  const key=S.tut.b+'|'+sel+'|'+(r||''),busy=!!document.querySelector('#atk,#cards,#brk,#hpop');
+  if(tgt&&!busy&&(key!==tutSeenB||(S.sd&&!S.sd.busy&&tutHidden(tgt,c)))){tutSeenB=key;setTimeout(()=>{if(!tgt.isConnected||!tutHidden(tgt,c))return;const R=tgt.getBoundingClientRect(),top=c.getBoundingClientRect().top;
+    scrollBy({top:R.top+R.height/2-Math.min(innerHeight/2,(top-8)/2),behavior:RM?'auto':'smooth'})},60)}}
+const tutHidden=(t,c)=>{const R=t.getBoundingClientRect();return R.top<8||R.bottom>c.getBoundingClientRect().top-8};
 
 /* while an attack panel, playbook page or break splash is up, the caption moves to the top and lets taps through to it */
-if(!FAST&&typeof MutationObserver!=='undefined')new MutationObserver(()=>{const c=document.getElementById('tutc');if(c)c.classList.toggle('top',!!document.querySelector('#atk,#cards,#brk'))}).observe(document.body,{childList:true});
+if(!FAST&&typeof MutationObserver!=='undefined')new MutationObserver(()=>{const c=document.getElementById('tutc');if(c)c.classList.toggle('top',!!document.querySelector('#atk,#cards,#brk,#hpop'))}).observe(document.body,{childList:true});
 
 /* button actions (data-a="name:p1:p2:p3"); return NO_RENDER to skip the render after it */
 ACT.tut=(p1)=>{tutAct(p1)};
