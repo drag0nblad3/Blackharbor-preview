@@ -31,6 +31,8 @@ function dropBomb(x,y,fuse,dmg,radius=1,daze){const sd=S.sd,k=x+','+y;sd.bombs=s
   if(sd.bombs.length>=BOMB_MAX)return false;sd.bombs.push({k,fuse:1,dmg,o:sd.vkey,radius,...(daze?{daze:1}:{})});return true}
 async function blowBombs(list,bonus=0){const sd=S.sd;
   for(const b of list){if(sd.result)break;sd.bombs=sd.bombs.filter(o=>o!==b);const p=bombP(b),radius=bombRadius(b),inZ=q=>cheb(q,p)<=radius,sap=sd.hench.some(m=>m.owner===b.o&&!m.elite&&cheb(m,p)<=1)?1:0,dm=b.dmg+bonus+sap;
+    live().filter(inZ).forEach(u=>battlePose('h'+u.hid,'defense'));
+    sd.civs.filter(inZ).forEach(c=>battlePose('c'+c.id,'defense'));
     render();await Promise.all([A.blast(p,radius,COL.yel),A.smoke(HC(p.x,p.y),5)]);fxP(p.x,p.y,pick(['KA-BOOM!','BLAM!','KRAKOOM!']),'vhit');
     if(sap)log('vill','A Sapper packed that bomb: +1 damage.');
     const hd=dm,hs=live().filter(inZ),hm=sd.hench.filter(m=>m.owner!=='bomber'&&inZ(m));
@@ -80,9 +82,13 @@ async function fireBeams(lines,dmg,label,o={}){const sd=S.sd,v=sd.v,hitSet=o.hit
   checkLoss();return hits.map(e=>e.r.hit)}
 async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null;
   const cells=ch.zone.map(k=>{const[x,y]=k.split(',').map(Number);return {...HC(x,y),x,y}});
+  const inZ=p=>ch.zone.includes(p.x+','+p.y);
+  battlePose('v'+sd.vi,'attack');
+  live().filter(inZ).forEach(u=>battlePose('h'+u.hid,'defense'));
+  sd.civs.filter(inZ).forEach(c=>battlePose('c'+c.id,'defense'));
   sd.firing=ch.zone;fxV(ch.n.toUpperCase()+'!','say');render();
   await Promise.all([A.bolt(ctrV(),cells[Math.floor(cells.length/2)],COL.yel),...cells.map((p,i)=>sleep(i*22).then(()=>A.ring(p,COL.yel,1.4)))]);
-  sd.firing=null;const inZ=p=>ch.zone.includes(p.x+','+p.y);
+  sd.firing=null;
   const hit=live().filter(inZ);
   const cd=ch.dmg>0&&v.cursed?Math.max(1,ch.dmg-2):ch.dmg;for(const u of hit){if(await wardBlocks(u))continue;fxU(u,pick(['FWOOOM!','KRAKOOM!']),'vhit');damageHero(u,cd);log('vill',`${ch.n} scorches ${heroOf(u).name} for ${ch.dmg}.`);if(ch.daze)dazeU(u)}
   sd.civs.filter(inZ).forEach(c=>harmCiv(c,ch.n));termHit(inZ,ch.n);

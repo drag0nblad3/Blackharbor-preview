@@ -113,10 +113,30 @@ const A={
     e.animate([{transform:TC(0,0)},{transform:TC(0,-b.c*1.6,'scale(.4)'),opacity:0}],{duration:520,easing:'ease-in'});
     return Promise.all([gone(e,520),A.sparkle(at,COL.yel)])},
 };
-function strikeAnim(style,from,to,col,tid){
-  switch(style){case 'none':return Promise.resolve();case 'bolt':return A.bolt(from,to,col);case 'shot':return A.shot(from,to,col);
-    case 'throw':return A.throw(from,to,'car');case 'rock':return A.throw(from,to,'rock');case 'beam':return A.beam(to,col);
-    default:if(tid)A.lunge(tid,to);return sleep(FAST||RM?0:110).then(()=>A.slash(to,col))}}
+function battlePose(tid,pose){
+  if(typeof isoCombatPose==='function')return isoCombatPose(tid,pose);
+}
+async function strikeAnim(style,from,to,col,tid,targetTid){
+  const attack=battlePose(tid,'attack');
+  if(style!=='none'&&attack)await attack;
+  const defense=battlePose(targetTid,'defense');
+  if(style==='none')return;
+  if(defense)await defense;
+  const hold=attack||defense?sleep(ISO_POSE_MS):null;
+  let effect;
+  switch(style){
+    case 'bolt':effect=A.bolt(from,to,col);break;
+    case 'shot':effect=A.shot(from,to,col);break;
+    case 'bomb':effect=A.throw(from,to,'bomb');break;
+    case 'throw':effect=A.throw(from,to,'car');break;
+    case 'rock':effect=A.throw(from,to,'rock');break;
+    case 'beam':effect=A.beam(to,col);break;
+    default:
+      if(tid)A.lunge(tid,to);
+      effect=sleep(FAST||RM?0:110).then(()=>A.slash(to,col));
+  }
+  await Promise.all([effect,hold]);
+}
 const ctrU=u=>HC(u.x,u.y),ctrV=()=>vCtr(S.sd.v);
 
 function battleFxMarkup(f,position,age){

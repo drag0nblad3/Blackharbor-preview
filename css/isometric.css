@@ -41,3 +41,8 @@
 /* Match the special enemy markers used on the classic board. */
 .iso-unit.infested::before{border:2px solid #aaff00}
 .iso-unit.shadow::before{border:2px solid #bb88ff}
+
+.iso-figure[data-pose="attack"],.iso-figure[data-pose="defense"]{background-image:var(--combat-sheet)!important;background-size:var(--combat-size)!important}
+.iso-figure[data-pose="attack"]{background-position:var(--attack-pos)!important}
+.iso-figure[data-pose="defense"]{background-position:var(--defense-pos)!important}
+.iso-figure[data-pose="move"]{background-image:var(--move-sheet)!important;background-size:var(--move-size)!important;background-position:var(--move-pos)!important}
