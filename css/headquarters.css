@@ -97,9 +97,15 @@
 #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{min-width:0;flex-wrap:wrap}
 #app.wrap.v-sd .mast .bh-comic-brand{flex:0 1 200px;max-width:200px}
 @media(max-width:600px){
-  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast{grid-template-columns:1fr}
+  #app.wrap:not(.sprite-gallery) .mast{padding:3px 6px;gap:3px 5px}
   #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.bh-comic-brand{grid-column:1/-1;max-width:none}
-  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{grid-column:1/-1;margin:0;justify-content:space-between}
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.res{grid-column:1;grid-row:2;padding:0;border:0}
+  #app.wrap:not(.sprite-gallery):not(.v-sd) .mast>.mast-tools{grid-column:2;grid-row:2;margin:0;gap:4px}
+  #app.wrap:not(.sprite-gallery) .mast .issue{font-size:.68rem;padding:2px 4px}
+  #app.wrap:not(.sprite-gallery) .mast .mast-save-btn{padding-inline:5px}
+  #app.wrap.v-sd .mast{display:grid;grid-template-columns:minmax(0,1fr) auto auto}
+  #app.wrap.v-sd .mast>.res{padding:0;border:0}
+  #app.wrap.v-sd .mast>.mast-tools{gap:4px}
 }
 @media(max-width:600px){
   #app .hq-construction-heading h2{font-size:1.3rem}

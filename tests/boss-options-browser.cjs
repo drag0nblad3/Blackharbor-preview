@@ -7,7 +7,7 @@ await page.evaluate(()=>{
 for(const [key,id,name] of [['quarry','fault','Tectonic Heave'],['architect','foundry','Renovation Notice'],['helios','sunspot','Solar Debt'],['noct','decoy','Stolen Shadow']]){
  await page.evaluate(async({key,id})=>{bossTestSetup(key);await execCard(buildCard(key,{id,mk:0}));render()},{key,id});
  assert.match(await page.locator('.boss-effects').innerText(),new RegExp(name));
- if(['quarry','architect'].includes(key))assert(await page.locator('.cell.tele').count()>=3);
+ if(['quarry','architect'].includes(key))assert(await page.locator('.iso-cell.warning').count()>=3);
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),JSON.stringify({key,width,overflow:await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).slice(0,12).map(e=>[e.tagName,e.id,e.className,e.getBoundingClientRect().right,e.outerHTML.slice(0,180)]))}));
  const before=await page.evaluate(()=>JSON.stringify(S.sd.v.setup||S.sd.v.solarHeat||S.sd.v.shadowMark));
  await page.evaluate(()=>{save();load();render()});

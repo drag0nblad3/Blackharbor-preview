@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const g=require('../tools/bh').load({seed:41});
-g.run("isoEnabled=true;newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=Object.keys(HERO_BASE).map(k=>newHero(k));S.party=S.heroes.slice(0,4).map(h=>h.id)");
+g.run("newCampaign();S.guide=null;S.tut=null;S.tutDone=true;S.heroes=Object.keys(HERO_BASE).map(k=>newHero(k));S.party=S.heroes.slice(0,4).map(h=>h.id)");
 assert.equal(g.get('ISO_KEYS.length'),36);
 assert.equal(g.get('Object.keys(HERO_BASE).every(k=>ISO_KEYS.includes(k))'),true);
 assert.equal(g.get('Object.keys(VILLAINS).every(k=>ISO_KEYS.includes(k))'),true);

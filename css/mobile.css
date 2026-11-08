@@ -9,7 +9,7 @@
     padding-right:max(6px,env(safe-area-inset-right,0px));
     padding-block:6px 14px;
   }
-  #app{gap:7px}
+  #app{gap:5px}
   #app .panel{padding:7px;gap:7px}
 
   /* Masthead: title + resources on one line, issue + save on the next. */
@@ -30,11 +30,13 @@
   #app .nav .btn .ic.u{margin:0;flex:none}
 
   /* Page banner: title and numbers; the description sentence is desktop-only. */
-  #app .bh-pagehead{padding:6px 8px;gap:5px}
+  #app .bh-pagehead{padding:4px 7px;gap:4px}
+  #app .bh-pagehead-copy{flex:1 1 125px;min-width:0}
   #app .bh-pagehead p{display:none}
   #app .bh-page-kicker{font-size:.58rem}
   #app .bh-pagehead h2{font-size:1.08rem;margin:1px 0 0}
-  #app .bh-page-stats{gap:4px}
+  #app .bh-page-stats{width:auto;gap:3px;flex-wrap:wrap}
+  #app .bh-page-stat{flex:0 1 auto}
   #app .bh-page-stat{flex-direction:row;align-items:baseline;justify-content:center;
     gap:4px;padding:2px 4px;min-height:0}
   #app .bh-page-stat b{font-size:.86rem}
@@ -51,6 +53,12 @@
   #app .bh-ops-threat,#app .bh-case-index{padding:2px 0}
   /* HQ: Base ledger repeats the mast resource chips. */
   #app .bh-hq-rail>.bh-rail-block:nth-child(4){display:none}
+  #app .bh-hq-rail>.bh-rail-block:nth-child(3){
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:center;
+  }
+  #app .bh-hq-rail>.bh-rail-block:nth-child(3)>.bh-rail-title{grid-column:1/-1}
   /* Threat board: open investigations repeat the case-file cards below. */
   #app .bh-threat-rail>.bh-rail-block:nth-child(2){display:none}
   #app .bh-threat-rail>.bh-rail-block:last-child{display:flex}
@@ -102,7 +110,7 @@
   #app.v-sd .sdp>.bact .btn{padding-block:3px}
 
   /* Investigation: compact header and fact tiles. */
-  #app.v-inv .inv-header{padding:6px 9px;gap:5px}
+  #app.v-inv .inv-header{padding:4px 7px;gap:4px}
   #app.v-inv .inv-header h2{font-size:1rem;margin:1px 0}
   #app.v-inv .inv-start-facts span{padding:4px;font-size:.66rem}
   #app.v-inv .inv-start-facts b{font-size:.82rem;line-height:1.15}
