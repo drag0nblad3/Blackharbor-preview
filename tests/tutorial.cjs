@@ -13,7 +13,9 @@ const assert=require('node:assert/strict');
       page.on('pageerror',e=>errors.push(size.width+': '+e.message));
       await page.goto('file://'+process.cwd()+'/index.html');
       await page.evaluate(()=>localStorage.clear());await page.reload();
-      await page.click('[data-a="tut:start"]');
+      const opening=page.frameLocator('iframe[title="Blackharbor opening menu"]');
+      await opening.locator('#new-button').click();
+      await opening.getByRole('button',{name:'Start Game',exact:true}).click();
       const state=()=>page.evaluate(()=>({b:S.tut&&S.tut.b,id:S.tut&&TUT[S.tut.b]&&TUT[S.tut.b].id,busy:!!(S.sd&&S.sd.busy),
         log:S.sd?S.sd.log.map(l=>l.t).join('\n'):'',plan:[...document.querySelectorAll('#app .cap b')].map(e=>e.textContent).join(' | ')}));
       const seen={};let last=-1,stuck=0;
