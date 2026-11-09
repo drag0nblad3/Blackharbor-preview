@@ -28,7 +28,7 @@ const assert=require('node:assert/strict');
   assert.deepEqual(await page.evaluate(()=>S.sd.units.slice(0,2).map(u=>[u.x,u.y])),[[3,6],[2,6]]);
   // Full save export/import retains the reserved card exactly once and its round damage.
   await page.evaluate(async()=>{const out=await bhSaveEncode(S),decoded=await bhSaveDecode(out);localStorage.setItem(KEY,JSON.stringify(decoded.state));});
-  await page.reload();await page.frameLocator('iframe[title="Blackharbor opening menu"]').locator('#continue-button').click();await page.waitForFunction(()=>S.sd&&S.sd.v===S.sd.vl[S.sd.vi].v);
+  await page.reload();await page.frameLocator('iframe[title="Blackharbor opening menu"]').locator('#continue-button').click();await page.waitForFunction(()=>typeof S!=="undefined"&&S&&S.sd&&S.sd.v===S.sd.vl[S.sd.vi].v);
   assert.equal(await page.evaluate(()=>S.sd.v.planned.id),'field');assert.equal(await page.evaluate(()=>S.sd.v.turnDamage),1);
   assert.equal(await page.evaluate(()=>[...S.sd.v.deck,...S.sd.v.discard,S.sd.v.planned].filter(c=>c?.id==='field').length),1);
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'No horizontal page overflow');

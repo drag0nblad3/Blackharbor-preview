@@ -1,6 +1,8 @@
 /* ui/start.js: Opening screen and campaign setup before entering gameplay. */
 let bhOpeningFrame;
 let bhOpeningBusy=false;
+/* Opened from disk (file://), origins are opaque or 'file://', so messages go to '*'; the source-window check still guards them. */
+function bhOpeningLocal(){return location.protocol==='file:'||location.origin==='null'}
 function bhOpeningClose(){
   if(bhOpeningFrame){bhOpeningFrame.remove();bhOpeningFrame=null;document.body.style.overflow='';}
 }
@@ -17,14 +19,14 @@ function bhOpeningHasSave(){
   try{return !!bhSaveValidate(JSON.parse(localStorage.getItem(KEY)));}catch(_){return false;}
 }
 function bhOpeningState(error){
-  if(bhOpeningFrame)bhOpeningFrame.contentWindow.postMessage({type:'blackharbor-start-state',hasSave:bhOpeningHasSave(),error:error||''},location.origin==='null'?'*':location.origin);
+  if(bhOpeningFrame)bhOpeningFrame.contentWindow.postMessage({type:'blackharbor-start-state',hasSave:bhOpeningHasSave(),error:error||''},bhOpeningLocal()?'*':location.origin);
 }
 function bhOpeningDismissOffers(){
   if(S.tut&&S.tut.b===0){S.tut=null;S.tutDone=true;}
   if(S.guide&&S.guide.s===0)S.guide=S.tipsOff?null:{s:1,pop:null};
 }
 if(typeof window!=='undefined')window.addEventListener('message',async event=>{
-  if(!bhOpeningFrame||event.source!==bhOpeningFrame.contentWindow||event.origin!==location.origin||event.data?.type!=='blackharbor-start')return;
+  if(!bhOpeningFrame||event.source!==bhOpeningFrame.contentWindow||(!bhOpeningLocal()&&event.origin!==location.origin)||event.data?.type!=='blackharbor-start')return;
   const request=event.data;
   if(request.action==='ready'){bhOpeningState();return;}
   if(bhOpeningBusy)return;
