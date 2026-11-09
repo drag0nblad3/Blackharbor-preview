@@ -307,7 +307,7 @@ const tutorial = document.querySelector('#tutorial-choice');
 const tips = document.querySelector('#tips-choice');
 const experienced = document.querySelector('#experienced-choice');
 function sendStart(action, options = {}) {
-  parent.postMessage({type:'blackharbor-start',action,...options}, location.origin === 'null' ? '*' : location.origin);
+  parent.postMessage({type:'blackharbor-start',action,...options}, location.protocol === 'file:' || location.origin === 'null' ? '*' : location.origin);
 }
 window.addEventListener('message', event => {
   if(event.source !== parent || event.data?.type !== 'blackharbor-start-state') return;
