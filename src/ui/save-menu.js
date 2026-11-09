@@ -200,6 +200,7 @@ function bhMenuArm(key){
 }
 function bhMenuClose(){const d=document.getElementById('bh-save-dialog');if(d)d.close()}
 function bhMenuAct(key){
+  if(key==='newgame'&&typeof bhOpeningMount==='function'){bhMenuClose();bhOpeningMount();return;}
   if(bhArm.key!==key||Date.now()-bhArm.at>6000){bhMenuArm(key);
     bhSaveUIStatus(BH_ARM_TXT[key][2]+' Tap again to confirm.',false);return}
   bhMenuArm(null);

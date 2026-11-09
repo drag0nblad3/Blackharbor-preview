@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10182e">
+<title>Blackharbor — Opening Menu</title>
+<style>
+:root{color-scheme:dark;--ink:#11192b;--paper:#fff1d3;--gold:#ffcf49;--red:#ff6853;--blue:#a6dbe4;--mono:ui-monospace,'Courier New',monospace}
+*{box-sizing:border-box}
+#camera-wash{position:fixed;inset:0;z-index:100;pointer-events:none;background:radial-gradient(ellipse farthest-corner at var(--lamp-x,65%) var(--lamp-y,35%),#fff4a8 0%,#fff4b3 28%,rgba(255,239,160,.82) 65%,rgba(255,235,145,.45) 100%);opacity:0}
+body{margin:0;background:#10182e;color:var(--paper);font:16px system-ui,sans-serif}
+button,a{-webkit-tap-highlight-color:transparent}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid white;outline-offset:5px}
+.stage{position:relative;isolation:isolate;min-height:100svh;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden;padding:max(22px,env(safe-area-inset-top)) max(5vw,env(safe-area-inset-right)) max(22px,env(safe-area-inset-bottom)) max(5vw,env(safe-area-inset-left))}
+.scene,.scene svg,.wash{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.scene{z-index:-2;background:radial-gradient(ellipse at 78% 40%,#526381,#11192b 70%)}
+.scene .portrait{display:none}
+.wash{z-index:-1;background:linear-gradient(90deg,#090f20ee 0%,#090f20b8 29%,#090f201a 57%,transparent 80%),linear-gradient(0deg,#090f20d9,transparent 22%)}
+.mast,.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;font:700 11px/1.4 var(--mono);letter-spacing:.15em;text-transform:uppercase}
+.mast{padding-bottom:12px;border-bottom:1px solid #fff1d34f}
+.issue{display:flex;align-items:center;gap:10px}
+.issue strong{display:grid;place-items:center;background:var(--paper);color:var(--ink);width:34px;height:30px;font-size:14px;letter-spacing:0;clip-path:polygon(0 0,100% 0,100% 74%,78% 100%,0 100%)}
+.signal{color:var(--paper);display:flex;align-items:center;gap:8px;text-shadow:0 1px 6px #090f20}
+.signal::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--red);box-shadow:0 0 9px var(--red);animation:pulse 3.8s ease-in-out infinite}
+.menu{align-self:center;width:min(590px,54vw);margin:36px 0 46px}
+.kicker{display:inline-block;margin:0;color:var(--ink);background:var(--red);padding:6px 15px 6px 10px;clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);font:900 11px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+h1{margin:5px 0 0}
+.logo{display:block;overflow:visible;width:100%;height:auto}
+.logo text{font:italic 1000 94px/1 system-ui,sans-serif;paint-order:stroke fill;stroke-linejoin:round}
+.hook{margin:0 0 28px;font-weight:800;font-style:italic;font-size:clamp(18px,2vw,26px);letter-spacing:-.025em;text-shadow:1px 2px #11192b}
+.action[hidden]{display:none}
+.secondary-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.action.compact{display:flex;justify-content:center;min-height:48px;padding:10px 8px;font-size:12px;line-height:1.25;text-align:center}
+.actions{display:grid;width:min(100%,340px);gap:9px}
+.action{position:relative;display:grid;grid-template-columns:29px 1fr auto;align-items:center;gap:10px;min-height:54px;padding:0 19px 0 14px;border:0;background:none;text-decoration:none;text-align:left;color:var(--paper);font:850 16px/1 system-ui,sans-serif;text-transform:uppercase;isolation:isolate}
+.action::before{content:'';position:absolute;inset:0;z-index:-1;clip-path:polygon(0 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%);background:#253651;border-top:1px solid #b9d1dd9c;border-left:4px solid var(--blue)}
+.action.primary{color:var(--ink)}
+.action.primary::before{background:var(--gold);border-color:#fff1bc;box-shadow:inset 0 -4px #e79a36}
+.action:hover::before{background:#365173}
+.action.primary:hover::before{background:#ffe180}
+.num{font:800 11px/1 var(--mono);letter-spacing:.06em;opacity:.8}
+.arr{font-size:20px}
+.foot{border-top:1px solid #fff1d34f;padding-top:10px;color:var(--blue)}
+.motion{min-height:44px;margin:-4px 0;border:1px solid #a6dbe47a;background:#10182ed9;color:var(--paper);padding:0 12px;font:700 11px var(--mono);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.motion:hover{background:#263950}
+.beam,.city-light{mix-blend-mode:screen}
+.glow{animation:pulse 4.5s ease-in-out infinite}
+.water{animation:water 6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{0%,100%{opacity:.45}48%,60%{opacity:1}}
+@keyframes water{0%,100%{opacity:.22;transform:scaleX(.92)}55%{opacity:.62;transform:scaleX(1.06)}}
+.paused *,.paused *::before{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){:root:not(.allow-motion) *,:root:not(.allow-motion) *::before{animation:none!important}}
+dialog{width:min(90vw,500px);background:var(--ink);color:var(--paper);border:2px solid var(--gold);padding:24px;box-shadow:8px 8px #000}
+dialog::backdrop{background:#080c1ad9}
+dialog h2{margin:0;color:var(--gold);font-style:italic;text-transform:uppercase}
+dialog ol{padding-left:20px;line-height:1.55}
+dialog .motion{margin-top:8px}
+dialog{max-height:90svh;overflow:auto}
+.modes{display:grid;gap:6px;margin:0;padding:0;border:0}
+.modes legend{margin-bottom:8px;color:var(--blue);font:700 12px var(--mono);text-transform:uppercase}
+.modes label{display:flex;align-items:center;gap:10px;min-height:44px;padding:7px 12px;background:#253651;border-left:3px solid transparent;cursor:pointer;font-weight:750}
+.modes label:has(input:checked){border-color:var(--gold);background:#344b69}
+.modes input{accent-color:var(--gold)}
+.mode-note{min-height:4.5em;line-height:1.5}
+.dialog-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.dialog-actions .motion{margin:0}
+.launch{display:flex;gap:12px}
+@media(orientation:portrait){
+ .mast{font-size:clamp(8px,2.3vw,11px);letter-spacing:.1em}
+ .mast span{white-space:nowrap}
+ .scene .landscape{display:none}
+ .scene .portrait{display:block}
+ .stage{padding-inline:max(5vw,env(safe-area-inset-left)) max(5vw,env(safe-area-inset-right));grid-template-rows:auto 1fr auto}
+ .wash{background:linear-gradient(180deg,#090f20cc,transparent 39%,transparent 51%,#090f20bf 72%,#090f20e8)}
+ .menu{display:grid;align-content:start;align-self:stretch;justify-items:center;width:100%;margin:0;padding:clamp(20px,4svh,50px) 0 16px;grid-template-rows:auto auto auto 1fr auto;text-align:center}
+ .logo{width:min(90vw,620px)}
+ .hook{margin:0;font-size:clamp(15px,4vw,25px)}
+ .actions{grid-row:5;width:min(100%,420px)}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .stage{padding-block:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-bottom))}
+ .menu{width:min(47vw,460px);margin:11px 0 15px}
+ .mast{padding-bottom:5px}
+ .foot{padding-top:5px}
+ .motion{min-height:34px}
+ .hook{margin-bottom:12px}
+ .action{min-height:44px}
+}
+@media(max-width:360px){.mast,.foot{font-size:9px}.motion{padding:0 8px}}
+</style>
+</head>
+<body>
+<div id="camera-wash" aria-hidden="true"></div>
+<main class="stage">
+ <div class="scene" aria-hidden="true">
+<svg class="landscape" viewBox="0 0 1536 1024" preserveAspectRatio="xMidYMid slice" data-x="845" data-y="327" data-city-y="520" data-width="1536">
+ <defs>
+  <linearGradient id="landscape-beam" class="beam-gradient" gradientUnits="userSpaceOnUse" x1="845" y1="327" x2="2095" y2="327">
+   <stop stop-color="#fff2a1" stop-opacity=".88"/>
+   <stop offset=".48" stop-color="#ffdb65" stop-opacity=".47"/>
+   <stop offset="1" stop-color="#ffdb65" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="landscape-halo">
+   <stop stop-color="#fff1a8" stop-opacity=".48"/>
+   <stop offset="1" stop-color="#ffbe4e" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="landscape-city" class="city-gradient" gradientUnits="userSpaceOnUse" x1="0" x2="1536" y1="0" y2="0"><stop offset="0.0" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.020833333333333332" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.041666666666666664" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.0625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.08333333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.10416666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.14583333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.16666666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.1875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.20833333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.22916666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.25" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.2708333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.2916666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3333333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3541666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3958333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4166666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4583333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4791666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5208333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5416666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5833333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6041666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6458333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6666666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7083333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7291666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.75" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7708333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7916666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8333333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8541666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8958333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9166666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9583333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9791666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="1.0" stop-color="#ffe3a3" stop-opacity="0"/></linearGradient>
+  <mask id="landscape-behind" maskUnits="userSpaceOnUse" x="0" y="0" width="1536" height="1024">
+   <rect width="1536" height="1024" fill="white"/>
+   <path d="M806 302L831 288 836 267 852 267 859 286 879 299 883 309 873 318 875 349 896 364 899 389 884 418 907 599 978 604 1002 679 1058 706 1095 755 1016 782 898 801 655 795 490 775 361 755 409 725 465 666 509 651 524 619 581 601 587 572 630 557 660 542 698 550 727 542 731 526 796 528 809 405 794 392 791 365 810 348 811 318Z" fill="black"/>
+  </mask>
+ </defs>
+ <image href="assets/opening/desktop.webp" width="1536" height="1024"/>
+ <path class="city-light" d="M1018 612 L1035 607 1046 608 1046 604 1055 604 1055 598 1064 598 1064 605 1071 605 1071 594 1082 594 1082 588 1091 588 1091 598 1106 598 1106 587 1117 587 1117 583 1127 583 1127 575 1133 575 1133 586 1139 586 1139 565 1142 565 1142 588 1147 588 1147 571 1150 571 1150 586 1162 586 1162 578 1175 578 1175 583 1183 583 1183 571 1191 571 1191 564 1197 564 1197 577 1205 577 1205 572 1214 572 1214 561 1228 561 1228 554 1240 554 1240 548 1249 548 1249 558 1258 558 1258 552 1270 552 1270 546 1282 546 1282 540 1289 540 1289 531 1298 531 1298 537 1306 537 1306 546 1311 546 1311 512 1315 512 1315 539 1320 539 1320 509 1323 509 1323 534 1331 534 1331 522 1339 522 1339 506 1346 506 1346 498 1353 498 1353 465 1361 465 1361 445 1366 445 1366 432 1371 429 1372 421 1375 421 1376 429 1381 431 1383 445 1388 445 1388 464 1395 464 1395 493 1405 493 1405 489 1414 489 1414 517 1421 517 1422 453 1427 452 1429 517 1432 517 1434 458 1439 458 1441 516 1449 516 1449 493 1457 491 1458 475 1464 474 1466 489 1473 489 1473 501 1482 501 1482 518 1495 518 1495 507 1510 507 1510 501 1523 501 1523 477 1536 475 L1536 655 1460 650 1404 645 1388 637 1330 632 1266 632 1266 626 1221 622 1157 618 1082 615 Z" fill="url(#landscape-city)"/>
+ <path class="beam" d="M845 323 L1665 185 L1665 432 L845 331 Z" fill="url(#landscape-beam)"/>
+ <rect class="camera-glare" width="1536" height="1024" fill="#fff4cf" opacity="0" mask="url(#landscape-behind)"/>
+ <circle class="glow" cx="845" cy="327" r="65" fill="url(#landscape-halo)"/>
+ <path class="water" d="M774 843h92m-75 19h112m-134 31h61m-31 20h101m-112 22h46" stroke="#ffe688" stroke-width="2" opacity=".42" fill="none"/>
+</svg>
+
+
+<svg class="portrait" viewBox="0 0 1024 1536" preserveAspectRatio="xMidYMid slice" data-x="656" data-y="542" data-city-y="699" data-width="1024">
+ <defs>
+  <linearGradient id="portrait-beam" class="beam-gradient" gradientUnits="userSpaceOnUse" x1="656" y1="542" x2="1906" y2="542">
+   <stop stop-color="#fff2a1" stop-opacity=".88"/>
+   <stop offset=".48" stop-color="#ffdb65" stop-opacity=".47"/>
+   <stop offset="1" stop-color="#ffdb65" stop-opacity="0"/>
+  </linearGradient>
+  <radialGradient id="portrait-halo">
+   <stop stop-color="#fff1a8" stop-opacity=".48"/>
+   <stop offset="1" stop-color="#ffbe4e" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="portrait-city" class="city-gradient" gradientUnits="userSpaceOnUse" x1="0" x2="1024" y1="0" y2="0"><stop offset="0.0" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.020833333333333332" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.041666666666666664" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.0625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.08333333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.10416666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.14583333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.16666666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.1875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.20833333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.22916666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.25" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.2708333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.2916666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3333333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3541666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.3958333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4166666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4583333333333333" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.4791666666666667" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5208333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5416666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.5833333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6041666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.625" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6458333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6666666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.6875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7083333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7291666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.75" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7708333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.7916666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8125" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8333333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8541666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.875" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.8958333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9166666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9375" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9583333333333334" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="0.9791666666666666" stop-color="#ffe3a3" stop-opacity="0"/><stop offset="1.0" stop-color="#ffe3a3" stop-opacity="0"/></linearGradient>
+  <mask id="portrait-behind" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1536">
+   <rect width="1024" height="1536" fill="white"/>
+   <path d="M614 521L633 507 644 489 651 471 668 471 672 489 693 511 701 525 692 536 693 560 714 574 719 599 706 624 722 722 790 720 804 765 850 774 869 810 920 835 960 880 856 893 677 903 478 892 286 883 247 868 301 838 345 823 363 792 405 770 421 732 478 711 513 691 546 688 571 669 607 674 613 611 601 595 604 570 621 558 620 534Z" fill="black"/>
+  </mask>
+ </defs>
+ <image href="assets/opening/mobile.webp" width="1024" height="1536"/>
+ <path class="city-light" d="M0 740L28 718 52 725 107 708 143 695 173 710 208 740 245 742 274 725 314 726 323 706 339 705 347 727 360 726 361 693 378 690 386 630 397 628 403 580 415 570 429 584 440 622 447 660 465 683 468 715 447 735 413 751 395 782 356 814H0Z M789 739L815 731 824 654 837 645 843 729 849 728 852 657 865 651 872 733 891 734 894 753 926 755 930 744 966 734 990 750 1024 750V817H862L843 783 819 771Z" fill="url(#portrait-city)"/>
+ <path class="beam" d="M656 538 L1476 400 L1476 647 L656 546 Z" fill="url(#portrait-beam)"/>
+ <rect class="camera-glare" width="1024" height="1536" fill="#fff4cf" opacity="0" mask="url(#portrait-behind)"/>
+ <circle class="glow" cx="656" cy="542" r="65" fill="url(#portrait-halo)"/>
+ <path class="water" d="M595 941h92m-75 19h112m-134 31h61m-31 20h101m-112 22h46" stroke="#ffe688" stroke-width="2" opacity=".42" fill="none"/>
+</svg>
+</div>
+ <div class="wash" aria-hidden="true"></div>
+ <header class="mast">
+  <span class="issue"><strong>01</strong> Blackharbor / Vol. 1</span>
+  <span class="signal">Distress signal</span>
+ </header>
+ <section class="menu" aria-labelledby="title">
+  <p class="kicker">A tactical superhero campaign</p>
+  <h1 id="title" aria-label="Blackharbor">
+   <svg class="logo" viewBox="0 0 690 115" aria-hidden="true">
+    <text x="11" y="94" textLength="658" lengthAdjust="spacingAndGlyphs" fill="#ff6853" stroke="#10182e" stroke-width="13">BLACKHARBOR</text>
+    <text x="5" y="85" textLength="658" lengthAdjust="spacingAndGlyphs" fill="#ffcf49" stroke="#10182e" stroke-width="9">BLACKHARBOR</text>
+   </svg>
+  </h1>
+  <p class="hook">The city’s last light is still burning.</p>
+  <nav class="actions" aria-label="Opening menu">
+   <a class="action primary" id="continue-button" href="#" hidden><span aria-hidden="true">▶</span>Continue Game<span aria-hidden="true">›</span></a>
+   <button class="action primary" id="new-button" type="button" aria-haspopup="dialog"><span aria-hidden="true">+</span>New Game<span aria-hidden="true">›</span></button>
+   <div class="secondary-actions">
+    <button class="action compact" id="guide-button" type="button" aria-haspopup="dialog">How To Play</button>
+    <button class="action compact" id="paste-button" type="button" aria-haspopup="dialog">Paste Save Code</button>
+   </div>
+  </nav>
+ </section>
+ <footer class="foot"><span>Harbor Watch · Channel 01</span><button class="motion" id="motion" type="button">Pause motion</button></footer>
+</main>
+<dialog id="play" aria-labelledby="play-title">
+ <h2 id="play-title">New Game</h2>
+ <form id="new-game-form">
+  <fieldset class="modes"><legend>Difficulty</legend>
+   <label><input type="radio" name="difficulty" value="-1"> Easy</label>
+   <label><input type="radio" name="difficulty" value="0" checked> Normal</label>
+   <label><input type="radio" name="difficulty" value="1"> Hard</label>
+  </fieldset>
+  <p id="difficulty-help">The campaign as designed.</p>
+  <fieldset class="modes"><legend>Getting started</legend>
+   <label><input type="checkbox" id="tutorial-choice" checked> Play the tutorial — this is my first game</label>
+   <label><input type="checkbox" id="tips-choice" checked> Rule reminder tooltips would be useful</label>
+   <label><input type="checkbox" id="experienced-choice"> I know what I’m doing</label>
+  </fieldset>
+  <p id="replace-warning" hidden>Starting a new game replaces your saved campaign.</p>
+  <p id="start-error" role="alert"></p>
+  <div class="dialog-actions"><button class="action primary launch" type="submit">Start Game</button><button class="motion" type="button" id="cancel-new">Back</button></div>
+ </form>
+</dialog>
+<dialog id="import" aria-labelledby="import-title">
+ <h2 id="import-title">Paste Save Code</h2>
+ <form id="import-form"><label for="save-code">Your Blackharbor save code</label><textarea id="save-code" required rows="6" style="width:100%;margin:12px 0"></textarea><p id="import-error" role="alert"></p><div class="dialog-actions"><button class="action primary launch" type="submit">Load Game</button><button class="motion" type="button" id="cancel-import">Back</button></div></form>
+</dialog>
+<dialog id="guide" aria-labelledby="guide-title">
+ <h2 id="guide-title">How to Play</h2>
+ <ol>
+  <li><strong>Recruit your squad.</strong> Choose heroes and equip them for the threats you uncover.</li>
+  <li><strong>Investigate the city.</strong> Follow leads to uncover villains and their plans.</li>
+  <li><strong>Fight on the hex grid.</strong> Use movement, cover, and abilities to set up attacks and protect your team.</li>
+ </ol>
+ <p>For full rules, open <strong>Menu → Game → Rules guide</strong> inside Blackharbor.</p>
+ <form method="dialog"><button class="motion">Back</button></form>
+</dialog>
+<script>
+const root = document.documentElement;
+const preference = matchMedia('(prefers-reduced-motion: reduce)');
+const portrait = matchMedia('(orientation: portrait)');
+const motionButton = document.querySelector('#motion');
+let motionOverride;
+let frame;
+let lastTime;
+let angle = -0.28;
+
+const scenes = Array.from(document.querySelectorAll('.scene svg'), scene => ({
+  svg: scene,
+  beam: scene.querySelector('.beam'),
+  glare: scene.querySelector('.camera-glare'),
+  occluder: scene.querySelector('mask path'),
+  height: scene.viewBox.baseVal.height,
+  gradient: scene.querySelector('.beam-gradient'),
+  rearMask: `url(#${scene.getAttribute('class')}-behind)`,
+  cityStops: Array.from(scene.querySelectorAll('.city-gradient stop')),
+  width: Number(scene.dataset.width),
+  x: Number(scene.dataset.x),
+  y: Number(scene.dataset.y),
+  cityY: Number(scene.dataset.cityY)
+}));
+
+function renderBeacon({svg, beam, glare, occluder, height, gradient, rearMask, cityStops, width, x, y, cityY}, angle) {
+  // Positive depth faces the viewer. Perspective expands the near cone;
+  // the far cone intersects a waterfront plane behind the island.
+  const horizontal = Math.asin(Math.cos(angle)) * 2 / Math.PI;
+  const depth = Math.sin(angle);
+  const near = Math.max(0, depth);
+  const far = Math.max(0, -depth);
+  const perspective = 1 / Math.max(.12, 1 - near * .9);
+  const reach = 1050 * perspective;
+  const endX = x + horizontal * reach;
+  // Smoothly lift the near cone to eye level. Both halves share the same
+  // endpoint and width at the side views, avoiding a jump at the horizon.
+  const nearBlend = near * near * (3 - 2 * near);
+  const endY = y + (cityY + 70 - y) * (1 - nearBlend) - nearBlend * 75;
+  const halfWidth = 46 + nearBlend * 520 * perspective;
+  const dx = endX - x;
+  const dy = endY - y;
+  const length = Math.hypot(dx, dy);
+  // Keep the source fixed while the distant edge sweeps continuously.
+  beam.setAttribute('d', `M ${x} ${y-5} L ${endX} ${endY-halfWidth} L ${endX} ${endY+halfWidth} L ${x} ${y+5} Z`);
+  gradient.setAttribute('x2', endX);
+  gradient.setAttribute('y2', endY);
+  beam.setAttribute('opacity', .45 + near * .23);
+  beam.setAttribute('mask', rearMask);
+  const rearBlend = Math.min(1, Math.max(0, .5 - depth * 5));
+  occluder.setAttribute('fill', `rgb(${255*(1-rearBlend)},${255*(1-rearBlend)},${255*(1-rearBlend)})`);
+  glare.setAttribute('mask', 'none');
+  glare.setAttribute('opacity', 0);
+  const washEdge = Math.min(1, Math.max(0, (.14 - Math.abs(Math.cos(angle))) / .09));
+  const wash = depth > 0 ? washEdge * washEdge * (3 - 2 * washEdge) : 0;
+  const overlay = document.querySelector('#camera-wash');
+  overlay.style.opacity = wash;
+  const bounds = svg.getBoundingClientRect();
+  const scale = Math.max(bounds.width / width, bounds.height / height);
+  overlay.style.setProperty('--lamp-x', `${bounds.left + (bounds.width - width * scale) / 2 + x * scale}px`);
+  overlay.style.setProperty('--lamp-y', `${bounds.top + (bounds.height - height * scale) / 2 + y * scale}px`);
+  const step = width / (cityStops.length - 1);
+  cityStops.forEach((stop, index) => {
+    const px = step * index - x;
+    const py = cityY - y;
+    const along = (px * dx + py * dy) / length;
+    const across = Math.abs(px * dy - py * dx) / length;
+    const radius = 20 + Math.max(0, along) / length * halfWidth;
+    const light = Math.exp(-2 * Math.pow(across / radius, 2));
+    stop.setAttribute('stop-opacity', (light * Math.min(1, far * 5) * .85).toFixed(3));
+  });
+}
+
+function animateBeacon(now) {
+  if (lastTime !== undefined) angle = (angle + (now - lastTime) * 2 * Math.PI / 8700) % (2 * Math.PI);
+  lastTime = now;
+  renderBeacon(scenes[Number(portrait.matches)], angle);
+  frame = requestAnimationFrame(animateBeacon);
+}
+function syncMotion() {
+  const enabled = motionOverride ?? !preference.matches;
+  root.classList.toggle('paused', !enabled);
+  root.classList.toggle('allow-motion', enabled);
+  motionButton.textContent = enabled ? 'Pause motion' : 'Play motion';
+  cancelAnimationFrame(frame);
+  lastTime = undefined;
+  for (const scene of scenes) renderBeacon(scene, angle);
+  if (enabled) frame = requestAnimationFrame(animateBeacon);
+}
+motionButton.addEventListener('click', () => {
+  motionOverride = root.classList.contains('paused');
+  syncMotion();
+});
+preference.addEventListener('change', syncMotion);
+syncMotion();
+const play = document.querySelector('#play');
+const guide = document.querySelector('#guide');
+const imports = document.querySelector('#import');
+let hasSave = false;
+const tutorial = document.querySelector('#tutorial-choice');
+const tips = document.querySelector('#tips-choice');
+const experienced = document.querySelector('#experienced-choice');
+function sendStart(action, options = {}) {
+  parent.postMessage({type:'blackharbor-start',action,...options}, location.origin === 'null' ? '*' : location.origin);
+}
+window.addEventListener('message', event => {
+  if(event.source !== parent || event.data?.type !== 'blackharbor-start-state') return;
+  hasSave = event.data.hasSave;
+  document.querySelector('#continue-button').hidden = !hasSave;
+  document.querySelector('#new-button').classList.toggle('primary', !hasSave);
+  document.querySelector('#replace-warning').hidden = !hasSave;
+  document.querySelector('#import-error').textContent = event.data.error || '';
+  document.querySelector('#start-error').textContent = event.data.error || '';
+});
+document.querySelector('#continue-button').addEventListener('click', event => {event.preventDefault();sendStart('continue')});
+document.querySelector('#new-button').addEventListener('click', () => play.showModal());
+document.querySelector('#paste-button').addEventListener('click', () => imports.showModal());
+document.querySelector('#guide-button').addEventListener('click', () => guide.showModal());
+document.querySelector('#cancel-new').onclick = () => play.close();
+document.querySelector('#cancel-import').onclick = () => imports.close();
+experienced.onchange = () => {if(experienced.checked){tutorial.checked=false;tips.checked=false}};
+for(const input of [tutorial,tips]) input.onchange = () => {experienced.checked=!tutorial.checked&&!tips.checked};
+const descriptions = {'-1':'Weaker villains, fewer pages to fight through, and extra salvage.','0':'The campaign as designed.','1':'Stronger villains and less salvage.'};
+for(const input of document.querySelectorAll('[name="difficulty"]')) input.onchange = () => {document.querySelector('#difficulty-help').textContent=descriptions[input.value]};
+document.querySelector('#new-game-form').onsubmit = event => {
+ event.preventDefault();sendStart('new',{difficulty:Number(document.querySelector('[name="difficulty"]:checked').value),tutorial:tutorial.checked,tips:tips.checked});
+};
+document.querySelector('#import-form').onsubmit = event => {event.preventDefault();sendStart('import',{code:document.querySelector('#save-code').value})};
+sendStart('ready');
+</script>
+</body>
+</html>
