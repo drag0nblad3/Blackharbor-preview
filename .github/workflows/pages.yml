@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'index.html'
+      - 'opening.html'
+      - 'assets/opening/**'
       - 'portrait-gallery.html'
       - 'equipment-gallery.html'
       - 'combat-art-lab.html'
@@ -49,7 +51,7 @@ jobs:
       - name: Assemble preview site
         run: |
           mkdir site
-          cp index.html ui-style-lab.html isometric-lab.html isometric-sprites.html portrait-gallery.html combat-art-lab.html miniature-gallery.html equipment-gallery.html *.css *.avif *.svg site/
+          cp index.html opening.html ui-style-lab.html isometric-lab.html isometric-sprites.html portrait-gallery.html combat-art-lab.html miniature-gallery.html equipment-gallery.html *.css *.avif *.svg site/
           cp -R assets src css site/
           # Own save slot: live and preview share the drag0nblad3.github.io origin, so they share localStorage
           sed -i "s/^const KEY='\([^']*\)';/const KEY='\1-preview';/" site/src/core/save.js
