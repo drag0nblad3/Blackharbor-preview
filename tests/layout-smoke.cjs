@@ -152,7 +152,7 @@ const path=require('node:path');
    await page.locator('.hq-motion-toggle').click();
    assert.equal(await page.locator('.hq-motion-layer').count(),0,'motion switch removes optional effects');
    assert.equal(await page.locator('.hq-beacon-light').evaluate(e=>getComputedStyle(e).display),'block','steady night light survives motion-off');
-   await page.reload();
+   await page.reload();await page.frameLocator('iframe[title="Blackharbor opening menu"]').locator('#continue-button').click();
    await page.addStyleTag({content:'#guide, #tutc {display:none !important}'});
    await page.locator('.hq-light-picker').waitFor();
    assert.equal(await page.locator('.hq-light-picker').inputValue(),'night','lighting preference persists');

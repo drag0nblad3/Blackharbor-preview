@@ -56,3 +56,9 @@ if(typeof window!=='undefined')window.addEventListener('message',async event=>{
   }catch(error){bhOpeningState(error.message||'Unable to start the game.');}
   finally{bhOpeningBusy=false;}
 });
+
+function bhOpeningReload(){sessionStorage.setItem(KEY+'-resume','1');location.reload();}
+function bhOpeningBoot(){
+  const resume=sessionStorage.getItem(KEY+'-resume');sessionStorage.removeItem(KEY+'-resume');
+  if(resume&&load()){bhOpeningDismissOffers();render();}else bhOpeningMount();
+}
