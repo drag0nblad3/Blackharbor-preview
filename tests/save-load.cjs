@@ -110,6 +110,8 @@ const assert=require('node:assert/strict');
     await opening.locator('#experienced-choice').check();
     await opening.getByRole('button',{name:'Start Game',exact:true}).click();
     await page.locator('#bh-save-dialog').waitFor({state:'detached'});
+    // The game starts once the opening menu's message arrives; it closes the menu when it does.
+    await page.locator('iframe[title="Blackharbor opening menu"]').waitFor({state:'detached'});
     const fresh=await page.evaluate(()=>({vol:S.vol,diff:S.diff,heroes:S.heroes.length,backup:JSON.parse(localStorage.getItem(KEY+'-before-import')).trust}));
     assert.deepEqual(fresh,{vol:1,diff:1,heroes:0,backup:91},'Opening setup applies difficulty and backs up the old campaign');
     await page.evaluate(()=>{localStorage.setItem(KEY,localStorage.getItem(KEY+'-before-import'));location.reload()});
