@@ -38,7 +38,7 @@ const fs=require('node:fs');
    await page.locator('.hq-motion-toggle').click();assert.equal(await page.locator('.hq-motion-layer').count(),0);
    assert.equal(await scene.evaluate(el=>el.getAnimations({subtree:true}).length),0,'off stops all harbor motion, including the beam');
    assert.equal(await page.locator('.hq-beacon-light').evaluate(el=>getComputedStyle(el).display),'block','night lighthouse remains steadily lit');
-   await page.reload();await page.addStyleTag({content:'#guide,#tutc{display:none!important}'});
+   await page.reload();await page.frameLocator('iframe[title="Blackharbor opening menu"]').locator('#continue-button').click();await page.addStyleTag({content:'#guide,#tutc{display:none!important}'});
    assert.equal(await page.locator('.hq-motion-toggle').getAttribute('aria-pressed'),'false','Off persists on phone');
    await page.locator('.hq-light-picker').selectOption('day');assert.equal(await page.locator('.hq-beacon-light').evaluate(el=>getComputedStyle(el).display),'none');
    await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{hqSetPref('motion','on');render()});

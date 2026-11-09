@@ -103,18 +103,20 @@ const assert=require('node:assert/strict');
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem(KEY)).diff),1,'Difficulty is stored in the save');
     const diffCode=await page.evaluate(()=>bhSaveEncode(S));
     assert.match((await page.evaluate(c=>bhSaveDecode(c),diffCode)).summary,/^Hard/);
-    const volBefore=await page.evaluate(()=>S.vol);
     await page.locator('[data-bh-arm="newgame"]').click();
-    assert.equal(await page.evaluate(()=>S.vol),volBefore,'First tap only arms New campaign');
-    await page.locator('[data-bh-arm="newgame"]').click();
+    const opening=page.frameLocator('iframe[title="Blackharbor opening menu"]');
+    await opening.locator('#new-button').click();
+    await opening.getByRole('radio',{name:'Hard',exact:true}).check();
+    await opening.locator('#experienced-choice').check();
+    await opening.getByRole('button',{name:'Start Game',exact:true}).click();
     await page.locator('#bh-save-dialog').waitFor({state:'detached'});
     const fresh=await page.evaluate(()=>({vol:S.vol,diff:S.diff,heroes:S.heroes.length,backup:JSON.parse(localStorage.getItem(KEY+'-before-import')).trust}));
-    assert.deepEqual(fresh,{vol:volBefore+1,diff:1,heroes:0,backup:91},'New campaign keeps difficulty and backs up the old one');
-    // A fresh campaign opens the new-player guide; restore the backup directly.
+    assert.deepEqual(fresh,{vol:1,diff:1,heroes:0,backup:91},'Opening setup applies difficulty and backs up the old campaign');
     await page.evaluate(()=>{localStorage.setItem(KEY,localStorage.getItem(KEY+'-before-import'));location.reload()});
+    await opening.locator('#continue-button').click();
     await page.waitForFunction(()=>typeof S!=='undefined'&&S.trust===91&&S.diff===1);
     await page.evaluate(()=>{S.diff=0;render()});
-    console.log('PASS: Game tab difficulty slider and two-tap New campaign with backup');
+    console.log('PASS: difficulty slider and opening New Game setup with backup');
     // The same format must preserve a mid-combat position and unit actions.
     await page.evaluate(()=>{
       const key=S.villains.find(v=>v.status==='active')?.key||S.villains[0].key;

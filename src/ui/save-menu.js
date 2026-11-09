@@ -215,7 +215,7 @@ function bhMenuAct(key){
   if(key==='restart'){
     const raw=bhMenuSnap();
     if(!raw){bhSaveUIStatus('This fight began before Restart was added, so it cannot be restarted.',true);return}
-    try{localStorage.setItem(KEY,raw);window.location.reload()}
+    try{localStorage.setItem(KEY,raw);bhOpeningReload()}
     catch(e){bhSaveUIStatus('Could not restart: '+e.message,true)}
     return;
   }
@@ -342,7 +342,7 @@ function bhSaveImport(){
     // Save a recovery copy before changing the active autosave.
     if(before!==null)localStorage.setItem(KEY+BH_SAVE_BACKUP_SUFFIX,before);
     localStorage.setItem(KEY,raw);
-    window.location.reload();
+    bhOpeningReload();
   }catch(e){bhSaveUIStatus('Could not save imported campaign: '+e.message,true)}
 }
 function bhSaveRestore(){
