@@ -46,7 +46,7 @@ const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
  assert.equal(get("rxOf('helios','corona').aura"),2);
  setup('helios',4);run("auraSet(S.sd.v,rxOf('helios','corona').aura)");assert.equal(get('S.sd.v.aura.ticks'),2);
  // Ouroboros: Mesmerizing Sway costs no Heroism and bites a hero dragged beside it; Shed Skin is a reaction and rides on Serpent Eyes, 1 page each.
- assert(!get("VILLAINS.serpent.adv.includes('shedp')"));assert.equal(get("rxOf('serpent','shed').shed"),1);
+ assert(!get("VILLAINS.serpent.adv.includes('shedp')"));assert.equal(get("rxOf('serpent','shed').shed"),1);assert(get(`buildCard('serpent',{id:'hiss',mk:0},1).txt`).includes('sheds its skin'));
   setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,3);S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})");const d0=get('S.sd.v.deck.length');
  await play('eyes');assert.equal(get('S.sd.v.deck.length'),d0+1,'Serpent Eyes sheds 1 page');assert.equal(get('S.sd.v.wounds.length'),2);
  setup('serpent',4);run("S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8});S.heroes.forEach(h=>h.comp=5);S.heroes[1].comp=1;vHit=async(u,d)=>{u._bit=d}");

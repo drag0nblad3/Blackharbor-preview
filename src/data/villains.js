@@ -74,7 +74,7 @@ const VILLAINS = {
   gulp:{n:'Swallow Whole',t:'swallow',mv:3,cnt:1,dmg:3,sig:true,shout:'Sssso many little snacks…',brk:'You pried its jaws apart!'},
   bite:{n:'Lunging Bite',t:'strike',tgt:'nearest',mv:3,rng:1,dmg:3},
   coil:{n:'Crushing Coils',t:'sweep',r:1,dmg:3},
-  hiss:{n:'Hypnotic Hiss',t:'taunt',amt:2,r:3},
+  hiss:{n:'Hypnotic Hiss',t:'taunt',amt:2,r:3,shed:1},
   faith:{n:'The Faithful',t:'summon',k:2},
   spit:{n:'Venom Spit',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   viper:{n:'Viper Strike',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nowhere to hide, little morsel!',brk:'You snapped off a fang!',crush:1},
