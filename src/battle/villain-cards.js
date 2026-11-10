@@ -29,7 +29,7 @@ async function vMove(fn,crush=0,label=''){const sd=S.sd,v=sd.v,ox=v.x,oy=v.y,osw
     else if(sd.civs.includes(o)){if(crush)harmCiv(o,label||'the stampede');else fxP(o.x,o.y,'EEK!','miss')}}
   if(v.smashed&&v.smashed.length){const ks=v.smashed;delete v.smashed;await Promise.all(ks.map(k=>{const[x,y]=k.split(',').map(Number);return A.smoke(HC(x,y),3)}));fxV('KRASH!','vhit');log('vill',`${VILLAINS[sd.vkey].name} smashes straight through ${ks.length>1?ks.length+' hexes of walls and rubble':'a wall'}.`);render()}
   if(sh.length)render()}
-async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c);if(c.jab)await jabAfter(c)}finally{CUR_CARD=was}}
+async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c);if(c.jab)await jabAfter(c);if(c.aura&&S.sd&&!S.sd.result)auraSet(S.sd.v,c.aura)}finally{CUR_CARD=was}}
 /* Tyler (2026-11-10): a few utility pages end with a weak basic attack on the nearest hero in range (1 + a quarter of the level). */
 const jabDmg=(c,level)=>c.jab+Math.floor((level||1)/4);
 async function jabAfter(c){const sd=S.sd;if(!sd||sd.result||S.sd!==sd||sd.v.down)return;const t=live().filter(u=>dV(u,sd.v)<=(c.jabR||1)).sort((a,b)=>dV(a,sd.v)-dV(b,sd.v))[0];if(!t)return;

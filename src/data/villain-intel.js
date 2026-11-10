@@ -22,7 +22,7 @@ const VINTEL = {
       {id:'scaff',n:'Emergency Scaffold',sfx:'BUILD!',wall:1,txt:'Reaction: a wall rises next to the attacker, between them and the villain, for 2 rounds.'}]},
   helios:{intro:'A fusion experiment wearing a man\'s face. He announces every blow a turn early, because he can afford to.',
     hints:['Telegraphs huge attacks. Read the marked hexes and get out.','Tearing pages quickly staggers his charges.','Burns anyone who crowds him.'],
-    react:[{id:'corona',n:'Corona Flare',sfx:'FWASH!',adj:1,dmg:3,txt:'Reaction: if the attacker is adjacent, they take 3 damage.'},
+    react:[{id:'corona',n:'Corona Flare',sfx:'FWASH!',adj:1,dmg:3,aura:2,txt:'Reaction: if the attacker is adjacent, they take 3 damage. His corona then blazes until the end of the next hero round: heroes who end a round or start one beside him take 2 damage (+1 per 4 levels).'},
       {id:'glare',n:'Searing Glare',sfx:'GLARE!',arc:['front'],comp:1,dmg:2,txt:'Front arc. Reaction: the attacker takes 2 damage and loses 1 Heroism.'},
       {id:'shell',n:'Plasma Vents',sfx:'HSSS!',arc:['rear'],tough:5,txt:'Rear arc. Venting plasma gives +5 toughness for this wound.'}]},
   serpent:{intro:'Something has been eating the night shift on the subway lines. It is very old, very hungry, and the cult that feeds it wants the whole city on the menu.',

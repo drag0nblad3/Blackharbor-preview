@@ -7,7 +7,7 @@ async function splash(target){const sd=S.sd;const from=target==='v'?ctrV():ctrU(
 function endSd(r){S.sd.result=r;if(r==='win'&&!FAST){const L=S.sd.units.filter(u=>!u.ko);quipHero(L[Math.floor(Math.random()*L.length)],'win')}sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
   log('sys',r==='win'?'The villain\'s playbook is empty. Victory!':r==='loss'?'Every hero is down.':'The villain escapes before you can finish it.')}
 function checkLoss(){if(!S.sd.result&&!live().length)endSd('loss')}
-async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sfx('turn');sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);
+async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sfx('turn');sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);auraTick('ends');
   beamTick();await hazardTick();checkLoss();await bombTick();checkLoss();
   for(let i=0;i<sd.vl.length&&!sd.result;i++){if(sd.vl[i].v.down)continue;focusV(i);const v=sd.v,vn=VILLAINS[sd.vkey].name;
     await resolveBossSetup(v);if(sd.result||v.down)continue;
@@ -31,7 +31,7 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sf
   if(!sd.result){sd.round++;
     {sd.units.forEach(u=>{u.stasis=false;u.reactionWard=false;u.hexesMoved=0;u.moved=!!u.dazed;u.rerouted=false;u.discharge=false;u.dazed=false;u.acted=false;u.freeEvac=false;u.buffDice=0;u.buffStr=0;u.buffAcc=0;u.buffBack=0;u.buffReap=0;u.buffEva=0;u.avoidDamage=false;u.dr=0;u.anchor=false;if(u.capUsed&&!u.abRd)u.capUsed=false;u.abRd=false;u.innUsed=0;u.abUsed=[];u.augRd=false;u.convRd=false;u.jump=false;u.ripo=false;u.ripUsed=false;u.reflect=0;
         if(u.relHit){u.relN=u.relHit===u.relKey?(u.relN||0)+1:1;u.relKey=u.relHit}else{u.relN=0;u.relKey=null}u.relHit=null;
-        const h=heroOf(u);u.anchor=setOn(h,'lode');if(!u.ko){if(setOn(h,'cantor'))gainHero(h,1);if(setOn(h,'serpent'))h.hp=Math.min(stat(h,'maxHp'),h.hp+1)}u.lowP=(u.res.tech||0)<=1;u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+pwrRegen(h,u));u.res.magic=Math.min(arcMax(h),u.res.magic||0);if(S.facilities.includes('sanctum')&&!u.ko)gainHero(h,1)});
+        const h=heroOf(u);u.anchor=setOn(h,'lode');if(!u.ko){if(setOn(h,'cantor'))gainHero(h,1);if(setOn(h,'serpent'))h.hp=Math.min(stat(h,'maxHp'),h.hp+1)}u.lowP=(u.res.tech||0)<=1;u.res.tech=Math.min(pwrMax(h),(u.res.tech||0)+pwrRegen(h,u));u.res.magic=Math.min(arcMax(h),u.res.magic||0);if(S.facilities.includes('sanctum')&&!u.ko)gainHero(h,1)});auraTick('starts');
       roster().forEach(h=>{if(h.cd>0)h.cd--});
       sd.units.forEach(u=>{const h=heroOf(u);if(u.ko||!setOn(h,'helios'))return;const hm=sd.hench.filter(m=>cheb(m,u)<=1);if(!hm.length)return;hm.forEach(m=>{m.hp-=1;m.hurtAt=Date.now();fxP(m.x,m.y,m.hp<=0?'K.O.!':'SIZZLE!','hit')});sd.hench=sd.hench.filter(m=>m.hp>0);log('hero',`Corona: ${h.name} scorches ${hm.length} henchm${hm.length===1?'an':'en'}.`)});
       {const got={mend:[],calm:[],charge:[]};sd.units.forEach(u=>{if(u.ko)return;const h=heroOf(u);

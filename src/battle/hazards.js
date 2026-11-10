@@ -100,3 +100,9 @@ async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null
 function wallsCollapse(){const sd=S.sd,o=sd.vl.find(o=>!o.v.down&&VILLAINS[o.key].wallFall);if(!o)return;const dmg=VILLAINS[o.key].wallFall;
   const gone=sd.walls.filter(w=>!w.perm&&!w.girder&&w.ttl<=0).map(w=>w.k);if(!gone.length)return;
   live().filter(u=>gone.some(k=>{const[x,y]=k.split(',').map(Number);return cheb(u,{x,y})<=1})).forEach(u=>{fxU(u,'CRASH!','vhit');damageHero(u,dmg);log('vill',`A wall comes down on ${heroOf(u).name} for ${dmg}.`)});checkLoss()}
+/* Helios (Tyler, 2026-11-10): Corona Burst and the Corona Flare reaction light a burning aura for one hero round.
+   Heroes beside him when a hero round starts or ends take aura damage (no roll). It burns at the next two of those moments, then goes out. */
+function auraSet(v,base){if(!v)return;v.aura={dmg:base+Math.floor((v.level||1)/4),ticks:2};if(!FAST)log('vill',`${VILLAINS[S.sd.vkey].short}'s corona blazes: heroes beside him when the round starts or ends take ${v.aura.dmg}.`)}
+function auraTick(when){const sd=S.sd;if(!sd||sd.result)return;for(const o of sd.vl){const v=o.v;if(!v.aura)continue;if(v.down){delete v.aura;continue}
+  for(const u of live().filter(u=>dV(u,v)<=1)){fxU(u,'SIZZLE!','vhit');log('vill',`${heroOf(u).name} ${when} the round beside ${VILLAINS[o.key].short}'s corona: ${v.aura.dmg} damage.`);damageHero(u,v.aura.dmg)}
+  if(--v.aura.ticks<=0)delete v.aura}checkLoss();render()}

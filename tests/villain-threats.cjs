@@ -35,5 +35,15 @@ const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
  // Finale: mastermind at the highest villain level met, Mole Boy two below.
  run("newCampaign();S.tut=null;S.tutDone=true;S.storyOff=true;S.mastermind=null;S.villains=[makeVillain('gallows',6),makeVillain('cantor',5)];S.villains.forEach(v=>v.status='active');S.pool=['helios'];setupEvent()");
  assert.equal(get("vState(S.event.keys[0]).level"),6);assert.equal(get("vState('mole').level"),5);
- console.log('PASS: Quarry rubble quake and accuracy, Architect wall collapse, Helios afterglow, Nocturne isolated prey, elites from level 2, finale levels.');
+ // Quarry: toughness 18 and one extra playbook page.
+ assert.equal(get('VILLAINS.quarry.tough'),18);assert.equal(get('VILLAINS.quarry.deckBonus'),1);
+ // Helios: Corona Burst and the Corona Flare reaction light an aura that burns heroes beside him when a round ends and when the next starts.
+ setup('helios',4);run("S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=i;u.y=0});vHit=async()=>false");
+ assert(get(`buildCard('helios',{id:'corona',mk:0},4).txt`).includes('take 3 damage'));
+ await play('corona');assert.equal(get('S.sd.v.aura.dmg'),3);
+ run("S.sd.units[0].x=4;S.sd.units[0].y=5;heroOf(S.sd.units[0]).hp=50");run("auraTick('starts')");assert.equal(hp(0),47);assert.equal(hp(1),50);
+ run("auraTick('ends')");assert.equal(hp(0),44);assert(!get('!!S.sd.v.aura'),'aura burns out after a round');run("auraTick('starts')");assert.equal(hp(0),44);
+ assert.equal(get("rxOf('helios','corona').aura"),2);
+ setup('helios',4);run("auraSet(S.sd.v,rxOf('helios','corona').aura)");assert.equal(get('S.sd.v.aura.ticks'),2);
+ console.log('PASS: Quarry rubble quake, accuracy, toughness and pages, Helios corona aura, Architect wall collapse, Helios afterglow, Nocturne isolated prey, elites from level 2, finale levels.');
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});

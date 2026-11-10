@@ -14,7 +14,7 @@ const VILLAINS = {
   storm:{n:'Tesla Storm',t:'sweep',r:2,dmg:3,sig:true,shout:'Science demands a bigger storm!',brk:'You grounded his Tesla tower!'},
   shock:{n:'Neural Shock',t:'puppet',amt:2}
  },shape:'one'},
- quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',rubbleQuake:true,eva:9,tough:17,acc:5,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
+ quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',rubbleQuake:true,deckBonus:1,eva:9,tough:18,acc:5,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
   bull:{n:'Bull Rush',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nothing stands in my way!',brk:'You broke her charging stride!',crush:2},
   slam:{n:'Seismic Slam',t:'sweep',r:1,dmg:4},
   wreck:{n:'Throw Wreckage',fx:'throw',t:'strike',tgt:'nearest',mv:0,rng:4,dmg:3,col:true},
@@ -60,7 +60,7 @@ const VILLAINS = {
   flare:{n:'Solar Flare',t:'charge',zone:'blast',dmg:5,sig:true,shout:'Look upon the sun!',brk:'You vented a flare chamber!'},
   lance:{n:'Lance of Dawn',t:'charge',zone:'line',dmg:4,sig:true,shout:'Dawn breaks in a straight line!',brk:'You snapped his lance of light!'},
   heat:{n:'Heat Ray',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'bolt'},
-  corona:{n:'Corona Burst',t:'sweep',r:1,dmg:2},
+  corona:{n:'Corona Burst',t:'sweep',r:1,dmg:2,aura:2},
   blind:{n:'Blinding Light',t:'taunt',amt:2,r:4,jab:1,jabR:4,jabFx:'bolt'},
   sprites:{n:'Sunsprites',t:'summon',k:2},
   nova:{n:'Supernova',t:'charge',zone:'nova',dmg:6,sig:true,shout:'Feel a star being born!',brk:'You shattered his fusion core!'},
