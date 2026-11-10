@@ -75,7 +75,8 @@ function cardText(c,vk){const hn=VILLAINS[vk].hench.name.toLowerCase(),D=n=>(n||
     case 'henchvolley':return 'Every hired gun already within range 2 of a hero immediately fires one extra shot without moving. Elite henchmen do not join the volley.';
     case 'vanish':return 'Disappears and reappears far from the heroes.';
     case 'reanimate':{const n=c.heal||1;return `${n} torn page${n>1?'s return':' returns'} to the playbook.`+(c.dupe?' An untouchable shadow double steps out beside the hero with the least Heroism within 5; it locks in a copy of her next planned page and plays it even if her own page is torn, then dissipates.':'')}
-    case 'puppet':return `${(c.tgts||1)>1?`The ${c.tgts} heroes with the least Heroism each lose`:'The hero with the least Heroism loses'} ${c.amt||1} more${c.pull?`, ${(c.tgts||1)>1?'are':'is'} dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it,`:''} and cannot move next round.`;
+    case 'puppet':if(c.noComp){const m=(c.tgts||1)>1;return `${m?`The ${c.tgts} heroes with the least Heroism are`:'The hero with the least Heroism is'}${c.pull?` dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it and`:''} ${m?'cannot':'cannot'} move next round.`.replace(' is cannot',' cannot').replace(' are cannot',' cannot')}
+      return `${(c.tgts||1)>1?`The ${c.tgts} heroes with the least Heroism each lose`:'The hero with the least Heroism loses'} ${c.amt||1} more${c.pull?`, ${(c.tgts||1)>1?'are':'is'} dragged up to ${c.pull} hex${c.pull>1?'es':''} toward it,`:''} and cannot move next round.`;
     case 'walls':return `${c.retreat?`Backs ${c.retreat} hexes away from the nearest hero, then r`:'R'}aises ${c.lines>1?`${c.lines} walls`:'a wall'} of ${c.len} hexes between itself and the heroes. Walls crumble after ${c.ttl} rounds.`;
     case 'hazard':if(c.grow){const who=c.cnt>1?`each of the ${c.cnt} nearest heroes`:'the nearest hero';return `${c.r?'The floor caves in under':'A one-hex sinkhole opens under'} ${who}${c.r?` and every hex within ${c.r} of them`:''} for ${c.ttl} villain turns. Anyone standing in one when the villain acts takes ${D(c.dmg)}.`}return `The floor ${c.r>1?`within ${c.r} of`:'around'} ${c.cnt>1?`the ${c.cnt} nearest heroes`:'the nearest hero'} turns molten for ${c.ttl} villain turns. Anyone standing on it when the villain acts takes ${D(c.dmg)}.`;
     case 'cage':return `Fills every open hex around the nearest hero with walls for ${c.ttl} rounds.`;
@@ -112,6 +113,8 @@ function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(b
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';
   if(c.bombx)c.txt+=' Heroes standing within 1 of a bomb lose 1 more.';
   if(c.aura)c.txt+=` His corona then blazes until the end of the next hero round: heroes who start or end that round beside him take ${c.aura+Math.floor((level||1)/4)} damage.`;
+  if(c.bite)c.txt+=` Any hero who ends up beside it is bitten for ${c.bite+Math.floor((level||1)/4)}.`;
+  if(c.shed){const n=Math.ceil(Math.min(level||1,VCAP)/4);c.txt+=` Then it sheds its skin: ${n} torn page${n>1?'s return':' returns'} to the playbook.`}
   if(c.jab)c.txt+=` Then attacks the nearest hero within ${c.jabR||1} for ${c.jab+Math.floor((level||1)/4)} damage.`;
   if(c.zone==='mark'||c.zone==='hero')c.txt+=' Her facing is revealed while she lines up the kill.'+(c.follow&&c.zone==='mark'?' The marks follow their targets as they move.':'');
   if((c.t==='strike'||c.t==='rampage')&&c.mv&&(VILLAINS[vk].shape==='serpent'||(SHAPES[VILLAINS[vk].shape]||[0]).length>1))c.txt+=c.crush?` Heroes in its path are shoved aside and take ${c.crush}.`:' Heroes in its path are shoved aside.';

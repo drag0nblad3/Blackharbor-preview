@@ -70,7 +70,7 @@ const VILLAINS = {
   wind:{n:'Solar Wind',t:'sweep',r:2,dmg:2},
   odl:{n:'Overdrive Lance',t:'charge',zone:'line',dmg:6,sig:true,shout:'Overdrive! OVERDRIVE!',brk:'You blew out his overdrive coil!'}
  },shape:'diamond'},
- serpent:{name:'Ouroboros',short:'Ouro',tag:'Serpent under the city',salvage:'Scales',rstyle:'shot',eva:12,tough:15,acc:6,hench:{name:'Cultist',rng:1,style:'slash'},elite:{name:'The High Priest',short:'Priest',rng:3,style:'bolt',priest:1},base:['gulp','bite','coil','hiss','faith','spit'],adv:['viper','devour','shedp','roll','eyes','squeeze'],cards:{
+ serpent:{name:'Ouroboros',short:'Ouro',tag:'Serpent under the city',salvage:'Scales',rstyle:'shot',eva:12,tough:15,acc:6,hench:{name:'Cultist',rng:1,style:'slash'},elite:{name:'The High Priest',short:'Priest',rng:3,style:'bolt',priest:1},base:['gulp','bite','coil','hiss','faith','spit'],adv:['viper','devour','roll','eyes','squeeze'],cards:{
   gulp:{n:'Swallow Whole',t:'swallow',mv:3,cnt:1,dmg:3,sig:true,shout:'Sssso many little snacks…',brk:'You pried its jaws apart!'},
   bite:{n:'Lunging Bite',t:'strike',tgt:'nearest',mv:3,rng:1,dmg:3},
   coil:{n:'Crushing Coils',t:'sweep',r:1,dmg:3},
@@ -81,7 +81,7 @@ const VILLAINS = {
   devour:{n:'Devour',t:'swallow',mv:5,cnt:2,dmg:4,sig:true,shout:'The feast begins!',brk:'You knotted its throat shut!'},
   shedp:{n:'Shed Skin',t:'reanimate'},
   roll:{n:'Death Roll',t:'rampage',mv:3,dmg:3,crush:2},
-  eyes:{n:'Serpent Eyes',t:'puppet',amt:2,pull:2},
+  eyes:{n:'Serpent Eyes',t:'puppet',amt:2,pull:2,shed:1},
   squeeze:{n:'Tightening Coils',t:'sweep',r:1,dmg:4}
  },shape:'serpent'},
  lode:{name:'Lodestone',short:'Lode',tag:'Magnetic tyrant',salvage:'Lodestones',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Scrap drone',rng:2,style:'shot'},base:['attract','spike','shrap','field','scrap','crush'],adv:['repel','rail','polar','storm','vortex','compact'],cards:{
