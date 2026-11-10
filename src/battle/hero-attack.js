@@ -4,7 +4,7 @@ function woundV(){const sd=S.sd,v=sd.v;if(v.down)return true;const c=woundTarget
   if(!remainingPages(v)){v.down=true;v.charge=null;
     if(sd.vl.every(o=>o.v.down)){endSd('win');return true}
     fxV('DEFEATED!','hit');log('sys',`${VILLAINS[sd.vkey].short} is down! Finish the other one.`);focusV(sd.vl.findIndex(o=>!o.v.down));return true}return false}
-async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=heroOf(u),v=sd.v,b=BASE(h),tornBefore=v.wounds.length;
+async function heroAttack(u,target,bonus=0,fixedDice=0,style){sfx('dice');const sd=S.sd,h=heroOf(u),v=sd.v,b=BASE(h),tornBefore=v.wounds.length;
   if(letGo(u,'lets go of the civilians to fight.'))render();
   const aim=sd.aim,body=target==='v'&&v.sw?(aim&&swBodies(v).find(o=>o.x===aim.x&&o.y===aim.y&&cheb(u,o)<=stat(h,'range'))||swNear(v,u)):null;sd.aim=null;
   const side=target==='v'?sideOf(u,v,body):null,blind=side==='rear';if(blind){fxU(u,'BLIND SPOT!','good');log('hero',`${h.name} strikes from the blind spot: +1 die.`)}

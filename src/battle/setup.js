@@ -2,8 +2,9 @@
 function log(k,t){S.sd.log.push({k,t});if(S.sd.log.length>60)S.sd.log.shift()}
 /* comic SFX: positions are in board units (see HC) */
 let fxTimer;
-function fx(cx,cy,t,k='hit'){const sd=S.sd;if(!sd)return;sd.fx=sd.fx||[];sd.fx.push({cx,cy,t,k,born:Date.now()});
+function fx(cx,cy,t,k='hit'){const sd=S.sd;if(!sd)return;sfx(FX_SND[k]);sd.fx=sd.fx||[];sd.fx.push({cx,cy,t,k,born:Date.now()});
   clearTimeout(fxTimer);fxTimer=setTimeout(()=>{if(S.sd&&S.sd.fx){S.sd.fx=S.sd.fx.filter(f=>Date.now()-f.born<1600);render()}},1700)}
+const FX_SND={hit:'hit',vhit:'hit',miss:'miss',good:'good',dmgh:'hurt'};
 const fxP=(x,y,t,k)=>{const c=HC(x,y);fx(c.cx,c.cy,t,k)};
 const fxU=(u,t,k)=>fxP(u.x,u.y,t,k);
 const fxV=(t,k)=>{const c=vCtr(S.sd.v);fx(c.cx,c.cy,t,k)};

@@ -198,3 +198,4 @@
 @keyframes endpulse{to{box-shadow:0 0 0 3px #f5cd45}}
 @media (prefers-reduced-motion:reduce){.wrap.v-sd .btn.endrd.armed{animation:none}}
 .wrap.v-sd .bcol>details.coll{margin:0 0 5px}
+.wrap.v-sd .endrd-note{align-self:center;font:700 .7rem/1.2 var(--mono,monospace);color:#b42f2f;max-width:9em}

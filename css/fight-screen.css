@@ -1,0 +1,27 @@
+/* fight-screen.css: board fitting (desktop height cap, phone zoom), page-tear flourish, villain intent chip. Loads last. */
+@media(min-width:1024px){
+  #app.wrap.v-sd .board.iso-board{width:min(100%,calc((100svh - 175px) * var(--iso-ar,1.6)));margin-inline:auto}
+}
+.iso-zoom{display:none}
+@media(max-width:700px){
+  .iso-zoom{display:inline-flex}
+  #app.wrap.v-sd .bcol .boardwrap{overflow-x:auto;overflow-y:hidden;justify-content:flex-start;overscroll-behavior-x:contain;scrollbar-width:thin;-webkit-overflow-scrolling:touch}
+  #app.wrap.v-sd .bcol .boardwrap>.board.iso-board{flex:none;width:calc(100% * var(--bz,1));max-width:none;min-width:0}
+}
+.iso-board.shk{animation:bshake .32s steps(2)}
+@media(prefers-reduced-motion:reduce){.iso-board.shk{animation:none}}
+/* a freshly torn page pops out of the playbook bar */
+.pips .pip.w.fresh{animation:pipTear .9s cubic-bezier(.2,.9,.3,1.3) both;position:relative;z-index:1}
+@keyframes pipTear{0%{transform:scale(1);background:#fff;box-shadow:0 0 0 2px #ffcf49,0 0 14px 4px #ff6853}35%{transform:scale(1.9) rotate(-14deg) translateY(-4px);box-shadow:0 0 0 2px #ffcf49,0 0 18px 6px #ff6853}100%{transform:none;box-shadow:none}}
+@media(prefers-reduced-motion:reduce){.pips .pip.w.fresh{animation:none;outline:2px solid #ffcf49}}
+/* villain intent: what the charging page will do, even before it is revealed */
+.intent{display:inline-flex;align-items:center;gap:5px;font:800 .72rem/1.1 var(--ui,system-ui,sans-serif);text-transform:uppercase;letter-spacing:.04em;padding:3px 8px 3px 5px;border:2px solid #11192b;background:#fff1d3;color:#11192b;border-radius:3px;box-shadow:2px 2px 0 #11192b;white-space:nowrap}
+.intent .ii{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--ic,#555);color:#fff;font-size:.7rem;line-height:1}
+.intent.sig{background:#ffcf49}
+.intent-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:4px 0}
+.wpips{display:inline-flex;gap:3px;align-items:center}
+.wpips i{width:12px;height:12px;border:2px solid #11192b;transform:rotate(45deg);background:#fff1d3}
+.wpips i.f{background:#ff6853}
+.wpips-lbl{font:700 .7rem/1.2 var(--mono,monospace)}
+.bh-combat-metrics .intent{align-self:center}
+@media(max-width:700px){#app.wrap.v-sd .bcol .boardwrap::after{display:none}}

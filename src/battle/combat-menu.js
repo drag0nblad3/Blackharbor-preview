@@ -23,11 +23,14 @@ function combatMenu(kind){
     d.querySelector('.combat-dropdown-menu').hidden=!open;
   });
 }
-/* End round needs two taps within 4s: the first arms it, the second ends the round. */
+/* End round ends at once when every standing hero has acted; otherwise the first tap arms it
+   (naming who can still act) and a second tap within 4s ends the round. */
 let endArmAt=0,endArmT=null;
 const endRoundArmed=()=>Date.now()-endArmAt<4000;
-function endRoundBtn(){const a=endRoundArmed();return `<button class="btn sm pri endrd ${a?'armed':''}" data-a="endround" aria-label="${a?'Tap again to end the round':'End round (tap twice)'}">${a?'Tap again':'End round'}</button>`}
-function endRoundTap(){if(endRoundArmed()){endArmAt=0;clearTimeout(endArmT);return villainPhase()}
+function endRoundIdle(){const sd=S.sd;return sd?sd.units.filter(u=>!u.ko&&!u.acted).map(u=>heroOf(u).name):[]}
+function endRoundBtn(){const a=endRoundArmed(),idle=endRoundIdle(),who=idle.length===1?idle[0]+' can still act':idle.length+' heroes can still act';
+  return `<button class="btn sm pri endrd ${a?'armed':''}" data-a="endround" aria-label="${a?'Tap again to end the round: '+who:'End round'}">${a?'End anyway?':'End round'}</button>${a&&idle.length?`<span class="endrd-note">${esc(who)}</span>`:''}`}
+function endRoundTap(){if(endRoundArmed()||!endRoundIdle().length){endArmAt=0;clearTimeout(endArmT);return villainPhase()}
   endArmAt=Date.now();clearTimeout(endArmT);endArmT=setTimeout(()=>{endArmAt=0;if(S.sd&&!S.sd.busy)render()},4000);render()}
 function combatPick(kind,key){
   const sd=S.sd,u=sd&&sd.units[sd.sel];

@@ -4,10 +4,10 @@ async function splash(target){const sd=S.sd;const from=target==='v'?ctrV():ctrU(
   await Promise.all(near.map(h=>A.bolt(from,ctrU(h),COL.magic,true)));
   near.forEach(h=>{h.hp--;h.hurtAt=Date.now();fxP(h.x,h.y,h.hp<=0?'K.O.!':'ZAP!','hit')});const dead=near.filter(h=>h.hp<=0);sd.hench=sd.hench.filter(h=>h.hp>0);
   log('hero',`Arc Burst jumps to ${near.length} henchm${near.length===1?'an':'en'}${dead.length?`, dropping ${dead.length}`:''}.`);render()}
-function endSd(r){S.sd.result=r;S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
+function endSd(r){S.sd.result=r;sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
   log('sys',r==='win'?'The villain\'s playbook is empty. Victory!':r==='loss'?'Every hero is down.':'The villain escapes before you can finish it.')}
 function checkLoss(){if(!S.sd.result&&!live().length)endSd('loss')}
-async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);
+async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sfx('turn');sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);
   beamTick();await hazardTick();checkLoss();await bombTick();checkLoss();
   for(let i=0;i<sd.vl.length&&!sd.result;i++){if(sd.vl[i].v.down)continue;focusV(i);const v=sd.v,vn=VILLAINS[sd.vkey].name;
     await resolveBossSetup(v);if(sd.result||v.down)continue;

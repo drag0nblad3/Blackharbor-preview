@@ -185,6 +185,9 @@ function bhMenuSetDiff(v){
 }
 function bhMenuStoryTxt(){return S.storyOff?'Story is off: turn on':'Story is on: turn off'}
 function bhMenuToggleStory(b){S.storyOff=!S.storyOff;if(!S.story)S.story={q:[],seen:{}};b.textContent=bhMenuStoryTxt();b.setAttribute('aria-pressed',String(!S.storyOff));render()}
+function bhMenuSoundTxt(){return sfxPrefs.on?'Sound is on: turn off':'Sound is off: turn on'}
+function bhMenuAmbTxt(){return sfxPrefs.amb?'Harbor ambience is on: turn off':'Harbor ambience is off: turn on'}
+function bhMenuToggleSound(b,k){sfxSet(k,!sfxPrefs[k]);b.textContent=k==='on'?bhMenuSoundTxt():bhMenuAmbTxt();b.setAttribute('aria-pressed',String(!!sfxPrefs[k]))}
 function bhMenuTipsTxt(){return S.tipsOff?'Tips are off: turn on':'Tips are on: turn off'}
 function bhMenuToggleTips(b){
   S.tipsOff=!S.tipsOff;if(!S.tipsOff)S.tipAt=0;
@@ -252,6 +255,11 @@ function bhSaveOpen(){
     '<div class="bh-diff-ticks small" aria-hidden="true">'+DIFFS.map(d=>'<span>'+d.n+'</span>').join('')+'</div>',
     '<div id="bh-diff-out" class="bh-diff-out" aria-live="polite">'+bhMenuDiffHtml()+'</div>',
     '<p class="small muted">Change it any time. It takes effect at once, even mid-fight.</p>',
+    '<hr class="bh-menu-rule">',
+    '<div class="eyebrow">Sound</div>',
+    '<div class="row"><button type="button" class="btn" data-bh-sound="on" aria-pressed="'+sfxPrefs.on+'">'+bhMenuSoundTxt()+'</button>',
+    '<button type="button" class="btn" data-bh-sound="amb" aria-pressed="'+sfxPrefs.amb+'">'+bhMenuAmbTxt()+'</button></div>',
+    '<p class="small muted">Fight sound effects, and quiet surf at headquarters. Saved on this device.</p>',
     '<hr class="bh-menu-rule">',
     '<div class="eyebrow">Pop-up tips</div>',
     '<button type="button" class="btn" data-bh-tips aria-pressed="'+!S.tipsOff+'">'+bhMenuTipsTxt()+'</button>',
@@ -361,12 +369,13 @@ function bhSaveRestore(){
   }catch(e){bhSaveUIStatus('Previous backup is invalid: '+e.message,true)}
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('[data-save-open],[data-bh-arm],[data-bh-guide],[data-bh-tips],[data-bh-story],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
+  const b=e.target.closest('[data-save-open],[data-bh-arm],[data-bh-guide],[data-bh-tips],[data-bh-story],[data-bh-sound],[data-bh-close],[data-bh-tab],[data-bh-copy],[data-bh-select],[data-bh-check],[data-bh-import],[data-bh-restore]');
   if(!b||b.disabled)return;
   if(b.hasAttribute('data-save-open')){bhSaveOpen();return}
   if(b.hasAttribute('data-bh-arm')){bhMenuAct(b.dataset.bhArm);return}
   if(b.hasAttribute('data-bh-tips')){bhMenuToggleTips(b);return}
   if(b.hasAttribute('data-bh-story')){bhMenuToggleStory(b);return}
+  if(b.hasAttribute('data-bh-sound')){bhMenuToggleSound(b,b.dataset.bhSound);return}
   if(b.hasAttribute('data-bh-guide')){bhMenuClose();bhGuideOpen();return}
   if(b.hasAttribute('data-bh-close')){const d=document.getElementById('bh-save-dialog');if(d)d.close();return}
   if(b.hasAttribute('data-bh-tab')){bhSaveTab(b.dataset.bhTab);return}
