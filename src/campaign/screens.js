@@ -11,14 +11,16 @@ function overView(){const o=S.over;return `<section class="panel"><div class="ey
   <button class="btn pri" data-a="restart">Start Volume ${S.vol+1}</button><p class="small muted" style="margin:0">A new volume starts a fresh team and three random villains. What you learned about villain playbooks carries over.</p></section>`}
 
 const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','City Under Siege','Twilight of Heroes'];
-/* Tyler, 2026-10-30: the finale is a villain never revealed this volume at level 8, teamed with a level 8 Mole Boy.
+/* Tyler, 2026-10-30: the finale is a villain never revealed this volume, teamed with Mole Boy (levels: see setupEvent, 2026-11-10).
    Mole Boy's playbook is his four pages repeated up to the level-8 size, upgraded evenly from I to III. */
-function finaleMole(){const ids=VILLAINS.mole.base,vs={...moleState(),level:VCAP,deck:[]},n=deckSize(vs);
+function finaleMole(lv=VCAP){const ids=VILLAINS.mole.base,vs={...moleState(),level:Math.max(1,lv),deck:[]},n=deckSize(vs);
   for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
 function setupEvent(){const mm=S.mastermind&&!S.villains.some(v=>v.key===S.mastermind)?S.mastermind:null;let k=mm||chooseVillainFromPool(),fresh=!!k;
   if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest active villain
-  if(fresh)S.villains.push(makeVillain(k,VCAP));else{const vs=vState(k);while(vs.level<VCAP)levelUpVillain(vs,true)}
-  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole());const keys=[k,'mole'];
+  /* Tyler, 2026-11-10: the mastermind fights at the level of the highest villain met this volume, and Mole Boy 2 below that */
+  const top=Math.min(VCAP,Math.max(1,...S.villains.filter(v=>v.key!=='mole'&&v.key!==k).map(v=>v.level||1),fresh?1:vState(k).level));
+  if(fresh)S.villains.push(makeVillain(k,top));else{const vs=vState(k);while(vs.level<top)levelUpVillain(vs,true)}
+  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole(top-2));const keys=[k,'mole'];
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
 const PREP={scout:{n:'Coordinated recon',txt:'Both villains start with 1 page already torn out.'},
   evac:{n:'Evacuate the district',txt:'Only 2 civilians remain on the battlefield instead of 4, and the city thanks you: +2 trust.'},

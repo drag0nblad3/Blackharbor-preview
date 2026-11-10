@@ -10,9 +10,13 @@ function serpGrow(v){if(v.body.length+1+(v.grow||0)>=SERP_MAX){if(v.wounds.lengt
   if(t)v.body.push(t);else v.grow=(v.grow||0)+1;return true}
 async function sweep(r,dmg,label){const sd=S.sd,v=sd.v;const hit=live().filter(u=>dV(u,v)<=r);battlePose('v'+sd.vi,'attack');hit.forEach(u=>battlePose('h'+u.hid,'defense'));A.lunge('v'+sd.vi,ctrV());await A.ring(ctrV(),COL.mag,r*2+2.4);
   if(!hit.length)log('vill',`${label} hits only rubble.`);for(const u of hit)await vHit(u,dmg,label,'none');
-  sd.civs.filter(c=>dV(c,v)<=r).forEach(c=>harmCiv(c,label))}
+  sd.civs.filter(c=>dV(c,v)<=r).forEach(c=>harmCiv(c,label));
+  /* Mother Quarry (Tyler, 2026-11-10): the ground answers her. Heroes beside rubble anywhere on the board are hit too. */
+  if(VILLAINS[sd.vkey].rubbleQuake&&!sd.result){const near=live().filter(u=>!hit.includes(u)&&nearRubble(u));
+    if(near.length){log('vill',`The ground answers ${VILLAINS[sd.vkey].short}: the rubble heaves.`);for(const u of near){await A.smoke(ctrU(u),2);await vHit(u,dmg,label,'none')}}}}
+function nearRubble(u){const sd=S.sd;return sd.obs.includes(u.x+','+u.y)||nbrs(u).some(p=>sd.obs.includes(p.x+','+p.y))}
 /* Version 84 (Tyler): henchman damage scales half as fast as villain damage, +1 every 4 levels of the villain they serve */
-/* Version 86 (Tyler): special henchmen. A villain with an elite brings one from level 3. Health 2 + level, evasion 9 + half the level,
+/* Version 86 (Tyler): special henchmen. A villain with an elite brings one from level ELITE_LV (2; was 3). Health 2 + level, evasion 9 + half the level,
    +4 to hit, damage 1 + half the level (twice as fast as normal henchmen). Taking one down is worth 1 of that villain's salvage.
    The Cantor's Made Man is a bodyguard: while he stands next to her he takes the first hit of every hero attack on her. */
 const eliteOf=k=>VILLAINS[k].elite||null;

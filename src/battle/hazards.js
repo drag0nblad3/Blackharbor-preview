@@ -92,4 +92,11 @@ async function fireCharge(){const sd=S.sd,v=sd.v,ch=sd.v.charge;sd.v.charge=null
   const hit=live().filter(inZ);
   const cd=ch.dmg>0&&v.cursed?Math.max(1,ch.dmg-2):ch.dmg;for(const u of hit){if(await wardBlocks(u))continue;fxU(u,pick(['FWOOOM!','KRAKOOM!']),'vhit');damageHero(u,cd);log('vill',`${ch.n} scorches ${heroOf(u).name} for ${ch.dmg}.`);if(ch.daze)dazeU(u)}
   sd.civs.filter(inZ).forEach(c=>harmCiv(c,ch.n));termHit(inZ,ch.n);
-  if(!hit.length)log('vill',`${ch.n} fires, but everyone got clear!`);render()}
+  if(!hit.length)log('vill',`${ch.n} fires, but everyone got clear!`);
+  /* Helios (Tyler, 2026-11-10): afterglow. The fired hexes burn until the next villain turn starts. */
+  const ag=VILLAINS[sd.vkey].afterglow;if(ag){const bl=new Set((sd.walls||[]).map(w=>w.k));ch.zone.filter(k=>!bl.has(k)&&!sd.obs.includes(k)).forEach(k=>{const e=sd.haz.find(h=>h.k===k);if(e){e.ttl=Math.max(e.ttl,1);e.dmg=Math.max(e.dmg,ag)}else sd.haz.push({k,ttl:1,dmg:ag,n:'afterglow'})});log('vill',`The ground where ${ch.n} landed glows white-hot. Don't end a move there.`)}
+  render()}
+/* The Architect (Tyler, 2026-11-10): when her temporary walls come down, heroes next to them take the falling masonry. Once per hero per round. */
+function wallsCollapse(){const sd=S.sd,o=sd.vl.find(o=>!o.v.down&&VILLAINS[o.key].wallFall);if(!o)return;const dmg=VILLAINS[o.key].wallFall;
+  const gone=sd.walls.filter(w=>!w.perm&&!w.girder&&w.ttl<=0).map(w=>w.k);if(!gone.length)return;
+  live().filter(u=>gone.some(k=>{const[x,y]=k.split(',').map(Number);return cheb(u,{x,y})<=1})).forEach(u=>{fxU(u,'CRASH!','vhit');damageHero(u,dmg);log('vill',`A wall comes down on ${heroOf(u).name} for ${dmg}.`)});checkLoss()}

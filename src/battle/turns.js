@@ -4,7 +4,7 @@ async function splash(target){const sd=S.sd;const from=target==='v'?ctrV():ctrU(
   await Promise.all(near.map(h=>A.bolt(from,ctrU(h),COL.magic,true)));
   near.forEach(h=>{h.hp--;h.hurtAt=Date.now();fxP(h.x,h.y,h.hp<=0?'K.O.!':'ZAP!','hit')});const dead=near.filter(h=>h.hp<=0);sd.hench=sd.hench.filter(h=>h.hp>0);
   log('hero',`Arc Burst jumps to ${near.length} henchm${near.length===1?'an':'en'}${dead.length?`, dropping ${dead.length}`:''}.`);render()}
-function endSd(r){S.sd.result=r;if(r==='win'){const L=S.sd.units.filter(u=>!u.ko);quipHero(L[Math.floor(Math.random()*L.length)],'win')}sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
+function endSd(r){S.sd.result=r;if(r==='win'&&!FAST){const L=S.sd.units.filter(u=>!u.ko);quipHero(L[Math.floor(Math.random()*L.length)],'win')}sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
   log('sys',r==='win'?'The villain\'s playbook is empty. Victory!':r==='loss'?'Every hero is down.':'The villain escapes before you can finish it.')}
 function checkLoss(){if(!S.sd.result&&!live().length)endSd('loss')}
 async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sfx('turn');sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);
@@ -24,7 +24,7 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sf
     checkLoss();render();await sleep(300)}
   for(const hm of sd.hench.slice()){if(sd.result)break;if(!sd.hench.includes(hm))continue;await henchAct(hm);checkLoss();render();await sleep(120)}
   if(!sd.result){sd.units.forEach(civFollow);await civPanic()}
-  sd.units.forEach(u=>u.guard=false);sd.vl.forEach(o=>{o.v.hex=false;o.v.marked=false;o.v.cursed=false;o.v.callout=0;o.v.blind=false;o.v.excise=0});sd.walls.forEach(w=>{if(!w.perm)w.ttl--});{const fall=sd.walls.filter(w=>w.girder&&w.ttl<=0);sd.walls=sd.walls.filter(w=>w.ttl>0);
+  sd.units.forEach(u=>u.guard=false);sd.vl.forEach(o=>{o.v.hex=false;o.v.marked=false;o.v.cursed=false;o.v.callout=0;o.v.blind=false;o.v.excise=0});sd.walls.forEach(w=>{if(!w.perm)w.ttl--});wallsCollapse();{const fall=sd.walls.filter(w=>w.girder&&w.ttl<=0);sd.walls=sd.walls.filter(w=>w.ttl>0);
     for(const w of fall){const[x,y]=w.k.split(',').map(Number),t=live().filter(u=>cheb(u,{x,y})===1).sort((a,b)=>heroOf(a).hp-heroOf(b).hp)[0];await A.smoke(HC(x,y),4);
       if(t){fxU(t,'CRASH!','vhit');log('vill',`A girder topples onto ${heroOf(t).name} for ${w.dmg}.`);damageHero(t,w.dmg)}else log('vill','A girder topples over and hits nobody.');render()}checkLoss()}
   sd.vl.forEach(o=>{o.v.turnDamage=0;o.v.planningDone=false});focusV(sd.vl.findIndex(o=>!o.v.down));vWarn();

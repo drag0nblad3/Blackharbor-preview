@@ -14,7 +14,7 @@ const VILLAINS = {
   storm:{n:'Tesla Storm',t:'sweep',r:2,dmg:3,sig:true,shout:'Science demands a bigger storm!',brk:'You grounded his Tesla tower!'},
   shock:{n:'Neural Shock',t:'puppet',amt:2}
  },shape:'one'},
- quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',eva:9,tough:17,acc:2,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
+ quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',rubbleQuake:true,eva:9,tough:17,acc:4,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
   bull:{n:'Bull Rush',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nothing stands in my way!',brk:'You broke her charging stride!',crush:2},
   slam:{n:'Seismic Slam',t:'sweep',r:1,dmg:4},
   wreck:{n:'Throw Wreckage',fx:'throw',t:'strike',tgt:'nearest',mv:0,rng:4,dmg:3,col:true},
@@ -42,7 +42,7 @@ const VILLAINS = {
   mar:{n:'The Whole Outfit',t:'summon',k:4,sig:true,shout:'Boys, earn your pay!',brk:'You cut off his payroll!'},
   body:{n:'Body Double',t:'reanimate'}
  },shape:'one'},
- architect:{name:'The Architect',short:'Architect',tag:'Builder of impossible places',salvage:'Rebar',rstyle:'rock',eva:11,tough:15,acc:5,hench:{name:'Construct',rng:1,style:'slash'},elite:{name:'The Foreman',short:'Foreman',rng:1,style:'slash',foreman:1},base:['walls','molten','cage','rivet','cons','demo'],adv:['laby','sink','wball','fort','revise','crush'],cards:{
+ architect:{name:'The Architect',short:'Architect',tag:'Builder of impossible places',salvage:'Rebar',rstyle:'rock',wallFall:2,eva:11,tough:15,acc:5,hench:{name:'Construct',rng:1,style:'slash'},elite:{name:'The Foreman',short:'Foreman',rng:1,style:'slash',foreman:1},base:['walls','molten','cage','rivet','cons','demo'],adv:['laby','sink','wball','fort','revise','crush'],cards:{
   walls:{n:'Raise Walls',t:'walls',len:4,ttl:3,lines:1},
   molten:{n:'Molten Floor',t:'hazard',r:1,dmg:2,ttl:2,cnt:1},
   cage:{n:'Steel Cage',t:'cage',ttl:2},
@@ -56,7 +56,7 @@ const VILLAINS = {
   revise:{n:'Blueprint Revision',t:'reanimate'},
   crush:{n:'Controlled Collapse',t:'shrapnel',r:5,dmg:3,sig:true,shout:'This whole place is coming down!',brk:'You found the keystone and pulled it!'}
  },shape:'diamond'},
- helios:{name:'Helios Prime',short:'Helios',tag:'A man-made sun',salvage:'Sunstone',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Sunsprite',rng:3,style:'shot'},base:['flare','lance','heat','corona','blind','sprites'],adv:['nova','twin','vent','sbeam','wind','odl'],cards:{
+ helios:{name:'Helios Prime',short:'Helios',tag:'A man-made sun',salvage:'Sunstone',rstyle:'bolt',afterglow:2,eva:11,tough:15,acc:4,hench:{name:'Sunsprite',rng:3,style:'shot'},base:['flare','lance','heat','corona','blind','sprites'],adv:['nova','twin','vent','sbeam','wind','odl'],cards:{
   flare:{n:'Solar Flare',t:'charge',zone:'blast',dmg:5,sig:true,shout:'Look upon the sun!',brk:'You vented a flare chamber!'},
   lance:{n:'Lance of Dawn',t:'charge',zone:'line',dmg:4,sig:true,shout:'Dawn breaks in a straight line!',brk:'You snapped his lance of light!'},
   heat:{n:'Heat Ray',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'bolt'},
@@ -98,7 +98,7 @@ const VILLAINS = {
   vortex:{n:'Iron Vortex',t:'pull',r:8,mv:3,dmg:4,sig:true,shout:'Iron answers its master!',brk:'You jammed the vortex generator!'},
   compact:{n:'Compactor',t:'sweep',r:1,dmg:4}
  },shape:'diamond'},
- noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
+ noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,isolated:2,rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
   knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',dupeLow:1,mv:4,rng:1,dmg:3},
   fade:{n:'Fade',t:'fade',evaUp:4,sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},

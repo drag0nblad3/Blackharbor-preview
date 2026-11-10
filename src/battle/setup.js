@@ -51,7 +51,7 @@ function layTerrain(L){const sd=S.sd,taken=k=>sd.obs.includes(k)||sd.walls.some(
 const TERM_INTEL=2;
 const termP=()=>{const[x,y]=S.sd.term.k.split(',').map(Number);return {x,y}};
 /* Version 92 (Tyler): the terminal appears in every fight without a special henchman, instead of half of all fights */
-function placeTerm(){const sd=S.sd;sd.term=null;if(sd.vl.some(o=>eliteOf(o.key)&&o.v.level>=3))return;
+function placeTerm(){const sd=S.sd;sd.term=null;if(sd.vl.some(o=>eliteOf(o.key)&&o.v.level>=ELITE_LV))return;
   const ks=[];for(let x=0;x<N;x++){const k=x+',0';if(sd.obs.includes(k)||sd.walls.some(w=>w.k===k)||sd.pits.includes(k)||sd.haz.some(h=>h.k===k)||(sd.exits||[]).includes(k)||sd.vl.some(o=>inV(o.v,x,0)))continue;ks.push(k)}
   if(ks.length)sd.term={k:pick(ks)}}
 function termHit(inZ,src){const sd=S.sd;if(!sd.term||!inZ(termP()))return;const p=termP();sd.term=null;fxP(p.x,p.y,'CRUNCH!','vhit');log('vill',`${src} wrecks the evidence terminal.`)}
@@ -78,7 +78,7 @@ function startShowdown(opt={}){
   lastPos={};
   sd.vl.forEach((o,vi)=>{const n=Math.min(4,fin?Math.ceil(o.v.level/2):o.v.level)+(q==='ambush'?1:0);
     for(let i=0;i<n;i++){const t=pick(freeTiles((x,y)=>y>=1&&y<=4&&Math.abs(x-(o.v.x+.5))<=3))||pick(freeTiles((x,y)=>y<=5));if(t)sd.hench.push({id:'h'+vi+'_'+i,owner:o.key,x:t.x,y:t.y,hp:regularHenchHp(o.key)})}
-    if(eliteOf(o.key)&&o.v.level>=3){const t=freeTiles((x,y)=>dV({x,y},o.v)===1)[0]||pick(freeTiles((x,y)=>y<=4));if(t){sd.hench.push(mkElite(o,t));sd.elites=(sd.elites||[]).concat(o.key)}}});
+    if(eliteOf(o.key)&&o.v.level>=ELITE_LV){const t=freeTiles((x,y)=>dV({x,y},o.v)===1)[0]||pick(freeTiles((x,y)=>y<=4));if(t){sd.hench.push(mkElite(o,t));sd.elites=(sd.elites||[]).concat(o.key)}}});
   if(S.facilities.includes('dojo'))sd.units.forEach(u=>u.evaNext=6);
   /* about a third of civilians start deep in the lair, behind or beside the villain */
   const nc=opt.civs||3;for(let i=0;i<nc;i++){const dry=(x,y)=>!sd.haz.some(h=>h.k===x+','+y),t=(Math.random()<.35&&pick(freeTiles((x,y)=>y<=1&&dry(x,y))))||pick(freeTiles((x,y)=>y>=2&&y<=N-3&&dry(x,y)));if(t)sd.civs.push({id:i,x:t.x,y:t.y})}

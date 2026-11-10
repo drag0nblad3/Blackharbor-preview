@@ -52,7 +52,7 @@ const BH_GUIDE=[
   {id:'villainturn',t:'Fights: the villain\'s turn',img:'charging',alt:'The villain panel with the charging page and the playbook pips',b:`
 <p>Every round the villain plays the page sitting in its <b>charging slot</b>, then charges the next one. Its <b>Signature Moves</b> are the most dangerous pages, and it shouts a hint when one is coming.</p>
 <p>Land wounds equal to <b>half the villain's level + 1</b> (rounded up) in one hero round and the threshold wound tears the charging page instead, so the villain loses that move. Telegraphed <b>charged attacks</b> mark the hexes they will hit: step out of them.</p>
-<p><b>Henchmen</b> move up to 3 hexes and attack. From level 3 some villains bring a tougher <b>special henchman</b>, worth 1 salvage when taken down.</p>
+<p><b>Henchmen</b> move up to 3 hexes and attack. From level 2 some villains bring a tougher <b>special henchman</b>, worth 1 salvage when taken down.</p>
 <p>A hero at 0 health is knocked out of the fight. They are back at half health after the mission. If every hero is down, the fight is lost.</p>`},
   {id:'civilians',t:'Civilians, exits and the terminal',img:'playbook',alt:'The playbook pop-up showing pages left, pages torn and pages seen',b:`
 <p><b>Civilians</b> are caught in the fight. Use <b>Escort</b> beside them and they follow you. Step on a green <b>exit</b> to get them out for <b>+1 trust</b> each. Every civilian the villain or its henchmen hurt costs 1 trust. Civilians left on the board at the end cost nothing.</p>
