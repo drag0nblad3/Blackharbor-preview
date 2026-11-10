@@ -4,7 +4,7 @@ async function splash(target){const sd=S.sd;const from=target==='v'?ctrV():ctrU(
   await Promise.all(near.map(h=>A.bolt(from,ctrU(h),COL.magic,true)));
   near.forEach(h=>{h.hp--;h.hurtAt=Date.now();fxP(h.x,h.y,h.hp<=0?'K.O.!':'ZAP!','hit')});const dead=near.filter(h=>h.hp<=0);sd.hench=sd.hench.filter(h=>h.hp>0);
   log('hero',`Arc Burst jumps to ${near.length} henchm${near.length===1?'an':'en'}${dead.length?`, dropping ${dead.length}`:''}.`);render()}
-function endSd(r){S.sd.result=r;sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
+function endSd(r){S.sd.result=r;if(r==='win'){const L=S.sd.units.filter(u=>!u.ko);quipHero(L[Math.floor(Math.random()*L.length)],'win')}sfx(r==='win'?'win':r==='loss'?'loss':'turn');S.sd.mode=null;S.sd.sel=null;if(r==='win')fxV('DEFEATED!','hit');
   log('sys',r==='win'?'The villain\'s playbook is empty. Victory!':r==='loss'?'Every hero is down.':'The villain escapes before you can finish it.')}
 function checkLoss(){if(!S.sd.result&&!live().length)endSd('loss')}
 async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sfx('turn');sd.busy=true;sd.vturn=true;sd.mode=null;sd.sel=null;render();await sleep(250);
@@ -42,7 +42,7 @@ async function villainPhase(){const sd=S.sd;if(!sd||sd.result||sd.busy)return;sf
       log('sys',`Round ${sd.round}. Your move.`)}}
   sd.busy=false;sd.vturn=false;render()}
 
-function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],res=sd.result;
+function debrief(){const sd=S.sd,vs=vState(sd.vkey),def=VILLAINS[sd.vkey],L=[],res=sd.result;recapFight(sd);
   const evT=S.ethos.b==='secret'?Math.min(1,sd.evac):sd.evac,per=S.ethos.a==='force'?2:1;
   if(sd.termGot)L.push(`Evidence terminal hacked: +${sd.termGot} intel.`);
   S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilian${sd.evac===1?'':'s'} evacuated (+${evT} trust), ${sd.harmed} harmed (−${sd.harmed*per} trust).`);

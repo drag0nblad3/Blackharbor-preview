@@ -7,7 +7,7 @@ function afterView(){const a=S.after,d=VILLAINS[a.vkey];
   ${eth?`<div class="cap"><b>A defining moment.</b> ${eth.q} This choice is permanent.</div><div class="grid2">${eth.opts.map(o=>`<button class="btn opt" data-a="ethos:${a.ethos}:${o.id}"><span>${o.n}</span><small>${o.txt}</small></button>`).join('')}</div>`
     :`<button class="btn pri" data-a="next">${S.over?'See how the volume ends':S.arcInfo?`Arc ${S.arcInfo.arc} begins`:S.finalePending?'Open the event comic':`Begin issue #${S.issue}`}</button>`}</section>`}
 function overView(){const o=S.over;return `<section class="panel"><div class="eyebrow">Volume ${S.vol}</div><div><span class="sfxhead ${o.win?'':'bad'}">${o.win?'The End':'Cancelled!'}</span></div>
-  <p style="margin:0">${o.txt}</p>${coll('over-chron','<span class="eyebrow">Back issues · '+S.chronicle.length+'</span>',`<ul class="lines small">${S.chronicle.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`,false)}
+  <p style="margin:0">${o.txt}</p>${recapView()}${coll('over-chron','<span class="eyebrow">Back issues · '+S.chronicle.length+'</span>',`<ul class="lines small">${S.chronicle.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`,false)}
   <button class="btn pri" data-a="restart">Start Volume ${S.vol+1}</button><p class="small muted" style="margin:0">A new volume starts a fresh team and three random villains. What you learned about villain playbooks carries over.</p></section>`}
 
 const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','City Under Siege','Twilight of Heroes'];
@@ -28,7 +28,7 @@ function startFinale(p){S.event.prep=p;if(p==='evac')S.trust+=2;
   startShowdown({finale:true,keys:S.event.keys,quality:p==='scout'?'prepared':'normal',civs:p==='evac'?2:4});
   if(p==='rally')S.sd.units.forEach(u=>{u.buffDice=1;gainHero(heroOf(u),3)})}
 function eliteSalvage(L){const sd=S.sd;for(const k of sd.elites||[])if(!sd.hench.some(m=>m.elite&&m.owner===k)){S.salvage[k]=(S.salvage[k]||0)+1;L.push(`${eliteOf(k).name} was taken down: +1 ${VILLAINS[k].salvage}.`)}}
-function finaleDebrief(){const sd=S.sd,L=[],names=S.event.keys.map(k=>VILLAINS[k].name).join(' and ');
+function finaleDebrief(){const sd=S.sd,L=[],_r=recapFight(sd),names=S.event.keys.map(k=>VILLAINS[k].name).join(' and ');
   eliteSalvage(L);const evT=sd.evac,per=S.ethos.a==='force'?2:1;S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilians evacuated, ${sd.harmed} harmed.`);
   let headline;
   if(sd.result==='win'){headline='City saved!';S.trust+=3;L.push(`${names} are beaten together and the city is safe again. +3 trust.`)}

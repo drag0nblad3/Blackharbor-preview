@@ -44,3 +44,16 @@
 .story-page>.btn.pri{align-self:flex-start}
 .story-hidden h3{letter-spacing:.2em}
 @media (max-width:600px){.story-body{grid-template-columns:1fr}.story-art{max-width:200px}}
+/* volume recap on the end screen */
+.recap{display:grid;gap:10px;margin:6px 0;padding:12px;border:2px solid var(--ink);background:color-mix(in srgb,var(--panel) 85%,#ffcf49);box-shadow:4px 4px 0 var(--ink)}
+.recap-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.recap-tile{display:grid;text-align:center;padding:6px 4px;border:2px solid var(--ink);background:var(--panel)}
+.recap-tile b{font:900 1.4rem/1 var(--mono,monospace)}.recap-tile span{font:700 .66rem/1.2 var(--mono,monospace);text-transform:uppercase;letter-spacing:.04em}
+.recap-mvp{display:flex;gap:10px;align-items:center}.recap-mvp h3{margin:0}.recap-mvp .eyes{flex:none;width:72px}
+.recap-covers{display:flex;flex-wrap:wrap;gap:8px}
+.recap-cover{margin:0;width:78px;display:grid;gap:3px;text-align:center;font:800 .7rem/1.1 var(--mono,monospace)}
+.recap-cover>:first-child{width:78px;height:78px;overflow:hidden;border:2px solid var(--ink);display:block;background:#2a2d35}
+.recap-cover img,.recap-cover svg{width:100%;height:100%;object-fit:cover}
+.recap-cover small{display:block;font-weight:600;opacity:.8}
+.recap-cover.lost>:first-child{filter:grayscale(.85) contrast(.9)}
+@media(max-width:480px){.recap-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -25,3 +25,11 @@
 .wpips-lbl{font:700 .7rem/1.2 var(--mono,monospace)}
 .bh-combat-metrics .intent{align-self:center}
 @media(max-width:700px){#app.wrap.v-sd .bcol .boardwrap::after{display:none}}
+/* speech-bubble lines (banter) */
+.fx.k-line{z-index:9;animation:quipIn 3.4s ease-out forwards;transform:translate(-50%,-100%)}
+.fx.k-line .b{width:max-content;max-width:min(230px,58vw);aspect-ratio:auto;padding:6px 11px;background:#fff8e6;border:2.5px solid var(--ink,#11192b);border-radius:14px;box-shadow:3px 3px 0 var(--ink,#11192b)}
+.fx.k-line .b::before{inset:auto auto -11px 26%;width:14px;height:12px;background:var(--ink,#11192b);clip-path:polygon(0 0,100% 0,10% 100%)}
+.fx.k-line .b::after{display:none}
+.fx.k-line .b span{color:var(--ink,#11192b);-webkit-text-stroke:0;transform:none;font:800 italic clamp(.72rem,2.6vw,.9rem)/1.2 var(--ui,system-ui,sans-serif);text-shadow:none;letter-spacing:0;text-transform:none;white-space:normal;text-align:center}
+@keyframes quipIn{0%{opacity:0;scale:.6}8%{opacity:1;scale:1.05}12%{scale:1}88%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.fx.k-line{animation:quipFade 3.4s linear forwards}@keyframes quipFade{0%,88%{opacity:1}100%{opacity:0}}}

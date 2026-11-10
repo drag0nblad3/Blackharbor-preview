@@ -64,6 +64,9 @@
     align-items:center;
   }
   #app .bh-hq-rail>.bh-rail-block:nth-child(3)>.bh-rail-title{grid-column:1/-1}
+  /* Team readiness: one row per hero (name, health, Heroism) so it scans down a column. */
+  #app .bh-hq-rail>.bh-rail-block:nth-child(3)>.bh-mini-hero{grid-column:1/-1;flex-wrap:nowrap;gap:10px}
+  #app .bh-hq-rail>.bh-rail-block:nth-child(3)>.bh-mini-hero b{flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   /* Threat board: open investigations repeat the case-file cards below. */
   #app .bh-threat-rail>.bh-rail-block:nth-child(2){display:none}
   #app .bh-threat-rail>.bh-rail-block:last-child{display:flex}

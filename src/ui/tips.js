@@ -39,7 +39,12 @@ const TIPS=[
   {id:'event',when:()=>S.phase==='event',t:'The event comic',b:()=>`The volume's finale: <b>two villains attack together</b> on a bigger board, acting one after the other each round. Choose a preparation, then beat both to end the volume in triumph.`},
 ];
 function tipNow(){if(S.tipsOff||FAST)return null;if(S.tut&&!(TUT[S.tut.b]&&TUT[S.tut.b].id==='free'))return null;const g=S.guide;if(g&&(g.s===0||g.pop))return null;if(S.view==='roster'&&S.phase==='hq')return null;
-  if(S.tipAt&&Date.now()-S.tipAt<4000)return null;const seen=S.tips||[];return TIPS.find(t=>!seen.includes(t.id)&&t.when())||null}
+  if(S.tipAt&&Date.now()-S.tipAt<4000)return null;const seen=S.tips||[],t=TIPS.find(t=>!seen.includes(t.id)&&t.when())||null;if(!t)return null;
+  /* let the player see a new screen for a moment before a tip covers it */
+  const scr=S.phase+'|'+(S.view||''),now=Date.now();if(scr!==tipScreen.k)tipScreen={k:scr,at:now,timer:0};
+  const wait=TIP_DELAY-(now-tipScreen.at);if(wait>0){if(!tipScreen.timer)tipScreen.timer=setTimeout(()=>{tipScreen.timer=0;if(!(S.sd&&S.sd.busy))render()},wait+30);return null}
+  return t}
+const TIP_DELAY=1400;let tipScreen={k:'',at:0,timer:0};
 function tipModal(){const t=tipNow();if(!t)return '';
   return `<div id="guide" class="tip1" role="dialog" aria-modal="true" aria-labelledby="gtitle"><div class="gbox"><div class="eyebrow">New mechanic</div><div><span class="sfxhead" id="gtitle">${t.t}</span></div>
     <p class="small" style="margin:0">${t.b()}</p><div class="row"><button class="btn pri" data-a="tip:ok:${t.id}">Got it</button><button class="btn" data-a="tip:off">Turn off tips</button></div></div></div>`}

@@ -159,7 +159,7 @@ function isoBoard(sd,reachM,tg,al){
  sd.civs.forEach(c=>token(c,eyeHash(c.id)%2?'civilian':'civilian2','Civilian','c'+c.id,enemies,'civilian',.86,c.f?'↗':''));
  let footprints='',serpents='';sd.vl.forEach((o,i)=>{const v=o.v;if(v.down)return;vCells(v).forEach(c=>{const h=HC(c.x,c.y);footprints+=`<polygon class="iso-footprint" points="${poly(h.cx,h.cy,.82)}"/>`});
  if(v.sw){swBodies(v).forEach(b=>token(b,b.k,VILLAINS[o.key].short,'v'+i+(b.i?'s'+b.i:''),heroes,'boss',1.15,'L'+v.level));return}
- const h=vCtr(v),p=isoPoint(h.cx,h.cy),label=VILLAINS[o.key].short;
+ const h=vCtr(v),p=isoPoint(h.cx,h.cy),label=VILLAINS[o.key].name;
  token(v,o.key,label,'v'+i,heroes,`boss ${v.hide?'hidden':''} ${v.charge?'charging':''}`,vCells(v).length>1&&!v.body?1.65:1.2,v.hide?'?':'L'+v.level,label,p);
  if(v.body)serpents+=isoSerpent(v,i);
  const f=FACE_DEG[v.face??5]*Math.PI/180,q=isoPoint(h.cx+Math.cos(f)*.8,h.cy+Math.sin(f)*.8);footprints+=`<line class="iso-facing" x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" marker-end="url(#iso-arrow)"/>`;

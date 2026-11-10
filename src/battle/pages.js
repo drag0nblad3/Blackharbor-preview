@@ -1,5 +1,5 @@
 /* battle/pages.js: Villain page reveal, card views, wound animation, attack panel, broken pages, planned pages. */
-function reveal(o){if(FAST)return Promise.resolve();sfx(o.mode==='tear'?'tear':o.sig?'sig':'tick');
+function reveal(o){if(FAST)return Promise.resolve();sfx(o.mode==='tear'?'tear':o.sig?'sig':'tick');if(o.sig&&o.mode!=='tear'&&o.vk)quipVillain(o.vk,'sig');
   return new Promise(res=>{
     const L=document.createElement('div');L.id='cards';if(o.vk){L.className='vth';L.setAttribute('style',vSty(o.vk))}L.setAttribute('role','dialog');L.setAttribute('aria-label',`${o.title}: ${o.text}`);
     const page=(cls,style='')=>`<div class="pg ${cls||''}${o.sig?' sig':''}" style="${style}"><div class="hd"><span>${o.vk?vIc(o.vk):''}${esc(o.deck)}</span><span>${esc(o.tag||'')}</span></div>${o.rib?`<div class="sigrib ${o.ribCls||''}">${esc(o.rib)}</div>`:''}

@@ -20,8 +20,10 @@ function fsplashView(){const sd=S.sd;if(FAST||S.phase!=='sd'||!sd||sd.patrol)ret
    floats a damage number where something dropped. A hero losing 3+ health or a villain losing 2+ pages shakes the board. */
 let HPS={sd:null,m:{}},SHK=0,TORN={at:0,n:0};
 function hitTick(sd){const fresh=HPS.sd!==sd;if(fresh)HPS={sd,m:{}};const m=HPS.m;let big=false;
-  sd.units.forEach(o=>{const k='ko'+o.hid,was=m[k];m[k]=!!o.ko;if(!fresh&&was===false&&o.ko){sfx('ko');big=true}});
-  {const i=sd.vi||0,o=sd.vl[i],k='torn'+i,n=o?(o.v.wounds||[]).length:0,was=m[k];m[k]=n;if(!fresh&&was!=null&&n>was)TORN={at:Date.now(),n:n-was,vi:i}}
+  sd.units.forEach(o=>{const k='ko'+o.hid,was=m[k];m[k]=!!o.ko;if(!fresh&&was===false&&o.ko){sfx('ko');big=true;quipHero(o,'ko')}});
+  {const i=sd.vi||0,o=sd.vl[i],k='torn'+i,n=o?(o.v.wounds||[]).length:0,was=m[k];m[k]=n;if(!fresh&&was!=null&&n>was){TORN={at:Date.now(),n:n-was,vi:i};const su=sd.sel!=null?sd.units[sd.sel]:null;
+    if(su&&!sd.vturn){if(n-was>=2)quipHero(su,'big');recapHit(su,n-was,o.key)}
+    if(!m["half"+i]&&remainingPages(o.v)>0&&remainingPages(o.v)<=n){m['half'+i]=1;setTimeout(()=>quipVillain(o.key,'half'),900)}}}
   const see=(key,val,cx,cy,k,bigAt)=>{const was=m[key];m[key]=val;if(fresh||was==null||val>=was)return;const d=was-val;fx(cx+.3,cy-.3,'−'+d,k);if(d>=bigAt)big=true};
   sd.units.forEach(o=>{const c=HC(o.x,o.y);see('h'+o.hid,heroOf(o).hp,c.cx,c.cy,'dmgh',3)});
   sd.hench.forEach(x=>{const c=HC(x.x,x.y);see('m'+x.id,x.hp,c.cx,c.cy,'dmg',9)});
