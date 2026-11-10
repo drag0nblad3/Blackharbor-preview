@@ -31,9 +31,8 @@ async function vMove(fn,crush=0,label=''){const sd=S.sd,v=sd.v,ox=v.x,oy=v.y,osw
   if(sh.length)render()}
 async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c);if(c.jab)await jabAfter(c);if(c.aura&&S.sd&&!S.sd.result)auraSet(S.sd.v,c.aura);if(c.shed&&S.sd&&!S.sd.result)shedPages(S.sd.v,c.n)}finally{CUR_CARD=was}}
 /* Tyler (2026-11-10): a few utility pages end with a weak basic attack on the nearest hero in range (1 + a quarter of the level). */
-/* Ouroboros (Tyler, 2026-11-10): Serpent Eyes sheds 1 torn page, 2 from level 5; the Shed Skin reaction always sheds 1. */
-const shedN=level=>Math.ceil(Math.min(level||1,VCAP)/4);
-function shedPages(v,label,max){let n=0;for(let i=0;i<(max||shedN(v.level))&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('SHED!','vhit');log('vill',`${label}: ${VILLAINS[S.sd.vkey].short} sheds its skin and recovers ${n} torn page${n>1?'s':''}.`);render()}return n}
+/* Ouroboros (Tyler, 2026-11-10): Serpent Eyes and the Shed Skin reaction each return 1 torn page. */
+function shedPages(v,label){let n=0;for(let i=0;i<1&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('SHED!','vhit');log('vill',`${label}: ${VILLAINS[S.sd.vkey].short} sheds its skin and recovers ${n} torn page${n>1?'s':''}.`);render()}return n}
 const jabDmg=(c,level)=>c.jab+Math.floor((level||1)/4);
 async function jabAfter(c){const sd=S.sd;if(!sd||sd.result||S.sd!==sd||sd.v.down)return;const t=live().filter(u=>dV(u,sd.v)<=(c.jabR||1)).sort((a,b)=>dV(a,sd.v)-dV(b,sd.v))[0];if(!t)return;
   if(shotVB(t,sd.v))return;await vHit(t,jabDmg(c,sd.v.level),c.n,c.jabFx||vStyle(c))}

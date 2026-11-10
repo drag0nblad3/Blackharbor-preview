@@ -45,14 +45,13 @@ const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
  run("auraTick('ends')");assert.equal(hp(0),44);assert(!get('!!S.sd.v.aura'),'aura burns out after a round');run("auraTick('starts')");assert.equal(hp(0),44);
  assert.equal(get("rxOf('helios','corona').aura"),2);
  setup('helios',4);run("auraSet(S.sd.v,rxOf('helios','corona').aura)");assert.equal(get('S.sd.v.aura.ticks'),2);
- // Ouroboros: Mesmerizing Sway costs no Heroism and bites a hero dragged beside it; Shed Skin is a reaction and rides on Serpent Eyes, 1 page (2 from level 5).
+ // Ouroboros: Mesmerizing Sway costs no Heroism and bites a hero dragged beside it; Shed Skin is a reaction and rides on Serpent Eyes, 1 page each.
  assert(!get("VILLAINS.serpent.adv.includes('shedp')"));assert.equal(get("rxOf('serpent','shed').shed"),1);
- assert.equal(get('shedN(4)'),1);assert.equal(get('shedN(5)'),2);assert.equal(get('shedN(8)'),2);
- setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,3);S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})");const d0=get('S.sd.v.deck.length');
- await play('eyes');assert.equal(get('S.sd.v.deck.length'),d0+2,'Serpent Eyes sheds 2 pages at level 5');assert.equal(get('S.sd.v.wounds.length'),1);
+  setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,3);S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8})");const d0=get('S.sd.v.deck.length');
+ await play('eyes');assert.equal(get('S.sd.v.deck.length'),d0+1,'Serpent Eyes sheds 1 page');assert.equal(get('S.sd.v.wounds.length'),2);
  setup('serpent',4);run("S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8});S.heroes.forEach(h=>h.comp=5);S.heroes[1].comp=1;vHit=async(u,d)=>{u._bit=d}");
  run("const t=S.sd.units[1],v=S.sd.v;const c=freeTiles((x,y)=>dV({x,y},v)===2)[0];t.x=c.x;t.y=c.y");
  await play('mesmer');assert.equal(get('S.heroes[1].comp'),1,'no Heroism loss');assert.equal(get('S.sd.units[1]._bit'),2,'bites the dragged hero');
- setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,2);shedPages(S.sd.v,'Shed Skin',1)");assert.equal(get('S.sd.v.wounds.length'),1,'the reaction sheds 1 page at any level');
+ setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,2);shedPages(S.sd.v,'Shed Skin')");assert.equal(get('S.sd.v.wounds.length'),1,'sheds 1 page at any level');
  console.log('PASS: Quarry rubble quake, accuracy, toughness and pages, Helios corona aura, Ouroboros sway and shed skin, Architect wall collapse, Helios afterglow, Nocturne isolated prey, elites from level 2, finale levels.');
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});
