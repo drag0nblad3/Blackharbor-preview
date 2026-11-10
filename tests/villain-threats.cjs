@@ -53,6 +53,6 @@ const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
  setup('serpent',4);run("S.sd.units.forEach((u,i)=>{u.x=2*i;u.y=8});S.heroes.forEach(h=>h.comp=5);S.heroes[1].comp=1;vHit=async(u,d)=>{u._bit=d}");
  run("const t=S.sd.units[1],v=S.sd.v;const c=freeTiles((x,y)=>dV({x,y},v)===2)[0];t.x=c.x;t.y=c.y");
  await play('mesmer');assert.equal(get('S.heroes[1].comp'),1,'no Heroism loss');assert.equal(get('S.sd.units[1]._bit'),2,'bites the dragged hero');
- setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,2);shedPages(S.sd.v,'Shed Skin')");assert.equal(get('S.sd.v.wounds.length'),0);
+ setup('serpent',5);run("S.sd.v.wounds=S.sd.v.deck.splice(0,2);shedPages(S.sd.v,'Shed Skin',1)");assert.equal(get('S.sd.v.wounds.length'),1,'the reaction sheds 1 page at any level');
  console.log('PASS: Quarry rubble quake, accuracy, toughness and pages, Helios corona aura, Ouroboros sway and shed skin, Architect wall collapse, Helios afterglow, Nocturne isolated prey, elites from level 2, finale levels.');
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});
