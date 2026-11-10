@@ -61,3 +61,12 @@ document.addEventListener('pointermove',e=>{if(lp&&Math.hypot(e.clientX-lp.x,e.c
 document.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('contextmenu',e=>{if(e.target.closest('[data-tip]'))e.preventDefault()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){hideTip();if(S.guide&&S.guide.pop){S.guide.pop=null;render()}else{const t=document.querySelector('#guide.tip1 [data-a^="tip:ok"]');if(t)t.click()}}});
+/* Desktop: resting the mouse on anything with a tip shows the same tip as a long press, and moving off hides it. */
+let hov=null;
+const hoverTips=()=>typeof matchMedia==='function'&&matchMedia('(hover:hover) and (pointer:fine)').matches;
+function hoverEnd(){if(hov){clearTimeout(hov.timer);if(hov.shown&&tipEl)hideTip();hov=null}}
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse'||!hoverTips())return;const t=e.target.closest('[data-tip]');
+  if(hov&&hov.el===t)return;hoverEnd();if(!t||lp)return;
+  hov={el:t,shown:false,timer:setTimeout(()=>{if(hov&&hov.el===t&&t.isConnected&&!lp)hov.shown=showTip(t)},550)}},{passive:true});
+document.addEventListener('pointerout',e=>{if(!hov||e.pointerType!=='mouse')return;const to=e.relatedTarget;if(to&&(hov.el.contains(to)||to.closest&&to.closest('#tip')))return;hoverEnd()},{passive:true});
+document.addEventListener('pointerdown',e=>{if(hov&&e.pointerType==='mouse'){clearTimeout(hov.timer);if(hov.shown)hov=null;else hov=null}},{passive:true,capture:true});

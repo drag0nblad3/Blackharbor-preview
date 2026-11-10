@@ -29,14 +29,21 @@ async function vMove(fn,crush=0,label=''){const sd=S.sd,v=sd.v,ox=v.x,oy=v.y,osw
     else if(sd.civs.includes(o)){if(crush)harmCiv(o,label||'the stampede');else fxP(o.x,o.y,'EEK!','miss')}}
   if(v.smashed&&v.smashed.length){const ks=v.smashed;delete v.smashed;await Promise.all(ks.map(k=>{const[x,y]=k.split(',').map(Number);return A.smoke(HC(x,y),3)}));fxV('KRASH!','vhit');log('vill',`${VILLAINS[sd.vkey].name} smashes straight through ${ks.length>1?ks.length+' hexes of walls and rubble':'a wall'}.`);render()}
   if(sh.length)render()}
-async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c)}finally{CUR_CARD=was}}
+async function execCard(c){const was=CUR_CARD;CUR_CARD=c;try{await execCard0(c);if(c.jab)await jabAfter(c);if(c.aura&&S.sd&&!S.sd.result)auraSet(S.sd.v,c.aura);if(c.shed&&S.sd&&!S.sd.result)shedPages(S.sd.v,c.n)}finally{CUR_CARD=was}}
+/* Tyler (2026-11-10): a few utility pages end with a weak basic attack on the nearest hero in range (1 + a quarter of the level). */
+/* Ouroboros (Tyler, 2026-11-10): Serpent Eyes and the Shed Skin reaction each return 1 torn page. */
+function shedPages(v,label){let n=0;for(let i=0;i<1&&v.wounds.length;i++){v.deck.push(v.wounds.pop());n++}if(n){shuffle(v.deck);fxV('SHED!','vhit');log('vill',`${label}: ${VILLAINS[S.sd.vkey].short} sheds its skin and recovers ${n} torn page${n>1?'s':''}.`);render()}return n}
+const jabDmg=(c,level)=>c.jab+Math.floor((level||1)/4);
+async function jabAfter(c){const sd=S.sd;if(!sd||sd.result||S.sd!==sd||sd.v.down)return;const t=live().filter(u=>dV(u,sd.v)<=(c.jabR||1)).sort((a,b)=>dV(a,sd.v)-dV(b,sd.v))[0];if(!t)return;
+  if(shotVB(t,sd.v))return;await vHit(t,jabDmg(c,sd.v.level),c.n,c.jabFx||vStyle(c))}
 async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
   if(await specialBossCard(c))return;
   switch(c.t){
     case 'strike':{let t=pickTarget(c.tgt,(VILLAINS[sd.vkey].rooted?0:c.mv||0)+(c.rng||1));if(!t)break;await vMove(()=>vToward(t,c.mv,c.rng),c.crush||0,c.n);
       if(dV(t,v)>c.rng){log('vill',`${vn} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
       if(shotVB(t,v)){log('vill',`A girder is in the way: ${vn}'s ${c.n} can't reach ${heroOf(t).name}.`);fxV('GRR!','say');break}
-      let dmg=dmgScale(c.dmg);const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=1);
+      let dmg=dmgScale(c.dmg);const iso=VILLAINS[sd.vkey].isolated;if(iso&&dmg>0&&!live().some(o=>o!==t&&cheb(o,t)<=2)){dmg+=iso;fxU(t,'ALONE!','vhit');log('vill',`${heroOf(t).name} has no ally within 2 hexes: +${iso} damage.`)}
+      const g=live().find(o=>o.guard&&o!==t&&cheb(o,t)<=1);
       if(g){log('hero',`${heroOf(g).name} braces and takes the blow.`);A.lunge('h'+g.hid,ctrU(t));await A.shield(ctrU(g),COL.yel,true);t=g;if(dmg>0)dmg=Math.max(1,dmg-1)}
       {const hit=await vHit(t,dmg,c.n,vStyle(c));if(hit&&c.comp&&!t.ko){const th=heroOf(t);th.comp=Math.max(0,th.comp-c.comp);fxU(t,'RATTLED!','vhit');log('vill',`${th.name} loses ${c.comp} Heroism.`);render()}
         if(hit&&c.dupeLow&&!t.ko&&!sd.mimic){const th=heroOf(t);if(th.comp<3){const p=freeTiles((x,y)=>cheb({x,y},t)===1).sort((a,b)=>cheb(a,v)-cheb(b,v))[0];if(p)leaveDupe(v,p)}}}
@@ -166,10 +173,11 @@ async function execCard0(c){const sd=S.sd,v=sd.v,vn=VILLAINS[sd.vkey].name;
       noFlip.add('v'+sd.vi);render();fxV('BZZZT!','say');log('vill',`${vn} bursts into ${pairs.length} pieces that land beside the heroes.`);
       for(const [i,t] of pairs){if(sd.result||t.ko)continue;const b=swBodies(v)[i];if(!b||cheb(b,t)>1)continue;await vHit(t,dmgScale(c.dmg),`${c.n} (${SWN[b.k]})`,'slash',b)}break}
     case 'puppet':{const L=live();if(!L.length)break;for(const u of L.sort((a,b)=>heroOf(a).comp-heroOf(b).comp).slice(0,c.tgts||1)){const h=heroOf(u);
-      await Promise.all([A.bolt(ctrV(),ctrU(u),COL.magic,true),A.bolt(ctrV(),ctrU(u),COL.magic,true)]);h.comp=Math.max(0,h.comp-(c.amt||1));u.dazed=true;fxU(u,'?!','vhit');
+      await Promise.all([A.bolt(ctrV(),ctrU(u),COL.magic,true),A.bolt(ctrV(),ctrU(u),COL.magic,true)]);if(!c.noComp)h.comp=Math.max(0,h.comp-(c.amt||1));u.dazed=true;fxU(u,'?!','vhit');
       log('vill',`${h.name}'s limbs stop obeying. They can't move next round.`);
       if(c.pull){if(u.anchor)log('hero',`${h.name} is anchored and isn't dragged.`);else{let n=0;for(let i=0;i<c.pull;i++){const t=freeTiles((x,y)=>cheb({x,y},u)===1).sort((a,b)=>dV(a,v)-dV(b,v))[0];if(!t||dV(t,v)>=dV(u,v))break;u.x=t.x;u.y=t.y;n++}
-        if(n){fxU(u,'DRAGGED!','vhit');log('vill',`${h.name} walks ${n} hex${n>1?'es':''} toward ${vn} against their will.`);render();await sleep(FAST?0:320)}}}}
+        if(n){fxU(u,'DRAGGED!','vhit');log('vill',`${h.name} walks ${n} hex${n>1?'es':''} toward ${vn} against their will.`);render();await sleep(FAST?0:320)}}}
+      if(c.bite&&!u.ko&&!sd.result&&dV(u,v)<=1)await vHit(u,jabDmg({jab:c.bite},v.level),c.n,'slash')}
       break}
     case 'leap':{let n=0;const done=[];
       for(let i=0;i<(c.cnt||1)&&!sd.result;i++){const L=live().filter(u=>!done.includes(u)&&dV(u,v)<=c.mv).sort((a,b)=>dV(a,v)-dV(b,v));let t=null,sp=null;

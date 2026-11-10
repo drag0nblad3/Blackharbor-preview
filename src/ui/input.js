@@ -3,7 +3,7 @@ document.addEventListener('click',e=>{
   {const c0=e.target.closest('[data-cell]'),e0=e.target.closest('[data-a]');if(tutBlock(c0&&S.phase==='sd'?'cell:'+c0.dataset.cell:e0&&!e0.disabled?e0.dataset.a:null))return}
   const cell=e.target.closest('[data-cell]');if(cell&&S.phase==='sd'){onCell(...cell.dataset.cell.split(',').map(Number));return}
   const el=e.target.closest('[data-a]');if(!el||el.disabled||el.getAttribute('aria-disabled')==='true')return;const[a,p1,p2,p3]=el.dataset.a.split(':');
-  const f=ACT[a];if(f&&f(p1,p2,p3,a,el,e)===NO_RENDER)return;
+  sfx('tick');const f=ACT[a];if(f&&f(p1,p2,p3,a,el,e)===NO_RENDER)return;
   render()});
 document.addEventListener('input',e=>{if(e.target.id==='oname'&&S.cre){const v=oClean(e.target.value);if(v!==e.target.value)e.target.value=v;S.cre.name=v;save()}});
 

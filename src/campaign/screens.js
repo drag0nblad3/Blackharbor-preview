@@ -7,18 +7,20 @@ function afterView(){const a=S.after,d=VILLAINS[a.vkey];
   ${eth?`<div class="cap"><b>A defining moment.</b> ${eth.q} This choice is permanent.</div><div class="grid2">${eth.opts.map(o=>`<button class="btn opt" data-a="ethos:${a.ethos}:${o.id}"><span>${o.n}</span><small>${o.txt}</small></button>`).join('')}</div>`
     :`<button class="btn pri" data-a="next">${S.over?'See how the volume ends':S.arcInfo?`Arc ${S.arcInfo.arc} begins`:S.finalePending?'Open the event comic':`Begin issue #${S.issue}`}</button>`}</section>`}
 function overView(){const o=S.over;return `<section class="panel"><div class="eyebrow">Volume ${S.vol}</div><div><span class="sfxhead ${o.win?'':'bad'}">${o.win?'The End':'Cancelled!'}</span></div>
-  <p style="margin:0">${o.txt}</p>${coll('over-chron','<span class="eyebrow">Back issues · '+S.chronicle.length+'</span>',`<ul class="lines small">${S.chronicle.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`,false)}
+  <p style="margin:0">${o.txt}</p>${recapView()}${coll('over-chron','<span class="eyebrow">Back issues · '+S.chronicle.length+'</span>',`<ul class="lines small">${S.chronicle.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`,false)}
   <button class="btn pri" data-a="restart">Start Volume ${S.vol+1}</button><p class="small muted" style="margin:0">A new volume starts a fresh team and three random villains. What you learned about villain playbooks carries over.</p></section>`}
 
 const EVENT_TITLES=['Night of Two Masters','Total Breakout','The Long Eclipse','City Under Siege','Twilight of Heroes'];
-/* Tyler, 2026-10-30: the finale is a villain never revealed this volume at level 8, teamed with a level 8 Mole Boy.
+/* Tyler, 2026-10-30: the finale is a villain never revealed this volume, teamed with Mole Boy (levels: see setupEvent, 2026-11-10).
    Mole Boy's playbook is his four pages repeated up to the level-8 size, upgraded evenly from I to III. */
-function finaleMole(){const ids=VILLAINS.mole.base,vs={...moleState(),level:VCAP,deck:[]},n=deckSize(vs);
+function finaleMole(lv=VCAP){const ids=VILLAINS.mole.base,vs={...moleState(),level:Math.max(1,lv),deck:[]},n=deckSize(vs);
   for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
 function setupEvent(){const mm=S.mastermind&&!S.villains.some(v=>v.key===S.mastermind)?S.mastermind:null;let k=mm||chooseVillainFromPool(),fresh=!!k;
   if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest active villain
-  if(fresh)S.villains.push(makeVillain(k,VCAP));else{const vs=vState(k);while(vs.level<VCAP)levelUpVillain(vs,true)}
-  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole());const keys=[k,'mole'];
+  /* Tyler, 2026-11-10: the mastermind fights at the level of the highest villain met this volume, and Mole Boy at level 5 */
+  const top=Math.min(VCAP,Math.max(1,...S.villains.filter(v=>v.key!=='mole'&&v.key!==k).map(v=>v.level||1),fresh?1:vState(k).level));
+  if(fresh)S.villains.push(makeVillain(k,top));else{const vs=vState(k);while(vs.level<top)levelUpVillain(vs,true)}
+  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole(5));const keys=[k,'mole'];
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
 const PREP={scout:{n:'Coordinated recon',txt:'Both villains start with 1 page already torn out.'},
   evac:{n:'Evacuate the district',txt:'Only 2 civilians remain on the battlefield instead of 4, and the city thanks you: +2 trust.'},
@@ -28,7 +30,7 @@ function startFinale(p){S.event.prep=p;if(p==='evac')S.trust+=2;
   startShowdown({finale:true,keys:S.event.keys,quality:p==='scout'?'prepared':'normal',civs:p==='evac'?2:4});
   if(p==='rally')S.sd.units.forEach(u=>{u.buffDice=1;gainHero(heroOf(u),3)})}
 function eliteSalvage(L){const sd=S.sd;for(const k of sd.elites||[])if(!sd.hench.some(m=>m.elite&&m.owner===k)){S.salvage[k]=(S.salvage[k]||0)+1;L.push(`${eliteOf(k).name} was taken down: +1 ${VILLAINS[k].salvage}.`)}}
-function finaleDebrief(){const sd=S.sd,L=[],names=S.event.keys.map(k=>VILLAINS[k].name).join(' and ');
+function finaleDebrief(){const sd=S.sd,L=[],_r=recapFight(sd),names=S.event.keys.map(k=>VILLAINS[k].name).join(' and ');
   eliteSalvage(L);const evT=sd.evac,per=S.ethos.a==='force'?2:1;S.trust+=evT-sd.harmed*per;L.push(`${sd.evac} civilians evacuated, ${sd.harmed} harmed.`);
   let headline;
   if(sd.result==='win'){headline='City saved!';S.trust+=3;L.push(`${names} are beaten together and the city is safe again. +3 trust.`)}

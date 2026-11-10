@@ -32,8 +32,8 @@ async function main(){
  run("{S.heroes[0].comp=5;S.sd.units[0].acted=false;const h=S.heroes[0];globalThis.dt0=drawTactic;drawTactic=()=>({id:'none',n:'Plain hit',txt:'No effect.'});S.tut={dq:[20,vStat('tough')-stat(h,'str')-1]};globalThis.W0=S.sd.v.wounds.length}");
  await attack();run('drawTactic=dt0');
  assert.equal(get("S.heroes[0].comp"),4,'spent 1 on the strength roll');assert.equal(get("S.sd.v.wounds.length-W0"),1,'and it wounded');
- // evasion: villain roll lands exactly on evasion -> spend 1 to dodge
- run("{S.heroes[1].comp=5;S.heroes[1].hp=50;const u=S.sd.units[1],h=heroOf(u);S.tut={dq:[stat(h,'eva')+avoidEva(u)-vStat('acc')]}}");
+ // evasion: villain roll lands exactly on evasion -> spend 1 to dodge (Blinded keeps the needed roll above a natural 1 now that Quarry has +4 accuracy)
+ run("{S.sd.v.blind=true;S.heroes[1].comp=5;S.heroes[1].hp=50;const u=S.sd.units[1],h=heroOf(u);S.tut={dq:[stat(h,'eva')+avoidEva(u)-vStat('acc')]}}");
  const hit=await run("vHit(S.sd.units[1],3,'Test strike','none')");run('S.tut=null');
  assert.equal(hit,false,'dodged');assert.equal(get("S.heroes[1].comp"),4,'spent 1 on evasion');assert.equal(get("S.heroes[1].hp"),50);
  // a natural 20 can't be dodged

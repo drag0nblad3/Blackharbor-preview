@@ -1,5 +1,5 @@
 /* battle/pages.js: Villain page reveal, card views, wound animation, attack panel, broken pages, planned pages. */
-function reveal(o){if(FAST)return Promise.resolve();
+function reveal(o){if(FAST)return Promise.resolve();sfx(o.mode==='tear'?'tear':o.sig?'sig':'tick');if(o.sig&&o.mode!=='tear'&&o.vk)quipVillain(o.vk,'sig');
   return new Promise(res=>{
     const L=document.createElement('div');L.id='cards';if(o.vk){L.className='vth';L.setAttribute('style',vSty(o.vk))}L.setAttribute('role','dialog');L.setAttribute('aria-label',`${o.title}: ${o.text}`);
     const page=(cls,style='')=>`<div class="pg ${cls||''}${o.sig?' sig':''}" style="${style}"><div class="hd"><span>${o.vk?vIc(o.vk):''}${esc(o.deck)}</span><span>${esc(o.tag||'')}</span></div>${o.rib?`<div class="sigrib ${o.ribCls||''}">${esc(o.rib)}</div>`:''}
@@ -31,7 +31,7 @@ async function woundAnim(foot,q,by){const sd=S.sd,v=sd.v,k=sd.vkey;if(!v.deck.le
   const was=VINTEL[k].react.filter(r=>rxLive(v,r));
   v.hurtAt=Date.now();const end=woundV();log('hero',c?`${c.n} is torn from the playbook.`:`The last signature holds: ${v.turnDamage}/${chargeNeed(v)} wounds this round.`);
   const splash=(...a)=>q?q.splash.push(a):breakSplash(...a);
-  if(c&&c.sig){log('hero',`${c.brk} ${c.n} is gone.`);await splash(c.brk,`${c.n} is torn from ${VILLAINS[k].name}'s playbook`,'Signature Move destroyed')}
+  if(c&&c.sig){sfx('sigbreak');log('hero',`${c.brk} ${c.n} is gone.`);await splash(c.brk,`${c.n} is torn from ${VILLAINS[k].name}'s playbook`,'Signature Move destroyed')}
   for(const r of was.filter(r=>!rxLive(v,r))){markSeenR(k,r.id);log('hero',`${r.brk} The ${r.n} reaction leaves the hit deck.`);await splash(r.brk,`${r.n} is gone from the hit deck`,'Signature reaction destroyed')}
   if(v.sw&&!v.down){const s=swSync(v);s.lost.forEach(b=>{log('hero',`The ${SWN[b].toLowerCase()} body falls out of the swarm.`);fxV('SPLAT!','hit')})}
   vWarn();render();return end}
@@ -73,10 +73,20 @@ function planPage(o){const v=o.v;if(v.down||v.planned||v.planningDone||v.charge)
 function vWarn(){const sd=S.sd;if(!sd||sd.result)return;sd.vl.forEach(o=>{planPage(o);const v=o.v,c=v.planned;planDupes(v);
   if(v.down||!c||!c.sig){v.warn=null;return}if(v.warn===c.uid)return;
   v.warn=c.uid;log('vill',`${VILLAINS[o.key].short} shouts: “${c.shout}”`);})}
+/* Villain intent: the kind of action in the charging slot, shown even while the page itself is unrevealed. */
+const INTENT={attack:['⚔','Attack','#b8322a'],area:['✸','Area attack','#c75a12'],summon:['+','Reinforcements','#74378f'],move:['➜','Repositions','#22609a'],
+  civ:['!','Targets civilians','#a3205f'],terrain:['▦','Reshapes the lair','#6b5a2e'],trick:['?','Trick','#0f6e5d'],guard:['⛨','Defends','#4c5863']};
+const INTENT_T={strike:'attack',multi:'attack',henchvolley:'attack',shrapnel:'attack',rampage:'attack',swallow:'attack',double:'attack',converge:'attack',
+  sweep:'area',charge:'area',solar:'area',airburst:'area',bomb:'area',swapbomb:'area',beam:'area',hazard:'area',pull:'area',repel:'area',scatter:'area',
+  summon:'summon',reanimate:'summon',satellites:'summon',vanish:'move',fade:'move',burrow:'move',endanger:'civ',collection:'civ',
+  walls:'terrain',renovate:'terrain',heave:'terrain',cage:'terrain',taunt:'trick',puppet:'trick',circuit:'trick',borrow:'trick',shadow:'trick',fortify:'guard'};
+function intentOf(c){if(!c)return null;const k=c.t==='leap'?(c.dmg?'attack':'move'):INTENT_T[c.t]||'trick';return INTENT[k]}
+function intentChip(c,short){const it=intentOf(c);if(!it)return '';return `<span class="intent${c.sig?' sig':''}" style="--ic:${it[2]}" title="Charging: ${esc(it[1])}${c.sig?' (Signature Move)':''}"><span class="ii" aria-hidden="true">${it[0]}</span>${short&&c.sig?'★ ':''}${esc(it[1])}${!short&&c.sig?' · ★ Signature':''}</span>`}
+function wpips(v){const need=chargeNeed(v),got=Math.min(need,v.turnDamage||0);return `<span class="wpips" role="img" aria-label="${got} of ${need} wounds this hero round">${[...Array(need)].map((_,i)=>`<i class="${i<got?'f':''}"></i>`).join('')}</span><span class="wpips-lbl">${got}/${need} wounds to break it</span>`}
 function plannedView(o){const v=o.v,c=v.planned;if(v.down)return '';
   if(!c)return v.planningDone?`<div class="cap warn"><b>${VILLAINS[o.key].short} · Charging slot empty.</b> Planned action interrupted.</div>`:'';
   const known=plannedKnown(o.key,v);
-  return `<div class="cap ${c.sig?'warn':'charge'}" data-planned="${o.key}"><b>${VILLAINS[o.key].short} · Charging: ${known?esc(c.n):'Unrevealed action'}</b><p>${known?esc(c.txt):'Reveal this page to see its full rules.'}</p>${c.sig?`<small>${remainingPages(v)>1?`Signature: ${v.turnDamage||0}/${chargeNeed(v)} wounds this hero round. The threshold wound tears this card instead of the draw pile.`:'Last page: the next wound tears it.'}</small>`:'<small>Normal wounds tear from the draw pile.</small>'}</div>`;
+  return `<div class="cap ${c.sig?'warn':'charge'}" data-planned="${o.key}"><b>${VILLAINS[o.key].short} · Charging: ${known?esc(c.n):'Unrevealed action'}</b><div class="intent-row">${intentChip(c)}${c.sig&&remainingPages(v)>1?wpips(v):''}</div><p>${known?esc(c.txt):'Reveal this page to see its full rules.'}</p>${c.sig?`<small>${remainingPages(v)>1?`Signature Move: the wound that fills the diamonds this hero round tears this card instead of the draw pile.`:'Last page: the next wound tears it.'}</small>`:'<small>Normal wounds tear from the draw pile.</small>'}</div>`;
 }
 function woundTarget(v){refillPages(v);
   if(v.forceTop&&v.deck[0]===v.forceTop)return v.deck[0];

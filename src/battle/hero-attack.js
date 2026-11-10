@@ -4,7 +4,7 @@ function woundV(){const sd=S.sd,v=sd.v;if(v.down)return true;const c=woundTarget
   if(!remainingPages(v)){v.down=true;v.charge=null;
     if(sd.vl.every(o=>o.v.down)){endSd('win');return true}
     fxV('DEFEATED!','hit');log('sys',`${VILLAINS[sd.vkey].short} is down! Finish the other one.`);focusV(sd.vl.findIndex(o=>!o.v.down));return true}return false}
-async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=heroOf(u),v=sd.v,b=BASE(h),tornBefore=v.wounds.length;
+async function heroAttack(u,target,bonus=0,fixedDice=0,style){sfx('dice');const sd=S.sd,h=heroOf(u),v=sd.v,b=BASE(h),tornBefore=v.wounds.length;
   if(letGo(u,'lets go of the civilians to fight.'))render();
   const aim=sd.aim,body=target==='v'&&v.sw?(aim&&swBodies(v).find(o=>o.x===aim.x&&o.y===aim.y&&cheb(u,o)<=stat(h,'range'))||swNear(v,u)):null;sd.aim=null;
   const side=target==='v'?sideOf(u,v,body):null,blind=side==='rear';if(blind){fxU(u,'BLIND SPOT!','good');log('hero',`${h.name} strikes from the blind spot: +1 die.`)}
@@ -32,7 +32,7 @@ async function heroAttack(u,target,bonus=0,fixedDice=0,style){const sd=S.sd,h=he
       const note=why||(tc.arc&&side?`${h.name} struck from the ${ARCN[side]} arc: ${inArc?'it triggers!':'wrong side, it does nothing.'}`:'');
       if(tc.sig&&!inArc){log('hero',why||`${tc.n} only works in the ${arcTxt(tc.arc)}. ${h.name} is in the ${ARCN[side]} arc, so it does nothing.`);fxU(u,!okPart?'WRONG BODY!':!okRng?'TOO CLOSE!':'WRONG SIDE!','good')}
       let tough=vStat('tough')+(close?2:0),auto=false,block=false,blockTxt='A civilian is in the way.';
-      if(tc.sig&&inArc){if(tc.auto)auto=true;powerDrain+=tc.drainPower||0;tough+=(tc.tough||0)+(tc.gorge?2*Math.min(3,v.ate||0):0);if(tc.dmg&&(!tc.adj||dV(u,v)<=1))counter+=tc.dmg;drain+=(tc.comp?tc.comp+compBonus(v.level):0)||0;summon+=tc.summon||0;if(tc.escape)flee=true;if(tc.push&&(!tc.adj||dV(u,v)<=1))push=Math.max(push,tc.push);if(tc.pull)pull=Math.max(pull,tc.pull);if(tc.hide)hide=true;if(tc.spin)spin=true;if(tc.wall)wall=true;if(tc.bomb)bombAt=Math.max(bombAt,tc.bomb);if(tc.fuse)fuseTick=true;if(tc.reflect)reflect=Math.max(reflect,tc.reflect);if(tc.flash)flash=true;
+      if(tc.sig&&inArc){if(tc.auto)auto=true;powerDrain+=tc.drainPower||0;tough+=(tc.tough||0)+(tc.gorge?2*Math.min(3,v.ate||0):0);if(tc.dmg&&(!tc.adj||dV(u,v)<=1))counter+=tc.dmg;if(tc.aura)auraSet(v,tc.aura);if(tc.shed)shedPages(v,tc.n);drain+=(tc.comp?tc.comp+compBonus(v.level):0)||0;summon+=tc.summon||0;if(tc.escape)flee=true;if(tc.push&&(!tc.adj||dV(u,v)<=1))push=Math.max(push,tc.push);if(tc.pull)pull=Math.max(pull,tc.pull);if(tc.hide)hide=true;if(tc.spin)spin=true;if(tc.wall)wall=true;if(tc.bomb)bombAt=Math.max(bombAt,tc.bomb);if(tc.fuse)fuseTick=true;if(tc.reflect)reflect=Math.max(reflect,tc.reflect);if(tc.flash)flash=true;
         if(tc.guard&&sd.hench.some(hm=>dV(hm,v)<=1)){block=true;blockTxt='A henchman takes the blow.'}}
       else if(!tc.sig){if(tc.id==='weak')auto=true;if(tc.id==='armor')tough+=4;if(tc.id==='over')tough-=4;if(tc.id==='counter')counter+=2;
       if(tc.id==='shield'&&sd.civs.some(c=>dV(c,v)<=2))block=true;if(tc.id==='escape')flee=true}

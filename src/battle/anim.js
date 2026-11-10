@@ -140,7 +140,7 @@ async function strikeAnim(style,from,to,col,tid,targetTid){
 const ctrU=u=>HC(u.x,u.y),ctrV=()=>vCtr(S.sd.v);
 
 function battleFxMarkup(f,position,age){
-  if(age>1600)return '';
+  if(age>(f.life||1600))return '';
   const damage=f.k==='dmg'||f.k==='dmgh',ko=f.k==='hit'&&f.t==='K.O.!';
   const burst=!RM&&age<420&&(damage||ko)?`<svg class="impact ${f.k==='dmgh'?'hero-impact':''} ${ko?'ko-impact':''}" style="${position};animation-delay:-${age}ms" viewBox="-32 -32 64 64" aria-hidden="true"><path d="M0-22L5-10 17-17 14-5 25 0 12 5 19 16 6 12 0 23-5 11-18 16-13 5-24 0-12-5-17-18-5-11Z"/><path class="impact-rays" d="M-19-19L-25-25M19-19L26-25M-23 10L-30 13M22 10L30 14M0 25V31"/></svg>`:'';
   return `${burst}<div class="fx k-${f.k}" style="${position};animation-delay:-${age}ms" aria-hidden="true"><div class="b"><span>${esc(f.t)}</span></div></div>`;

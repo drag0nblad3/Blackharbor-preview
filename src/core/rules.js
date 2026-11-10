@@ -1,4 +1,6 @@
 /* core/rules.js: Rule tables and gear helpers: upgrades, injuries, tracks, slots, stat names, set bonuses, requirement text, reactions lookup (rxOf). */
+/* Level from which a villain with a named elite brings it to the lair (Tyler, 2026-11-10: was 3). */
+const ELITE_LV=2;
 let N = 9;
 
 

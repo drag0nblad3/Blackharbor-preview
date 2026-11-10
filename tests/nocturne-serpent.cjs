@@ -44,7 +44,7 @@ const logs=re=>get('S.sd.log.map(l=>l.t)').filter(t=>re.test(t)).length;
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=2+i;u.y=6});S.heroes[3].comp=2');
  assert.equal(get('pickTarget(S.sd.vl[0].v&&"lowcomp",9).hid'),get('S.sd.units[3].hid'));
  // Whispers in the Dark: Shaken heroes take 1 damage; unshaken heroes do not.
- setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=3+i%2;u.y=6});S.heroes[0].comp=2');await play('dread');
+ setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=3+i%2;u.y=6});S.heroes[0].comp=2');await run(`(()=>{const c=${card('dread')};c.jab=0;return execCard(c)})()`);
  assert.equal(get('S.heroes[0].hp'),49);assert.equal(get('S.heroes[1].hp'),50);
  // Total Eclipse does the same to every hero.
  setup('noct');run('S.sd.v.x=4;S.sd.v.y=4;S.heroes[1].comp=1');await play('eclipse');assert.equal(get('S.heroes[1].hp'),49);assert.equal(get('S.heroes[0].hp'),50);
