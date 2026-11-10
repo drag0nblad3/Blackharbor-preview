@@ -42,9 +42,11 @@ function tipNow(){if(S.tipsOff||FAST)return null;if(S.tut&&!(TUT[S.tut.b]&&TUT[S
   if(S.tipAt&&Date.now()-S.tipAt<4000)return null;const seen=S.tips||[],t=TIPS.find(t=>!seen.includes(t.id)&&t.when())||null;if(!t)return null;
   /* let the player see a new screen for a moment before a tip covers it */
   const scr=S.phase+'|'+(S.view||''),now=Date.now();if(scr!==tipScreen.k)tipScreen={k:scr,at:now,timer:0};
-  const wait=TIP_DELAY-(now-tipScreen.at);if(wait>0){if(!tipScreen.timer)tipScreen.timer=setTimeout(()=>{tipScreen.timer=0;if(!(S.sd&&S.sd.busy))render()},wait+30);return null}
+  const wait=TIP_DELAY-(now-tipScreen.at);if(wait>0){if(!tipScreen.timer)tipScreen.timer=setTimeout(tipLate,wait+30);return null}
   return t}
 const TIP_DELAY=1400;let tipScreen={k:'',at:0,timer:0};
+/* add the waiting tip to the page without redrawing the screen under the player */
+function tipLate(){tipScreen.timer=0;const app=typeof document!=='undefined'&&document.getElementById('app');if(!app||document.getElementById('guide'))return;const h=tipModal();if(h)app.insertAdjacentHTML('beforeend',h)}
 function tipModal(){const t=tipNow();if(!t)return '';
   return `<div id="guide" class="tip1" role="dialog" aria-modal="true" aria-labelledby="gtitle"><div class="gbox"><div class="eyebrow">New mechanic</div><div><span class="sfxhead" id="gtitle">${t.t}</span></div>
     <p class="small" style="margin:0">${t.b()}</p><div class="row"><button class="btn pri" data-a="tip:ok:${t.id}">Got it</button><button class="btn" data-a="tip:off">Turn off tips</button></div></div></div>`}
