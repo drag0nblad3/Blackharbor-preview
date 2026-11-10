@@ -17,10 +17,10 @@ function finaleMole(lv=VCAP){const ids=VILLAINS.mole.base,vs={...moleState(),lev
   for(let i=0;i<n;i++)vs.deck.push({id:ids[i%ids.length],mk:Math.floor(i*4/n)});return vs}
 function setupEvent(){const mm=S.mastermind&&!S.villains.some(v=>v.key===S.mastermind)?S.mastermind:null;let k=mm||chooseVillainFromPool(),fresh=!!k;
   if(!k)k=S.villains.filter(v=>v.status==='active').sort((a,b)=>b.level-a.level)[0].key;   // pool empty: the strongest active villain
-  /* Tyler, 2026-11-10: the mastermind fights at the level of the highest villain met this volume, and Mole Boy 2 below that */
+  /* Tyler, 2026-11-10: the mastermind fights at the level of the highest villain met this volume, and Mole Boy at level 5 */
   const top=Math.min(VCAP,Math.max(1,...S.villains.filter(v=>v.key!=='mole'&&v.key!==k).map(v=>v.level||1),fresh?1:vState(k).level));
   if(fresh)S.villains.push(makeVillain(k,top));else{const vs=vState(k);while(vs.level<top)levelUpVillain(vs,true)}
-  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole(top-2));const keys=[k,'mole'];
+  S.villains=S.villains.filter(v=>v.key!=='mole');S.villains.push(finaleMole(5));const keys=[k,'mole'];
   S.event={keys,title:pick(EVENT_TITLES),prep:null};S.finalePending=false;S.phase='event';S.view='mission'}
 const PREP={scout:{n:'Coordinated recon',txt:'Both villains start with 1 page already torn out.'},
   evac:{n:'Evacuate the district',txt:'Only 2 civilians remain on the battlefield instead of 4, and the city thanks you: +2 trust.'},

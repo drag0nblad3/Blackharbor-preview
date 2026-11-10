@@ -8,8 +8,15 @@ function setup(k,lv=2){run(`newCampaign();S.guide=null;S.tut=null;S.tutDone=true
 const card=id=>`buildCard(S.sd.vkey,{id:'${id}',mk:0})`,play=id=>run(`execCard(${card(id)})`);
 const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
 (async()=>{
- // Quarry: accuracy +4; her slams also hit heroes beside rubble anywhere on the board.
- assert.equal(get('VILLAINS.quarry.acc'),4);
+ // Quarry: accuracy 5; her slams also hit heroes beside rubble anywhere on the board.
+ assert.equal(get('VILLAINS.quarry.acc'),5);assert.equal(get('VILLAINS.helios.acc'),5);assert.equal(get('VILLAINS.noct.acc'),7);
+ // Quake Roar, Blinding Light and Whispers in the Dark end with a weak attack on the nearest hero in range (1 + level/4).
+ for(const [k,id,r] of [['quarry','roar',2],['helios','blind',4],['noct','dread',3]]){
+  setup(k,4);run(`S.sd.v.x=4;S.sd.v.y=4;S.sd.units.forEach((u,i)=>{u.x=i;u.y=0});S.sd.units[2].x=4;S.sd.units[2].y=4+${r};vHit=async(u,d)=>{u._jab=(u._jab||0)+d}`);
+  assert(get(`buildCard('${k}',{id:'${id}',mk:0},4).txt`).includes(`nearest hero within ${r} for 2 damage`),id+' text');
+  await play(id);assert.equal(get('S.sd.units[2]._jab'),2,id+' jab');assert.equal(get('S.sd.units.filter(u=>u._jab).length'),1,id+' one target');
+  setup(k,1);run("S.sd.v.x=4;S.sd.v.y=7;S.sd.units.forEach((u,i)=>{u.x=i;u.y=0});vHit=async(u,d)=>{u._jab=1}");await play(id);assert.equal(get('S.sd.units.filter(u=>u._jab).length'),0,id+' nobody in range');
+ }
  setup('quarry');run("S.sd.v.x=1;S.sd.v.y=1;S.sd.units[3].x=7;S.sd.units[3].y=7;S.sd.obs=['7,6'];vHit=async(u,d)=>{u._hit=(u._hit||0)+d}");
  await play('slam');assert(get('S.sd.units[3]._hit>0'),'hero beside rubble far away is hit');assert(!get('!!S.sd.units[0]._hit'),'hero away from rubble and Quarry is safe');
  // Architect: expiring temporary walls hit adjacent heroes for 2; permanent walls do not.
@@ -27,6 +34,6 @@ const hp=i=>get(`heroOf(S.sd.units[${i}]).hp`);
  setup('architect',2);assert.equal(get('ELITE_LV'),2);run("S.villains=[makeVillain('architect',2)];S.inv={v:'architect',clues:3};startShowdown();S.sd.intro=false");assert.equal(get("S.sd.hench.filter(m=>m.elite).length"),1);
  // Finale: mastermind at the highest villain level met, Mole Boy two below.
  run("newCampaign();S.tut=null;S.tutDone=true;S.storyOff=true;S.mastermind=null;S.villains=[makeVillain('gallows',6),makeVillain('cantor',5)];S.villains.forEach(v=>v.status='active');S.pool=['helios'];setupEvent()");
- assert.equal(get("vState(S.event.keys[0]).level"),6);assert.equal(get("vState('mole').level"),4);
+ assert.equal(get("vState(S.event.keys[0]).level"),6);assert.equal(get("vState('mole').level"),5);
  console.log('PASS: Quarry rubble quake and accuracy, Architect wall collapse, Helios afterglow, Nocturne isolated prey, elites from level 2, finale levels.');
 })().catch(e=>{console.error(e.stack||e);process.exitCode=1});

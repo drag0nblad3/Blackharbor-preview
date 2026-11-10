@@ -14,11 +14,11 @@ const VILLAINS = {
   storm:{n:'Tesla Storm',t:'sweep',r:2,dmg:3,sig:true,shout:'Science demands a bigger storm!',brk:'You grounded his Tesla tower!'},
   shock:{n:'Neural Shock',t:'puppet',amt:2}
  },shape:'one'},
- quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',rubbleQuake:true,eva:9,tough:17,acc:4,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
+ quarry:{name:'Mother Quarry',short:'Quarry',tag:'Living landslide',salvage:'Shards',rstyle:'rock',rubbleQuake:true,eva:9,tough:17,acc:5,hench:{name:'Miner',rng:1,style:'slash'},base:['bull','slam','wreck','roar','crew','toss'],adv:['unstop','aval','lands','bould','bedrock','split'],cards:{
   bull:{n:'Bull Rush',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nothing stands in my way!',brk:'You broke her charging stride!',crush:2},
   slam:{n:'Seismic Slam',t:'sweep',r:1,dmg:4},
   wreck:{n:'Throw Wreckage',fx:'throw',t:'strike',tgt:'nearest',mv:0,rng:4,dmg:3,col:true},
-  roar:{n:'Quake Roar',t:'taunt',amt:1,r:6},
+  roar:{n:'Quake Roar',t:'taunt',amt:1,r:6,jab:1,jabR:2,jabFx:'slash'},
   crew:{n:'Quarry Crew',t:'summon',k:2},
   toss:{n:'Rubble Toss',t:'endanger',dmg:2},
   unstop:{n:'Unstoppable',t:'rampage',mv:3,dmg:2,sig:true,shout:'The mountain is moving!',brk:'You shattered her rampaging knee!',crush:1},
@@ -56,12 +56,12 @@ const VILLAINS = {
   revise:{n:'Blueprint Revision',t:'reanimate'},
   crush:{n:'Controlled Collapse',t:'shrapnel',r:5,dmg:3,sig:true,shout:'This whole place is coming down!',brk:'You found the keystone and pulled it!'}
  },shape:'diamond'},
- helios:{name:'Helios Prime',short:'Helios',tag:'A man-made sun',salvage:'Sunstone',rstyle:'bolt',afterglow:2,eva:11,tough:15,acc:4,hench:{name:'Sunsprite',rng:3,style:'shot'},base:['flare','lance','heat','corona','blind','sprites'],adv:['nova','twin','vent','sbeam','wind','odl'],cards:{
+ helios:{name:'Helios Prime',short:'Helios',tag:'A man-made sun',salvage:'Sunstone',rstyle:'bolt',afterglow:2,eva:11,tough:15,acc:5,hench:{name:'Sunsprite',rng:3,style:'shot'},base:['flare','lance','heat','corona','blind','sprites'],adv:['nova','twin','vent','sbeam','wind','odl'],cards:{
   flare:{n:'Solar Flare',t:'charge',zone:'blast',dmg:5,sig:true,shout:'Look upon the sun!',brk:'You vented a flare chamber!'},
   lance:{n:'Lance of Dawn',t:'charge',zone:'line',dmg:4,sig:true,shout:'Dawn breaks in a straight line!',brk:'You snapped his lance of light!'},
   heat:{n:'Heat Ray',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'bolt'},
   corona:{n:'Corona Burst',t:'sweep',r:1,dmg:2},
-  blind:{n:'Blinding Light',t:'taunt',amt:2,r:4},
+  blind:{n:'Blinding Light',t:'taunt',amt:2,r:4,jab:1,jabR:4,jabFx:'bolt'},
   sprites:{n:'Sunsprites',t:'summon',k:2},
   nova:{n:'Supernova',t:'charge',zone:'nova',dmg:6,sig:true,shout:'Feel a star being born!',brk:'You shattered his fusion core!'},
   twin:{n:'Twin Flares',t:'charge',zone:'blast2',dmg:4,sig:true,shout:'Two suns rise!',brk:'You split his twin reactors!'},
@@ -98,12 +98,12 @@ const VILLAINS = {
   vortex:{n:'Iron Vortex',t:'pull',r:8,mv:3,dmg:4,sig:true,shout:'Iron answers its master!',brk:'You jammed the vortex generator!'},
   compact:{n:'Compactor',t:'sweep',r:1,dmg:4}
  },shape:'diamond'},
- noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,isolated:2,rstyle:'shot',eva:14,tough:13,acc:6,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
+ noct:{name:'Nocturne',short:'Nocturne',tag:'Shadow assassin',salvage:'Umbra',dupeOnJump:true,isolated:2,rstyle:'shot',eva:14,tough:13,acc:7,hench:{name:'Shade',rng:1,style:'slash'},base:['knife','fade','stars','shades','dread','snuff'],adv:['spot','garrote','eclipse','mirror','flurry','deathm'],cards:{
   knife:{n:'Knife in the Dark',t:'strike',tgt:'lowcomp',dupeLow:1,mv:4,rng:1,dmg:3},
   fade:{n:'Fade',t:'fade',evaUp:4,sig:true,shout:'You never see the knife.',brk:'You tore away her cloak of shadows!'},
   stars:{n:'Throwing Stars',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   shades:{n:'Shades',t:'summon',k:2},
-  dread:{n:'Whispers in the Dark',t:'taunt',amt:2,r:4,shakenDmg:1},
+  dread:{n:'Whispers in the Dark',t:'taunt',amt:2,r:4,shakenDmg:1,jab:1,jabR:3,jabFx:'shot'},
   snuff:{n:'Snuff the Lights',t:'endanger',dmg:2},
   spot:{n:'Spotlight',t:'charge',zone:'mark',dmg:6,sig:true,shout:'There you are…',brk:'You smashed her spotlight!'},
   garrote:{n:'Garrote',t:'strike',tgt:'lowcomp',mv:5,rng:1,dmg:4},

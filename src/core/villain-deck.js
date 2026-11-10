@@ -111,6 +111,7 @@ function buildCard(vk,e,level=1){const base=VILLAINS[vk].cards[e.id],c=applyMk(b
   if(VILLAINS[vk].shape==='serpent'&&(c.t==='sweep'||c.t==='rampage'))c.txt+=' Reaches out from every hex of its body.';
   if(VILLAINS[vk].shape==='swarm'&&(c.t==='sweep'||c.t==='taunt'||c.t==='multi'))c.txt+=' Reaches out from every body of the swarm.';
   if(c.bombx)c.txt+=' Heroes standing within 1 of a bomb lose 1 more.';
+  if(c.jab)c.txt+=` Then attacks the nearest hero within ${c.jabR||1} for ${c.jab+Math.floor((level||1)/4)} damage.`;
   if(c.zone==='mark'||c.zone==='hero')c.txt+=' Her facing is revealed while she lines up the kill.'+(c.follow&&c.zone==='mark'?' The marks follow their targets as they move.':'');
   if((c.t==='strike'||c.t==='rampage')&&c.mv&&(VILLAINS[vk].shape==='serpent'||(SHAPES[VILLAINS[vk].shape]||[0]).length>1))c.txt+=c.crush?` Heroes in its path are shoved aside and take ${c.crush}.`:' Heroes in its path are shoved aside.';
   c.uid=Math.random().toString(36).slice(2,9);return c}
