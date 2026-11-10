@@ -79,9 +79,9 @@ const VILLAINS = {
   spit:{n:'Venom Spit',t:'strike',tgt:'nearest',mv:1,rng:4,dmg:2,fx:'shot'},
   viper:{n:'Viper Strike',t:'strike',tgt:'farthest',mv:5,rng:1,dmg:4,sig:true,shout:'Nowhere to hide, little morsel!',brk:'You snapped off a fang!',crush:1},
   devour:{n:'Devour',t:'swallow',mv:5,cnt:2,dmg:4,sig:true,shout:'The feast begins!',brk:'You knotted its throat shut!'},
-  roll:{n:'Death Roll',t:'rampage',mv:3,dmg:3,crush:2},
+  roll:{n:'Death Roll',t:'rampage',mv:3,dmg:2,crush:2},
   eyes:{n:'Serpent Eyes',t:'puppet',amt:2,pull:2,shed:1},
-  squeeze:{n:'Tightening Coils',t:'sweep',r:1,dmg:4}
+  squeeze:{n:'Tightening Coils',t:'sweep',r:1,dmg:3}
  },shape:'serpent'},
  lode:{name:'Lodestone',short:'Lode',tag:'Magnetic tyrant',salvage:'Lodestones',rstyle:'bolt',eva:11,tough:15,acc:4,hench:{name:'Scrap drone',rng:2,style:'shot'},base:['attract','spike','shrap','field','scrap','crush'],adv:['repel','rail','polar','storm','vortex','compact'],cards:{
   attract:{n:'Attract',t:'pull',r:5,mv:2,dmg:3,sig:true,shout:'Everything comes to me!',brk:'You burned out his attractor coil!'},
