@@ -22,7 +22,7 @@ const ROMAN=['','II','III','IV','V','VI','VII'];
 const TGN={nearest:'nearest',weakest:'most injured',farthest:'farthest',lowcomp:'lowest-Heroism'};
 /* Version 119 (Tyler): every charge covers more ground or more heroes, and staggering one takes as many torn pages as the villain's level */
 const ZONEN={blast:'every hex within 2 of the nearest hero',blast2:'the three nearest heroes and every hex around them',line:'straight lines of hexes through the two farthest heroes',nova:'every hex within 3 of the villain',mark:'the two most injured heroes and every hex around them',hero:'the most injured hero',focus:'the most injured hero, every hex around them, and every hex in a straight line with them in all 6 directions'};
-const chargeNeed=v=>tutOn()?Math.max(1,v.level):Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up; the scripted tutorial keeps 1 wound so Big Dig can be torn).
+const chargeNeed=v=>Math.ceil((v.level||1)/2)+1; // Successful wounds in one hero round (Tyler, 2026-10-30: half level plus 1, rounded up). The tutorial teaches this rule too: Lynx's wound is the 2nd and tears Big Dig.
 /* Tyler (2026-10-30): upgraded pages (II, III, IV) never add damage or Heroism loss; those come from the villain's level.
    Each mark instead adds the next step of its page type's ladder in UPS, on top of the move, range, reach and count growth. */
 const UPFX={acc:c=>{c.accUp=(c.accUp||0)+2},daze:c=>{c.daze=1},knock:c=>{c.knock=(c.knock||0)+1},ring:c=>{c.zr=(c.zr||0)+1},

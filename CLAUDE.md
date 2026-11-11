@@ -8,6 +8,7 @@ A superhero campaign game modelled on Kingdom Death: Monster. Vanilla JS, no bui
 - Saves: key in `src/core/save.js` (`blackharbor-v4`, Pages adds `-preview`). Keep every migration; add one when the save shape changes.
 - Data tables in `src/data/` stay plain literals (no functions) and hold final values: edit in place, never add patch blocks.
 - Before pushing a game change run the fast tests from `.github/workflows/preview-gate.yml` that touch it; CI runs them all.
+- The new-player tutorial (`src/tutorial/script.js`) quotes real rules, stats and button names in its captions. When you change a rule, a starting hero or item, or a fight control it teaches, run `node tests/tutorial.cjs` (it checks the caption numbers against the fight log) and reword the caption it names; also grep `script.js` for the old word.
 
 ## How the code fits together
 - `index.html` loads every `src/**` script in order as classic scripts, so all top-level names are shared globals. Code that runs while the page loads (outside a function) may only use names from files listed **earlier**. Everything else is called at runtime and can live anywhere.
